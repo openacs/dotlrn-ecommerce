@@ -8,6 +8,7 @@
 --
 
 drop table dotlrn_ecommerce_section;
+drop table person_info;
 
 select acs_rel_type__drop_role('as_session_role');
 select acs_rel_type__drop_role('ec_product_role');

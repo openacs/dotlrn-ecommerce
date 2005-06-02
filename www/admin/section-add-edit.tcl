@@ -379,7 +379,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 
 	db_dml product_update {
 	    update ec_products
-	    set active_p = 't'
+	    set active_p = 't', no_shipping_avail_p = 't'
 	    where product_id = :product_id
 	}
 	# take care of custom fields

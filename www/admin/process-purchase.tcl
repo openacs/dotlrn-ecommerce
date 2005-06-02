@@ -21,21 +21,17 @@ ad_page_contract {
 
 if { [exists_and_not_null section_id] } {
 
-    db_1row get_section_info "select c.course_id, s.section_name
+    db_1row get_section_info "select c.course_id, s.section_name, s.community_id, s.product_id
     from dotlrn_ecommerce_section s, dotlrn_catalogi c, cr_items ci
     where s.course_id = c.item_id
     and ci.live_revision=c.revision_id
     and s.section_id = :section_id"
 
     set context [list [list [export_vars -base course-info { course_id }] $section_name] "Process Purchase"]
-
-    db_1row get_community {
-	select community_id
-	from dotlrn_ecommerce_section
-	where section_id = :section_id
+    
+    if { [empty_string_p $return_url] } {
+	set return_url [export_vars -base [ad_conn package_url]admin/course-info {course_id}]
     }
-
-    set return_url [export_vars -base [ad_conn package_url]admin/course-info {course_id}]
 
     ad_form -name "search" -export { section_id patron return_url } -form {
 	{search:text {label "Search existing users"}}
@@ -93,46 +89,14 @@ if { [exists_and_not_null section_id] } {
 	    $page_query
 	    [template::list::page_where_clause -name users -key user_id -and]
 	}] {
-	    set add_member_url [export_vars -base membership-add { user_id {referer $return_url} section_id community_id }]
+#	    set add_member_url [export_vars -base participant-add { user_id {referer $return_url} return_url section_id community_id }]
+#	    set return_url_2 [export_vars -base "[apm_package_url_from_key dotlrn-ecommerce]admin/membership-add" { user_id section_id community_id {referer $return_url} }]
+	    set add_member_url [export_vars -base participant-add { user_id return_url section_id community_id }]
 	}
     }
 
-    template::list::create \
-	-name members \
-	-multirow members \
-	-no_data "No users has purchased this section" \
-	-page_flush_p 1 \
-	-key user_id \
-	-bulk_actions { "Remove Membership" membership-remove "Remove Membership" } \
-	-bulk_action_export_vars { community_id return_url patron } \
-	-elements {
-	    user_id {
-		label "User ID"
-	    }
-	    email {
-		label "Email Address"
-	    }
-	    first_names {
-		label "First Name"
-	    }
-	    last_name {
-		label "Last Name"
-	    }
-	} \
-	-filters {
-	    search {}
-	    section_id {}
-	}
-
-    db_multirow members members {
-	select r.user_id, r.rel_id, r.role, u.first_names, u.last_name, u.email
-	from dotlrn_member_rels_full r, dotlrn_users u
-	where r.member_state = 'approved'
-	and r.rel_type = 'dotlrn_member_rel'
-	and r.user_id = u.user_id
-	and r.community_id = :community_id
-    }
-
+    set add_url [export_vars -base "[apm_package_url_from_key ecommerce]shopping-cart-add" { product_id }]
+    set addpatron_url [export_vars -base "[apm_package_url_from_key dotlrn-ecommerce]admin/membership-add" { user_id section_id community_id {referer $return_url} }]
 }
 
 set next_url [export_vars -base membership-add { section_id community_id { referer $return_url} }]

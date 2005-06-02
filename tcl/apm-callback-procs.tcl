@@ -25,8 +25,10 @@ ad_proc -private dotlrn_ecommerce::install {
 } {
 
     # add new rel types for student and instructors
-    rel_types::new -supertype dotlrn_member_rel -role_two student dotlrn_club_student_rel "dotLRN Club Student" "dotLRN Club Students" dotlrn_club 0 "" user 0 ""
-    rel_types::new -supertype dotlrn_member_rel -role_two instructor "dotLRN Club Instructor" "dotLRN Club Instructors" dotlrn_club 0 ""D user 0 ""
+    # Roel: Figure out why this is failing but dotlrn_club_student_rel
+    # is being created
+    catch {rel_types::new -supertype dotlrn_member_rel -role_two student dotlrn_club_student_rel "dotLRN Club Student" "dotLRN Club Students" dotlrn_club 0 "" user 0 ""}
+#    rel_types::new -supertype dotlrn_member_rel -role_two instructor "dotLRN Club Instructor" "dotLRN Club Instructors" dotlrn_club 0 "" user 0 ""
 
     rel_types::new -role_one user -role_two user patron_rel "Patron" "Patrons" user 0 65535 user 0 65535
 
