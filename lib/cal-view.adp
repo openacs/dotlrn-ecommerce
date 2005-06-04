@@ -14,7 +14,7 @@ table.list {
     </td>
     <td valign="top">
 	<p><a href=".?view=calendar" class="button">View All</a></p>
-<include src="/packages/calendar/www/view-month-display" calendar_id_list="@calendar_id_list@" item_template="@item_template@" next_month_template="@next_month_template@" prev_month_template="@prev_month_template@" date="@date@">
+<include src="/packages/calendar/www/view-month-display" calendar_id_list="@calendar_id_list@" item_template="@item_template@" next_month_template="@next_month_template@" prev_month_template="@prev_month_template@" date="@date@" add_p="f" link_day_p="f">
     </td>
   </tr>
 </table>

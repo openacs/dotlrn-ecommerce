@@ -42,6 +42,7 @@ create index dotlrn_ecommerce_course_id_idx ON dotlrn_ecommerce_section (course_
 
 select acs_rel_type__create_role('as_session_role', 'Assessment Sessions Role', 'Assessment Sessions Role');
 select acs_rel_type__create_role('ec_product_role', 'Ecommerce Product Role', 'Ecommerce Product Role');
+select acs_rel_type__create_role('member_rel_role', 'Member Relationship Role', 'Member Relationship Role');
 
 create table person_info (
 	person_id 	integer references persons not null,

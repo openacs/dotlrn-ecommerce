@@ -29,7 +29,7 @@ if { [string equal $index ""] } {
 permission::require_permission -object_id $course_id -privilege "admin"
 
 db_1row get_course_info { } 
-set page_title "$course_key [_ dotlrn-catalog.course_info]"
+set page_title "$course_key"
 
 set asm_name [db_string get_asm_name { } -default "[_ dotlrn-catalog.not_associated]"]
 set item_id [dotlrn_catalog::get_item_id -revision_id $course_id]
@@ -233,7 +233,7 @@ template::list::create \
 	registration {
 	    label "Registration"
 	    display_template {
-		<a href=$community_url/members>Registrants</a><br>
+		<a href=@section_list.community_url;noquote@members>Registrants</a><br>
 		@section_list.attendees@ participant<if @section_list.attendees@ ne 1>s</if><if @section_list.available_slots@ not nil>,<br />@section_list.available_slots@ available</if>
 	    }
 	}
@@ -246,7 +246,8 @@ template::list::create \
 	attendance {
 	    label "Attendance"
 	    display_template {
-		<a href=@section_list.community_url@attendance/admin/>Attendance</a>
+		<a href=@section_list.community_url@attendance/admin/>Attendance</a> <br>
+		<a href="patrons?section_id=@section_list.section_id@">Related Users</a><br>
 	    }
 	}
 	expenses {
@@ -259,8 +260,8 @@ template::list::create \
 	    label "Purchases"
 	    html { align center }
 	    display_template {
-		<a href="patrons?section_id=@section_list.section_id@">Patron</a><br>
-		<a href="process-purchase?section_id=@section_list.section_id@">Participant</a><br>
+
+		<a href="process-purchase?section_id=@section_list.section_id@">Individual</a><br>
 		<a href="process-group-purchase?section_id=@section_list.section_id@">Group</a>
 	    }
 	}

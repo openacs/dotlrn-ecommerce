@@ -148,8 +148,8 @@ ad_form -extend -name user_info -form {
 	{html {size 10}}
     }
 
-    {add:text(submit) {label "Update Participant"}}
-    {addpatron:text(submit) {label "Update Participant and Select Patron"}}
+    {add:text(submit) {label "Select Participant"}}
+    {addpatron:text(submit) {label "Select Participant and Select Patron"}}
     {cancel:text(submit) {label "Cancel"}}
 } -on_request {
     foreach var { authority_id first_names last_name email username screen_name url bio } {
@@ -159,6 +159,7 @@ ad_form -extend -name user_info -form {
 	select *
 	from person_info
 	where person_id = :user_id
+	limit 1
     }
 } -on_submit {
     set user_info(authority_id) $user(authority_id)
@@ -203,6 +204,7 @@ ad_form -extend -name user_info -form {
 	select 1
 	from person_info
 	where person_id = :user_id
+	limit 1
     }] } {
 	db_dml update_extra_info {
 	    update person_info

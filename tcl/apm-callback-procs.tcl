@@ -37,6 +37,8 @@ ad_proc -private dotlrn_ecommerce::install {
 
     # Associate an ecommerce product to an assessment session result
     rel_types::new -role_one as_session_role -role_two ec_product_role as_session_ec_product_rel "Assessment Session to ECommerce Product" "Assessment Sessions to ECommerce Products" as_sessions 0 1 ec_product 0 1
+
+    rel_types::new -role_one member_rel_role -role_two user membership_patron_rel "Membership Patron" "Membership Patrons" dotlrn_member_rel 0 65535 user 0 65535
 }
 
 ad_proc -private dotlrn-catalog::package_mount {

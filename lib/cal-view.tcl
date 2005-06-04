@@ -7,9 +7,10 @@ ad_page_contract {
 } {
     category_f:optional
     uncat_f:optional
-
+    instructor:optional
     { level "" }
     { date "" }
+    
     { orderby course_name }
     { groupby course_name }
 }
@@ -185,6 +186,29 @@ set filters [linsert $filters 0 date {} view {
 	label "View"
 	values { {List ""} {"" ""} }
 }]
+
+set instructor_community_id [parameter::get -package_id [ad_conn package_id] -parameter InstructorCommunityId -default 0 ]
+set _instructors [dotlrn_community::list_users $instructor_community_id]
+if { [llength $_instructors] == 0 } {
+    set _instructors 0
+} else {
+    foreach _instructor $_instructors {
+	lappend __instructors [ns_set get $_instructor user_id]
+	lappend instructors_filter [list "[ns_set get $_instructor first_names] [ns_set get $_instructor last_name]" [ns_set get $_instructor user_id]]
+    }
+}
+
+lappend filters instructor \
+    [list \
+	 label "Instructor" \
+	 values $instructors_filter \
+	 where_clause_eval {subst {exists (select 1
+     from dotlrn_users u, dotlrn_member_rels_approved r
+     where u.user_id = r.user_id
+     and r.community_id = dec.community_id
+     and r.rel_type = 'dotlrn_admin_rel'
+     and r.user_id in ([join $instructor ,]))}}]
+
 set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
 set admin_p [permission::permission_p -object_id $cc_package_id -privilege "admin"]
 template::list::create \
@@ -210,15 +234,6 @@ template::list::create \
 	}
     }
 
-set instructor_community_id [parameter::get -package_id [ad_conn package_id] -parameter InstructorCommunityId -default 0 ]
-set _instructors [dotlrn_community::list_users $instructor_community_id]
-if { [llength $_instructors] == 0 } {
-    set _instructors 0
-} else {
-    foreach instructor $_instructors {
-	lappend __instructors [ns_set get $instructor user_id]
-    }
-}
 set grade_tree_id [db_string grade_tree {
     select tree_id
     from category_tree_translations 
@@ -242,5 +257,6 @@ set export [list]
 foreach {name discard} $filters {
     lappend export $name
 }
-set next_month_template "[export_vars -no_empty -base . $export]&date=\[ad_urlencode \$next_month\]"
-set prev_month_template "[export_vars -no_empty -base . $export]&date=\[ad_urlencode \$prev_month\]"
+
+set next_month_template "[export_vars -exclude {date} -no_empty -base . $export]&date=\[ad_urlencode \$next_month\]"
+set prev_month_template "[export_vars -exclude {date} -no_empty -base . $export]&date=\[ad_urlencode \$prev_month\]"

@@ -9,7 +9,7 @@ ad_page_contract {
     uncat_f:optional
 
     { level "" }
-
+    instructor:optional
     { orderby course_name }
     { groupby course_name }
 }
@@ -35,7 +35,7 @@ set filters {
 
 set filter_list [list category_f]
 
-set form [ns_getform]
+set form [rp_getform]
 
 foreach tree [category_tree::get_mapped_trees $package_id] {
     set tree_name [lindex $tree 1]
@@ -167,6 +167,28 @@ foreach tree [category_tree::get_mapped_trees $package_id] {
 	]
 }
 
+set instructor_community_id [parameter::get -package_id [ad_conn package_id] -parameter InstructorCommunityId -default 0 ]
+set _instructors [dotlrn_community::list_users $instructor_community_id]
+set __instructors [list]
+if { [llength $_instructors] == 0 } {
+    set _instructors 0
+} else {
+    foreach _instructor $_instructors {
+	lappend __instructors [ns_set get $_instructor user_id]
+	lappend instructors_filter [list "[ns_set get $_instructor first_names] [ns_set get $_instructor last_name]" [ns_set get $_instructor user_id]]
+    }
+}
+
+lappend filters instructor \
+    [list \
+	 label "[_ dotlrn-ecommerce.Instructor]" \
+	 values $instructors_filter \
+	 where_clause_eval {subst {exists (select 1
+     from dotlrn_users u, dotlrn_member_rels_approved r
+     where u.user_id = r.user_id
+     and r.community_id = dec.community_id
+     and r.rel_type = 'dotlrn_admin_rel'
+     and r.user_id in ([join $instructor ,]))}}]
 # Section categories
 #foreach section_tree [category_tree::get_mapped_trees $package_id] {
 #    set tree_list [category_tree::get_tree -all $section_tree]
@@ -178,14 +200,28 @@ foreach tree [category_tree::get_mapped_trees $package_id] {
 # 	    where_clause { ${Age Description_where_query} }
 # 	}
 
+set filters [linsert $filters 0 view {
+	label "[_ dotlrn-ecommerce.View]"
+	values { {"" ""} {Calendar "calendar"} }
+}]
+
 set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
 set admin_p [permission::permission_p -object_id $cc_package_id -privilege "admin"]
+
+set actions [list]
+
+lappend actions "[_ dotlrn-ecommerce.View_All]" ? "[_ dotlrn-ecommerce.View_All]"
+
+if { $admin_p } {
+    lappend actions "[_ dotlrn-ecommerce.Add_Course]" admin/course-add-edit "[_ dotlrn-ecommerce.View_All]"
+}
+
 template::list::create \
     -name course_list \
     -multirow course_list \
     -key course_id \
     -pass_properties { admin_p } \
-    -actions {"View All" ? "View All"} \
+    -actions $actions \
     -filters $filters \
     -bulk_action_method post \
     -bulk_action_export_vars {
@@ -245,15 +281,15 @@ template::list::create \
 	    label ""
 	    display_template {
 		<if @course_list.member_p@ eq 0>
-		(<a href="/ecommerce/shopping-cart-add?product_id=@course_list.product_id@">add to cart</a>)
+		<a href="/ecommerce/shopping-cart-add?product_id=@course_list.product_id@" class="button">[_ dotlrn-ecommerce.add_to_cart]</a>
 		</if>
 
 		<if @admin_p@ eq 1>
-		(<a href="@course_list.section_edit_url;noquote@">edit</a>)
+		<a href="@course_list.section_edit_url;noquote@" class="button">[_ dotlrn-ecommerce.edit]</a>
 		</if>
 		</if>
 	    }
-	    html { width 50% }
+	    html { width 50% nowrap }
 	}
     } -orderby {
 	course_name {
@@ -263,7 +299,7 @@ template::list::create \
 	label "Group by"
 	type multivar
 	values {
-	    { { <if @admin_p@ eq 1>(<a href="admin/course-info?course_id=@course_list.course_id@">info</a>) (<a href="@course_list.course_edit_url;noquote@">edit</a>) (<a href="admin/section-add-edit?course_id=@course_list.course_id@&return_url=/dotlrn-ecommerce/index">add section</a>)</if>
+	    { { <a name="@course_list.course_key@" /><if @admin_p@ eq 1><a href="admin/course-info?course_id=@course_list.course_id@" class="button">[_ dotlrn-ecommerce.info]</a> <a href="@course_list.course_edit_url;noquote@" class="button">[_ dotlrn-ecommerce.edit]</a> <a href="admin/section-add-edit?course_id=@course_list.course_id@&return_url=/dotlrn-ecommerce/index" class="button">[_ dotlrn-ecommerce.add_section]</a></if>
 		<br />@course_list.course_grades@
 		<blockquote>
 		@course_list.course_info;noquote@
@@ -273,15 +309,6 @@ template::list::create \
     }
 
 
-set instructor_community_id [parameter::get -package_id [ad_conn package_id] -parameter InstructorCommunityId -default 0 ]
-set _instructors [dotlrn_community::list_users $instructor_community_id]
-if { [llength $_instructors] == 0 } {
-    set _instructors 0
-} else {
-    foreach instructor $_instructors {
-	lappend __instructors [ns_set get $instructor user_id]
-    }
-}
 set grade_tree_id [db_string grade_tree {
     select tree_id
     from category_tree_translations 
@@ -343,17 +370,20 @@ db_multirow -extend { category_name community_url course_edit_url section_edit_u
 
 	# Build sessions
 	set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id $community_id]
-
+	lappend calendar_id_list $calendar_id
 	set sessions [util_memoize [list dotlrn_ecommerce::section::sessions $calendar_id]]
 
 	set instructors [util_memoize [list dotlrn_ecommerce::section::instructors $community_id $__instructors]]
 
 	if { [llength $instructors] == 1 } {
-	    set instructors "Instructor: [join $instructors ", "] (<a href=\"${community_url}facilitator-bio\">view bio</a>)"
+	    set instructors "Instructor: [join $instructors ", "]"
 	} elseif { [llength $instructors] > 1 } {
-	    set instructors "Instructors: [join $instructors ", "] (<a href=\"${community_url}facilitator-bio\">view bios</a>)"
+	    set instructors "Instructors: [join $instructors ", "]"
 	} else {
 	    set instructors ""
+	}
+	if { ! [empty_string_p $instructors] && $member_p } {
+	    append instructors " <a href=\"${community_url}facilitator-bio\" class=\"button\">[_ dotlrn-ecommerce.view_bios]</a>"
 	}
     }
 

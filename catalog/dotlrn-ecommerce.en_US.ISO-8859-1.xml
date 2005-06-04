@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d" locale="en_US" charset="ISO-8859-1">
+
+  <msg key="Add_Course">Add Course</msg>
+  <msg key="add_section">add section</msg>
+  <msg key="add_to_cart">add to cart</msg>
+  <msg key="edit">edit</msg>
+  <msg key="info">info</msg>
+  <msg key="Instructor">Instructor</msg>
+  <msg key="View">View</msg>
+  <msg key="View_All">View All</msg>
+  <msg key="view_bio">view bio</msg>
+  <msg key="view_bios">view bios</msg>
+</message_catalog>

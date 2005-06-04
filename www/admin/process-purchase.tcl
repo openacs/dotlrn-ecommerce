@@ -19,9 +19,12 @@ ad_page_contract {
 } -errors {
 }
 
+set title ""
+
 if { [exists_and_not_null section_id] } {
 
-    db_1row get_section_info "select c.course_id, s.section_name, s.community_id, s.product_id
+    db_1row get_section_info "select c.course_id, c.course_name,
+    s.section_name, s.community_id, s.product_id
     from dotlrn_ecommerce_section s, dotlrn_catalogi c, cr_items ci
     where s.course_id = c.item_id
     and ci.live_revision=c.revision_id
@@ -29,6 +32,8 @@ if { [exists_and_not_null section_id] } {
 
     set context [list [list [export_vars -base course-info { course_id }] $section_name] "Process Purchase"]
     
+    set title "Select Participant for $course_name: $section_name"
+
     if { [empty_string_p $return_url] } {
 	set return_url [export_vars -base [ad_conn package_url]admin/course-info {course_id}]
     }
@@ -95,8 +100,8 @@ if { [exists_and_not_null section_id] } {
 	}
     }
 
-    set add_url [export_vars -base "[apm_package_url_from_key ecommerce]shopping-cart-add" { product_id }]
-    set addpatron_url [export_vars -base "[apm_package_url_from_key dotlrn-ecommerce]admin/membership-add" { user_id section_id community_id {referer $return_url} }]
+    set add_url [export_vars -base "ecommerce/shopping-cart-add" { product_id }]
+    set addpatron_url [export_vars -base "membership-add" { user_id section_id community_id {referer $return_url} }]
 }
 
 set next_url [export_vars -base membership-add { section_id community_id { referer $return_url} }]

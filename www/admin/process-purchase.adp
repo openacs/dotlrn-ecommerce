@@ -1,5 +1,5 @@
 <master>
-  <property name="title">Process Purchase</property>
+  <property name="title">@title@</property>
   <if @context@ defined><property name="context">@context;noquote@</property></if>
 
   <if @section_id@ defined and @section_id@ not nil>
