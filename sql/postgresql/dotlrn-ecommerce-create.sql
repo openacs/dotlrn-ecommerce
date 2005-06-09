@@ -51,4 +51,11 @@ create table person_info (
 	age		integer
 );
 
+create table dotlrn_ecommerce_orders (
+	item_id		integer references ec_items on delete cascade not null,
+-- Can be a user or group
+	patron_id	integer	references users(user_id) on delete cascade not null,
+	participant_id	integer	references parties(party_id) on delete cascade not null
+);
+
 \i dotlrn-ecommerce-memberships-create.sql

@@ -33,7 +33,7 @@ ad_page_contract {
     usca_p:optional
 
     user_id:integer,notnull
-    participant_id:integer,optional
+    {participant_id:integer 0}
 }
 # added default values to above params so that this page works
 # when a post from a form to shopping-cart-add originates from another domain.
@@ -49,7 +49,7 @@ ad_page_contract {
 # 5. ad_returnredirect them to their shopping cart
 
 set user_session_id [ec_get_user_session_id]
-ec_create_new_session_if_necessary [export_url_vars product_id]
+ec_create_new_session_if_necessary [export_url_vars product_id user_id]
 set n_confirmed_orders [db_string get_n_confirmed_orders "
     select count(*) 
     from ec_orders 
@@ -122,22 +122,22 @@ if { [value_if_exists order_id] < 1 || [ad_var_type_check_number_p $order_id] ==
 # That should be enough to protect from double clicks yet provides a
 # more intuitive user experience.
 
+# Roel: Participant also pays
+if { $participant_id == 0 } {
+    set participant_id $user_id
+}
 for {set i 0} {$i < $item_count} {incr i} {
-    ns_log notice "DEBUG:: Inserting [expr $i + 1] out of $item_count"
-    db_dml insert_new_item_in_order {
-	insert into ec_items
-	(item_id, product_id, color_choice, size_choice, style_choice, order_id, in_cart_date)
-	(select ec_item_id_sequence.nextval, :product_id, :color_choice, :size_choice, :style_choice, :order_id, current_timestamp 
-	 where not exists (select 1 
-			   from ec_items 
-			   where order_id=:order_id 
-			   and product_id=:product_id 
-			   and color_choice  [ec_decode $color_choice "" "is null" "= :color_choice"]  
-			   and size_choice [ec_decode $size_choice "" "is null" "= :size_choice"] 
-			   and style_choice [ec_decode $style_choice "" "is null" "= :style_choice"] 
-			   and (date_part('epoch', now()) - date_part('epoch', in_cart_date) < 5)))
+    db_transaction {
+	set item_id [db_nextval ec_item_id_sequence]
+
+	db_dml insert_new_item_in_order {}
+
+	db_dml insert_new_item_order_dotlrn_ecommerce {
+	    insert into dotlrn_ecommerce_orders (item_id, patron_id, participant_id)
+	    values (:item_id, :user_id, :participant_id)
+	}
     }
 }
 
 db_release_unused_handles
-ad_returnredirect [export_vars -base checkout-one-form { user_id participant_id }]
+ad_returnredirect [export_vars -base shopping-cart { user_id product_id }]

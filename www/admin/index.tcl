@@ -25,3 +25,8 @@ set instructor_community_url [dotlrn_community::get_community_url $instructor_co
 set assistant_community_id [parameter::get -package_id [ad_conn package_id] -parameter AssistantCommunityId -default 0 ]
 
 set assistant_community_url [dotlrn_community::get_community_url $assistant_community_id]
+
+# HAM : check if scholarship is installed
+set scholarship_installed_p [apm_package_installed_p "scholarship-fund"]
+# HAM : check if expenses is installed
+set expenses_installed_p [apm_package_installed_p "expenses"]

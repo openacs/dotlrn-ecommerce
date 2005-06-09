@@ -34,6 +34,8 @@ ad_page_contract {
 
 ec_redirect_to_https_if_possible_and_necessary
 
+set return_url [export_vars -base "../process-purchase-all"]
+
 # first do all the normal checks to make sure nobody is doing url
 # or cookie surgery to get here
 
@@ -85,17 +87,7 @@ if { [empty_string_p $order_id] } {
 	rp_internal_redirect "../index"
         ns_log Notice "finalize-order.tcl ref(84): no confirmed order for user $user_id. Redirecting user."
     } else {
-	# Redirect to course page
-	db_1row section {
-	    select c.live_revision as course_id
-	    from ec_items i, dotlrn_ecommerce_section s, cr_items c
-	    where i.product_id = s.product_id
-	    and s.course_id = c.item_id
-	    and i.order_id = :order_id
-	    limit 1
-	}
-	set course_url [export_vars -base ../course-info { course_id }]
-	ad_returnredirect $course_url
+	ad_returnredirect ..
     }
     ad_script_abort
 }
@@ -114,19 +106,6 @@ if { [db_string get_in_basket_count "
     rp_internal_redirect shopping-cart
     ad_script_abort
 }
-
-
-# Redirect to course page
-db_1row section {
-    select c.live_revision as course_id
-    from ec_items i, dotlrn_ecommerce_section s, cr_items c
-    where i.product_id = s.product_id
-    and s.course_id = c.item_id
-    and i.order_id = :order_id
-    limit 1
-}
-set course_url [export_vars -base ../course-info { course_id }]
-
 
 # Make sure the order belongs to this user_id, otherwise they managed
 # to skip past checkout.tcl, or they messed w/their user_session_id
@@ -211,17 +190,7 @@ db_transaction {
     ec_update_state_to_confirmed $order_id
 
     # Call after-checkout callback
-    db_foreach products {
-	select product_id, price_charged
-	from ec_items
-	where order_id = :order_id
-    } {
-	if { [exists_and_not_null participant_id] } {
-	    callback -- ecommerce::after-checkout -user_id $participant_id -patron_id $user_id -product_id $product_id -price $price_charged
-	} else {
-	    callback -- ecommerce::after-checkout -user_id $user_id -product_id $product_id -price $price_charged
-	}
-    }
+    callback -- ecommerce::after-checkout -patron_id $user_id -order_id $order_id
 }
 
 # (2) Try to authorize the user's credit card info and either
@@ -287,7 +256,7 @@ if {$hard_goods_cost > 0} {
 		# 'authorized'.
 
 		ec_update_state_to_authorized $order_id 
-		ad_returnredirect $course_url
+		ad_returnredirect $return_url
 
 	    } else {
 
@@ -324,7 +293,7 @@ if {$hard_goods_cost > 0} {
 		}
 
 		if { [string equal $result "authorized"] || [string equal $result "no_recommendation"] } {
-		    ad_returnredirect $course_url
+		    ad_returnredirect $return_url
                     ad_script_abort
 		} elseif { [string equal $result "failed_authorization"] } {
 
@@ -414,7 +383,7 @@ if {$hard_goods_cost > 0} {
 			    where transaction_id = :pgw_transaction_id"
 		    }
 
- 		    ad_returnredirect $course_url
+ 		    ad_returnredirect $return_url
 
 		} elseif { [string equal $result "failed_authorization"] || [string equal $result "no_recommendation"] } {
 
@@ -555,7 +524,7 @@ if {$hard_goods_cost > 0} {
 			    set authorized_date = sysdate
 			    where transaction_id = :transaction_id"
 			
-			ad_returnredirect $course_url
+			ad_returnredirect $return_url
 			
 		    } elseif {[string equal $result "failed_authorization"] || [string equal $result "no_recommendation"] } {
 
@@ -642,7 +611,7 @@ if {$hard_goods_cost > 0} {
 	    # 'authorized'.
 
 	    ec_update_state_to_authorized $order_id 
-	    ad_returnredirect $course_url
+	    ad_returnredirect $return_url
 
 	} else {
 
@@ -678,7 +647,7 @@ if {$hard_goods_cost > 0} {
 	    }
 
 	    if { [string equal $result "authorized"] || [string equal $result "no_recommendation"] } {
-		ad_returnredirect $course_url
+		ad_returnredirect $return_url
                 ad_script_abort
 	    } elseif { [string equal $result "failed_authorization"] } {
 
@@ -751,7 +720,7 @@ if {$hard_goods_cost > 0} {
 	    # 'authorized'.
 
 	    ec_update_state_to_authorized $order_id 
-	    ad_returnredirect $course_url
+	    ad_returnredirect $return_url
 
 	} else {
 
@@ -805,7 +774,7 @@ if {$hard_goods_cost > 0} {
 			set marked_date = sysdate
 			where transaction_id = :pgw_transaction_id"
 		}
-		ad_returnredirect $course_url
+		ad_returnredirect $return_url
 	    }
 
 	    if {[string equal $result "failed_authorization"] || [string equal $result "no_recommendation"] } {
@@ -868,6 +837,6 @@ if {$hard_goods_cost > 0} {
 	# 'authorized'.
 
 	ec_update_state_to_authorized $order_id 
-	ad_returnredirect $course_url
+	ad_returnredirect $return_url
     }
 }

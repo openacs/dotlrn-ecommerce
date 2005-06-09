@@ -28,7 +28,7 @@
     <querytext>
     insert into ec_items
     (item_id, product_id, color_choice, size_choice, style_choice, order_id, in_cart_date)
-    select ec_item_id_sequence.nextval, :product_id, :color_choice,
+    select :item_id, :product_id, :color_choice,
     :size_choice, :style_choice, :order_id, current_timestamp from dual
     </querytext>
   </fullquery>

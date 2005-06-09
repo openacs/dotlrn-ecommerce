@@ -19,9 +19,11 @@ set attribute_list [package_object_attribute_list -start_with dotlrn_catalog dot
 set sort_order [expr [llength $attribute_list] + 1]
 
 ad_form -name attribute -export {sort_order} -form {
-    name:text
-    title:text
-    {widget:text(select) {options {
+    {name:text {label "Attribute Name"}
+	{help_text "Unique key to identify the attribute"}
+    }
+    {title:text {label "Title"}}
+    {widget:text(select) {label "Widget"} {options {
 	{"String (textfield)" string} \
 	    {"Text (textbox)" text} \
 	    {Integer integer}

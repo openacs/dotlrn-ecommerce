@@ -15,6 +15,7 @@ dotlrn_catalog::get_course_data -course_id $course_id
 set item_id [dotlrn_catalog::get_item_id -revision_id $course_id]
 
 set package_id [ad_conn package_id]
+set validate [list]
 
 catch {
     db_1row template_community {
@@ -31,8 +32,25 @@ ad_form -name add_section -form {
     {product_id:integer(hidden)}
     {return_url:text(hidden) {value $return_url}}
     {course_id:text(hidden) {value $course_id}}
-    {section_name:text {label "Section Name"}}     
-    {price:currency,to_sql(sql_number) {label "Regular Price"} {html {size 6}} {section "Product Info"}} 
+}
+
+if { [ad_form_new_p -key section_id] } {
+    ad_form -extend -name add_section -form {
+	{section_key:text {label "Section Key"}
+	    {help_text "Short name used in URL"}
+	}
+    }
+    
+    lappend validate {section_key
+	{ [dotlrn_community::check_community_key_valid_p -community_key $section_key] }
+	"The section '$section_key' key already exists"
+    }
+} else {
+}
+
+ad_form -extend -name add_section -form {
+    {section_name:text {label "Section Name"}}
+    {price:currency,to_sql(sql_number) {label "Regular Price"} {html {size 6}} {section "Product Info"}}
 }
 
 
@@ -149,14 +167,12 @@ db_foreach custom_fields_select "
 						    ]
     } else {
 	ad_form -extend -name add_section -form [list \
-						     [list "${field_identifier}:text(radio),optional" {label $field_name} {value $default_value} {options {{t t} {f f}}}] \
+						     [list "${field_identifier}:text(radio),optional" {label $field_name} {value $default_value} {options {{Yes t} {No f}}}] \
 						    ]
     }
 }
 
 # Create the section for predefined sessions
-set validate [list]
-
 if { [info exists template_calendar_id] } {
     set sessions_list [db_list_of_lists sessions {
 	select   'cal_item_id',
@@ -228,6 +244,24 @@ foreach s $sessions_list {
     }]
 }
 
+ns_log notice "DEBUG:: $validate"
+
+lappend validate {price
+    { ![template::util::negative [template::util::currency::get_property whole_part $price]] }
+    "Price can not be negative"
+} {price 
+    { !"[template::util::currency::get_property whole_part $price].[template::util::currency::get_property fractional_part $price]" == "0.00" }
+    "Price can not be zero"
+}
+
+if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0] } {
+    lappend validate {member_price
+	{ ![template::util::negative [template::util::currency::get_property whole_part $member_price]] }
+	"Member Price can not be negative"
+    }
+}
+
+
 ad_form -extend -name add_section -validate $validate -on_request {
     # Set session times
     foreach s $sessions_list {
@@ -243,6 +277,8 @@ ad_form -extend -name add_section -validate $validate -on_request {
     }
 } -new_request {
     set product_id 0
+    set price [template::util::currency::create "$" "0" "." "00" ]
+    set member_price [template::util::currency::create "$" "0" "." "00" ]
 } -edit_request {
     set course_item_id $course_id
     db_1row community {
@@ -304,12 +340,16 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	if { [exists_and_not_null template_community_id] } {
 	    set community_id [dotlrn_community::clone \
 				  -community_id $template_community_id \
-				  -key [dotlrn_community::generate_key -name $section_name] \
+				  -key $section_key \
 				  -pretty_name "$course_data(name): Section $section_name"]
 
 	    ns_log notice "DEBUG:: Cloned $community_id from $template_community_id"
 	} else {
-	    set community_id [dotlrn_club::new -pretty_name "$course_data(name): Section $section_name"] 
+	    set community_id [dotlrn_community::new \
+				  -community_type dotlrn_club \
+				  -object_type dotlrn_club \
+				  -community_key $section_key \
+				  -pretty_name "$course_data(name): Section $section_name"]
 
 	    ns_log notice "DEBUG:: New community created"
 	}

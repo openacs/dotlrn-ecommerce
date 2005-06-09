@@ -57,6 +57,7 @@ foreach attribute $attribute_list {
     set element_mode ""
     set aditional_type ""
     set aditional_elements ""
+    set help_text ""
     switch [lindex $attribute 4] {
 	string {
 	    if { [string equal [lindex $attribute 2] "assessment_id"]} {
@@ -65,6 +66,7 @@ foreach attribute $attribute_list {
             } else {
                 if { [string equal [lindex $attribute 2] "course_key"]} {
                     set element_mode [list mode $mode_p]
+		    set help_text [list help_text "Short name used in URL"]
                 }
             }
 	}
@@ -83,7 +85,7 @@ foreach attribute $attribute_list {
     if { $count > 3 } {
 	append aditional_type ",optional"
     }
-    set element [list [lindex $attribute 2]:text${aditional_type} [list label [lindex $attribute 3]] $aditional_elements $element_mode]
+    set element [list [lindex $attribute 2]:text${aditional_type} [list label [lindex $attribute 3]] $aditional_elements $element_mode $help_text]
     lappend elements $element
 
     incr count
@@ -105,6 +107,7 @@ ad_form -extend -name add_course -form {
 	{label "[_ dotlrn-catalog.categories]"}
 	{html {size 4}}
 	{value "$revision_id $cc_package_id"}
+	{help_text "Hold the &lt;Ctrl&gt; key to select multiple categories"}
     }
 }
 

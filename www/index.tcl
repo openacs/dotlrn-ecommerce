@@ -9,7 +9,6 @@ ad_page_contract {
 }
 set page_title "[_ dotlrn-catalog.course_catalog]"
 set context ""
-set return_url "dt-admin/course-list"
 
 set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
 
@@ -22,7 +21,6 @@ if {[permission::permission_p -party_id $user_id -object_id $cc_package_id -priv
 }
 
 set tree_id [db_string get_tree_id { } -default "-1"]
-set add_course_url [export_vars -base admin/course-add-edit { return_url }]
 set admin_p [permission::permission_p -object_id $cc_package_id -privilege "admin"]
 
 set item_template "one-course?cal_item_id=\$item_id"

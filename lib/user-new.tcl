@@ -96,7 +96,6 @@ ad_form -extend -name register -form {
     }
 
     {add:text(submit) {label "Add Participant"}}
-    {addpatron:text(submit) {label "Add Participant and Select Patron"}}
 }
 
 ad_form -extend -name register -on_request {
@@ -171,13 +170,13 @@ ad_form -extend -name register -on_request {
 
 } -after_submit {
 
-    if { ! [empty_string_p [template::element get_value register add]] } {
-	ad_returnredirect [export_vars -base $add_url { user_id }]
-	ad_script_abort
-    } elseif { ! [empty_string_p [template::element get_value register addpatron]] } {
-	ad_returnredirect [export_vars -base $addpatron_url { user_id }]
-	ad_script_abort
-    }
+#     if { ! [empty_string_p [template::element get_value register add]] } {
+# 	ad_returnredirect [export_vars -base $add_url { user_id }]
+# 	ad_script_abort
+#     } elseif { ! [empty_string_p [template::element get_value register addpatron]] } {
+# 	ad_returnredirect [export_vars -base $addpatron_url { user_id }]
+# 	ad_script_abort
+#     }
 
     if { ![empty_string_p $next_url] } {
         # Add user_id and account_message to the URL

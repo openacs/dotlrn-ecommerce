@@ -14,6 +14,7 @@ ad_page_contract {
     size_choice:optional
     style_choice:optional
 
+    user_id:integer,notnull    
 }
 
 

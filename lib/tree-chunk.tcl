@@ -17,26 +17,44 @@ ad_page_contract {
 set package_id [ad_conn package_id]
 set user_id [ad_conn user_id]
 
+set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
+
+set filters {}
+
 # Generate filters based on categories
-set filters {
-    category_f {
-	label "[_ dotlrn-catalog.categories]"
-	values { ${Course Type} }
-	where_clause { ${Course Type_where_query} }
-    }
-    uncat_f {
-	label "[_ dotlrn-catalog.uncat]"
-	values { "Watch" }
-	where_clause { dc.course_id not in ( select object_id from category_object_map where category_id in \
-						 ( select category_id from categories where tree_id =:tree_id ))
-	}
-    }
-}
+# set filters {
+#     uncat_f {
+# 	label "[_ dotlrn-catalog.uncat]"
+# 	values { "Watch" }
+# 	where_clause { dc.course_id not in ( select object_id from category_object_map where category_id in \
+# 						 ( select category_id from categories where tree_id =:tree_id ))
+# 	}
+#     }
+# }
 
 set filter_list [list category_f]
 
 set form [rp_getform]
 
+set category_trees [concat [category_tree::get_mapped_trees $cc_package_id] [category_tree::get_mapped_trees $package_id]]
+set course_categories [list]
+set section_categories [list]
+
+foreach tree [category_tree::get_mapped_trees $cc_package_id] {
+    set tree_name [lindex $tree 1]
+    regsub -all { } $tree_name _ f
+    set f [string tolower $f]_f
+
+    ns_log notice "DEBUG:: CATEGORY:: $tree_name"
+
+    lappend filter_list $f
+    set ff [ns_set get $form $f]
+
+    if { ! [empty_string_p $ff] } {
+	set $f $ff
+    }
+    lappend course_categories [lindex $tree 0]
+}
 foreach tree [category_tree::get_mapped_trees $package_id] {
     set tree_name [lindex $tree 1]
     regsub -all { } $tree_name _ f
@@ -50,6 +68,7 @@ foreach tree [category_tree::get_mapped_trees $package_id] {
     if { ! [empty_string_p $ff] } {
 	set $f $ff
     }
+    lappend section_categories [lindex $tree 0]
 }
 
 ns_log notice "DEBUG:: FILTER:: $filter_list"
@@ -72,9 +91,9 @@ if { ! [empty_string_p $level] } {
 }
 
 # Get all tree categories
-set category_trees [linsert [category_tree::get_mapped_trees $package_id] 0 $tree_id]
+#set category_trees [linsert [category_tree::get_mapped_trees $package_id] 0 $tree_id]
+#set category_trees [category_tree::get_mapped_trees $cc_package_id]
 
-set count 0
 foreach tree_id $category_trees {
 
     set tree_id [lindex $tree_id 0]
@@ -101,12 +120,8 @@ foreach tree_id $category_trees {
 	lappend $name [list "${spacer}[lindex "$element" 1]" "[lindex $element 0]&level=[lindex $element 3]" ]
     }
 
-    if { $count == 0 } {
-	set f category_f
-    } else {
-	regsub -all { } $name _ f
-	set f [string tolower $f]_f
-    }
+    regsub -all { } $name _ f
+    set f [string tolower $f]_f
 
     # Get all sub categories
     set map_tree "("
@@ -138,7 +153,7 @@ foreach tree_id $category_trees {
 	append map_tree "0)"
     }
     
-    if { $count == 0 } {
+    if { [lsearch $course_categories $tree_id] != -1 } {
 	if { [string equal $[set ${f}_category_v] ""] } {
 	    set ${name}_where_query "dc.course_id in ( select object_id from category_object_map_tree where tree_id = $tree_id )" 
 	} else {
@@ -151,10 +166,9 @@ foreach tree_id $category_trees {
 	    set ${name}_where_query "dec.community_id in ( select object_id from category_object_map_tree where tree_id = $tree_id and category_id in $map_tree )"
 	}
     }
-    incr count
 }
 
-foreach tree [category_tree::get_mapped_trees $package_id] {
+foreach tree $category_trees {
     set tree_name [lindex $tree 1]
     regsub -all { } $tree_name _ f
     set f [string tolower $f]_f
@@ -281,7 +295,7 @@ template::list::create \
 	    label ""
 	    display_template {
 		<if @course_list.member_p@ eq 0>
-		<a href="/ecommerce/shopping-cart-add?product_id=@course_list.product_id@" class="button">[_ dotlrn-ecommerce.add_to_cart]</a>
+		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.add_to_cart]</a>
 		</if>
 
 		<if @admin_p@ eq 1>
@@ -299,7 +313,7 @@ template::list::create \
 	label "Group by"
 	type multivar
 	values {
-	    { { <a name="@course_list.course_key@" /><if @admin_p@ eq 1><a href="admin/course-info?course_id=@course_list.course_id@" class="button">[_ dotlrn-ecommerce.info]</a> <a href="@course_list.course_edit_url;noquote@" class="button">[_ dotlrn-ecommerce.edit]</a> <a href="admin/section-add-edit?course_id=@course_list.course_id@&return_url=/dotlrn-ecommerce/index" class="button">[_ dotlrn-ecommerce.add_section]</a></if>
+	    { { <a name="@course_list.course_key@" /><if @admin_p@ eq 1><a href="admin/course-info?course_id=@course_list.course_id@" class="button">[_ dotlrn-ecommerce.info]</a> <a href="@course_list.course_edit_url;noquote@" class="button">[_ dotlrn-ecommerce.edit]</a> <a href="@course_list.section_add_url;noquote@" class="button">[_ dotlrn-ecommerce.add_section]</a></if>
 		<br />@course_list.course_grades@
 		<blockquote>
 		@course_list.course_info;noquote@
@@ -315,7 +329,7 @@ set grade_tree_id [db_string grade_tree {
     where name = 'Grade'
 } -default 0]
 
-db_multirow -extend { category_name community_url course_edit_url section_edit_url course_grades section_grades sections_url member_p sessions instructors prices } course_list get_courses { } {
+db_multirow -extend { category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructors prices shopping_cart_add_url } course_list get_courses { } {
 #     set mapped [category::get_mapped_categories $course_id]
 
 #     foreach element $mapped {
@@ -326,8 +340,11 @@ db_multirow -extend { category_name community_url course_edit_url section_edit_u
     set community_url [dotlrn_community::get_community_url $community_id]
     set return_url [ad_return_url]
     set course_edit_url [export_vars -base admin/course-add-edit { course_id return_url }]
+    set section_add_url [export_vars -base admin/section-add-edit { course_id return_url }]
     set section_edit_url [export_vars -base admin/section-add-edit { course_id section_id return_url }]
     set sections_url [export_vars -base sections { course_id }]
+
+    set shopping_cart_add_url [export_vars -base [apm_package_url_from_key "ecommerce"]shopping-cart-add { product_id }]
 
     set member_p [dotlrn_community::member_p $community_id $user_id]
     
