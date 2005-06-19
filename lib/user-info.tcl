@@ -57,7 +57,7 @@ if { [exists_and_equal edit_p 1] } {
     set form_mode edit
 }
 
-ad_form -name user_info -cancel_url $return_url -mode $form_mode -export {section_id community_id} -form {
+ad_form -name user_info -cancel_url $return_url -mode $form_mode -form {
     {user_id:integer(hidden),optional}
     {return_url:text(hidden),optional}
     {message:text(hidden),optional}
@@ -120,7 +120,13 @@ if { ![string equal [acs_user::ScreenName] "none"] } {
                  ]]
 }
 
-ad_form -extend -name user_info -form {
+set tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
+set grade_options [list {}]
+foreach tree [category_tree::get_tree $tree_id] {
+    lappend grade_options [list [lindex $tree 1] [lindex $tree 0]]
+}
+
+ad_form -extend -name user_info  -export { section_id add_url } -form {
     {url:text,optional
         {label "[_ acs-subsite.Home_page]"}
         {html {size 50}}
@@ -133,34 +139,34 @@ ad_form -extend -name user_info -form {
         {display_value {[ad_text_to_html -- $user(bio)]}}
     }
     
-    {grade:text,optional
+    {grade:text(select),optional
 	{label "Grade"}
-	{html {size 10}}
+	{options {$grade_options}}
     }
 
     {allergies:text,optional
-	{label "Allergies"}
+	{label "Medical Issues"}
 	{html {size 40}}
     }
 
-    {age:integer,optional
-	{label "Age"}
-	{html {size 10}}
+    {special_needs:text,optional
+	{label "Special Needs"}
+	{html {size 40}}
     }
 
-    {add:text(submit) {label "Select Participant"}}
-    {addpatron:text(submit) {label "Select Participant and Select Patron"}}
+    {add:text(submit) {label "Proceed"}}
     {cancel:text(submit) {label "Cancel"}}
 } -on_request {
     foreach var { authority_id first_names last_name email username screen_name url bio } {
         set $var $user($var)
     }
     db_0or1row person_info {
-	select *
+	select allergies, special_needs
 	from person_info
 	where person_id = :user_id
 	limit 1
     }
+    set grade [lindex [category::get_mapped_categories $user_id] 0]
 } -on_submit {
     set user_info(authority_id) $user(authority_id)
     set user_info(username) $user(username)
@@ -208,17 +214,17 @@ ad_form -extend -name user_info -form {
     }] } {
 	db_dml update_extra_info {
 	    update person_info
-	    set grade = :grade,
-	    allergies = :allergies,
-	    age = :age
+	    set allergies = :allergies,
+	    special_needs = :special_needs
 	    where person_id = :user_id
 	}
     } else {
 	db_dml insert_extra_info {
-	    insert into person_info (person_id, grade, allergies, age)
-	    values (:user_id, :grade, :allergies, :age)
+	    insert into person_info (person_id, allergies, special_needs)
+	    values (:user_id, :allergies, :special_needs)
 	}
     }
+    category::map_object -remove_old -object_id $user_id [list $grade]
 
     dotlrn::user_add -user_id $user_id
 } -after_submit {
@@ -228,8 +234,6 @@ ad_form -extend -name user_info -form {
     
     if { ! [empty_string_p [template::element get_value user_info add]] } {
 	ad_returnredirect $add_url
-    } elseif { ! [empty_string_p [template::element get_value user_info addpatron]] } {
-	ad_returnredirect $addpatron_url
     } else {
 	ad_returnredirect $return_url
     }

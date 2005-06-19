@@ -178,6 +178,9 @@ for {set i 1} {$i <= [template::multirow size in_cart]} {incr i} {
     set size_choice [template::multirow get in_cart $i size_choice]
     set style_choice [template::multirow get in_cart $i style_choice]
 
+    set patron_id [template::multirow get in_cart $i patron_id]
+    set participant_id [template::multirow get in_cart $i participant_id]
+
     set max_quantity_length [max $max_add_quantity_length [string length $quantity]]
     # Deletions are done by product_id, color_choice, size_choice,
     # style_choice, not by item_id because we want to delete the
@@ -186,7 +189,7 @@ for {set i 1} {$i <= [template::multirow size in_cart]} {incr i} {
     # option.
 
     set price_line [ec_price_line $product_id $user_id $offer_code]
-    set delete_export_vars [export_url_vars product_id color_choice size_choice style_choice user_id]
+    set delete_export_vars [export_url_vars product_id color_choice size_choice style_choice user_id patron_id participant_id]
 
     # Too bad I have to do another call to get the price. That is
     # because ec_price_line returns canned html instead of the price.

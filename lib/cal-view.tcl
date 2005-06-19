@@ -19,27 +19,45 @@ set calendar_id_list [list]
 
 set package_id [ad_conn package_id]
 set user_id [ad_conn user_id]
-set filters [list]
-set view calendar
+
+set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
+
+set filters {}
 
 # Generate filters based on categories
-lappend filters category_f {
-	label "[_ dotlrn-catalog.categories]"
-	values { ${Course Type} }
-	where_clause { ${Course Type_where_query} }
-    } uncat_f {
-	label "[_ dotlrn-catalog.uncat]"
-	values { "Watch" }
-	where_clause { dc.course_id not in ( select object_id from category_object_map where category_id in \
-						 ( select category_id from categories where tree_id =:tree_id ))
-	}
-    }
-
+# set filters {
+#     uncat_f {
+# 	label "[_ dotlrn-catalog.uncat]"
+# 	values { "Watch" }
+# 	where_clause { dc.course_id not in ( select object_id from category_object_map where category_id in \
+# 						 ( select category_id from categories where tree_id =:tree_id ))
+# 	}
+#     }
+# }
 
 set filter_list [list category_f]
 
-set form [ns_getform]
+set form [rp_getform]
 
+set category_trees [concat [category_tree::get_mapped_trees $cc_package_id] [category_tree::get_mapped_trees $package_id]]
+set course_categories [list]
+set section_categories [list]
+
+foreach tree [category_tree::get_mapped_trees $cc_package_id] {
+    set tree_name [lindex $tree 1]
+    regsub -all { } $tree_name _ f
+    set f [string tolower $f]_f
+
+    ns_log notice "DEBUG:: CATEGORY:: $tree_name"
+
+    lappend filter_list $f
+    set ff [ns_set get $form $f]
+
+    if { ! [empty_string_p $ff] } {
+	set $f $ff
+    }
+    lappend course_categories [lindex $tree 0]
+}
 foreach tree [category_tree::get_mapped_trees $package_id] {
     set tree_name [lindex $tree 1]
     regsub -all { } $tree_name _ f
@@ -53,6 +71,7 @@ foreach tree [category_tree::get_mapped_trees $package_id] {
     if { ! [empty_string_p $ff] } {
 	set $f $ff
     }
+    lappend section_categories [lindex $tree 0]
 }
 
 ns_log notice "DEBUG:: FILTER:: $filter_list"
@@ -75,9 +94,9 @@ if { ! [empty_string_p $level] } {
 }
 
 # Get all tree categories
-set category_trees [linsert [category_tree::get_mapped_trees $package_id] 0 $tree_id]
+#set category_trees [linsert [category_tree::get_mapped_trees $package_id] 0 $tree_id]
+#set category_trees [category_tree::get_mapped_trees $cc_package_id]
 
-set count 0
 foreach tree_id $category_trees {
 
     set tree_id [lindex $tree_id 0]
@@ -104,12 +123,8 @@ foreach tree_id $category_trees {
 	lappend $name [list "${spacer}[lindex "$element" 1]" "[lindex $element 0]&level=[lindex $element 3]" ]
     }
 
-    if { $count == 0 } {
-	set f category_f
-    } else {
-	regsub -all { } $name _ f
-	set f [string tolower $f]_f
-    }
+    regsub -all { } $name _ f
+    set f [string tolower $f]_f
 
     # Get all sub categories
     set map_tree "("
@@ -141,7 +156,7 @@ foreach tree_id $category_trees {
 	append map_tree "0)"
     }
     
-    if { $count == 0 } {
+    if { [lsearch $course_categories $tree_id] != -1 } {
 	if { [string equal $[set ${f}_category_v] ""] } {
 	    set ${name}_where_query "dc.course_id in ( select object_id from category_object_map_tree where tree_id = $tree_id )" 
 	} else {
@@ -154,10 +169,9 @@ foreach tree_id $category_trees {
 	    set ${name}_where_query "dec.community_id in ( select object_id from category_object_map_tree where tree_id = $tree_id and category_id in $map_tree )"
 	}
     }
-    incr count
 }
 
-foreach tree [category_tree::get_mapped_trees $package_id] {
+foreach tree $category_trees {
     set tree_name [lindex $tree 1]
     regsub -all { } $tree_name _ f
     set f [string tolower $f]_f
@@ -169,23 +183,6 @@ foreach tree [category_tree::get_mapped_trees $package_id] {
 	     where_clause "[set ${tree_name}_where_query]"
 	]
 }
-
-
-# Section categories
-#foreach section_tree [category_tree::get_mapped_trees $package_id] {
-#    set tree_list [category_tree::get_tree -all $section_tree]
-#}
-
-# 	age_description_f {
-# 	    label "Age Description"
-# 	    values { ${Age Description} }
-# 	    where_clause { ${Age Description_where_query} }
-# 	}
-
-set filters [linsert $filters 0 date {} view {
-	label "View"
-	values { {List ""} {"" ""} }
-}]
 
 set instructor_community_id [parameter::get -package_id [ad_conn package_id] -parameter InstructorCommunityId -default 0 ]
 set _instructors [dotlrn_community::list_users $instructor_community_id]
@@ -208,6 +205,11 @@ lappend filters instructor \
      and r.community_id = dec.community_id
      and r.rel_type = 'dotlrn_admin_rel'
      and r.user_id in ([join $instructor ,]))}}]
+
+set filters [linsert $filters 0 date {} view {
+    label "View"
+    values { {List ""} }
+}]
 
 set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
 set admin_p [permission::permission_p -object_id $cc_package_id -privilege "admin"]

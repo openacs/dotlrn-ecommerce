@@ -13,13 +13,14 @@ ad_page_contract {
     {page 1}    
     {search:trim ""}
     {return_url ""}
+    section_id:integer,optional
 } -properties {
 } -validate {
 } -errors {
 }
 
 set title "Who is paying for the course?"
-set context {Process Purchase}
+set context [list {Process Purchase}]
 
 if { [empty_string_p $search] } {
     # Clear shopping cart
@@ -36,21 +37,25 @@ if { [empty_string_p $return_url] } {
     set return_url [export_vars -base [ad_conn package_url]admin/course-info {course_id}]
 }
 
-ad_form -name "search" -export { return_url } -form {
+ad_form -name "search" -export { return_url section_id } -form {
     {search:text {label "Search existing users"}}
 }
 
-set add_action "Choose"
+set add_action "Choose Purchaser"
 
 if { ! [empty_string_p $search] } {
 
-    set page_query {
-	select user_id, email, first_names, last_name
-	from dotlrn_users
-	where lower(first_names||' '||last_name||' '||email) like '%'||lower(:search)||'%'
-    }
+    set page_query [subst {
+	select u.user_id, u.email, u.first_names, u.last_name, a.phone, a.line1, a.line2
+	from dotlrn_users u
+	left join ec_addresses a
+	on (u.user_id = a.user_id)
+	where (lower(first_names) like lower(:search)||'%' or
+	       lower(last_name) like lower(:search)||'%' or
+	       lower(email) like lower(:search)||'%' or
+	       lower(phone) like '%'||lower(:search)||'%')
+    }]
     
-
     template::list::create \
 	-name "users" \
 	-multirow "users" \
@@ -72,6 +77,18 @@ if { ! [empty_string_p $search] } {
 	    last_name {
 		label "Last Name"
 	    }
+	    phone {
+		label "Phone Number"
+	    }
+	    address {
+		label "Address"
+		display_template {
+		    @users.line1@
+		    <if @users.line2@ not nil>
+		    <br />@users.line2@
+		    </if>
+		}
+	    }
 	    action {
 		html { nowrap }
 		display_template {
@@ -81,14 +98,15 @@ if { ! [empty_string_p $search] } {
 	} \
 	-filters {
 	    search {}
+	    return_url {}
 	}
 
     db_multirow -extend { add_member_url } users users [subst {
 	$page_query
-	[template::list::page_where_clause -name users -key user_id -and]
+	[template::list::page_where_clause -name users -key u.user_id -and]
     }] {
-	set add_member_url [export_vars -base process-purchase-course { user_id return_url }]
+	set add_member_url [export_vars -base process-purchase-course { user_id return_url section_id }]
     }
 }
 
-set next_url [export_vars -base process-purchase-course { { referer $return_url} }]
+set next_url [export_vars -base process-purchase-course { { referer $return_url } section_id }]

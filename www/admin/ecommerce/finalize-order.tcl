@@ -34,7 +34,7 @@ ad_page_contract {
 
 ec_redirect_to_https_if_possible_and_necessary
 
-set return_url [export_vars -base "../process-purchase-all"]
+set return_url [export_vars -base thank-you { user_id }]
 
 # first do all the normal checks to make sure nobody is doing url
 # or cookie surgery to get here

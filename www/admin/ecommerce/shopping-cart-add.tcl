@@ -130,11 +130,28 @@ for {set i 0} {$i < $item_count} {incr i} {
     db_transaction {
 	set item_id [db_nextval ec_item_id_sequence]
 
-	db_dml insert_new_item_in_order {}
-
-	db_dml insert_new_item_order_dotlrn_ecommerce {
-	    insert into dotlrn_ecommerce_orders (item_id, patron_id, participant_id)
-	    values (:item_id, :user_id, :participant_id)
+	if { ( [exists_and_not_null participant_id] ) } {
+	    set limit_order_p [expr ! [db_string order_exists {
+		select count(*)
+		from ec_items i, dotlrn_ecommerce_orders o, ec_orders eo
+		where i.item_id = o.item_id
+		and i.order_id = eo.order_id
+		and i.product_id = :product_id
+		and o.participant_id = :participant_id
+		and eo.order_state = 'in_basket'
+		and eo.user_session_id = :user_session_id
+	    } -default 0]]
+	} else {
+	    set limit_order_p 1
+	}
+	    
+	if { $limit_order_p } {
+	    db_dml insert_new_item_in_order {}
+	    
+	    db_dml insert_new_item_order_dotlrn_ecommerce {
+		insert into dotlrn_ecommerce_orders (item_id, patron_id, participant_id)
+		values (:item_id, :user_id, :participant_id)
+	    }
 	}
     }
 }

@@ -30,3 +30,52 @@ set assistant_community_url [dotlrn_community::get_community_url $assistant_comm
 set scholarship_installed_p [apm_package_installed_p "scholarship-fund"]
 # HAM : check if expenses is installed
 set expenses_installed_p [apm_package_installed_p "expenses"]
+
+set course_options [db_list_of_lists courses {
+    select course_name, course_id
+    from dotlrn_catalog c, cr_items i
+    where c.course_id = i.live_revision
+    order by lower(course_name)
+}]
+
+set section_options [db_list_of_lists sections {
+    select c.course_name||': '||s.section_name, s.section_id
+    from dotlrn_catalogi c, dotlrn_ecommerce_section s, cr_items i
+    where c.item_id = s.course_id
+    and c.course_id = i.live_revision
+    order by lower(c.course_name||': '||s.section_name)
+}]
+
+ad_form -name courses -form {
+    {course_id:integer(select) {label ""} {options {$course_options}}}
+    {view:text(submit) {label "View Course"}}
+} -on_submit {
+    if { ! [empty_string_p $course_id] } {
+	ad_returnredirect [export_vars -base course-info { course_id }]
+	ad_script_abort
+    }
+}
+
+ad_form -name sections -form {
+    {section_id:integer(select) {label ""} {options {$section_options}}}
+    {purchase:text(submit) {label "Purchase"}}
+    {admin:text(submit) {label "Section Admin"}}
+} -on_submit {
+    if { ! [empty_string_p $section_id] } {
+	if { ! [empty_string_p $purchase] } {
+	    ad_returnredirect [export_vars -base "process-purchase-all" { section_id }]
+	    ad_script_abort
+	}
+	if { ! [empty_string_p $admin] } {
+	    set course_id [db_string course_id {
+		select i.live_revision
+		from dotlrn_ecommerce_section s, cr_items i
+		where s.course_id = i.item_id
+		and s.section_id = :section_id
+	    } -default 0]
+	    
+	    ad_returnredirect [export_vars -base "one-section" { course_id section_id }]
+	    ad_script_abort	
+	}
+    }
+}

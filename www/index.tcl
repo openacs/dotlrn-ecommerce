@@ -1,13 +1,9 @@
 ad_page_contract {
-    Index for course administration
-    @author          Miguel Marin (miguelmarin@viaro.net) 
-    @author          Viaro Networks www.viaro.net
-    @creation-date   31-01-2005
-
+    User Index for courses
 } {
     {view "list"}
 }
-set page_title "[_ dotlrn-catalog.course_catalog]"
+set page_title "Course Catalog "
 set context ""
 
 set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]

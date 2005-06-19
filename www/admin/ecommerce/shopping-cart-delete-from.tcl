@@ -10,11 +10,14 @@ ad_page_contract {
   @author ported by Jerry Asher (jerry@theashergroup.com)
 } {
     product_id:integer
+
     color_choice:optional
     size_choice:optional
     style_choice:optional
 
-    user_id:integer,notnull    
+    user_id:integer,notnull,optional
+    patron_id:integer,notnull,optional
+    participant_id:integer,notnull,optional
 }
 
 
@@ -30,6 +33,12 @@ if { [empty_string_p $order_id] } {
     # into their empty shopping cart
     rp_internal_redirect shopping-cart
     ad_script_abort
+}
+
+if { [exists_and_not_null patron_id] && [exists_and_not_null participant_id] } {
+    set process_purchase_clause [db_map delete_item_from_cart_purchase_process]
+} else {
+    set process_purchase_clause ""
 }
 
 db_dml delete_item_from_cart "delete from ec_items where order_id=:order_id and product_id=:product_id and color_choice [ec_decode $color_choice "" "is null" "= :color_choice"] and size_choice [ec_decode $size_choice "" "is null" "= :size_choice"] and style_choice [ec_decode $style_choice "" "is null" "= :style_choice"]"

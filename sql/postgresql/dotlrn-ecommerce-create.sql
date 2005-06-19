@@ -48,7 +48,8 @@ create table person_info (
 	person_id 	integer references persons not null,
 	grade		text,
 	allergies 	text,
-	age		integer
+	age		integer,
+	special_needs	text
 );
 
 create table dotlrn_ecommerce_orders (

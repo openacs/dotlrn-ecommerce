@@ -11,7 +11,7 @@ ad_page_contract {
 
 set return_url [ad_return_url]
 set user_id [ad_conn user_id]
-set context [list "[_ dotlrn-catalog.course_list]"]
+set context [list "Course List"]
 set page_title "[_ dotlrn-catalog.course_list]"
 
 set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]

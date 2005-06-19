@@ -79,20 +79,26 @@ if { [exists_and_not_null rel_group_id] } {
 }
 
 # Roel: Extra info for students
+set tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
+set grade_options [list {}]
+foreach tree [category_tree::get_tree $tree_id] {
+    lappend grade_options [list [lindex $tree 1] [lindex $tree 0]]
+}
+
 ad_form -extend -name register -form {
-    {grade:text,optional
+    {grade:text(select),optional
 	{label "Grade"}
-	{html {size 10}}
+	{options {$grade_options}}
     }
 
     {allergies:text,optional
-	{label "Allergies"}
+	{label "Medical Issues"}
 	{html {size 40}}
     }
 
-    {age:integer,optional
-	{label "Age"}
-	{html {size 10}}
+    {special_needs:text,optional
+	{label "Special Needs"}
+	{html {size 40}}
     }
 
     {add:text(submit) {label "Add Participant"}}
@@ -118,17 +124,22 @@ ad_form -extend -name register -on_request {
                                      -secret_question $secret_question \
                                      -secret_answer $secret_answer]
      
-        if { [string equal $creation_info(creation_status) "ok"] && [exists_and_not_null rel_group_id] } {
-            group::add_member \
-                -group_id $rel_group_id \
-                -user_id $user_id \
-                -rel_type $rel_type
-        }
+        if { [string equal $creation_info(creation_status) "ok"] } {
+	    if { [exists_and_not_null rel_group_id] } {
+		group::add_member \
+		    -group_id $rel_group_id \
+		    -user_id $user_id \
+		    -rel_type $rel_type
+	    }
 
-	db_dml insert_extra_info {
-	    insert into person_info (person_id, grade, allergies, age)
-	    values (:user_id, :grade, :allergies, :age)
-	}
+	    set created_user_id $creation_info(user_id)
+	    db_dml insert_extra_info {
+		insert into person_info (person_id, allergies, special_needs)
+		values (:created_user_id, :allergies, :special_needs)
+	    }
+
+	    category::map_object -remove_old -object_id $user_id [list $grade]
+        }
     }
 
     # Handle registration problems

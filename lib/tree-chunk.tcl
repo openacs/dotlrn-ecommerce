@@ -215,8 +215,8 @@ lappend filters instructor \
 # 	}
 
 set filters [linsert $filters 0 view {
-	label "[_ dotlrn-ecommerce.View]"
-	values { {"" ""} {Calendar "calendar"} }
+    label "[_ dotlrn-ecommerce.View]"
+    values { {Calendar "calendar"} }
 }]
 
 set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
@@ -246,7 +246,7 @@ template::list::create \
 	    label "[_ dotlrn-catalog.course_key]"
 	    display_template {
 		<div align=left>
-		<a href="sections?course_id=@course_list.course_id@">@course_list.course_key@</a>
+		<a href="sections?course_id=@course_list.course_id@">@course_list.course_key@</a> 
 		</div>
 	    }
 	    hide_p 1
@@ -255,27 +255,38 @@ template::list::create \
 	    label "[_ dotlrn-catalog.course_name]"
 	    display_template {
 		<div align=left>
-		@course_list.course_name@
+	        @course_list.course_name@
 		</div>
 	    }
 	    hide_p 1
 	}
-	section_name {
+	spacing {
 	    label ""
 	    display_template {
-		<if @course_list.section_id@ not nil>
+	    }
+	    html { width 10% bgcolor=white }
+	}
+	section_name {
+	    label ""
+	    
+	    display_template {
+		<if @course_list.section_id@ not nil> 
 		<if @admin_p@ eq 1 or @course_list.member_p@ eq 1>
-		<b>Section <a href="@course_list.community_url;noquote@">@course_list.section_name@</a></b>
+		<b>Section: <a href="@course_list.community_url;noquote@">@course_list.section_name@</a></b>
 		</if>
 		<else>
 		<b>Section @course_list.section_name@</b>
 		</else>
+
 		<if @course_list.section_grades@ not nil> (@course_list.section_grades@)</if>
 		<if @course_list.sessions@ not nil><br />@course_list.sessions;noquote@</if>
 		<if @course_list.instructors@ not nil><br />@course_list.instructors;noquote@</if>
 		<if @course_list.prices@ not nil><br />@course_list.prices;noquote@</if>
+		<br />@course_list.attendees;noquote@ participant<if @course_list.attendees@ gt 1>s</if>
+		<if @course_list.available_slots@ not nil and @course_list.available_slots@ gt 0>,<br />@course_list.available_slots;noquote@ available</if>
+
 	    }
-	    html { width 50% }
+	    html { width 40% }
 	}
 	category {
 	    label "[_ dotlrn-catalog.category]"
@@ -294,6 +305,7 @@ template::list::create \
 	actions {
 	    label ""
 	    display_template {
+		
 		<if @course_list.member_p@ eq 0>
 		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.add_to_cart]</a>
 		</if>
@@ -303,7 +315,7 @@ template::list::create \
 		</if>
 		</if>
 	    }
-	    html { width 50% nowrap }
+	    html { width 40% nowrap }
 	}
     } -orderby {
 	course_name {
@@ -315,21 +327,19 @@ template::list::create \
 	values {
 	    { { <a name="@course_list.course_key@" /><if @admin_p@ eq 1><a href="admin/course-info?course_id=@course_list.course_id@" class="button">[_ dotlrn-ecommerce.info]</a> <a href="@course_list.course_edit_url;noquote@" class="button">[_ dotlrn-ecommerce.edit]</a> <a href="@course_list.section_add_url;noquote@" class="button">[_ dotlrn-ecommerce.add_section]</a></if>
 		<br />@course_list.course_grades@
-		<blockquote>
+	       <p>
 		@course_list.course_info;noquote@
-		</blockquote>}
+		<p>
+		
+	    }
 		{ {groupby course_name} {orderby course_name} } }
 	}
     }
 
 
-set grade_tree_id [db_string grade_tree {
-    select tree_id
-    from category_tree_translations 
-    where name = 'Grade'
-} -default 0]
+set grade_tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
 
-db_multirow -extend { category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructors prices shopping_cart_add_url } course_list get_courses { } {
+db_multirow -extend { category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructors prices shopping_cart_add_url attendees available_slots } course_list get_courses { } {
 #     set mapped [category::get_mapped_categories $course_id]
 
 #     foreach element $mapped {
@@ -401,6 +411,18 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
 	}
 	if { ! [empty_string_p $instructors] && $member_p } {
 	    append instructors " <a href=\"${community_url}facilitator-bio\" class=\"button\">[_ dotlrn-ecommerce.view_bios]</a>"
+	}
+
+	db_1row attendees {
+	    select count(*) as attendees
+	    from dotlrn_member_rels_approved
+	    where community_id = :community_id
+	    and (rel_type = 'dotlrn_member_rel'
+		 or rel_type = 'dotlrn_club_student_rel')
+	}
+
+	if { ! [empty_string_p $maxparticipants] } {
+	    set available_slots [expr $maxparticipants - $attendees]
 	}
     }
 

@@ -19,9 +19,9 @@ ad_page_contract {
 # TODO DaveB is there a Tcl proc for course info?
 
 if { [string equal $index ""] } {
-    set context [list [list "course-list" "[_ dotlrn-catalog.course_list]"] "[_ dotlrn-catalog.one_course_info]"]
+    set context [list [list "course-list" "Course List"] "$course_name"]
 } else {
-    set context [list [list "../course-info?course_id=$course_id" "[_ dotlrn-catalog.one_course_info]"] "$course_name [_ dotlrn-catalog.course_info]"]
+    set context [list [list "../course-info?course_id=$course_id" "[_ dotlrn-catalog.one_course_info]"] "$course_name"]
     set return_url "${return_url}&index=yes"
 }
 
@@ -29,7 +29,7 @@ if { [string equal $index ""] } {
 permission::require_permission -object_id $course_id -privilege "admin"
 
 db_1row get_course_info { } 
-set page_title "$course_key"
+set page_title "$course_name"
 
 set asm_name [db_string get_asm_name { } -default "[_ dotlrn-catalog.not_associated]"]
 set item_id [dotlrn_catalog::get_item_id -revision_id $course_id]
@@ -162,6 +162,7 @@ template::list::create \
 		<else>
                     <a href="../dotlrn-info?object_id=@com_list.object_id@&type=community&course_id=$course_id&course_name=$name&course_key=$course_key">@com_list.pretty_name@</a>
 		</else>
+
             }
         }
     }
@@ -172,7 +173,7 @@ set return_url [ns_urlencode "course-info?course_id=$course_id&course_key=$cours
 
 set community_url ""
 
-db_multirow -extend {community_url calendar_url num_sessions attendees available_slots} section_list section_list { 
+db_multirow -extend {community_url calendar_url num_sessions attendees available_slots sessions} section_list section_list { 
     select s.section_id, s.section_name, s.product_id, s.community_id, v.maxparticipants
     from dotlrn_ecommerce_section s, dotlrn_catalogi c, ec_custom_product_field_values v
     where s.course_id = c.item_id
@@ -204,6 +205,8 @@ db_multirow -extend {community_url calendar_url num_sessions attendees available
     if { ! [empty_string_p $maxparticipants] } {
 	set available_slots [expr $maxparticipants - $attendees]
     }
+    
+    set sessions [util_memoize [list dotlrn_ecommerce::section::sessions $calendar_id]]
 }
 
 template::list::create \
@@ -215,19 +218,13 @@ template::list::create \
 	name {
 	    label "Name"
 	    display_template {
-		<a href=section-add-edit?course_id=$course_id&section_id=@section_list.section_id@&return_url=$return_url>@section_list.section_name@</a>
+		<a href=one-section?section_id=@section_list.section_id@>@section_list.section_name@</a>
 	    }
 	}
-	community {
-	    label "Community"
+	dates {
+	    label "Dates"
 	    display_template {
-		<a href="@section_list.community_url;noquote@">User</a>-<a href="@section_list.community_url;noquote@/one-community-admin">Admin</a>
-	    }
-	}
-	product {
-	    label "Product"
-	    display_template {
-		<a href=/ecommerce/admin/products/one?product_id=@section_list.product_id@>Product</a>
+		@section_list.sessions;noquote@
 	    }
 	}
 	registration {
@@ -237,32 +234,11 @@ template::list::create \
 		@section_list.attendees@ participant<if @section_list.attendees@ ne 1>s</if><if @section_list.available_slots@ not nil>,<br />@section_list.available_slots@ available</if>
 	    }
 	}
-	num_sessions {
-	    label "Sessions"
-	    display_template {
-		<a href=\"@section_list.calendar_url@/view?[export_vars -url {{view list} {period_days 365}}]\" target=new>@section_list.num_sessions@ Sessions</a> Scheduled.<br> <a href=\"@section_list.calendar_url@/cal-item-new?[export_vars -url {calendar_id item_type_id {view day}}]\" target=new>Add Session</a>
-	    }
-	}
-	attendance {
-	    label "Attendance"
-	    display_template {
-		<a href=@section_list.community_url@attendance/admin/>Attendance</a> <br>
-		<a href="patrons?section_id=@section_list.section_id@">Related Users</a><br>
-	    }
-	}
-	expenses {
-	    label "Expenses"
-	    display_template {
-		<a href=@section_list.community_url@expense-tracking/admin/>Expenses</a>
-	    }
-	}
 	members {
 	    label "Purchases"
 	    html { align center }
 	    display_template {
-
-		<a href="process-purchase?section_id=@section_list.section_id@">Individual</a><br>
-		<a href="process-group-purchase?section_id=@section_list.section_id@">Group</a>
+		<a href="process-purchase-all?section_id=@section_list.section_id@">Process Purchase</a>
 	    }
 	}
 	actions {

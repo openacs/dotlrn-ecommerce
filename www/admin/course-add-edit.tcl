@@ -35,6 +35,8 @@ if { [info exist mode] } {
     set mode_p edit
 }
 
+
+
 # Get assessments
 set asm_list [list [list "[_ dotlrn-catalog.not_associate]" "-1"]]
 db_foreach assessment { } {
@@ -126,6 +128,14 @@ ad_form -extend -name add_course -on_submit {
     # add the calendar item type "session"
     set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id $community_id]
     set item_type_id [calendar::item_type_new -calendar_id $calendar_id -type "Session"]
+
+    # HAM : let's now add a "Section Administration" for the master community
+    set admin_portal_id [dotlrn_community::get_admin_portal_id -community_id $community_id]
+    set element_id [dotlrn_ecommerce_admin_portlet::add_self_to_page -portal_id $admin_portal_id -package_id [db_string "getpackage_id" "select package_id from dotlrn_communities where community_id=:community_id"]]
+    ns_log Notice "DEBUG : Added Admin Portal $element_id"
+    # we want the section admin portlet to be at the top
+    db_dml "bring_portlet_to_top" "update portal_element_map set sort_key=0, region=1 where element_id=:element_id"
+
 
     foreach attribute $attribute_list {
 	set attr_name [lindex $attribute 2]

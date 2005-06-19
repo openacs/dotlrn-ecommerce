@@ -1,8 +1,7 @@
 # packages/dotlrn-ecommerce/www/admin/patrons.tcl
 
 ad_page_contract {
-    
-    
+        
     
     @author Roel Canicula (roelmc@pldtdsl.net)
     @creation-date 2005-05-28
@@ -40,7 +39,7 @@ template::list::create \
 	    }
 	}
 	patron_p {
-	    label "Patron for this Section"
+	    label "Purchased this Section?"
 	    display_template {
 		<if @patrons.patron_p@ not nil>
 		Yes
@@ -111,10 +110,10 @@ on (r.object_id_two = a.user_id)
     }
 }
 
-db_1row get_section_info "select c.course_id, s.section_name
+db_1row get_section_info "select c.course_id, c.course_name, s.section_name
     from dotlrn_ecommerce_section s, dotlrn_catalogi c, cr_items ci
     where s.course_id = c.item_id
     and ci.live_revision=c.revision_id
     and s.section_id = :section_id"
 
-set context [list [list [export_vars -base course-info { course_id }] $section_name] "Participants and Patrons"]
+set context [list [list [export_vars -base course-info { course_id }] $course_name] [list "one-section?section_id=$section_id" "$section_name"]  "Related Users"]

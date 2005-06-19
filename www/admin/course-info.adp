@@ -1,10 +1,8 @@
 <master>
 <property name=title>@page_title@</property>
 <property name="context">@context;noquote@</property>
-<br>
 
-
-<table>
+<table cellpadding=0 cellspacing=0>
 <if @index@ eq "yes">
    <if @admin_p@ eq 1>
    <div align="left">
@@ -96,7 +94,7 @@
       </else>
    </if>
    <else>
-	<a class=button href=section-add-edit?course_id=@course_id@&return_url=@return_url@>Add a section</a>
+	<a class=button href=section-add-edit?course_id=@course_id@&return_url=>Add a section</a>
 	<a class=button href=course-add-edit?course_id=@course_id@&mode=1>Edit</a>
          <a class=button href="course-delete?object_id=@item_id@&creation_user=@creation_user@&course_key=@course_key@" title="#dotlrn-catalog.delete_this#">#dotlrn-catalog.delete#</a>
 	<if @category_p@ eq "-1">

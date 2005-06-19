@@ -1,5 +1,3 @@
-<br>
-
 <STYLE TYPE="text/css">
 table.list {
   font-family: tahoma, verdana, helvetica; 
