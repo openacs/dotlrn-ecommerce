@@ -14,16 +14,23 @@
         <description format="text/html">Package to tie the dotLRN, Ecommerce, Assessments and dotLRN Catalog packages together.  Initially intended for the MOS and MGH projects, the goal is to create a reusable module for similar projects.</description>
 
         <provides url="dotlrn-ecommerce" version="0.1d"/>
+	<requires url="categories" version="1.1d3"/>
+        <requires url="dotlrn-catalog" version="0.1a4"/>
+	<requires url="assessment" version="0.11"/>
+	<requires url="ecommerce" version="5.05"/>
+	<requires url="dotlrn" version="2.1.2d1"/>
+	<requires url="acs-kernel" version="5.2.0d2"/>
+
 
         <callbacks>
             <callback type="after-install"  proc="dotlrn_ecommerce::install"/>
         </callbacks>
         <parameters>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="AssistantCommunityId"  description="Specify the community id whose members we will use in the Assistant field in the add section form."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="GradeCategoryTree"  description="Category tree to hold participant grades"/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="InstructorCommunityId"  description="Specify the community id whose members we will use in the Instructors field in Add Section."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="MemberPriceP"  default="0" description="Whether we give special sale price to members."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="PatronRelationshipCategoryTree"  description="Category tree to use when adding participant-patron relationships."/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  default="" name="AssistantCommunityId"  description="Specify the community id whose members we will use in the Assistant field in the add section form."/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  default="" name="InstructorCommunityId"  description="Specify the community id whose members we will use in the Instructors field in Add Section."/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  default="" name="GradeCategoryTree"  description="Category tree to hold participant grades"/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  default="" name="PatronRelationshipCategoryTree"  description="Category tree to use when adding participant-patron relationships."/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  default="0.00" name="MemberPriceP"  default="0" description="Whether we give special sale price to members."/>
         </parameters>
 
     </version>

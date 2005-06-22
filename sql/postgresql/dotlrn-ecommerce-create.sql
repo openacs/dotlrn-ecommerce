@@ -60,3 +60,4 @@ create table dotlrn_ecommerce_orders (
 );
 
 \i dotlrn-ecommerce-memberships-create.sql
+\i dotlrn-ecommerce-admin-portlet-create.sql

@@ -13,6 +13,7 @@ ad_library {
 namespace eval dotlrn_ecommerce {}
 
 ad_proc -private dotlrn_ecommerce::install {
+
 } {
     After install callback
     
@@ -30,7 +31,7 @@ ad_proc -private dotlrn_ecommerce::install {
     catch {
 	rel_types::new -supertype dotlrn_member_rel -role_two student dotlrn_club_student_rel "dotLRN Club Student" "dotLRN Club Students" dotlrn_club 0 "" user 0 ""
 	rel_types::new -supertype dotlrn_member_rel -role_two instructor dotlrn_club_instructor_rel "dotLRN Club Instructor" "dotLRN Club Instructors" dotlrn_club 0 "" user 0 ""
-    }
+   }
 
     rel_types::new -role_one user -role_two user patron_rel "Patron" "Patrons" user 0 65535 user 0 65535
 
@@ -41,6 +42,7 @@ ad_proc -private dotlrn_ecommerce::install {
     rel_types::new -role_one as_session_role -role_two ec_product_role as_session_ec_product_rel "Assessment Session to ECommerce Product" "Assessment Sessions to ECommerce Products" as_sessions 0 1 ec_product 0 1
 
     rel_types::new -role_one member_rel_role -role_two user membership_patron_rel "Membership Patron" "Membership Patrons" dotlrn_member_rel 0 65535 user 0 65535
+
 }
 
 ad_proc -private dotlrn-catalog::package_mount {
@@ -51,6 +53,7 @@ ad_proc -private dotlrn-catalog::package_mount {
     
 } {
     # To categorize courses
-    set tree_id [category_tree::add -name "dotlrn-section-terms"]
+    set tree_id [category_tree::add -name "Terms"]
     category_tree::map -tree_id $tree_id -object_id $package_id
+
 }
