@@ -183,9 +183,11 @@ foreach tree $category_trees {
 
 set instructor_community_id [parameter::get -package_id [ad_conn package_id] -parameter InstructorCommunityId -default 0 ]
 set _instructors [dotlrn_community::list_users $instructor_community_id]
+
 set __instructors [list]
 if { [llength $_instructors] == 0 } {
     set _instructors 0
+    set instructors_filter ""
 } else {
     foreach _instructor $_instructors {
 	lappend __instructors [ns_set get $_instructor user_id]
