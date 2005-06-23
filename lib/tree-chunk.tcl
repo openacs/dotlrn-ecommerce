@@ -229,7 +229,7 @@ set actions [list]
 lappend actions "[_ dotlrn-ecommerce.View_All]" ? "[_ dotlrn-ecommerce.View_All]"
 
 if { $admin_p } {
-    lappend actions "[_ dotlrn-ecommerce.Add_Course]" admin/course-add-edit "[_ dotlrn-ecommerce.View_All]"
+    lappend actions "[_ dotlrn-ecommerce.Add_Course]" admin/course-add-edit "[_ dotlrn-ecommerce.Add_Course]"
 }
 
 template::list::create \
@@ -286,7 +286,7 @@ template::list::create \
 		<if @course_list.prices@ not nil><br />@course_list.prices;noquote@</if>
 		<br />@course_list.attendees;noquote@ participant<if @course_list.attendees@ gt 1>s</if>
 		<if @course_list.available_slots@ not nil and @course_list.available_slots@ gt 0>,<br />@course_list.available_slots;noquote@ available</if>
-
+		</if>
 	    }
 	    html { width 40% }
 	}
@@ -307,14 +307,16 @@ template::list::create \
 	actions {
 	    label ""
 	    display_template {
-		
-		<if @course_list.member_p@ eq 0>
+		<if @course_list.member_p@ eq 0 and @course_list.pending_p@ eq 0>
 		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.add_to_cart]</a>
 		</if>
-
+		
 		<if @admin_p@ eq 1>
 		<a href="@course_list.section_edit_url;noquote@" class="button">[_ dotlrn-ecommerce.edit]</a>
 		</if>
+
+		<if @course_list.pending_p@ eq 1>
+		<font color="red">(application pending)</font>
 		</if>
 	    }
 	    html { width 40% nowrap }
@@ -341,7 +343,7 @@ template::list::create \
 
 set grade_tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
 
-db_multirow -extend { category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructors prices shopping_cart_add_url attendees available_slots } course_list get_courses { } {
+db_multirow -extend { category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructors prices shopping_cart_add_url attendees available_slots pending_p } course_list get_courses { } {
 #     set mapped [category::get_mapped_categories $course_id]
 
 #     foreach element $mapped {
@@ -356,9 +358,10 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
     set section_edit_url [export_vars -base admin/section-add-edit { course_id section_id return_url }]
     set sections_url [export_vars -base sections { course_id }]
 
-    set shopping_cart_add_url [export_vars -base [apm_package_url_from_key "ecommerce"]shopping-cart-add { product_id }]
+    set shopping_cart_add_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id }]
 
     set member_p [dotlrn_community::member_p $community_id $user_id]
+    set pending_p [dotlrn_community::member_pending_p -community_id $community_id -user_id $user_id]
     
     set section_grades ""
     set course_grades ""
