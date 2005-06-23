@@ -30,7 +30,7 @@
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  default="" name="InstructorCommunityId"  description="Specify the community id whose members we will use in the Instructors field in Add Section."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  default="" name="GradeCategoryTree"  description="Category tree to hold participant grades"/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  default="" name="PatronRelationshipCategoryTree"  description="Category tree to use when adding participant-patron relationships."/>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  default="0.00" name="MemberPriceP"  default="0" description="Whether we give special sale price to members."/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  default="1" name="MemberPriceP"  default="0" description="Whether we give special sale price to members."/>
         </parameters>
 
     </version>

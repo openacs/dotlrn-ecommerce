@@ -59,5 +59,10 @@ create table dotlrn_ecommerce_orders (
 	participant_id	integer	references parties(party_id) on delete cascade not null
 );
 
+-- Create custom ecommerce field
+insert into ec_custom_product_fields (field_identifier, field_name, default_value, column_type, last_modified,last_modifying_user, modified_ip_address) values ('maxparticipants', 'Max Participants', '', 'integer', now(), '0', '0.0.0.0');
+alter table ec_custom_product_field_values add maxparticipants integer;
+alter table ec_custom_p_field_values_audit add maxparticipants integer;
+
 \i dotlrn-ecommerce-memberships-create.sql
 \i dotlrn-ecommerce-admin-portlet-create.sql
