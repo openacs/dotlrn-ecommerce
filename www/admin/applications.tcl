@@ -18,6 +18,7 @@ ad_page_contract {
 template::list::create \
     -name "applications" \
     -multirow "applications" \
+    -no_data "No pending applications" \
     -elements {
 	community_name {
 	    label "Section"
@@ -32,19 +33,22 @@ template::list::create \
 	    label "Application"
 	    display_template {
 		&lt;link to asessment result&gt;
+		<br />Open in new window
 	    }
 	}
 	actions {
 	    label ""
 	    display_template {
-		<a href="#" class="button">Approve</a>
+		<a href="@applications.approve_url;noquote@" class="button">Approve</a>
 	    }
 	}
     }
 
-db_multirow -extend { } applications applications {
-    select pretty_name as community_name, person__name(user_id) as person_name, member_state
+db_multirow -extend { approve_url } applications applications {
+    select pretty_name as community_name, person__name(user_id) as person_name, member_state, c.community_id, user_id
     from dotlrn_member_rels_full r, dotlrn_communities_all c
     where r.community_id = c.community_id
     and member_state = 'needs approval'
+} {
+    set approve_url [export_vars -base application-approve { community_id user_id }]
 }
