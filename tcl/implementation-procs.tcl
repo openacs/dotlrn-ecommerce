@@ -24,11 +24,12 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
     }
 
     db_foreach items_in_order {
-	select i.product_id, o.patron_id as saved_patron_id, o.participant_id
-	from ec_items i, dotlrn_ecommerce_orders o
+	select i.product_id, o.patron_id as saved_patron_id, o.participant_id, t.method
+	from dotlrn_ecommerce_orders o, ec_items i left join dotlrn_ecommerce_transactions t
+	on (i.order_id = t.order_id)
 	where i.item_id = o.item_id
 	and i.order_id = :order_id
-	group by i.product_id, o.patron_id, o.participant_id
+	group by i.product_id, o.patron_id, o.participant_id, t.method
     } {
 	if { [empty_string_p $participant_id] } {
 	    if { [exists_and_not_null user_id] } {
@@ -72,7 +73,11 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 		
 		if { [catch {
 
-		    dotlrn_community::add_user $community_id $user_id
+		    if { [empty_string_p $method] || $method == "cc" } {
+			dotlrn_community::add_user $community_id $user_id
+		    } else {
+			dotlrn_community::add_user -member_state "needs approval" $community_id $user_id
+		    }
 
 		    if { ! [exists_and_not_null patron_id] } {
 			set patron_id $saved_patron_id
