@@ -43,6 +43,16 @@ ad_proc -private dotlrn_ecommerce::install {
 
     rel_types::new -role_one member_rel_role -role_two user membership_patron_rel "Membership Patron" "Membership Patrons" dotlrn_member_rel 0 65535 user 0 65535
 
+    set attribute_list [package_object_attribute_list -start_with dotlrn_catalog dotlrn_catalog]
+    set sort_order [expr [llength $attribute_list] + 1]
+
+    content::type::attribute::new \
+	-content_type "dotlrn_catalog" \
+	-attribute_name "community_id" \
+	-datatype "integer" \
+	-pretty_name "Template Community" \
+	-sort_order $sort_order \
+	-column_spec integer
 }
 
 ad_proc -private dotlrn-catalog::package_mount {
