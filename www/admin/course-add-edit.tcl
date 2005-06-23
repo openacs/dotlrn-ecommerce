@@ -53,7 +53,6 @@ set elements ""
 set count 1
 foreach attribute $attribute_list {
     switch [lindex $attribute 2] {
-	assessment_id { continue }
 	community_id { continue }
     }
     set element_mode ""
