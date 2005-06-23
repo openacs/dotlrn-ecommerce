@@ -59,6 +59,12 @@ create table dotlrn_ecommerce_orders (
 	participant_id	integer	references parties(party_id) on delete cascade not null
 );
 
+create table dotlrn_ecommerce_transactions (
+	order_id	 integer references ec_orders on delete cascade not null unique,
+	method		 text check (method in ('cc', 'internal_account', 'check')) not null,
+	internal_account text
+);
+
 -- Create custom ecommerce field
 insert into ec_custom_product_fields (field_identifier, field_name, default_value, column_type, last_modified,last_modifying_user, modified_ip_address) values ('maxparticipants', 'Max Participants', '', 'integer', now(), '0', '0.0.0.0');
 alter table ec_custom_product_field_values add maxparticipants integer;
