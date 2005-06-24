@@ -8,7 +8,7 @@ table.list {
 
 <table cellpadding="3" cellspacing="3">
   <tr>
-    <td class="list-filter-pane-big" valign="top" width=20%>
+    <td class="list-filter-pane-big" valign="top" width="20%">
         <listfilters name="course_list" style="course-filters"></listfilters>
     </td>
     <td valign="top">
