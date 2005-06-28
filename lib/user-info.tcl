@@ -146,12 +146,12 @@ ad_form -extend -name user_info  -export { section_id add_url } -form {
 
     {allergies:text,optional
 	{label "Medical Issues"}
-	{html {size 40}}
+	{html {size 60}}
     }
 
     {special_needs:text,optional
 	{label "Special Needs"}
-	{html {size 40}}
+	{html {size 60}}
     }
 
     {add:text(submit) {label "Proceed"}}
