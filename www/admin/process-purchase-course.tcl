@@ -325,9 +325,6 @@ if { ! $participant_id } {
     lappend validate {name
 	{ ! [empty_string_p $name] || [template::element::get_value participant related_user] != -1 }
 	"Please enter a name for the group"
-    } {name
-	{ [db_string group {select 1 from groups where group_name = :name} -default 0] }
-	"Group name already exists"
     } {num_members
 	{ ! [empty_string_p $num_members] || [template::element::get_value participant related_user] != -1 }
 	"Please enter the number of attendees"
@@ -467,8 +464,14 @@ ad_form -extend -name "participant" -export { user_id return_url new_user_p } -v
     set item_count 1
     if { $related_user == -1 && ! [empty_string_p $name] && ! [empty_string_p $num_members] } {
 	set group_id [db_nextval acs_object_id_seq]
-
 	set unique_group_name "${name}_${group_id}"
+
+	# Test once then give up
+	if { [db_string group {select 1 from groups where group_name = :unique_group_name} -default 0] } {
+	    set group_id [db_nextval acs_object_id_seq]
+	    set unique_group_name "${name}_${group_id}"
+	}
+
 	group::new -group_id $group_id -group_name $unique_group_name
 	set section_community_id [db_string get_community_id "select community_id from dotlrn_ecommerce_section where section_id=:section_id" -default ""]
 	if {[string equal "" $section_community_id]} {
@@ -476,8 +479,8 @@ ad_form -extend -name "participant" -export { user_id return_url new_user_p } -v
 	}
 	for { set i 1 } { $i <= $num_members } { incr i } {
 	    array set new_user [auth::create_user \
-				    -username "${name} Attendee $i" \
-				    -email "[util_text_to_url -text ${name}-attendee-${i}]@example.com" \
+				    -username "${name} ${group_id} Attendee $i" \
+				    -email "[util_text_to_url -text ${name}-${group_id}-attendee-${i}]@mos.zill.net" \
 				    -first_names "$name" \
 				    -last_name "Attendee $i" \
 				    -nologin]
@@ -485,7 +488,7 @@ ad_form -extend -name "participant" -export { user_id return_url new_user_p } -v
 	    if { [info exists new_user(user_id)] } {
 		relation_add -member_state approved membership_rel $group_id $new_user(user_id)
 	    } else {
-		ad_return_complaint 1 "There was a problem creating the account \"$name Attendee $i\"."
+		ad_return_complaint 1 "There was a problem creating the account \"$name $group_id Attendee $i\"."
 		ad_script_abort
 	    }
 	}
