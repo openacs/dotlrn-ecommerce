@@ -24,6 +24,7 @@ ad_page_contract {
     {__refreshing_p 0}
 
     {related_user 0}
+    {new_user_p 0}
 } -properties {
 } -validate {
 } -errors {
@@ -45,7 +46,7 @@ acs_user::get -user_id $user_id -array user_info
 
 set title "Purchase courses/sections for [person::name -person_id $user_id]"
 
-set next_url [export_vars -base process-purchase-course { {purchaser_id $user_id} participant participant_id section section_id related_user }]
+set next_url [export_vars -base process-purchase-course { {purchaser_id $user_id} participant participant_id section section_id related_user {new_user_p 1} }]
 
 if { ! [dotlrn::user_p -user_id $user_id] } {
     dotlrn::user_add -user_id $user_id
@@ -423,7 +424,7 @@ if { [empty_string_p $maxparticipants] } {
 }
 
 set return_url [ad_return_url]
-ad_form -extend -name "participant" -export { user_id return_url } -validate $validate -form {
+ad_form -extend -name "participant" -export { user_id return_url new_user_p } -validate $validate -form {
 } -on_request {
     set related_user 0
 } -on_submit {
@@ -491,7 +492,13 @@ ad_form -extend -name "participant" -export { user_id return_url } -validate $va
     
     set add_url [export_vars -base "ecommerce/shopping-cart-add" { product_id user_id participant_id item_count }]
     set participant_id [ad_decode $participant_id 0 $user_id $participant_id]
-    ad_returnredirect [export_vars -base "participant-add" { {user_id $participant_id} section_id return_url add_url }]
+
+    if { $new_user_p } {
+	ad_returnredirect $add_url
+    } else {
+	ad_returnredirect [export_vars -base "participant-add" { {user_id $participant_id} section_id return_url add_url }]
+    }
+
     ad_script_abort
 }
 
