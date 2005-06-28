@@ -325,6 +325,9 @@ if { ! $participant_id } {
     lappend validate {name
 	{ ! [empty_string_p $name] || [template::element::get_value participant related_user] != -1 }
 	"Please enter a name for the group"
+    } {name
+	{ [db_string group {select 1 from groups where group_name = :name} -default 0] }
+	"Group name already exists"
     } {num_members
 	{ ! [empty_string_p $num_members] || [template::element::get_value participant related_user] != -1 }
 	"Please enter the number of attendees"
@@ -479,7 +482,12 @@ ad_form -extend -name "participant" -export { user_id return_url new_user_p } -v
 				    -last_name "Attendee $i" \
 				    -nologin]
 	    
-	    relation_add -member_state approved membership_rel $group_id $new_user(user_id)
+	    if { [info exists new_user(user_id)] } {
+		relation_add -member_state approved membership_rel $group_id $new_user(user_id)
+	    } else {
+		ad_return_complaint 1 "There was a problem creating the account \"$name Attendee $i\"."
+		ad_script_abort
+	    }
 	}
 	relation_add relationship $group_id $section_community_id
 
