@@ -42,7 +42,7 @@
 	  </td>
 	  <td>
 	    <if @in_cart.participant_type@ eq "group">
-	      Group: @group.group_name@
+	      Group: @in_cart.participant_name@
 	    </if>
 	    <else>
 	      @in_cart.participant_name@

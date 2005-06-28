@@ -159,6 +159,7 @@ db_multirow -extend { line_subtotal patron_name participant_name participant_typ
 		  set participant_name [person::name -person_id $participant_id]
 	      } else {
 		  group::get -group_id $participant_id -array group
+		  set participant_name $group(group_name)
 	      }
 	  }
       }
