@@ -118,11 +118,20 @@
     <p><b>Or enter a new credit card:</b></p>
     <p>If you're using a new card, please enter the full credit card number below.</p>
   </if>
-	<input type="radio" name="method" value="internal_account" /> Internal account number:
+
+      <if @internal_account_p@ defined>
+	<input type="radio" name="method" value="internal_account"<if @method_count@ eq 1 or @cc_p@ not defined> checked</if> /> Internal account number:
 	<input type="text" name="internal_account" /><p />
-	<input type="radio" name="method" value="check" /> User sends in a check<p />
+      </if>
+      <if @check_p@ defined>
+	<input type="radio" name="method" value="check"<if @method_count@ eq 1> checked</if> /> User sends in a check<p />
+      </if>
+      <if @payment_methods@ nil or @cc_p@ defined and @payment_methods@ ne "cc">
 	<input type="radio" name="method" value="cc" checked /> Pay via credit card
-  <table border="0">
+      </if>
+
+      <if @payment_methods@ nil or @cc_p@ defined>
+      <table border="0">
   <if @customer_can_use_old_credit_cards@ false>
     <tr><td colspan="2"><p><b>Credit card information</b></p></td></tr>
   </if>
@@ -140,6 +149,7 @@
     <td>@ec_expires_widget;noquote@</td>
   </tr>
   </table>
+</if>
 </if>
 
  <p align="center"><input type="submit" value="Continue"></p>

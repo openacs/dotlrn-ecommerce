@@ -662,4 +662,12 @@ if { [exists_and_equal shipping_required "t"] } {
 #    cannot quote ship_to_state_widget [ad_quotehtml $ship_to_state_widget]
 }
 append hidden_vars [export_form_vars billing_address_id shipping_address_id user_id participant_id]
+
+# Determine supported payment methods
+set payment_methods [parameter::get -parameter PaymentMethods]
+foreach payment_method [split $payment_methods] {
+    set ${payment_method}_p 1
+}
+set method_count [llength [split $payment_methods]]
+
 db_release_unused_handles
