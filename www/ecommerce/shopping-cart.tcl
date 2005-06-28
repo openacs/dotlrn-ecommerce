@@ -344,4 +344,6 @@ set context [list [list [export_vars -base ../admin/process-purchase-course { us
 set ec_system_owner [ec_system_owner]
 db_release_unused_handles
 
+set admin_p [permission::permission_p -object_id [ad_conn package_id] -privilege "admin"]
+
 ad_return_template

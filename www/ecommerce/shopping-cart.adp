@@ -8,7 +8,7 @@
 
 <if @user_id@ ne 0>
   for @first_names@ @last_name@ (if you're not @first_names@ @last_name@, 
-  <a href="../process-purchase-all">click here</a>).
+  <a href="<if @admin_p@>../admin/process-purchase-all</if><else>../</else>">click here</a>).
 </if>
 
 <blockquote>
@@ -140,7 +140,7 @@
 
   <ul>
       <li> <a
-      href="../process-purchase-course?user_id=@user_id@">Purchase
+      href="<if @admin_p@>../admin/process-purchase-course?user_id=@user_id@</if><else>../</else>">Purchase
       another Course/Section</a> </li>
   </ul>
 </blockquote>
