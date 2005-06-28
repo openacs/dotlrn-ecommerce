@@ -130,7 +130,7 @@ for {set i 0} {$i < $item_count} {incr i} {
     db_transaction {
 	set item_id [db_nextval ec_item_id_sequence]
 
-	if { ( [exists_and_not_null participant_id] ) } {
+	if { ( [exists_and_not_null participant_id] ) && [acs_object_type $participant_id] != "group" } {
 	    set limit_order_p [expr ! [db_string order_exists {
 		select count(*)
 		from ec_items i, dotlrn_ecommerce_orders o, ec_orders eo
