@@ -234,6 +234,9 @@ if { [llength $sessions_list] } {
     }
 }
 
+if { ! [info exists sessions] } {
+    set sessions [list]
+}
 foreach s $sessions_list {
     array set session $s
     template::util::array_to_vars session
