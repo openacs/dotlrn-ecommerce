@@ -304,7 +304,7 @@ if { ! $participant_id } {
 	) r
 	where not ruser is null
     }] 0 [list "$user_info(first_names) $user_info(last_name) is both purchasing and attending the course" "0"]]
-    lappend related_user_options [list "SEARCH for participant" -1]
+    lappend related_user_options [list "Purchase for GROUP of participants" -1]
 
     ad_form -extend -name "participant" -export { {participant_id 0} } -form {
 	{-section "Individual Purchase"}
@@ -321,12 +321,20 @@ if { ! $participant_id } {
 	{num_members:integer(text),optional {label "Number of attendees"} {html {size 30}}}
     }
 
-    lappend validate {participant
-	{ ! [empty_string_p $participant] || [template::element::get_value participant related_user] != -1 ||
-	    (![empty_string_p [template::element::get_value participant name]] && 
-	     ![empty_string_p [template::element::get_value participant num_members]]) }
-	"Please enter a search string"
+    lappend validate {name
+	{ ! [empty_string_p $name] || [template::element::get_value participant related_user] != -1 }
+	"Please enter a name for the group"
+    } {num_members
+	{ ! [empty_string_p $num_members] || [template::element::get_value participant related_user] != -1 }
+	"Please enter the number of attendees"
     }
+
+#     lappend validate {participant
+# 	{ ! [empty_string_p $participant] || [template::element::get_value participant related_user] != -1 ||
+# 	    (![empty_string_p [template::element::get_value participant name]] && 
+# 	     ![empty_string_p [template::element::get_value participant num_members]]) }
+# 	"Please enter a search string"
+#     }
 #     lappend validate {participant
 # 	{ [llength $participant_list] > 1 || [template::element::get_value participant participant_pays_p] == "t" ||
 # 	    (![empty_string_p [template::element::get_value participant name]] && 
@@ -453,7 +461,7 @@ ad_form -extend -name "participant" -export { user_id return_url } -validate $va
     }
 
     set item_count 1
-    if { $related_user != 0 && ! [empty_string_p $name] && ! [empty_string_p $num_members] } {
+    if { $related_user == -1 && ! [empty_string_p $name] && ! [empty_string_p $num_members] } {
 	set group_id [db_nextval acs_object_id_seq]
 
 	set unique_group_name "${name}_${group_id}"
