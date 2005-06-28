@@ -868,7 +868,7 @@ if { [llength $assessment_ids] > 0 } {
     # can have multiple associated assessments, we keep track of all
     # these assessments but for now just use the first one
 
-    ad_returnredirect [export_vars -base [apm_package_url_from_key assessment]assessment { {assessment_id "[lindex $assessment_ids 0]"} {return_url $checkout_url} }]
+    ad_returnredirect [export_vars -base "/assessment" { {assessment_id "[lindex $assessment_ids 0]"} {return_url $checkout_url} }]
     ad_script_abort
 }
 
