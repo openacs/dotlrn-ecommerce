@@ -111,7 +111,7 @@ ad_form -name "participant" -form {
 }
 
 if { ( [empty_string_p $section] || [llength $section_list] == 1 ) && ! $section_id } {
-    set show_all_url [export_vars -base process-purchase-course { user_id participant participant_id {section ""} {section_id -1} related_user }]
+    set show_all_url [export_vars -base process-purchase-course { user_id participant participant_id {section ""} {section_id -1} related_user new_user_p }]
     ad_form -extend -name "participant" -export { {section_id 0} } -form {
 	{section:text,optional {label "Search Course/Section"} {html {onchange "if (this.value != '') { this.form.__refreshing_p.value = 1; } else { this.form.__refreshing_p.value = 0 ; }" size 30}}
 	    {help_text "Enter a string to search course and section names"}
@@ -136,7 +136,7 @@ if { ( [empty_string_p $section] || [llength $section_list] == 1 ) && ! $section
 	limit 1
     }
 
-    set search_url [export_vars -base process-purchase-course { user_id participant participant_id {section ""} {section_id 0} related_user }]
+    set search_url [export_vars -base process-purchase-course { user_id participant participant_id {section ""} {section_id 0} related_user new_user_p }]
     ad_form -extend -name "participant" -export { section section_id } -form {
 	{_section_name:text(inform) {label "Section"} {value "$course_name &raquo; $section_name"}
 	    {after_html {<a href="$search_url" class="button">Search Section</a>}}
@@ -144,7 +144,7 @@ if { ( [empty_string_p $section] || [llength $section_list] == 1 ) && ! $section
     }
 
 } else {
-    set search_url [export_vars -base process-purchase-course { user_id participant participant_id {section ""} {section_id 0} related_user }]
+    set search_url [export_vars -base process-purchase-course { user_id participant participant_id {section ""} {section_id 0} related_user new_user_p }]
     ad_form -extend -name "participant" -export { section } -form {
 	{section_id:integer(select),optional {label "Select Section"} {options {$section_list}}
 	    {after_html {<a href="$search_url" class="button">Search Section</a>}}
@@ -256,7 +256,7 @@ if { ! [empty_string_p $participant] } {
 		   lower(phone) like '%'||lower(:participant)||'%') end)
 	[template::list::page_where_clause -and -name participants -key u.user_id]
     }] {
-	set add_participant_url [export_vars -base process-purchase-course { user_id { participant "" } { participant_id $_participant_id } section section_id purchaser_id page related_user }]
+	set add_participant_url [export_vars -base process-purchase-course { user_id { participant "" } { participant_id $_participant_id } section section_id purchaser_id page related_user new_user_p }]
     }
 }
 
@@ -345,7 +345,7 @@ if { ! $participant_id } {
 } elseif { $participant_id } {
     acs_user::get -user_id $participant_id -array participant_user
 
-    set search_url [export_vars -base process-purchase-course { user_id {participant ""} {participant_id 0} section section_id { related_user 0 } }]
+    set search_url [export_vars -base process-purchase-course { user_id {participant ""} {participant_id 0} section section_id { related_user 0 } new_user_p }]
 #	{participant_pays_p:boolean(checkbox),optional {label ""} {options {{"Check here if $user_info(first_names) $user_info(last_name) is both purchasing and attending the course" t}}}}
     ad_form -extend -name "participant" -export { participant participant_id { related_user $participant_id } } -form {
 	{-section "Individual Purchase"}
