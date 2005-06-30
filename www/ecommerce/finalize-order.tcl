@@ -16,8 +16,14 @@ ad_page_contract {
     @revision-date April 2002
 
 } {
-    user_id:integer,notnull
+    user_id:integer,notnull,optional
     participant_id:integer,optional
+}
+
+if { ! [info exists user_id] } {
+    set user_id [ad_verify_and_get_user_id]
+} elseif { $user_id == 0 } {
+    set user_id [ad_verify_and_get_user_id]
 }
 
 # If they reload, we don't have to worry about the credit card

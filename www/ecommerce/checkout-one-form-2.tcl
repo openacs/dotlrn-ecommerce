@@ -99,7 +99,7 @@ ad_page_contract {
     usca_p:optional
     value_currency_code:optional
 
-    user_id:integer,notnull
+    user_id:integer,notnull,optional
     participant_id:integer,optional
 
     {method cc}
@@ -108,12 +108,28 @@ ad_page_contract {
 
 # We need them to be logged in
 
-#set user_id [ad_conn user_id]
+if { ! [info exists user_id] } {
+    set user_id [ad_verify_and_get_user_id]
+}
 if {$user_id == 0} {
     ns_log Notice "checkout-one-form-2.tcl,ref(137): user_id is 0 which should never happen, redirecting user."
-    rp_form_put return_url "[ad_conn url]?[export_entire_form_as_url_vars]" 
-    rp_internal_redirect "/register"
+    set form [rp_getform]
+    ns_set delkey $form user_id
+    set return_url [ad_return_url]
+    ad_returnredirect [export_vars -base login {return_url}]
     ad_script_abort
+} else {
+    # Check user's session
+    set user_session_id [ec_get_user_session_id]
+    ec_create_new_session_if_necessary [ad_conn query]
+
+    # Make sure all orders are owned by the user
+    db_dml set_session_order {
+	update ec_orders
+	set user_id = :user_id
+	where user_id = 0
+	and order_state = 'in_basket'
+    }
 }
 
 # eventually evolve this so checks come first, then ad_return_complaints 

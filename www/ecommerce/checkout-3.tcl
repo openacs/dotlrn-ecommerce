@@ -17,7 +17,7 @@ ad_page_contract {
     usca_p:optional
     referer:optional
 
-    user_id:integer,notnull
+    user_id:integer,notnull,optional
     participant_id:integer,optional
 }
 
@@ -34,10 +34,14 @@ ec_redirect_to_https_if_possible_and_necessary
 
 # We need them to be logged in
 
-#set user_id [ad_verify_and_get_user_id]
+if { ! [info exists user_id] } {
+    set user_id [ad_verify_and_get_user_id]
+}
 if {$user_id == 0} {
-    set return_url "[ad_conn url]"
-    ad_returnredirect "/register?[export_url_vars return_url]"
+    set form [rp_getform]
+    ns_set delkey $form user_id
+    set return_url [ad_return_url]
+    ad_returnredirect [export_vars -base login {return_url}]
     ad_script_abort
 }
 
