@@ -22,6 +22,58 @@ ad_page_contract {
 # security checks
 # following from checkout.tcl
 
+# Roel, Ugly hack for now, FIX THIS
+ad_proc ec_redirect_to_https_if_possible_and_necessary {} {
+    redirects the current url to the appropriate https address
+} {
+    uplevel {
+	# wtem@olywa.net, 2001-03-22
+	# made this simpler by relying on ad_secure_conn_p
+	if {![ad_secure_conn_p]} {
+	    # see if ssl is installed
+	    # replaced ad_ssl_available_p with ec_ssl_available_p
+	    # which detects nsopenssl
+	    if { ![ec_ssl_available_p] } {
+		# there's no ssl
+		# if ssl is required return an error message; otherwise, do nothing
+		ad_return_error "No SSL available" "
+		    We're sorry, but we cannot display this page because SSL isn't available from this site.  Please contact <a href=\"mailto:[ad_system_owner]\">[ad_system_owner]</a> for assistance.
+		    "
+	    } else {
+		# figure out where we should redirect the user
+		set secure_url "[ec_secure_location][ns_conn url]"
+		set vars_to_export [ec_export_entire_form_as_url_vars_maybe]
+		if { ![empty_string_p $vars_to_export] } {
+		    set secure_url "$secure_url?$vars_to_export"
+		}
+
+		# if the user is switching to a secure connection
+		# they should re-login
+
+		# grab the user_id 
+		# 0 if user is not logged in
+		set user_id [ad_verify_and_get_user_id]
+
+		# grab the current user_session_id
+		# otherwise we lose the session 
+		# when we set new cookies for https
+		# there is corresponding setting of user_session_id cookie
+		# in packages/ecommerce/www/register/user-login.tcl
+		set user_session_id [ec_get_user_session_id]
+
+		# we need the specialized ecommerce register pipeline
+		# based out of the ecommerce instance site-node
+		# so that links from both /ecommerce-instance/ and 
+		# and /ecommerce-instance/admin work
+
+		set register_url "login?return_url=[ns_urlencode $secure_url]&http_id=$user_id&user_session_id=$user_session_id"
+		ad_returnredirect $register_url
+		template::adp_abort
+	    }
+	}
+    }
+}
+
 ec_redirect_to_https_if_possible_and_necessary
 
 # Make sure they have an in_basket order, otherwise they've probably
