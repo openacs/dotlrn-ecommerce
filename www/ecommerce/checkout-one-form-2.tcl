@@ -107,8 +107,11 @@ ad_page_contract {
 }
 
 # We need them to be logged in
+set user_session_id [ec_get_user_session_id]
 
 if { ! [info exists user_id] } {
+    set user_id [ad_verify_and_get_user_id]
+} elseif { $user_id == 0 } {
     set user_id [ad_verify_and_get_user_id]
 }
 if {$user_id == 0} {
@@ -119,16 +122,34 @@ if {$user_id == 0} {
     ad_returnredirect [export_vars -base login {return_url}]
     ad_script_abort
 } else {
-    # Check user's session
-    set user_session_id [ec_get_user_session_id]
-    ec_create_new_session_if_necessary [ad_conn query]
-
     # Make sure all orders are owned by the user
-    db_dml set_session_order {
-	update ec_orders
-	set user_id = :user_id
-	where user_id = 0
-	and order_state = 'in_basket'
+    db_transaction {
+	db_foreach orders {
+	    select order_id as in_basket_order_id
+	    from ec_orders
+	    where user_id = 0
+	    and order_state = 'in_basket'
+	    and user_session_id = :user_session_id
+	} {
+	    db_dml set_session_orders {
+		update ec_orders
+		set user_id = :user_id
+		where order_id = :in_basket_order_id
+	    }
+	    
+	    db_foreach items { 
+		select item_id as in_basket_item_id
+		from ec_items
+		where order_id = :in_basket_order_id
+	    } {
+		db_dml set_dotlrn_ecommerce_orders {
+		    update dotlrn_ecommerce_orders
+		    set patron_id = :user_id,
+		    participant_id = :user_id
+		    where item_id = :in_basket_item_id
+		}
+	    }
+	}
     }
 }
 
@@ -165,7 +186,6 @@ if { $exception_count > 0 } {
 # gift certificate, otherwise they've probably gotten here by pushing
 # Back, so return them to index.tcl
 
-set user_session_id [ec_get_user_session_id]
 set order_id [db_string get_order_id "
     select order_id 
     from ec_orders 

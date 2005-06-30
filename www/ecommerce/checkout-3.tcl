@@ -33,8 +33,9 @@ ec_redirect_to_https_if_possible_and_necessary
 # 5. The order should have credit card and shipping method associated with it.
 
 # We need them to be logged in
-
 if { ! [info exists user_id] } {
+    set user_id [ad_verify_and_get_user_id]
+} elseif { $user_id == 0 } {
     set user_id [ad_verify_and_get_user_id]
 }
 if {$user_id == 0} {
