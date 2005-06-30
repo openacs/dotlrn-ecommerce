@@ -56,7 +56,12 @@ if { [ad_form_new_p -key section_id] } {
     ad_form -extend -name add_section -form {
 	{section_key:text(inform) {label "Section Key"}}
     }
-
+    
+    # HAM :
+    # Flush the section info from cache
+    # we use to do it after edit, but 
+    # i think we need to do this everytime we visit this page
+    dotlrn_ecommerce::section::flush_cache $section_id
 }
 
 ad_form -extend -name add_section -form {
