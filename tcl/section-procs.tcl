@@ -120,23 +120,44 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
 	and ci.on_which_calendar = :calendar_id
 	and ci.item_type_id = :item_type_id
     } {
-	lappend arr_sessions($month) [list $day $start $end $startampm $endampm]
+	lappend arr_sessions(${month}_${start}_${end}_${startampm}_${endampm}) $day
     }
 
     set days [list]
-    foreach month [array names arr_sessions] {
-	set _sessions $arr_sessions($month)
+    foreach times [array names arr_sessions] {
+	set times [split $times _]
+	set month [lindex $times 0]
+	set start [lindex $times 1]
+	set end [lindex $times 2]
+	set startampm [lindex $times 3]
+	set endampm [lindex $times 4]
 
+	set _sessions $arr_sessions(${month}_${start}_${end}_${startampm}_${endampm})
+
+	set _days [list]
 	foreach day $_sessions {
 	    # if there's a better way to do this please tell me :)
-	    lappend days [expr 1[lindex $day 0] - 100]
+	    lappend days_${start}_${end}_${startampm}_${endampm} [expr 1${day} - 100]
+	    
+	    if { [lsearch $_days ${start}_${end}_${startampm}_${endampm}] == -1 } {
+		lappend _days ${start}_${end}_${startampm}_${endampm}
+	    }
 	}
-	if { [lindex $day 3] == [lindex $day 4] } {
-	    set time "[lindex $day 1]-[lindex $day 2][lindex $day 3]"
-	} else {
-	    set time "[lindex $day 1][lindex $day 3]-[lindex $day 2][lindex $day 4]"
+	foreach times $_days {
+	    set times [split $times _]
+	    set start [lindex $times 0]
+	    set end [lindex $times 1]
+	    set startampm [lindex $times 2]
+	    set endampm [lindex $times 3]
+
+	    if { $startampm == $endampm } {
+		set time "${start}-${end}${startampm}"
+	    } else {
+		set time "${start}${startampm}-${end}${endampm}"
+	    }
+
+	    lappend text_sessions "$month [join [lsort -integer [set days_${start}_${end}_${startampm}_${endampm}]] ,] $time"
 	}
-	lappend text_sessions "$month [join [lsort -integer $days] ,] $time"
     }
 
     set sessions [join $text_sessions ",<br />"]
