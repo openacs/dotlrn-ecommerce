@@ -15,7 +15,7 @@ ad_page_contract {
 } {
     usca_p:optional
     
-    user_id:integer,notnull
+    user_id:integer,notnull,optional
     participant_id:integer,optional
 }
 
@@ -74,13 +74,81 @@ ad_proc ec_redirect_to_https_if_possible_and_necessary {} {
     }
 }
 
-ec_redirect_to_https_if_possible_and_necessary
+set user_session_id [ec_get_user_session_id]
+
+# Require user to be logged in at this point
+if { ! [info exists user_id] } {
+    set user_id [ad_verify_and_get_user_id]
+} elseif { $user_id == 0 } {
+    set user_id [ad_verify_and_get_user_id]
+}
+
+if {![ad_secure_conn_p]} {
+    if { ![ec_ssl_available_p] } {
+	ad_return_error "No SSL available" "
+		    We're sorry, but we cannot display this page because SSL isn't available from this site.  Please contact <a href=\"mailto:[ad_system_owner]\">[ad_system_owner]</a> for assistance.
+		    "
+    } else {
+	set secure_url "[ec_secure_location][ns_conn url]"
+	set vars_to_export [ec_export_entire_form_as_url_vars_maybe]
+	if { ![empty_string_p $vars_to_export] } {
+	    set secure_url "$secure_url?$vars_to_export"
+	}
+
+	set register_url "login?return_url=[ns_urlencode $secure_url]&http_id=$user_id&user_session_id=$user_session_id"
+	ad_returnredirect $register_url
+	ad_script_abort
+    }
+}
+
+if {$user_id == 0} {
+    set form [rp_getform]
+    ns_set delkey $form user_id
+    set return_url [ad_return_url]
+    ad_returnredirect [export_vars -base login {return_url}]
+    ad_script_abort
+} else {
+    # Make sure all orders are owned by the user
+    db_transaction {
+	db_foreach orders {
+	    select order_id as in_basket_order_id
+	    from ec_orders
+	    where order_state = 'in_basket'
+	    and user_session_id = :user_session_id
+	} {
+	    db_dml set_session_orders {
+		update ec_orders
+		set user_id = :user_id
+		where order_id = :in_basket_order_id
+		and user_id = 0
+	    }
+	    
+	    db_foreach items { 
+		select item_id as in_basket_item_id
+		from ec_items
+		where order_id = :in_basket_order_id
+	    } {
+		db_dml set_dotlrn_ecommerce_orders {
+		    update dotlrn_ecommerce_orders
+		    set patron_id = :user_id
+		    where item_id = :in_basket_item_id
+		    and patron_id = 0
+		}
+		db_dml set_dotlrn_ecommerce_orders_2 {
+		    update dotlrn_ecommerce_orders
+		    set participant_id = :user_id
+		    where item_id = :in_basket_item_id
+		    and participant_id = 0
+		}
+	    }
+	}
+    }
+}
 
 # Make sure they have an in_basket order, otherwise they've probably
 # gotten here by pushing Back, so return them to index.tcl
 
 #set user_id [ad_conn user_id]
-set user_session_id [ec_get_user_session_id]
 ec_create_new_session_if_necessary
 
 ec_log_user_as_user_id_for_this_session

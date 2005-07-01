@@ -127,14 +127,14 @@ if {$user_id == 0} {
 	db_foreach orders {
 	    select order_id as in_basket_order_id
 	    from ec_orders
-	    where user_id = 0
-	    and order_state = 'in_basket'
+	    where order_state = 'in_basket'
 	    and user_session_id = :user_session_id
 	} {
 	    db_dml set_session_orders {
 		update ec_orders
 		set user_id = :user_id
 		where order_id = :in_basket_order_id
+		and user_id = 0
 	    }
 	    
 	    db_foreach items { 
@@ -144,9 +144,15 @@ if {$user_id == 0} {
 	    } {
 		db_dml set_dotlrn_ecommerce_orders {
 		    update dotlrn_ecommerce_orders
-		    set patron_id = :user_id,
-		    participant_id = :user_id
+		    set patron_id = :user_id
 		    where item_id = :in_basket_item_id
+		    and patron_id = 0
+		}
+		db_dml set_dotlrn_ecommerce_orders_2 {
+		    update dotlrn_ecommerce_orders
+		    set participant_id = :user_id
+		    where item_id = :in_basket_item_id
+		    and participant_id = 0
 		}
 	    }
 	}
