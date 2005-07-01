@@ -19,6 +19,7 @@ template::list::create \
     -name "applications" \
     -multirow "applications" \
     -no_data "No pending applications" \
+    -page_flush_p 1 \
     -elements {
 	community_name {
 	    label "Section"
@@ -45,18 +46,20 @@ template::list::create \
 	    label ""
 	    display_template {
 		<a href="@applications.approve_url;noquote@" class="button">Approve</a>
+		<a href="@applications.reject_url;noquote@" class="button">Reject</a>
 	    }
 	    html { align center }
 	}
     }
 
-db_multirow -extend { approve_url asm_url } applications applications {
+db_multirow -extend { approve_url reject_url asm_url } applications applications {
     select pretty_name as community_name, person__name(user_id) as person_name, member_state, c.community_id, user_id
     from dotlrn_member_rels_full r, dotlrn_communities_all c
     where r.community_id = c.community_id
     and member_state = 'needs approval'
 } {
     set approve_url [export_vars -base application-approve { community_id user_id }]
+    set reject_url [export_vars -base application-reject { community_id user_id }]
 
     # Get associated assessment
     if { [db_0or1row assessment {

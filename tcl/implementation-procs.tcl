@@ -24,12 +24,13 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
     }
 
     db_foreach items_in_order {
-	select i.product_id, o.patron_id as saved_patron_id, o.participant_id, t.method
+	select i.product_id, o.patron_id as saved_patron_id, o.participant_id, t.method, v.maxparticipants
 	from dotlrn_ecommerce_orders o, ec_items i left join dotlrn_ecommerce_transactions t
-	on (i.order_id = t.order_id)
+	on (i.order_id = t.order_id), ec_custom_product_field_values v
 	where i.item_id = o.item_id
+	and i.product_id = v.product_id
 	and i.order_id = :order_id
-	group by i.product_id, o.patron_id, o.participant_id, t.method
+	group by i.product_id, o.patron_id, o.participant_id, t.method, v.maxparticipants
     } {
 	if { [empty_string_p $participant_id] } {
 	    if { [exists_and_not_null user_id] } {
@@ -73,7 +74,26 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 		
 		if { [catch {
 
-		    if { [empty_string_p $method] || $method == "cc" } {
+		    set waiting_list_p 0
+		    if { ! [empty_string_p $maxparticipants] } {
+			db_1row attendees {
+			    select count(*) as attendees
+			    from dotlrn_member_rels_approved
+			    where community_id = :community_id
+			    and (rel_type = 'dotlrn_member_rel'
+				 or rel_type = 'dotlrn_club_student_rel')
+			}
+
+			if { $attendees >= $maxparticipants } {
+			    set waiting_list_p 1
+			}
+		    }
+
+		    if { ! [empty_string_p $method] && $method != "cc" } {
+			set waiting_list_p 1
+		    }
+
+		    if { ! $waiting_list_p } {
 			dotlrn_community::add_user $community_id $user_id
 		    } else {
 			dotlrn_community::add_user -member_state "needs approval" $community_id $user_id
@@ -111,4 +131,6 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 	    }
 	}
     }
+
+    ns_log notice "dotlrn-ecommerce callback: Run successfully"
 }
