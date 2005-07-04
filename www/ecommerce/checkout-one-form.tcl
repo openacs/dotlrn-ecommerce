@@ -637,7 +637,7 @@ if {$billing_address_exists == 1} {
     set bill_to_country_code $country_code
     set bill_to_full_state_name $full_state_name
     set bill_to_phone_time $phone_time
-    set bill_to_state_widget [ec_state_widget $usps_abbrev "bill_to_usps_abbrev"]
+    set bill_to_state_widget $usps_abbrev
 } else {
     set billing_address_id 0 
     # no previous billing address, set defaults
