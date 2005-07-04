@@ -484,7 +484,7 @@ ad_form -name checkout -export {billing_address_id shipping_address_id user_id p
     {bill_to_first_names:text {label "First name(s)"} {html {size 40}}}
     {bill_to_last_name:text {label "Last Name"} {html {size 40}}}
     {bill_to_phone:text {label "Telephone"} {html {size 40}}}
-    {bill_to_phone_time:text(radio) {options {{day d} {evening e}}}}
+    {bill_to_phone_time:text(radio) {label "Best time to call"} {options {{day d} {evening e}}}}
     {bill_to_line1:text {label Address} {html {size 40}}}
     {bill_to_line2:text,optional {label "Address line 2"} {html {size 40}}}
     {bill_to_city:text {label City} {html {size 40}}}
