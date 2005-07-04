@@ -607,7 +607,7 @@ if { $method_count > 1 } {
     }
 }
 
-if { $cc_p } {
+if { [info exists cc_p] } {
     ad_form -extend -name checkout -form {
 	{-section "Credit card information"}
 	{creditcard_number:text,optional {label "Credit card number"}}
