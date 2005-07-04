@@ -607,11 +607,13 @@ if { $method_count > 1 } {
     }
 }
 
-ad_form -extend -name checkout -form {
-    {-section "Credit card information"}
-    {creditcard_number:text,optional {label "Credit card number"}}
-    {creditcard_type:text(select),optional {label Type} {options {{"Please select one" ""} {VISA v} {MasterCard m} {"American Express" a}}}}
-    {creditcard_expires:text(inform),optional {label Expires} {value $ec_expires_widget}}
+if { $cc_p } {
+    ad_form -extend -name checkout -form {
+	{-section "Credit card information"}
+	{creditcard_number:text,optional {label "Credit card number"}}
+	{creditcard_type:text(select),optional {label Type} {options {{"Please select one" ""} {VISA v} {MasterCard m} {"American Express" a}}}}
+	{creditcard_expires:text(inform),optional {label Expires} {value $ec_expires_widget}}
+    }
 }
 
 ad_form -extend -name checkout -form {
