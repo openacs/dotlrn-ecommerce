@@ -12,6 +12,9 @@
 	      id="section_id" /><formwidget id="purchase" /><formwidget
 		id="admin" /></formtemplate>
 <li><a href=course-list>Manage Course List</a>
+<if @registration_assessment_url@ defined>
+<li><a href="@registration_assessment_url;noquote@">Manage Registration Assessment</a>
+</if>
 
 </ul>
 

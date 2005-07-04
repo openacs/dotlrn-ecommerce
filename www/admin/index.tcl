@@ -26,6 +26,8 @@ set assistant_community_id [parameter::get -package_id [ad_conn package_id] -par
 
 set assistant_community_url [dotlrn_community::get_community_url $assistant_community_id]
 
+set return_url [ad_return_url]
+
 # HAM : check if scholarship is installed
 set scholarship_installed_p [apm_package_installed_p "scholarship-fund"]
 # HAM : check if expenses is installed
@@ -78,4 +80,9 @@ ad_form -name sections -form {
 	    ad_script_abort	
 	}
     }
+}
+
+set registration_assessment_id [parameter::get -parameter RegistrationId -package_id [subsite::main_site_id]]
+if { ! [empty_string_p $registration_assessment_id] } {
+    set registration_assessment_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/one-a" { {assessment_id $registration_assessment_id} return_url }]
 }
