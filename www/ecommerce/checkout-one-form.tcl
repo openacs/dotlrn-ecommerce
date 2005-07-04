@@ -488,11 +488,10 @@ ad_form -name checkout -export {billing_address_id shipping_address_id user_id p
     {bill_to_line1:text {label Address} {html {size 40}}}
     {bill_to_line2:text,optional {label "Address line 2"} {html {size 40}}}
     {bill_to_city:text {label City} {html {size 40}}}
-    {bill_to_state_widget:text(select) {label "State/Province"} {options {$state_options}}}
+    {bill_to_usps_abbrev:text(select) {label "State/Province"} {options {$state_options}}}
     {bill_to_zip_code:text {label "ZIP/Postal code"}}
     {bill_to_country_code:text(select) {label "Country"} {options {$country_options}}}
-    {bill_to_full_state_name:text(hidden)}
-    {bill_to_usps_abbrev:text(hidden)}
+    {bill_to_full_state_name:text(hidden),optional}
 }
 
 # these variable names help clarify usage for non-programmers editing the ADP
@@ -619,61 +618,61 @@ if { [info exists cc_p] } {
 ad_form -extend -name checkout -form {
 } -validate $validate -on_request {
 
-if {$billing_address_exists == 1} {
-    set bill_to_attn $attn
-    # split attn for separate first_names, last_name processing, delimiter is triple space
-    # separate first_names, last_name is required for some payment gateway validation systems (such as EZIC)
-    set name_delim [string first "   " $attn]
-    if {$name_delim < 0 } {
-	set name_delim 0
+    if {$billing_address_exists == 1} {
+	set bill_to_attn $attn
+	# split attn for separate first_names, last_name processing, delimiter is triple space
+	# separate first_names, last_name is required for some payment gateway validation systems (such as EZIC)
+	set name_delim [string first "   " $attn]
+	if {$name_delim < 0 } {
+	    set name_delim 0
+	}
+	set bill_to_first_names [string trim [string range $attn 0 $name_delim]]
+	set bill_to_last_name [string range $attn [expr $name_delim + 3 ] end]
+
+	set bill_to_line1 $line1
+	set bill_to_line2 $line2
+	set bill_to_city $city
+	set bill_to_usps_abbrev $usps_abbrev
+	set bill_to_zip_code $zip_code
+	set bill_to_phone $phone
+	set bill_to_country_code $country_code
+	set bill_to_full_state_name $full_state_name
+	set bill_to_phone_time $phone_time
+	set bill_to_state_widget $usps_abbrev
+    } else {
+	set billing_address_id 0 
+	# no previous billing address, set defaults
+	set bill_to_first_names [value_if_exists first_names]
+	set bill_to_last_name [value_if_exists last_name]
+
+	set bill_to_line1 ""
+	set bill_to_line2 ""
+	set bill_to_city ""
+	set bill_to_usps_abbrev ""
+	set bill_to_zip_code ""
+	set bill_to_phone ""
+	set bill_to_country_code US
+	set bill_to_full_state_name ""
+	set bill_to_phone_time "d"
+	set bill_to_state_widget ""
     }
-    set bill_to_first_names [string trim [string range $attn 0 $name_delim]]
-    set bill_to_last_name [string range $attn [expr $name_delim + 3 ] end]
 
-    set bill_to_line1 $line1
-    set bill_to_line2 $line2
-    set bill_to_city $city
-    set bill_to_usps_abbrev $usps_abbrev
-    set bill_to_zip_code $zip_code
-    set bill_to_phone $phone
-    set bill_to_country_code $country_code
-    set bill_to_full_state_name $full_state_name
-    set bill_to_phone_time $phone_time
-    set bill_to_state_widget $usps_abbrev
-} else {
-    set billing_address_id 0 
-    # no previous billing address, set defaults
-    set bill_to_first_names [value_if_exists first_names]
-    set bill_to_last_name [value_if_exists last_name]
-
-    set bill_to_line1 ""
-    set bill_to_line2 ""
-    set bill_to_city ""
-    set bill_to_usps_abbrev ""
-    set bill_to_zip_code ""
-    set bill_to_phone ""
-    set bill_to_country_code US
-    set bill_to_full_state_name ""
-    set bill_to_phone_time ""
-    set bill_to_state_widget ""
-}
-
-if { [lsearch $payment_methods cc] != -1 } {
-    set method cc
-} elseif { [lsearch $payment_methods check] != -1 } {
-    set method check
-} elseif { [lsearch $payment_methods internal_account] != -1 } {
-    set method internal_account
-}
+    if { [lsearch $payment_methods cc] != -1 } {
+	set method cc
+    } elseif { [lsearch $payment_methods check] != -1 } {
+	set method check
+    } elseif { [lsearch $payment_methods internal_account] != -1 } {
+	set method internal_account
+    }
 
 } -on_submit {
 
-set form [rp_getform]
-set submit_url [ad_return_url]
-regsub -nocase checkout-one-form $submit_url checkout-one-form-2 submit_url
+    set form [rp_getform]
+    set submit_url [ad_return_url]
+    regsub -nocase checkout-one-form $submit_url checkout-one-form-2 submit_url
 
-ad_returnredirect $submit_url
-ad_script_abort
+    ad_returnredirect $submit_url
+    ad_script_abort
 }
 
 if { [exists_and_equal shipping_required "t"] } {
