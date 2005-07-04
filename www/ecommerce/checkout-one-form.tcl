@@ -17,62 +17,16 @@ ad_page_contract {
     
     user_id:integer,notnull,optional
     participant_id:integer,optional
+
+    {creditcard_expire_1 ""}
+    {creditcard_expire_2 ""}
 }
+
+set form [rp_getform]
+ns_set delkey $form creditcard_expires
 
 # security checks
 # following from checkout.tcl
-
-# Roel, Ugly hack for now, FIX THIS
-ad_proc ec_redirect_to_https_if_possible_and_necessary {} {
-    redirects the current url to the appropriate https address
-} {
-    uplevel {
-	# wtem@olywa.net, 2001-03-22
-	# made this simpler by relying on ad_secure_conn_p
-	if {![ad_secure_conn_p]} {
-	    # see if ssl is installed
-	    # replaced ad_ssl_available_p with ec_ssl_available_p
-	    # which detects nsopenssl
-	    if { ![ec_ssl_available_p] } {
-		# there's no ssl
-		# if ssl is required return an error message; otherwise, do nothing
-		ad_return_error "No SSL available" "
-		    We're sorry, but we cannot display this page because SSL isn't available from this site.  Please contact <a href=\"mailto:[ad_system_owner]\">[ad_system_owner]</a> for assistance.
-		    "
-	    } else {
-		# figure out where we should redirect the user
-		set secure_url "[ec_secure_location][ns_conn url]"
-		set vars_to_export [ec_export_entire_form_as_url_vars_maybe]
-		if { ![empty_string_p $vars_to_export] } {
-		    set secure_url "$secure_url?$vars_to_export"
-		}
-
-		# if the user is switching to a secure connection
-		# they should re-login
-
-		# grab the user_id 
-		# 0 if user is not logged in
-		set user_id [ad_verify_and_get_user_id]
-
-		# grab the current user_session_id
-		# otherwise we lose the session 
-		# when we set new cookies for https
-		# there is corresponding setting of user_session_id cookie
-		# in packages/ecommerce/www/register/user-login.tcl
-		set user_session_id [ec_get_user_session_id]
-
-		# we need the specialized ecommerce register pipeline
-		# based out of the ecommerce instance site-node
-		# so that links from both /ecommerce-instance/ and 
-		# and /ecommerce-instance/admin work
-
-		set register_url "login?return_url=[ns_urlencode $secure_url]&http_id=$user_id&user_session_id=$user_session_id"
-		ad_returnredirect $register_url
-		template::adp_abort
-	    }
-	}
-    }
-}
 
 set user_session_id [ec_get_user_session_id]
 
@@ -164,7 +118,7 @@ if { [empty_string_p $order_id] } {
     # Then they probably got here by pushing "Back", so just redirect
     # them to index.tcl
 
-    rp_internal_redirect index
+    rp_internal_redirect ../../index
     ad_script_abort
 } else {
     db_dml update_ec_order_set_uid "
@@ -173,61 +127,61 @@ if { [empty_string_p $order_id] } {
 	where order_id = :order_id"
 }
 
-    # end security check
+# end security check
 
-    # useful references declared: order_id, user_id, user_session_id 
+# useful references declared: order_id, user_id, user_session_id 
 
-    # Retrieve the user name, use as default
-    
-    db_0or1row get_names "
+# Retrieve the user name, use as default
+
+db_0or1row get_names "
         select first_names, last_name
       	from cc_users
         where user_id=:user_id"
 
-    # is there an existing shipping address?
+# is there an existing shipping address?
 
-    if { ![info exists address_id] } {
-       set address_id [db_string  get_address_id "
+if { ![info exists address_id] } {
+    set address_id [db_string  get_address_id "
 	select shipping_address 
 	from ec_orders 
 	where order_id=:order_id" -default ""]
     set shipping_address_id $address_id
-    }
+}
 
 # set initial conditions needed to build and process this form
 
-    set form_action [ec_securelink checkout-one-form-2]    
-    set hidden_vars ""
-    set show_item_detail_p "f"
+set form_action [ec_securelink checkout-one-form-2]    
+set hidden_vars ""
+set show_item_detail_p "f"
 
-    set gateway_shipping_default_price 0
+set gateway_shipping_default_price 0
 
-    set gift_certificate_covers_whole_order 0
-    set gift_certificate_covers_part_of_order 0
+set gift_certificate_covers_whole_order 0
+set gift_certificate_covers_part_of_order 0
 
-    set address_type "billing"
-    set billing_address_exists 0
-    set more_addresses_available "f"
+set address_type "billing"
+set billing_address_exists 0
+set more_addresses_available "f"
 
-    set currency [ad_parameter -package_id [ec_id] Currency ecommerce]
-    set tax_exempt_status [ad_parameter -package_id [ec_id] OfferTaxExemptStatusP ecommerce 0]
-    set tax_exempt_options ""
-    if { $tax_exempt_status == "t" } {
-        append tax_exempt_options "
+set currency [ad_parameter -package_id [ec_id] Currency ecommerce]
+set tax_exempt_status [ad_parameter -package_id [ec_id] OfferTaxExemptStatusP ecommerce 0]
+set tax_exempt_options ""
+if { $tax_exempt_status == "t" } {
+    append tax_exempt_options "
         <p><b><li>Is your organization tax exempt? (If so, we will ask you to
           provide us with an exemption certificate.)</b>
         <input type=\"radio\" name=\"tax_exempt_p\" value=\"t\">Yes<br>
         <input type=\"radio\" name=\"tax_exempt_p\" value=\"f\" checked>No</p>"
-    }
+}
 
-    # prepare the cart contents for display
-    # following mainly from ec_order_summary_for_customer
+# prepare the cart contents for display
+# following mainly from ec_order_summary_for_customer
 
-    set items_ul ""
-    set order_total 0
-    set last_product_id 0
+set items_ul ""
+set order_total 0
+set last_product_id 0
 
-    db_foreach order_details_select "
+db_foreach order_details_select "
 	select i.price_name, i.price_charged, i.color_choice, i.size_choice, i.style_choice,
 	    p.product_name, p.one_line_description, p.product_id, count(*) as quantity 
 	from ec_items i, ec_products p
@@ -261,13 +215,13 @@ if { [empty_string_p $order_id] } {
 
 	    set order_total [expr $order_total + $quantity * $lowest_price]
 
-    }
-    set order_total_price_pre_gift_certificate $order_total    
+	}
+set order_total_price_pre_gift_certificate $order_total    
 
 
-    # Check if the order requires shipping
-    
-    if {[db_0or1row shipping_avail "
+# Check if the order requires shipping
+
+if {[db_0or1row shipping_avail "
         select p.no_shipping_avail_p
         from ec_items i, ec_products p
         where i.product_id = p.product_id
@@ -275,14 +229,14 @@ if { [empty_string_p $order_id] } {
         and i.order_id = :order_id
         group by no_shipping_avail_p"]} {
     
-        set shipping_required "t"
+    set shipping_required "t"
 
-    }  else {
-        set shipping_required "f"
-    }
+}  else {
+    set shipping_required "f"
+}
 
 
-    # calculate shipping options
+# calculate shipping options
 
 # prepare shipping method choices (shipping rates determined previously)
 # some of this from ec_price_price_name_shipping_price_tax_shipping_tax_for_one_item
@@ -290,31 +244,31 @@ if { [empty_string_p $order_id] } {
 # and select-shipping.tcl  
 
 
-    # Check if a shipping gateway has been selected.
-    set shipping_gateway [ad_parameter ShippingGateway ecommerce]
-    set shipping_gateway_in_use [acs_sc_binding_exists_p ShippingGateway $shipping_gateway]
+# Check if a shipping gateway has been selected.
+set shipping_gateway [ad_parameter ShippingGateway ecommerce]
+set shipping_gateway_in_use [acs_sc_binding_exists_p ShippingGateway $shipping_gateway]
 
 # below was:  if info exists no_shipping_avail_p && string equal $no_shipping_avail_p "f"
 if { [exists_and_equal shipping_required "t"] } {
 
-        if { $shipping_gateway_in_use} {
+    if { $shipping_gateway_in_use} {
 
-            if { $address_id != 0 } { 
+	if { $address_id != 0 } { 
 
-                # Replace the default ecommerce shipping calculations with the
-                # charges from the shipping gateway, which contains
-                # both the shipping service level and the associated total
-                # charges. Requries zipcode and country.
-    
-    	        db_1row select_shipping_address "
+	    # Replace the default ecommerce shipping calculations with the
+	    # charges from the shipping gateway, which contains
+	    # both the shipping service level and the associated total
+	    # charges. Requries zipcode and country.
+	    
+	    db_1row select_shipping_address "
     	        select country_code, zip_code 
     	        from ec_addresses
     	        where address_id = :address_id"
-    
-                # Calculate the total value of the shipment.
-                set shipment_value 0
+	    
+	    # Calculate the total value of the shipment.
+	    set shipment_value 0
 
-    	        db_foreach select_hard_goods "
+	    db_foreach select_hard_goods "
     	        select i.product_id, i.color_choice, i.size_choice, i.style_choice, count(*) as item_count, u.offer_code
     	        from ec_products p, ec_items i
     	        left join ec_user_session_offer_codes u on (u.product_id = i.product_id and u.user_session_id = :user_session_id)
@@ -322,55 +276,55 @@ if { [exists_and_equal shipping_required "t"] } {
     	        and p.no_shipping_avail_p = 'f' 
     	        and i.order_id = :order_id
     	        group by i.product_id, i.color_choice, i.size_choice, i.style_choice, u.offer_code" {
-    
+		    
                     # If the quantity was altered in the previous step then
     	            # use the new quantity instead of the number of items in
     	            # the database.
-    
+		    
     	            if {[info exists quantity]} {
     		        set item_price [lindex [ec_lowest_price_and_price_name_for_an_item $product_id $user_id $offer_code] 0]
     		        foreach {item_name item_quantity} [array get quantity [list $product_id*]] {
     		            set shipment_value [expr $shipment_value + ((($item_quantity != $item_count) ? $item_quantity : $item_count) * $item_price)]
     		        }
     	            } else {
-    		    set shipment_value [expr $shipment_value + [lindex [ec_lowest_price_and_price_name_for_an_item $product_id $user_id $offer_code] 0]]
+			set shipment_value [expr $shipment_value + [lindex [ec_lowest_price_and_price_name_for_an_item $product_id $user_id $offer_code] 0]]
     	            }
     	        }
             
-    	        set value_currency_code [ad_parameter Currency ecommerce]
-    	        set weight_unit_of_measure [ad_parameter WeightUnits ecommerce]
-    
-    	        append shipping_options "
+	    set value_currency_code [ad_parameter Currency ecommerce]
+	    set weight_unit_of_measure [ad_parameter WeightUnits ecommerce]
+	    
+	    append shipping_options "
     	        <p><b>Shipping method:</b></p>
     	        <table>"
-    
-    	        # Get the list of services and their charges sorted on
-    	        # charges.
-    
-    	        set rates_and_services [lsort -index 1 -real \
-    	        [acs_sc_call "ShippingGateway" "RatesAndServicesSelection" \
-    		[list "" "" "$country_code" "$zip_code" "$shipment_value" "$value_currency_code" "" "$weight_unit_of_measure"] \
-    		 "$shipping_gateway"]]
-    
-                # Present the available shipping services to the user with the
-    	        # cheapest service selected.
-    
-    	        set cheapest_service true
-    	        foreach service $rates_and_services {
-    	            array set rate_and_service $service
-    	            set total_charges $rate_and_service(total_charges)
-    	            set service_code $rate_and_service(service_code)
-    	            set service_description [acs_sc_call "ShippingGateway" "ServiceDescription" "$service_code" "$shipping_gateway"]
-                    append shipping_options "
+	    
+	    # Get the list of services and their charges sorted on
+	    # charges.
+	    
+	    set rates_and_services [lsort -index 1 -real \
+					[acs_sc_call "ShippingGateway" "RatesAndServicesSelection" \
+					     [list "" "" "$country_code" "$zip_code" "$shipment_value" "$value_currency_code" "" "$weight_unit_of_measure"] \
+					     "$shipping_gateway"]]
+	    
+	    # Present the available shipping services to the user with the
+	    # cheapest service selected.
+	    
+	    set cheapest_service true
+	    foreach service $rates_and_services {
+		array set rate_and_service $service
+		set total_charges $rate_and_service(total_charges)
+		set service_code $rate_and_service(service_code)
+		set service_description [acs_sc_call "ShippingGateway" "ServiceDescription" "$service_code" "$shipping_gateway"]
+		append shipping_options "
     		    <tr>
     		      <td>
     		        <input type=\"radio\" name=\"shipping_method\" value=\"[list service_description  $service_description total_charges $total_charges]\""
-     	            if {$cheapest_service} {
-     		        append shipping_options " checked"
-     		        set cheapest_service false
-                        set gateway_shipping_default_price $total_charges
-     	            }
-    	            append shipping_options ">
+		if {$cheapest_service} {
+		    append shipping_options " checked"
+		    set cheapest_service false
+		    set gateway_shipping_default_price $total_charges
+		}
+		append shipping_options ">
     		    $service_description 
     		      </td>
     		      <td width=\"30\">
@@ -382,26 +336,26 @@ if { [exists_and_equal shipping_required "t"] } {
     		        $total_charges
     		      </td>
     		    <tr>"
-                }
-    	        append shipping_options "</table>"
-    
-    	        # Add a flag to the export parameters to indicate that a
-    	        # shipping gateway is in use.
-    
-     	        set shipping_gateway true
-     	        append shipping_options "[export_form_vars shipping_gateway]"
-            } else { set shipping_options "<table><tr><td><p>We need your shipping address before we can quote a shipping price. You will be able to review your order and shipping charge before confirming the order.</p></td></tr></table>"
-            }
-        } else {
-            # calculate shipping charge options when not using shipping-gateway,
-            #  and then include the value with each option (for an informed choice)
+	    }
+	    append shipping_options "</table>"
+	    
+	    # Add a flag to the export parameters to indicate that a
+	    # shipping gateway is in use.
+	    
+	    set shipping_gateway true
+	    append shipping_options "[export_form_vars shipping_gateway]"
+	} else { set shipping_options "<table><tr><td><p>We need your shipping address before we can quote a shipping price. You will be able to review your order and shipping charge before confirming the order.</p></td></tr></table>"
+	}
+    } else {
+	# calculate shipping charge options when not using shipping-gateway,
+	#  and then include the value with each option (for an informed choice)
 
-            # mainly from process-order-quantity-shipping.tcl
-            set total_reg_shipping_price 0
-            set total_exp_shipping_price 0
-            set last_product_id 0
+	# mainly from process-order-quantity-shipping.tcl
+	set total_reg_shipping_price 0
+	set total_exp_shipping_price 0
+	set last_product_id 0
 
-            db_1row get_ec_admin_settings "
+	db_1row get_ec_admin_settings "
 	    select nvl(base_shipping_cost,0) as base_shipping_cost, 
             nvl(default_shipping_per_item,0) as default_shipping_per_item, 
             nvl(weight_shipping_cost,0) as weight_shipping_cost, 
@@ -410,7 +364,7 @@ if { [exists_and_equal shipping_required "t"] } {
             nvl(add_exp_amount_by_weight,0) as add_exp_amount_by_weight
 	    from ec_admin_settings"
 
-            db_foreach get_items_in_cart "
+	db_foreach get_items_in_cart "
             select i.item_id, i.product_id, u.offer_code
             from ec_items i, (select * 
             from ec_user_session_offer_codes usoc 
@@ -441,121 +395,287 @@ if { [exists_and_equal shipping_required "t"] } {
             }
 
 
-# 3. Determine base shipping costs that are separate from items
- 
-            # set base shipping charge
+	# 3. Determine base shipping costs that are separate from items
+	
+	# set base shipping charge
 
-            set order_shipping_cost $base_shipping_cost
+	set order_shipping_cost $base_shipping_cost
 
-            set shipping_method_standard $order_shipping_cost
+	set shipping_method_standard $order_shipping_cost
 
-            # Add on the extra base cost for express shipping
+	# Add on the extra base cost for express shipping
 
-            set shipping_method_express [expr $order_shipping_cost + $add_exp_base_shipping_cost]
+	set shipping_method_express [expr $order_shipping_cost + $add_exp_base_shipping_cost]
 
-# 4. set total costs for each shipping option
-            set total_shipping_price_default $total_reg_shipping_price
-	    set total_reg_shipping_price [ec_pretty_price [expr $total_reg_shipping_price + $shipping_method_standard] $currency "t"]
-	    set total_exp_shipping_price [ec_pretty_price [expr $total_exp_shipping_price + $shipping_method_express] $currency "t"]
-            set shipping_method_pickup [ec_pretty_price 0 $currency "t"]
-            set shipping_method_no_shipping 0
+	# 4. set total costs for each shipping option
+	set total_shipping_price_default $total_reg_shipping_price
+	set total_reg_shipping_price [ec_pretty_price [expr $total_reg_shipping_price + $shipping_method_standard] $currency "t"]
+	set total_exp_shipping_price [ec_pretty_price [expr $total_exp_shipping_price + $shipping_method_express] $currency "t"]
+	set shipping_method_pickup [ec_pretty_price 0 $currency "t"]
+	set shipping_method_no_shipping 0
 
-# 5 prepare shipping options to present to user
+	# 5 prepare shipping options to present to user
 
-            set shipping_options "
+	set shipping_options "
     	        <p><b>Shipping method:</b></p>
     	        <p><input type=\"radio\" name=\"shipping_method\" value=\"standard\" checked>Standard Shipping ($total_reg_shipping_price)<br>"
 
-    	    if { [ad_parameter -package_id [ec_id] ExpressShippingP ecommerce] } {
-    	        append shipping_options "
+	if { [ad_parameter -package_id [ec_id] ExpressShippingP ecommerce] } {
+	    append shipping_options "
     	        <input type=\"radio\" name=\"shipping_method\" value=\"express\">Express ($total_exp_shipping_price)<br>"
-    	    }
-    	    if { [ad_parameter -package_id [ec_id] PickupP ecommerce] } {
-    	        append shipping_options "
+	}
+	if { [ad_parameter -package_id [ec_id] PickupP ecommerce] } {
+	    append shipping_options "
     	        <input type=\"radio\" name=\"shipping_method\" value=\"pickup\">Pickup ($shipping_method_pickup)"
-    	    }
-            append shipping_options "</p>"
-        }
-        # bracket above ends if gateway not used
-    } else {
-        # shipping not available or required
-        set total_shipping_price_default 0
+	}
+	append shipping_options "</p>"
     }
+    # bracket above ends if gateway not used
+} else {
+    # shipping not available or required
+    set total_shipping_price_default 0
+}
 
 
 # we want to present the most recent billing address, if there is one
 
-    set billing_address_ids [db_list get_billing_address_ids "
+set billing_address_ids [db_list get_billing_address_ids "
         select address_id
         from ec_addresses
         where user_id=:user_id
         and address_type = 'billing'" ]
 
-    #  $more_billing_addresses_available can be used in the adp to notify the user
-    #  to choose one of their other billing addresses, if any
-    if { [llength $billing_address_ids] > 1 } {
-        # the max valued id is most likely the newest id (no date_last_modified field available)
-        set billing_address_id [ec_max_of_list $billing_address_ids]
-        set more_billing_addresses_available "t"
+#  $more_billing_addresses_available can be used in the adp to notify the user
+#  to choose one of their other billing addresses, if any
+if { [llength $billing_address_ids] > 1 } {
+    # the max valued id is most likely the newest id (no date_last_modified field available)
+    set billing_address_id [ec_max_of_list $billing_address_ids]
+    set more_billing_addresses_available "t"
+} else {
+    set more_billing_addresses_available "f"
+    if { $billing_address_ids > 0 } {
+	set billing_address_id $billing_address_ids
     } else {
-        set more_billing_addresses_available "f"
-        if { $billing_address_ids > 0 } {
-            set billing_address_id $billing_address_ids
-        } else {
-            # we assume that no valid address_id is ever 0
-            set billing_address_id 0
-        }
+	# we assume that no valid address_id is ever 0
+	set billing_address_id 0
     }
+}
 
-    # retrieve a saved address
-    set address_id $billing_address_id
-    if { [info exists address_id] } {
-	set billing_address_exists [db_0or1row select_address "
+# retrieve a saved address
+set address_id $billing_address_id
+if { [info exists address_id] } {
+    set billing_address_exists [db_0or1row select_address "
     	select attn, line1, line2, city, usps_abbrev, zip_code, phone, country_code, full_state_name, phone_time 
     	from ec_addresses 
     	where address_id=:address_id"]
-    }
-    if {$billing_address_exists == 1} {
-        set bill_to_attn $attn
-        # split attn for separate first_names, last_name processing, delimiter is triple space
-        # separate first_names, last_name is required for some payment gateway validation systems (such as EZIC)
-        set name_delim [string first "   " $attn]
-        if {$name_delim < 0 } {
-            set name_delim 0
-        }
-        set bill_to_first_names [string trim [string range $attn 0 $name_delim]]
-        set bill_to_last_name [string range $attn [expr $name_delim + 3 ] end]
+}
 
-        set bill_to_line1 $line1
-        set bill_to_line2 $line2
-        set bill_to_city $city
-        set bill_to_usps_abbrev $usps_abbrev
-        set bill_to_zip_code $zip_code
-        set bill_to_phone $phone
-        set bill_to_country_code [ec_country_widget $country_code "bill_to_country_code"]
-        set bill_to_full_state_name $full_state_name
-        set bill_to_phone_time $phone_time
-        set bill_to_state_widget [ec_state_widget $usps_abbrev "bill_to_usps_abbrev"]
-    } else {
-        set billing_address_id 0 
-        # no previous billing address, set defaults
-        set bill_to_first_names [value_if_exists first_names]
-        set bill_to_last_name [value_if_exists last_name]
+set country_options [linsert [db_list_of_lists countries {
+    select default_name, iso from countries order by default_name
+}] 0 {"Select a country" ""}]
 
-        set bill_to_line1 ""
-        set bill_to_line2 ""
-        set bill_to_city ""
-        set bill_to_usps_abbrev ""
-        set bill_to_zip_code ""
-        set bill_to_phone ""
-        set bill_to_country_code [ec_country_widget "US" "bill_to_country_code"]
-        set bill_to_full_state_name ""
-        set bill_to_phone_time ""
-        set bill_to_state_widget [ec_state_widget "" "bill_to_usps_abbrev"]
+set state_options [linsert [db_list_of_lists states {
+    select state_name, abbrev from us_states order by state_name
+}] 0 {"Select a state" ""}]
+
+set validate [list]
+
+ad_form -name checkout -export {billing_address_id shipping_address_id user_id participant_id} -form {
+    {bill_to_first_names:text {label "First name(s)"} {html {size 40}}}
+    {bill_to_last_name:text {label "Last Name"} {html {size 40}}}
+    {bill_to_phone:text {label "Telephone"} {html {size 40}}}
+    {bill_to_phone_time:text(radio) {options {{day d} {evening e}}}}
+    {bill_to_line1:text {label Address} {html {size 40}}}
+    {bill_to_line2:text,optional {label "Address line 2"} {html {size 40}}}
+    {bill_to_city:text {label City} {html {size 40}}}
+    {bill_to_state_widget:text(select) {label "State/Province"} {options {$state_options}}}
+    {bill_to_zip_code:text {label "ZIP/Postal code"}}
+    {bill_to_country_code:text(select) {label "Country"} {options {$country_options}}}
+    {bill_to_full_state_name:text(hidden)}
+    {bill_to_usps_abbrev:text(hidden)}
+}
+
+# these variable names help clarify usage for non-programmers editing the ADP
+# templates:
+
+set customer_can_use_old_credit_cards 0
+
+set show_creditcard_form_p "t"
+
+if { $show_creditcard_form_p == "t" } {
+    set customer_can_use_old_credit_cards [ad_parameter -package_id [ec_id] SaveCreditCardDataP ecommerce]
+    
+    # See if the administrator lets customers reuse their credit cards
+    
+    if { $customer_can_use_old_credit_cards } {
+	
+	# Then see if we have any credit cards on file for this user
+	# for this shipping address only (for security purposes)
+	
+	set to_print_before_creditcards "
+    	    <table>
+    	      <tr>
+    		<td></td>
+    		<td><b>Card Type</b></td>
+    		<td><b>Last 4 Digits</b></td>
+    		<td><b>Expires</b></td>
+    	      </tr>"
+	set card_counter 0
+	set old_cards_to_choose_from ""
+	
+	db_foreach get_creditcards_onfile "
+    	    select c.creditcard_id, c.creditcard_type, c.creditcard_last_four, c.creditcard_expire
+    	    from ec_creditcards c
+    	    where c.user_id=:user_id
+    	    and c.creditcard_number is not null
+    	    and c.failed_p='f'
+    	    and 0 < (select count(*) from ec_orders o where o.creditcard_id = c.creditcard_id)
+    	    order by c.creditcard_id desc" {
+		
+    	        if { $card_counter == 0 } {
+    		    append old_cards_to_choose_from $to_print_before_creditcards
+    	        }
+    	        append old_cards_to_choose_from "
+    		<tr>
+    		  <td><input type=\"radio\" name=\"creditcard_id\" value=\"$creditcard_id\""
+    	        if { $card_counter == 0 } {
+    		    append old_cards_to_choose_from " checked"
+    	        }
+    	        append old_cards_to_choose_from ">
+    		</td>
+    		<td>[ec_pretty_creditcard_type $creditcard_type]</td>
+    		<td align=\"center\">$creditcard_last_four</td>
+    		<td align=\"right\">$creditcard_expire</td>
+    		</tr>"
+                incr card_counter
+    	    } if_no_rows {
+    	        set customer_can_use_old_credit_cards 0
+    	    }
     }
+    
+    set ec_creditcard_widget [ec_creditcard_widget]
+    set ec_expires_widget "[ec_creditcard_expire_1_widget $creditcard_expire_1] [ec_creditcard_expire_2_widget $creditcard_expire_2]"
+    
+    # If customer_can_use_old_credit_cards is 0, we don't have to
+    # worry about what's in old_cards_to_choose_from because it won't
+    # get printed in the template anyway.
+    
+    append old_cards_to_choose_from "</table>"
+}
+
+# Determine supported payment methods
+set payment_methods [parameter::get -parameter PaymentMethods]
+set method_options [list]
+foreach payment_method [split $payment_methods] {
+    set ${payment_method}_p 1
+
+    switch $payment_method {
+	internal_account {
+	    lappend method_options [list "Internal account number" internal_account]
+	    lappend validate {internal_account
+		{ [exists_and_not_null internal_account] || [template::element::get_value checkout method] != "internal_account" }
+		"Please enter an internal account code"
+	    }
+	}
+	check {
+	    lappend method_options [list "User sends in a check" check]
+	}
+	cc {
+	    lappend method_options [list "Pay via credit card" cc]
+	    lappend validate {creditcard_number
+		{ [template::element::get_value checkout method] != "cc" || [exists_and_not_null creditcard_number] }
+		"Please enter a credit card number"
+	    }
+	    lappend validate {creditcard_type
+		{ [template::element::get_value checkout method] != "cc" || [exists_and_not_null creditcard_type] }
+		"Please select a credit card type"
+	    }
+	    lappend validate {creditcard_expires
+		{ [template::element::get_value checkout method] != "cc" || ([exists_and_not_null creditcard_expire_1] && [exists_and_not_null creditcard_expire_2]) }
+		"A full credit card expiration date (month and year) is required"
+	    }
+	}
+    }
+}
+set method_count [llength [split $payment_methods]]
+
+if { $method_count > 1 } {
+    ad_form -extend -name checkout -form {
+	{-section "Payment Information"}
+	{method:text(radio) {label "Select a payment method"} {options {$method_options}}}
+	{internal_account:text,optional {label "Internal Account"}}
+    }
+}
+
+ad_form -extend -name checkout -form {
+    {-section "Credit card information"}
+    {creditcard_number:text,optional {label "Credit card number"}}
+    {creditcard_type:text(select),optional {label Type} {options {{"Please select one" ""} {VISA v} {MasterCard m} {"American Express" a}}}}
+    {creditcard_expires:text(inform),optional {label Expires} {value $ec_expires_widget}}
+}
+
+ad_form -extend -name checkout -form {
+} -validate $validate -on_request {
+
+if {$billing_address_exists == 1} {
+    set bill_to_attn $attn
+    # split attn for separate first_names, last_name processing, delimiter is triple space
+    # separate first_names, last_name is required for some payment gateway validation systems (such as EZIC)
+    set name_delim [string first "   " $attn]
+    if {$name_delim < 0 } {
+	set name_delim 0
+    }
+    set bill_to_first_names [string trim [string range $attn 0 $name_delim]]
+    set bill_to_last_name [string range $attn [expr $name_delim + 3 ] end]
+
+    set bill_to_line1 $line1
+    set bill_to_line2 $line2
+    set bill_to_city $city
+    set bill_to_usps_abbrev $usps_abbrev
+    set bill_to_zip_code $zip_code
+    set bill_to_phone $phone
+    set bill_to_country_code $country_code
+    set bill_to_full_state_name $full_state_name
+    set bill_to_phone_time $phone_time
+    set bill_to_state_widget [ec_state_widget $usps_abbrev "bill_to_usps_abbrev"]
+} else {
+    set billing_address_id 0 
+    # no previous billing address, set defaults
+    set bill_to_first_names [value_if_exists first_names]
+    set bill_to_last_name [value_if_exists last_name]
+
+    set bill_to_line1 ""
+    set bill_to_line2 ""
+    set bill_to_city ""
+    set bill_to_usps_abbrev ""
+    set bill_to_zip_code ""
+    set bill_to_phone ""
+    set bill_to_country_code US
+    set bill_to_full_state_name ""
+    set bill_to_phone_time ""
+    set bill_to_state_widget ""
+}
+
+if { [lsearch $payment_methods cc] != -1 } {
+    set method cc
+} elseif { [lsearch $payment_methods check] != -1 } {
+    set method check
+} elseif { [lsearch $payment_methods internal_account] != -1 } {
+    set method internal_account
+}
+
+} -on_submit {
+
+set form [rp_getform]
+set submit_url [ad_return_url]
+regsub -nocase checkout-one-form $submit_url checkout-one-form-2 submit_url
+
+ad_returnredirect $submit_url
+ad_script_abort
+}
 
 if { [exists_and_equal shipping_required "t"] } {
-# prepare shipping address
+    # prepare shipping address
     
     set address_type "shipping"
 
@@ -642,114 +762,46 @@ if { [exists_and_equal shipping_required "t"] } {
 
 # prepare payment information
 
-    # ec_order_cost returns price + shipping + tax - gift_certificate BUT
-    # no gift certificates have been applied to in_basket orders, so this
-    # just returns price + shipping + tax
-    
-    db_1row get_order_cost "
+# ec_order_cost returns price + shipping + tax - gift_certificate BUT
+# no gift certificates have been applied to in_basket orders, so this
+# just returns price + shipping + tax
+
+db_1row get_order_cost "
                 select ec_order_cost(:order_id) as otppgc,
                 ec_gift_certificate_balance(:user_id) as user_gift_certificate_balance
            from dual"
 
-    # Had to do this because the variable name below is too long for
-    # Oracle.  It should be changed, but not in this upgrade
-    # hbrock@arsdigita.com
+# Had to do this because the variable name below is too long for
+# Oracle.  It should be changed, but not in this upgrade
+# hbrock@arsdigita.com
 
-    set order_total_price_pre_gift_certificate $otppgc
-    unset otppgc
-    
+set order_total_price_pre_gift_certificate $otppgc
+unset otppgc
+
 # ec_order_cost does not work here, except maybe in special circumstances,
 # where it might actually be more accurate than the alternate calculation. 
 
-    if { $order_total_price_pre_gift_certificate == 0 } {
-        # building order_total_price_pre_gift_certificate from an above query
-        # shipping value uses default from previous calcs on this page
-	if { $shipping_gateway_in_use == 1 } {
-            # there might not be an address available yet, so regional taxes are in flux still
-	    set order_total_price_pre_gift_certificate [expr $order_total + $gateway_shipping_default_price]
-        } else {
-            # note: this does not include taxes for total value of order
-            set order_total_price_pre_gift_certificate [expr $order_total + $total_shipping_price_default]
-        }
+if { $order_total_price_pre_gift_certificate == 0 } {
+    # building order_total_price_pre_gift_certificate from an above query
+    # shipping value uses default from previous calcs on this page
+    if { $shipping_gateway_in_use == 1 } {
+	# there might not be an address available yet, so regional taxes are in flux still
+	set order_total_price_pre_gift_certificate [expr $order_total + $gateway_shipping_default_price]
+    } else {
+	# note: this does not include taxes for total value of order
+	set order_total_price_pre_gift_certificate [expr $order_total + $total_shipping_price_default]
     }
+}
 
-    # these variable names help clarify usage for non-programmers editing the ADP
-    # templates:
-    
-    set customer_can_use_old_credit_cards 0
-    
-    set show_creditcard_form_p "t"
+if { $user_gift_certificate_balance >= $order_total_price_pre_gift_certificate } {
+    set gift_certificate_covers_whole_order 1
+    set show_creditcard_form_p "f"
+} elseif { $user_gift_certificate_balance > 0 } {
+    set gift_certificate_covers_part_of_order 1
+    set certificate_amount [ec_pretty_price $user_gift_certificate_balance]
+}
 
-    if { $user_gift_certificate_balance >= $order_total_price_pre_gift_certificate } {
-        set gift_certificate_covers_whole_order 1
-        set show_creditcard_form_p "f"
-    } elseif { $user_gift_certificate_balance > 0 } {
-        set gift_certificate_covers_part_of_order 1
-        set certificate_amount [ec_pretty_price $user_gift_certificate_balance]
-    }
-    
-    if { $show_creditcard_form_p == "t" } {
-        set customer_can_use_old_credit_cards [ad_parameter -package_id [ec_id] SaveCreditCardDataP ecommerce]
-    
-        # See if the administrator lets customers reuse their credit cards
-    
-        if { $customer_can_use_old_credit_cards } {
-    
-            # Then see if we have any credit cards on file for this user
-    	    # for this shipping address only (for security purposes)
-    
-    	    set to_print_before_creditcards "
-    	    <table>
-    	      <tr>
-    		<td></td>
-    		<td><b>Card Type</b></td>
-    		<td><b>Last 4 Digits</b></td>
-    		<td><b>Expires</b></td>
-    	      </tr>"
-    	    set card_counter 0
-    	    set old_cards_to_choose_from ""
-    
-    	    db_foreach get_creditcards_onfile "
-    	    select c.creditcard_id, c.creditcard_type, c.creditcard_last_four, c.creditcard_expire
-    	    from ec_creditcards c
-    	    where c.user_id=:user_id
-    	    and c.creditcard_number is not null
-    	    and c.failed_p='f'
-    	    and 0 < (select count(*) from ec_orders o where o.creditcard_id = c.creditcard_id)
-    	    order by c.creditcard_id desc" {
-    	    
-    	        if { $card_counter == 0 } {
-    		    append old_cards_to_choose_from $to_print_before_creditcards
-    	        }
-    	        append old_cards_to_choose_from "
-    		<tr>
-    		  <td><input type=\"radio\" name=\"creditcard_id\" value=\"$creditcard_id\""
-    	        if { $card_counter == 0 } {
-    		    append old_cards_to_choose_from " checked"
-    	        }
-    	        append old_cards_to_choose_from ">
-    		</td>
-    		<td>[ec_pretty_creditcard_type $creditcard_type]</td>
-    		<td align=\"center\">$creditcard_last_four</td>
-    		<td align=\"right\">$creditcard_expire</td>
-    		</tr>"
-                incr card_counter
-    	    } if_no_rows {
-    	        set customer_can_use_old_credit_cards 0
-    	    }
-        }
-        
-        set ec_creditcard_widget [ec_creditcard_widget]
-        set ec_expires_widget "[ec_creditcard_expire_1_widget] [ec_creditcard_expire_2_widget]"
-    
-        # If customer_can_use_old_credit_cards is 0, we don't have to
-        # worry about what's in old_cards_to_choose_from because it won't
-        # get printed in the template anyway.
-    
-        append old_cards_to_choose_from "</table>"
-    }
-    
-    set gift_certificate_p [ad_parameter -package_id [ec_id] SellGiftCertificatesP ecommerce]
+set gift_certificate_p [ad_parameter -package_id [ec_id] SellGiftCertificatesP ecommerce]
 
 # quoting is default behavior for openacs 5.x +
 #    set bill_to_first_names [ad_quotehtml $bill_to_first_names]
@@ -767,27 +819,20 @@ if { [exists_and_equal shipping_required "t"] } {
 #    cannot quote bill_to_state_widget [ad_quotehtml $state_widget]
 
 if { [exists_and_equal shipping_required "t"] } {
-#    set ship_to_first_names [ad_quotehtml $ship_to_first_names]
-#    set ship_to_last_name [ad_quotehtml $ship_to_last_name]
+    #    set ship_to_first_names [ad_quotehtml $ship_to_first_names]
+    #    set ship_to_last_name [ad_quotehtml $ship_to_last_name]
 
-#    set ship_to_line1 [ad_quotehtml $ship_to_line1]
-#    set ship_to_line2 [ad_quotehtml $ship_to_line2]
-#    set ship_to_city [ad_quotehtml $ship_to_city]
-#    set ship_to_usps_abbrev [ad_quotehtml $ship_to_usps_abbrev]
-#    set ship_to_zip_code [ad_quotehtml $ship_to_zip_code]
-#    set ship_to_phone [ad_quotehtml $ship_to_phone]
-#    cannot quote ship_to_country_code [ad_quotehtml $ship_to_country_code]
-#    set ship_to_full_state_name [ad_quotehtml $ship_to_full_state_name]
-#    set ship_to_phone_time [ad_quotehtml $ship_to_phone_time]
-#    cannot quote ship_to_state_widget [ad_quotehtml $ship_to_state_widget]
+    #    set ship_to_line1 [ad_quotehtml $ship_to_line1]
+    #    set ship_to_line2 [ad_quotehtml $ship_to_line2]
+    #    set ship_to_city [ad_quotehtml $ship_to_city]
+    #    set ship_to_usps_abbrev [ad_quotehtml $ship_to_usps_abbrev]
+    #    set ship_to_zip_code [ad_quotehtml $ship_to_zip_code]
+    #    set ship_to_phone [ad_quotehtml $ship_to_phone]
+    #    cannot quote ship_to_country_code [ad_quotehtml $ship_to_country_code]
+    #    set ship_to_full_state_name [ad_quotehtml $ship_to_full_state_name]
+    #    set ship_to_phone_time [ad_quotehtml $ship_to_phone_time]
+    #    cannot quote ship_to_state_widget [ad_quotehtml $ship_to_state_widget]
 }
 append hidden_vars [export_form_vars billing_address_id shipping_address_id user_id participant_id]
-
-# Determine supported payment methods
-set payment_methods [parameter::get -parameter PaymentMethods]
-foreach payment_method [split $payment_methods] {
-    set ${payment_method}_p 1
-}
-set method_count [llength [split $payment_methods]]
 
 db_release_unused_handles
