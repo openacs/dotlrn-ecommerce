@@ -190,17 +190,11 @@ db_multirow -extend {community_url calendar_url num_sessions attendees available
 
     set calendar_url [calendar_portlet_display::get_url_stub $calendar_id]
 
-    set item_type_id [db_string item_type_id "select item_type_id from cal_item_types where type='Session' and  calendar_id = :calendar_id limit 1" -default 0]
+    set item_type_id [db_string item_type_id { } -default 0]
 
-    set num_sessions [db_string num_sessions "select count(cal_item_id) from cal_items where on_which_calendar = :calendar_id and item_type_id = :item_type_id"]
+    set num_sessions [db_string num_sessions {} ]
 
-    db_1row attendees {
-	select count(*) as attendees
-	from dotlrn_member_rels_approved
-	where community_id = :community_id
-	and (rel_type = 'dotlrn_member_rel'
-        or rel_type = 'dotlrn_club_student_rel')
-    }
+    db_1row attendees { }
 
     if { ! [empty_string_p $maxparticipants] } {
 	set available_slots [expr $maxparticipants - $attendees]
@@ -312,7 +306,7 @@ catch {
     } else {
 	set template_community_url [dotlrn_community::get_community_url $template_community_id]
 	set template_calendar_id [dotlrn_calendar::get_group_calendar_id -community_id $template_community_id]
-	set template_item_type_id [db_string item_type_id "select item_type_id from cal_item_types where type='Session' and  calendar_id = :template_calendar_id limit 1" -default 0]
+	set template_item_type_id [db_string get_item_type_id { } -default 0]
 	set template_calendar_url [export_vars -base ${template_community_url}calendar/cal-item-new { {item_type_id $template_item_type_id} {calendar_id $template_calendar_id} {view day} }]
     }
 }

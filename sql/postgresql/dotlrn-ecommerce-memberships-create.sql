@@ -11,7 +11,7 @@ create table dotlrn_club_student_rels (
                                 primary key
 );                                          
 
-create view dotlrn_club_student_rels_full
+create view dcs_rels_full
 as
     select acs_rels.rel_id as rel_id,
            acs_rels.object_id_one as community_id,
@@ -27,10 +27,10 @@ as
     where dotlrn_club_student_rels.rel_id = acs_rels.rel_id
     and acs_rels.rel_id = membership_rels.rel_id;
 
-create view dotlrn_club_student_rels_approved
+create view dcs_rels_approved
 as
     select *
-    from dotlrn_club_student_rels_full
+    from dcs_rels_full
     where member_state = 'approved';
  
 select define_function_args('dotlrn_club_student_rel__new','rel_id,rel_type;dotlrn_club_student_rel,portal_id,community_id,user_id,member_state;approved,creation_user,creation_ip');
@@ -96,7 +96,7 @@ create table dotlrn_club_instructor_rels (
                                 primary key
 );                                          
 
-create view dotlrn_club_instructor_rels_full
+create view dci_rels_full
 as
     select acs_rels.rel_id as rel_id,
            acs_rels.object_id_one as community_id,
@@ -112,10 +112,10 @@ as
     where dotlrn_club_instructor_rels.rel_id = acs_rels.rel_id
     and acs_rels.rel_id = membership_rels.rel_id;
 
-create view dotlrn_club_instructor_rels_approved
+create view dci_rels_approved
 as
     select *
-    from dotlrn_club_instructor_rels_full
+    from dci_rels_full
     where member_state = 'approved';
  
 select define_function_args('dotlrn_club_instructor_rel__new','rel_id,rel_type;dotlrn_club_instructor_rel,portal_id,community_id,user_id,member_state;approved,creation_user,creation_ip');

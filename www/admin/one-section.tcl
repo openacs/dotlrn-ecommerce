@@ -16,7 +16,7 @@ ad_page_contract {
 set return_url "section?section_id=$section_id"
 
 # course id is the revision_id
-db_1row get_section "select live_revision as course_id, community_id, product_id, section_name from cr_items, dotlrn_ecommerce_section where section_id = :section_id and cr_items.item_id = dotlrn_ecommerce_section.course_id"
+db_1row get_section { }
 
 set community_url [dotlrn_community::get_community_url $community_id]
 dotlrn_catalog::get_course_data -course_id $course_id
@@ -32,10 +32,7 @@ set community_package_id [dotlrn_community::get_package_id $community_id]
 set context [list [list "course-list" "Course List"] [list "course-info?course_id=$course_id" "$course_name"] $section_name ]
 
 
-set num_attendees [db_string num_attendees {
-    select count(*) as attendees
-    from dotlrn_member_rels_approved
-    where community_id = :community_id
-    and (rel_type = 'dotlrn_member_rel'
-	 or rel_type = 'dotlrn_club_student_rel')
-}]
+set num_attendees [db_string num_attendees { }]
+
+set attendance_show_p [apm_package_installed_p "attendance"]
+set expensetracking_show_p [apm_package_installed_p "expenses"]

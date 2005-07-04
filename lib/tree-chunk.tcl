@@ -101,12 +101,7 @@ foreach tree_id $category_trees {
     set tree_list [category_tree::get_tree -all $tree_id]
     set tree_length [llength $tree_list]
 
-    db_1row get_tree_name {
-	select name
-	from category_trees t, category_tree_translations tt
-	where t.tree_id = tt.tree_id
-	and t.tree_id = :tree_id
-    }
+    db_1row get_tree_name { }
 
     # Create a list of values for the list filter
     set $name [list]
@@ -418,13 +413,7 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
 	    append instructors " <a href=\"${community_url}facilitator-bio\" class=\"button\">[_ dotlrn-ecommerce.view_bios]</a>"
 	}
 
-	db_1row attendees {
-	    select count(*) as attendees
-	    from dotlrn_member_rels_approved
-	    where community_id = :community_id
-	    and (rel_type = 'dotlrn_member_rel'
-		 or rel_type = 'dotlrn_club_student_rel')
-	}
+	db_1row attendees { }
 
 	if { ! [empty_string_p $maxparticipants] } {
 	    set available_slots [expr $maxparticipants - $attendees]
@@ -432,18 +421,9 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
     }
 
     if { ! [empty_string_p $product_id] } {
-	db_1row price {
-	    select price as prices
-	    from ec_products
-	    where product_id = :product_id
-	}
+	db_1row price { }
 	if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0 ] } {
-	    if { [db_0or1row member_price {
-		select sale_price as member_price
-		from ec_sale_prices
-		where product_id = :product_id
-		limit 1
-	    }] } {
+	    if { [db_0or1row member_price {   }] } {
 		if { ! [empty_string_p $member_price] } {
 		    append prices " / $member_price"
 		}

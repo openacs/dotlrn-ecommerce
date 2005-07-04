@@ -53,4 +53,20 @@
         </querytext>
 </fullquery>
 
+<fullquery name="num_sessions">
+        <querytext>
+	select count(cal_item_id) from cal_items where on_which_calendar = :calendar_id and item_type_id = :item_type_id
+        </querytext>
+</fullquery>
+
+<fullquery name="attendees">
+        <querytext>
+		select count(*) as attendees
+		from dotlrn_member_rels_approved
+		where community_id = :community_id
+		and (rel_type = 'dotlrn_member_rel'
+		or rel_type = 'dotlrn_club_student_rel')	
+        </querytext>
+</fullquery>
+
 </queryset>

@@ -25,7 +25,7 @@ catch {
 	where course_id = :course_id
     }
     set template_calendar_id [dotlrn_calendar::get_group_calendar_id -community_id $template_community_id]
-    set template_item_type_id [db_string item_type_id "select item_type_id from cal_item_types where type='Session' and  calendar_id = :template_calendar_id limit 1" -default 0]
+    set template_item_type_id [db_string get_item_type_id { } -default 0]
 }
 	
 if {![info exists mode]} {
@@ -198,37 +198,7 @@ db_foreach custom_fields_select "
 
 # Create the section for predefined sessions
 if { [info exists template_calendar_id] } {
-    set sessions_list [db_list_of_lists sessions {
-	select   'cal_item_id',
-	ci.cal_item_id,
-	'typical_start_time',
-	to_char(start_date,'HH24:MI') as typical_start_time,
-	'typical_end_time',
-	to_char(end_date,'HH24:MI') as typical_end_time,
-	'session_name',
-	coalesce(e.name, a.name) as session_name,
-	'session_description',
-	coalesce(e.status_summary, a.status_summary) as session_description,
-	'start_date',
-	to_char(start_date, 'yyyy-mm-dd'),
-	'end_date',
-	to_char(end_date, 'yyyy-mm-dd')
-	from     acs_activities a,
-	acs_events e,
-	timespans s,
-	time_intervals t,
-	calendars cals,
-	cal_items ci left join
-	cal_item_types cit on cit.item_type_id = ci.item_type_id
-	where    e.timespan_id = s.timespan_id
-	and      s.interval_id = t.interval_id
-	and      e.activity_id = a.activity_id
-	and      ci.cal_item_id= e.event_id
-	and      cals.calendar_id = ci.on_which_calendar
-	and      e.event_id = ci.cal_item_id
-	and	 ci.on_which_calendar = :template_calendar_id
-	and      ci.item_type_id = :template_item_type_id
-    }]
+    set sessions_list [db_list_of_lists sessions { }]
 } else {
     set sessions_list [list]
 }
@@ -350,12 +320,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
     }]
 
     if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0 ] } {
-	if { [db_0or1row member_price {
-	    select sale_price as member_price
-	    from ec_sale_prices
-	    where product_id = :product_id
-	    limit 1
-	}] } {
+	if { [db_0or1row member_price { }] } {
 	    # HAM
 	    # member_price is using currency_widget
 	    set member_price_split [split $member_price .]
@@ -396,9 +361,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
        
 	# add the calendar item type "session"
 	set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id $community_id]
-	if { ! [db_0or1row session_type {
-	    select item_type_id from cal_item_types where type='Session' and  calendar_id = :calendar_id limit 1
-	}] } {
+	if { ! [db_0or1row get_item_type_id {}] } {
 	    set item_type_id [calendar::item_type_new -calendar_id $calendar_id -type "Session"]
 	}
 
@@ -426,26 +389,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	set color_list ""
         set size_list ""
 	set peeraddr [ad_conn peeraddr]
-	set product_id [db_exec_plsql product_insert {
-            select ec_product__new(
-				   :product_id,
-				   :user_id,
-				   :context_id,
-				   :product_name,
-				   :price,
-				   :sku,
-				   :one_line_description,
-				   :detailed_description,
-				   :search_keywords,
-				   :present_p,
-				   :stock_status,
-				   :dirname,
-				   to_date(now(), 'YYYY-MM-DD'),
-				   :color_list,
-				   :size_list,
-				   :peeraddr
-				   )
-	}]
+	set product_id [db_exec_plsql product_insert {	}]
 
 	db_dml product_update {
 	    update ec_products
@@ -454,8 +398,8 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	}
 	# take care of custom fields
         # we have to generate audit information
-        set audit_fields "last_modified, last_modifying_user, modified_ip_address"
-        set audit_info "now(), :user_id, :peeraddr"
+        # set audit_fields "last_modified, last_modifying_user, modified_ip_address"
+        # set audit_info "now(), :user_id, :peeraddr"
 	
         # things to insert into ec_custom_product_field_values if they exist
 	set custom_columns_to_insert [list product_id]
@@ -481,12 +425,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 		}
 	    }
 	}
-	db_dml custom_fields_insert "
-        insert into ec_custom_product_field_values
-        ([join $custom_columns_to_insert ", "], $audit_fields)
-        values
-        ([join $custom_column_values_to_insert ","], $audit_info)
-        " -bind $bind_set
+	db_dml custom_fields_insert { } -bind $bind_set
 
 	#HAM: create a sale item from the member price
 	# do so only if member price is provided
@@ -502,11 +441,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 		set sale_price $member_price
 		set offer_code ""
 	
-		db_dml sale_insert "
-		insert into ec_sale_prices
-		(sale_price_id, product_id, sale_price, sale_begins, sale_ends, sale_name, offer_code, last_modified, last_modifying_user, modified_ip_address)
-		values
-		(:sale_price_id, :product_id, :sale_price, to_date(now() - '1 day':: interval,'YYYY-MM-DD HH24:MI:SS'), to_date(now() + '99 years':: interval,'YYYY-MM-DD HH24:MI:SS'), 'MemberPrice', :offer_code, now(), :user_id, :peeraddr)"
+		db_dml sale_insert { }
 	}
 
 	#CM: We should probably add ecomerce_product_id to ecommerce_Section and insert it here.
@@ -614,9 +549,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 		}
 	    }
 	}
-	db_dml custom_fields_insert "
-        update ec_custom_product_field_values set [join $custom_columns_to_update ,] where product_id = :product_id
-        " -bind $bind_set
+	db_dml custom_fields_update { } -bind $bind_set
 
 	category::map_object -remove_old -object_id $community_id $categories
 	
@@ -669,17 +602,8 @@ ad_form -extend -name add_section -validate $validate -on_request {
 
 	# Set member price, this can be 1 to n but ignore for now
 	if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0 ] && [exists_and_not_null member_price]} {
-	    if { [db_0or1row sale_price {
-		select sale_price
-		from ec_sale_prices
-		where product_id = :product_id
-		limit 1
-	    }] } {
-		db_dml set_member_price {
-		    update ec_sale_prices
-		    set sale_price = :member_price
-		    where product_id = :product_id
-		}	
+	    if { [db_0or1row sale_price { }] } {
+		db_dml set_member_price { }	
 	    } else {
 		set sale_price_id [db_nextval ec_sale_price_id_sequence]
 		set sale_price $member_price
