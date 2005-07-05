@@ -38,19 +38,14 @@ if { $self_register_p } {
     ad_user_logout 
 }
 
-if {[apm_package_installed_p "assessment"]} {
+set implName [parameter::get -parameter "RegistrationImplName" -package_id [subsite::main_site_id]]
 
-    set exist_assessment [parameter::get -parameter AsmForRegisterId]
-} else {
-    set exist_assessment ""
+set url [callback -catch -impl "$implName" user::registration]
+
+if { ![empty_string_p $url] } {
+    ad_returnredirect [export_vars -base $url { return_url }]
+    ad_script_abort
 }
-
-if { $exist_assessment != "" && $exist_assessment!=0} {
-    set package_id [db_string package_id {select package_id from cr_folders where folder_id=(select context_id from acs_objects where object_id=:exist_assessment)}]
-    set url [apm_package_url_from_id $package_id]
-
-    ad_returnredirect "${url}assessment?assessment_id=$exist_assessment&return_url=$return_url"
-} else {
 
 # Pre-generate user_id for double-click protection
 set user_id [db_nextval acs_object_id_seq]
@@ -227,5 +222,4 @@ ad_form -extend -name register -on_request {
         ad_returnredirect $return_url
         ad_script_abort
     }
-}
 }
