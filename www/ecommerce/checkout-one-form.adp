@@ -2,23 +2,22 @@
 
 <!-- following from billing.adp -->
 
-  <property name="title">Completing Your Order</property>
+  <property name="title">#dotlrn-ecommerce.lt_Completing_Your_Order_1#</property>
 
-  <p>To complete your order, submit this form, and confirm the information
-    on the following page.</p>
+  <p>#dotlrn-ecommerce.lt_To_complete_your_orde#</p>
 
 <if @more_addresses_available@ true>
-  <p>Alternately, you can use a <a href="checkout">multi-page order process</a>, 
-  if you prefer using some of your other addresses on file with us.
+  <p>#dotlrn-ecommerce.lt_Alternately_you_can_u# <a href="checkout">#dotlrn-ecommerce.lt_multi-page_order_proc#</a>, 
+  #dotlrn-ecommerce.lt_if_you_prefer_using_s#
   </p>
 </if>
 
 <!-- shipping detail -->
 <!--   from address.adp  -->
-<p>1. Please review your order list for accuracy.</p>
-<h3>Order list</h3>
+<p>#dotlrn-ecommerce.lt_1_Please_review_your_#</p>
+<h3>#dotlrn-ecommerce.Order_list#</h3>
  @items_ul;noquote@
 <hr>
-<p>2. Complete this information.</p>
+<p>#dotlrn-ecommerce.lt_2_Complete_this_infor#</p>
 
 <formtemplate id="checkout"></formtemplate>
