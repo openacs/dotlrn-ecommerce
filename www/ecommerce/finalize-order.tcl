@@ -192,10 +192,12 @@ if { [empty_string_p $creditcard_id] } {
 
 db_transaction {
     ec_update_state_to_confirmed $order_id
-
-    # Call after-checkout callback
-    callback -- ecommerce::after-checkout -patron_id $user_id -order_id $order_id
 }
+
+# Call after-checkout callback
+# Roel - 0705, Removed this line from the transaction, may have been causing
+# the transaction to hang
+callback -- ecommerce::after-checkout -patron_id $user_id -order_id $order_id
 
 set method [db_string payment_method {
     select method

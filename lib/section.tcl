@@ -203,6 +203,8 @@ if { [info exists template_calendar_id] } {
     set sessions_list [list]
 }
 
+ns_log Notice "** $sessions_list **"
+
 if { [llength $sessions_list] } {
     ad_form -extend -name add_section -form {
 	{-section "Predefined Sessions"}
