@@ -48,7 +48,12 @@ if { ! [empty_string_p $search] } {
     set page_query [subst {
 	select u.user_id, u.email, u.first_names, u.last_name, a.phone, a.line1, a.line2
 	from dotlrn_users u
-	left join ec_addresses a
+	left join (select *
+		   from ec_addresses
+		   where address_id
+		   in (select max(address_id)
+		       from ec_addresses
+		       group by user_id)) a
 	on (u.user_id = a.user_id)
 	where (lower(first_names) like lower(:search)||'%' or
 	       lower(last_name) like lower(:search)||'%' or

@@ -163,11 +163,7 @@ ad_proc -public dotlrn_ecommerce::section::flush_cache {
 	    lappend __instructors [ns_set get $instructor user_id]
 	}
     }
-    set grade_tree_id [db_string grade_tree {
-	select tree_id
-	from category_tree_translations 
-	where name = 'Grade'
-    } -default 0]
+    set grade_tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
     set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id $community_id]
 
     # Start flushing
@@ -176,3 +172,74 @@ ad_proc -public dotlrn_ecommerce::section::flush_cache {
     set sessions [util_memoize_flush [list dotlrn_ecommerce::section::sessions $calendar_id]]
     set instructors [util_memoize_flush [list dotlrn_ecommerce::section::instructors $community_id $__instructors]]
 }
+
+ad_proc -public dotlrn_ecommerce::section::maxparticipants {
+    section_id
+} {
+    Return maximum section participants
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-07-06
+    
+    @param section_id
+
+    @return 
+    
+    @error 
+} {
+    return [db_string maxparticipants {
+	select v.maxparticipants
+	from dotlrn_ecommerce_section s, ec_custom_product_field_values v, dotlrn_catalogi c, cr_items ci
+	where s.product_id = v.product_id
+	and s.section_id = :section_id
+	and s.course_id = c.item_id
+	and ci.live_revision = c.revision_id
+    } -default ""]
+}
+
+ad_proc -public dotlrn_ecommerce::section::available_slots {
+    section_id
+} {
+    Return available slots
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-07-06
+    
+    @param section_id
+
+    @param section_id
+
+    @return 
+    
+    @error 
+} {
+    set maxparticipants ""
+    set available_slots 0
+    db_0or1row participants {
+	select v.maxparticipants, s.community_id, s.section_name, c.course_name
+	from dotlrn_ecommerce_section s, ec_custom_product_field_values v, dotlrn_catalogi c, cr_items ci
+	where s.product_id = v.product_id
+	and s.section_id = :section_id
+	and s.course_id = c.item_id
+	and ci.live_revision = c.revision_id
+    }
+
+    if { ![empty_string_p $maxparticipants] } {
+	db_1row attendees {
+	    select count(*) as attendees
+	    from dotlrn_member_rels_approved
+	    where community_id = :community_id
+	    and (rel_type = 'dotlrn_member_rel'
+		 or rel_type = 'dc_student_rel')
+	}
+
+	set available_slots [expr $maxparticipants - $attendees]
+	if { $available_slots < 0 } {
+	    set available_slots 0
+	}
+	return $available_slots
+    }
+
+    return ""
+}
+

@@ -25,6 +25,8 @@ ad_page_contract {
 
     {related_user 0}
     {new_user_p 0}
+
+    {waiting_list_p 0}
 } -properties {
 } -validate {
 } -errors {
@@ -107,6 +109,7 @@ if { [llength $section_list] == 1 } {
 }
 
 ad_form -name "participant" -form {
+    {waiting_list_p:integer(hidden) {value $waiting_list_p}}
     {purchaser:text(inform) {label "Purchaser"} {value "[person::name -person_id $user_id]"}}
 }
 
@@ -121,11 +124,11 @@ if { ( [empty_string_p $section] || [llength $section_list] == 1 ) && ! $section
 
     lappend validate {section
 	{ ! [empty_string_p $section] }
-	"Please enter a search string"
+	"[_ dotlrn-ecommerce.lt_Please_enter_a_search]"
     }
     lappend validate {section
 	{ [llength $section_list] > 1 }
-	"No courses/sections found. Please try again"
+	"[_ dotlrn-ecommerce.lt_No_coursessections_fo]"
     }
 } elseif { $section_id > 0 } {
     db_1row section {
@@ -155,11 +158,11 @@ if { ( [empty_string_p $section] || [llength $section_list] == 1 ) && ! $section
 
     lappend validate {section_id
 	{ $section_id }
-	"Please select a section from the list"
+	"[_ dotlrn-ecommerce.lt_Please_select_a_secti]"
     }
     lappend validate {section_id
 	{ $section_id > 0 }
-	"Please select a section under this course"
+	"[_ dotlrn-ecommerce.lt_Please_select_a_secti_1]"
     }
 }
 
@@ -193,7 +196,12 @@ if { ! [empty_string_p $participant] } {
 	-page_query [subst {
 	    select u.user_id, u.first_names, u.last_name, u.email, a.phone, a.line1, a.line2
 	    from dotlrn_users u
-	    left join ec_addresses a
+	    left join (select *
+		       from ec_addresses
+		       where address_id
+		       in (select max(address_id)
+			   from ec_addresses
+			   group by user_id)) a
 	    on (u.user_id = a.user_id)
 	    where u.user_id != :user_id
 	    and u.user_id != :user_id
@@ -324,10 +332,10 @@ if { ! $participant_id } {
 
     lappend validate {name
 	{ ! [empty_string_p $name] || [template::element::get_value participant related_user] != -1 }
-	"Please enter a name for the group"
+	"[_ dotlrn-ecommerce.lt_Please_enter_a_name_f]"
     } {num_members
 	{ ! [empty_string_p $num_members] || [template::element::get_value participant related_user] != -1 }
-	"Please enter the number of attendees"
+	"[_ dotlrn-ecommerce.lt_Please_enter_the_numb]"
     }
 
 #     lappend validate {participant
@@ -386,41 +394,39 @@ if { ! $participant_id } {
 #     }
 # }
 
-set maxparticipants ""
-set available_slots 0
-db_0or1row participants {
-    select v.maxparticipants, s.community_id, s.section_name, c.course_name
-    from dotlrn_ecommerce_section s, ec_custom_product_field_values v, dotlrn_catalogi c, cr_items ci
-    where s.product_id = v.product_id
-    and s.section_id = :section_id
-    and s.course_id = c.item_id
-    and ci.live_revision = c.revision_id
-}
-
-if { ![empty_string_p $maxparticipants] } {
-    db_1row attendees {
-	select count(*) as attendees
-	from dotlrn_member_rels_approved
-	where community_id = :community_id
-	and (rel_type = 'dotlrn_member_rel'
-	     or rel_type = 'dc_student_rel')
-    }
-
-    set available_slots [expr $maxparticipants - $attendees]
-}
+set maxparticipants [dotlrn_ecommerce::section::maxparticipants $section_id]
+set available_slots [dotlrn_ecommerce::section::available_slots $section_id]
 
 if { [empty_string_p $maxparticipants] } {
     lappend validate \
 	{num_members
-	    {$num_members > 1 || [empty_string_p $num_members] }
-	    "Please enter a value greater than 1"
+	    {$num_members > 1 || [empty_string_p $num_members] || [template::element::get_value participant related_user] != -1}
+	    "[_ dotlrn-ecommerce.lt_Please_enter_a_value_]"
 	}
 } else {
-    lappend validate \
-	{num_members
-	    { ($num_members > 1 && $num_members <= $available_slots) || [empty_string_p $num_members] }
-	    "Please enter a value from 2 to $available_slots"
-	}
+    # it is now allowed to register users even if the course is full,
+    # they just go to the waiting list
+
+    # for groups, just inform the user that the group members will go
+    # to the waiting list
+    # DISABLED FOR NOW - groups can't go to the waiting list
+#    if { ! $waiting_list_p } {
+	lappend validate \
+	    {num_members
+		{ $num_members > 1 }
+		"[_ dotlrn-ecommerce.lt_Please_enter_a_value_]"
+	    } {num_members
+		{ $num_members <= $available_slots || [empty_string_p $num_members] || [template::element::get_value participant related_user] != -1}
+		"[subst [_ dotlrn-ecommerce.lt_The_course_only_has_a]]"
+	    }
+#	if { [template::element::get_value participant related_user] == -1 && [string is integer [template::element::get_value participant num_members]] && [template::element::get_value participant num_members] > 1 && [template::element::get_value participant num_members] > $available_slots } {
+#	    template::element::set_value participant waiting_list_p 1
+#	} else {
+#	    template::element::set_value participant waiting_list_p 0
+#	}
+#    } elseif { [template::element::get_value participant related_user] != -1 } {
+#	template::element::set_value participant waiting_list_p 0
+#    }
 }
 
 set return_url [ad_return_url]
@@ -431,8 +437,6 @@ ad_form -extend -name "participant" -export { user_id return_url new_user_p } -v
     if { $related_user > 0 } {
 	set participant_id $related_user
     }
-
-    ns_log notice "DEBUG:: RELATED USER $related_user"
 
     if { ! [empty_string_p $relationship] && $related_user != 0 && ([empty_string_p $name] || [empty_string_p $num_members]) } {
 	set rel_id [relation::get_id -object_id_one $user_id -object_id_two $participant_id -rel_type "patron_rel"]

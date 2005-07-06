@@ -84,8 +84,17 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 				 or rel_type = 'dc_student_rel')
 			}
 
-			if { $attendees >= $maxparticipants } {
-			    set waiting_list_p 1
+			# If the group members will exceed the maximum
+			# participants, the entire group goes to the
+			# waiting list
+			if { [acs_object_type $participant_id] == "group" } {
+			    if { ($attendees + [llength $user_ids]) > $maxparticipants } {
+				set waiting_list_p 1
+			    }
+			} else {
+			    if { $attendees >= $maxparticipants } {
+				set waiting_list_p 1
+			    }
 			}
 		    }
 
