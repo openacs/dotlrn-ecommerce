@@ -198,10 +198,8 @@ db_foreach custom_fields_select "
 
 # Create the section for predefined sessions
 if { [info exists template_calendar_id] } {
-#    ns_log notice "DEBUG:: TEMPLATE_CALENDAR_ID $template_calendar_id"
-#    set sessions_list [db_list_of_lists sessions { }]
+    set sessions_list [db_list_of_lists sessions { }]
 } else {
-    ns_log notice "DEBUG:: TEMPLATE_CALENDAR_ID DOESN'T EXIST"
     set sessions_list [list]
 }
 
