@@ -26,7 +26,7 @@ if { [db_0or1row "get_section_info" "select section_id, product_id from dotlrn_e
 		from dotlrn_member_rels_approved
 		where community_id = :community_id
 		and (rel_type = 'dotlrn_member_rel'
-		or rel_type = 'dotlrn_club_student_rel')
+		or rel_type = 'dc_student_rel')
 	}
 	
 	set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id $community_id]

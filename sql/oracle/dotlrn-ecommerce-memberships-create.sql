@@ -1,9 +1,9 @@
-create table dotlrn_club_student_rels (
+create table dc_student_rels (
     rel_id integer constraint dcs_rels_rel_id_pk primary key 
 		   constraint dcs_rels_fk references membership_rels(rel_id)
 );
 
-create or replace view dcs_rels_full
+create or replace view dc_student_rels_full
 as
     select acs_rels.rel_id as rel_id,
            acs_rels.object_id_one as community_id,
@@ -13,54 +13,56 @@ as
             from acs_rel_types
             where acs_rel_types.rel_type = acs_rels.rel_type) as role,
            membership_rels.member_state
-    from dotlrn_club_student_rels,
+    from dc_student_rels,
          acs_rels,
          membership_rels
-    where dotlrn_club_student_rels.rel_id = acs_rels.rel_id
+    where dc_student_rels.rel_id = acs_rels.rel_id
     and acs_rels.rel_id = membership_rels.rel_id;
 
-create or replace view dcs_rels_approved
+create or replace view dc_student_rels_approved
 as
     select *
-    from dcs_rels_full
+    from dc_student_rels_full
     where member_state = 'approved';
 
-create or replace package dotlrn_club_student_rel
+create or replace package dc_student_rel
 as
 
--- dotlrn_club_student_rel__new
+-- dc_student_rel__new
  function new (
         rel_id in membership_rels.rel_id%TYPE default null,
         rel_type in acs_rels.rel_type%TYPE default 'membership_rel',
+	portal_id in portals.portal_id%TYPE,
         community_id in dotlrn_communities.community_id%TYPE,
 	user_id in users.user_id%TYPE,
         member_state in membership_rels.member_state%TYPE,
         creation_user in acs_objects.creation_user%TYPE default null,
         creation_ip in acs_objects.creation_ip%TYPE default null
- ) return dotlrn_club_student_rels.rel_id%TYPE;
+ ) return dc_student_rels.rel_id%TYPE;
 
--- dotlrn_club_student_rel__delete
+-- dc_student_rel__delete
  procedure del (
 	rel_id in composition_rels.rel_id%TYPE
  );
 
-end dotlrn_club_student_rel;
+end dc_student_rel;
 /
 show errors
 
-create or replace package body dotlrn_club_student_rel
+create or replace package body dc_student_rel
 as
 
--- dotlrn_club_student_rel__new
+-- dc_student_rel__new
  function new (
         rel_id in membership_rels.rel_id%TYPE default null,
         rel_type in acs_rels.rel_type%TYPE default 'membership_rel',
+	portal_id in portals.portal_id%TYPE,
         community_id in dotlrn_communities.community_id%TYPE,
 	user_id in users.user_id%TYPE,
         member_state in membership_rels.member_state%TYPE,
         creation_user in acs_objects.creation_user%TYPE default null,
         creation_ip in acs_objects.creation_ip%TYPE default null
- ) return dotlrn_club_student_rels.rel_id%TYPE
+ ) return dc_student_rels.rel_id%TYPE
  is
 	v_rel_id membership_rels.rel_id%TYPE;
  begin
@@ -75,7 +77,7 @@ as
         );
 
         insert
-        into dotlrn_club_student_rels
+        into dc_student_rels
         (rel_id)
         values
         (v_rel_id);
@@ -83,31 +85,31 @@ as
 	return v_rel_id;
  end;
 
--- dotlrn_club_student_rel__delete
+-- dc_student_rel__delete
  procedure del (
 	rel_id in composition_rels.rel_id%TYPE
  )
  is
  begin
 	delete 
-	from dotlrn_club_student_rels 
+	from dc_student_rels 
 	where rel_id = rel_id; 
 
 	membership_rel.del(rel_id);
 
  end;
 
-end dotlrn_club_student_rel;
+end dc_student_rel;
 /
 show errors
 
 
-create table dotlrn_club_instructor_rels (
+create table dc_instructor_rels (
     rel_id integer constraint dci_rels_rel_id_pk primary key 
 		   constraint dci_rels_fk references membership_rels(rel_id)
 ); 
 
-create or replace view dci_rels_full
+create or replace view dc_instructor_rels_full
 as
     select acs_rels.rel_id as rel_id,
            acs_rels.object_id_one as community_id,
@@ -117,54 +119,56 @@ as
             from acs_rel_types
             where acs_rel_types.rel_type = acs_rels.rel_type) as role,
            membership_rels.member_state
-    from dotlrn_club_instructor_rels,
+    from dc_instructor_rels,
          acs_rels,
          membership_rels
-    where dotlrn_club_instructor_rels.rel_id = acs_rels.rel_id
+    where dc_instructor_rels.rel_id = acs_rels.rel_id
     and acs_rels.rel_id = membership_rels.rel_id;
 
-create view dci_rels_approved
+create or replace view dc_instructor_rels_approved
 as
     select *
-    from dci_rels_full
+    from dc_instructor_rels_full
     where member_state = 'approved';
 
-create or replace package dotlrn_club_instructor_rel
+create or replace package dc_instructor_rel
 as
 
--- dotlrn_club_instructor__new
+-- dc_instructor__new
  function new (
         rel_id in membership_rels.rel_id%TYPE default null,
         rel_type in acs_rels.rel_type%TYPE default 'membership_rel',
-        community_id in dotlrn_communities.community_id%TYPE,
+	portal_id in portals.portal_id%TYPE,
+        community_id in dotlrn_communities.community_id%TYPE,	
 	user_id in users.user_id%TYPE,
         member_state in membership_rels.member_state%TYPE,
         creation_user in acs_objects.creation_user%TYPE default null,
         creation_ip in acs_objects.creation_ip%TYPE default null
- ) return dotlrn_club_instructor_rels.rel_id%TYPE;
+ ) return dc_instructor_rels.rel_id%TYPE;
 
--- dotlrn_club_student_rel__delete
+-- dc_instructor_rel__delete
  procedure delete (
 	rel_id in composition_rels.rel_id%TYPE
  );
 
-end dotlrn_club_instructor_rel;
+end dc_instructor_rel;
 /
 show errors
 
-create or replace package body dotlrn_club_instructor_rel
+create or replace package body dc_instructor_rel
 as
 
--- dotlrn_club_instructor_rel__new
+-- dc_instructor_rel__new
  function new (
         rel_id in membership_rels.rel_id%TYPE default null,
         rel_type in acs_rels.rel_type%TYPE default 'membership_rel',
+	portal_id in portals.portal_id%TYPE,
         community_id in dotlrn_communities.community_id%TYPE,
 	user_id in users.user_id%TYPE,
         member_state in membership_rels.member_state%TYPE,
         creation_user in acs_objects.creation_user%TYPE default null,
         creation_ip in acs_objects.creation_ip%TYPE default null
- ) return dotlrn_club_instructor_rels.rel_id%TYPE
+ ) return dc_instructor_rels.rel_id%TYPE
  is
 	v_rel_id membership_rels.rel_id%TYPE;
  begin
@@ -179,7 +183,7 @@ as
         );
 
         insert
-        into dotlrn_club_instructor_rels
+        into dc_instructor_rels
         (rel_id)
         values
         (v_rel_id);
@@ -188,7 +192,7 @@ as
 
  end new;
 
--- dotlrn_club_instructor_rel__delete
+-- dc_instructor_rel__delete
  procedure delete (
 	rel_id in composition_rels.rel_id%TYPE
  )
@@ -196,14 +200,14 @@ as
 	v_rel_id membership_rels.rel_id%TYPE;
  begin
 	delete 
-	from dotlrn_club_instructor_rels 
+	from dc_instructor_rels 
 	where rel_id = rel_id; 
 
 	membership_rel.del(rel_id);
 
  end delete;
 
-end dotlrn_club_instructor_rel;
+end dc_instructor_rel;
 /
 show errors
 

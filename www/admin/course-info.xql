@@ -65,7 +65,7 @@
 		from dotlrn_member_rels_approved
 		where community_id = :community_id
 		and (rel_type = 'dotlrn_member_rel'
-		or rel_type = 'dotlrn_club_student_rel')	
+		or rel_type = 'dc_student_rel')	
         </querytext>
 </fullquery>
 

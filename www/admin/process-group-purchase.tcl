@@ -52,7 +52,7 @@ if { ![empty_string_p $maxparticipants] } {
 	from dotlrn_member_rels_approved
 	where community_id = :community_id
 	and (rel_type = 'dotlrn_member_rel'
-	     or rel_type = 'dotlrn_club_student_rel')
+	     or rel_type = 'dc_student_rel')
     }
 
     set available_slots [expr $maxparticipants - $attendees]
@@ -138,8 +138,8 @@ ad_form -extend -name process-group \
 				    -nologin]
 	    #		ad_return_complaint 1 "new_user '[array get new_user]' section_community_id '${section_community_id}'"
 	    #		if {[info exists new_user(user_id)]} {
-	    #		    relation_add -member_state approved dotlrn_club_student_rel $section_community_id $new_user(user_id)
-#	    package_exec_plsql -var_list [list [list community_id $section_community_id] [list rel_type "dotlrn_club_student_rel"] [list user_id $new_user(user_id)] [list member_state approved]] dotlrn_club_student_rel new
+	    #		    relation_add -member_state approved dc_student_rel $section_community_id $new_user(user_id)
+#	    package_exec_plsql -var_list [list [list community_id $section_community_id] [list rel_type "dc_student_rel"] [list user_id $new_user(user_id)] [list member_state approved]] dc_student_rel new
 	    relation_add -member_state approved membership_rel $group_id $new_user(user_id)
 
 	    #	}

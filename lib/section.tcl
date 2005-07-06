@@ -241,8 +241,6 @@ foreach s $sessions_list {
     }]
 }
 
-ns_log notice "DEBUG:: $validate"
-
 lappend validate {price
     { ![template::util::negative [template::util::currency::get_property whole_part $price]] }
     "Price can not be negative"
@@ -313,7 +311,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	select user_id
 	from dotlrn_member_rels_approved
 	where community_id = :community_id
-	and rel_type = 'dotlrn_club_instructor_rel'
+	and rel_type = 'dc_instructor_rel'
 	and user_id in (select user_id
 			from dotlrn_member_rels_approved
 			where community_id = :assistant_community_id)
@@ -355,7 +353,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 		dotlrn_club::add_user -rel_type "dotlrn_admin_rel" -community_id $community_id -user_id $instructor -member_state "approved"
 	}
 	foreach assistant $assistants {
-		dotlrn_club::add_user -rel_type "dotlrn_club_instructor_rel" -community_id $community_id -user_id $assistant -member_state "approved"
+		dotlrn_club::add_user -rel_type "dc_instructor_rel" -community_id $community_id -user_id $assistant -member_state "approved"
 	}
 	
        
@@ -468,7 +466,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
     # HAM : let's now add a "Section Administration" portlet for this new section
     set admin_portal_id [dotlrn_community::get_admin_portal_id -community_id $community_id]
     set element_id [dotlrn_ecommerce_admin_portlet::add_self_to_page -portal_id $admin_portal_id -package_id $package_id]
-    ns_log Notice "DEBUG : Added Admin Portal $element_id"
+    # ns_log Notice "DEBUG : Added Admin Portal $element_id"
     # we want the section admin portlet to be at the top
     db_dml "bring_portlet_to_top" "update portal_element_map set sort_key=0, region=1 where element_id=:element_id"
 
@@ -568,7 +566,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	    select user_id
 	    from dotlrn_member_rels_approved
 	    where community_id = :community_id
-	    and rel_type = 'dotlrn_club_instructor_rel'
+	    and rel_type = 'dc_instructor_rel'
 	    and user_id in (select user_id
 			    from dotlrn_member_rels_approved
 			    where community_id = :assistant_community_id)
@@ -596,7 +594,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	
 	foreach assistant $assistants {
 	    if { [lsearch $original_assistants $assistant] == -1 } {
-		catch {dotlrn_community::add_user -rel_type dotlrn_club_instructor_rel $community_id $assistant}
+		catch {dotlrn_community::add_user -rel_type dc_instructor_rel $community_id $assistant}
 	    }
 	}
 

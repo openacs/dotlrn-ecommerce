@@ -3,7 +3,7 @@
 -- create new rel types for club/student
 
 
-create table dotlrn_club_student_rels (
+create table dc_student_rels (
     rel_id                      integer
                                 constraint dotlrn_club_student_rels_rel_id_fk
                                 references membership_rels (rel_id)
@@ -11,7 +11,7 @@ create table dotlrn_club_student_rels (
                                 primary key
 );                                          
 
-create view dcs_rels_full
+create or replace view dc_student_rels_full
 as
     select acs_rels.rel_id as rel_id,
            acs_rels.object_id_one as community_id,
@@ -21,21 +21,21 @@ as
             from acs_rel_types
             where acs_rel_types.rel_type = acs_rels.rel_type) as role,
            membership_rels.member_state
-    from dotlrn_club_student_rels,
+    from dc_student_rels,
          acs_rels,
          membership_rels
-    where dotlrn_club_student_rels.rel_id = acs_rels.rel_id
+    where dc_student_rels.rel_id = acs_rels.rel_id
     and acs_rels.rel_id = membership_rels.rel_id;
 
-create view dcs_rels_approved
+create or replace view dc_student_rels_approved
 as
     select *
-    from dcs_rels_full
+    from dc_student_rels_full
     where member_state = 'approved';
  
-select define_function_args('dotlrn_club_student_rel__new','rel_id,rel_type;dotlrn_club_student_rel,portal_id,community_id,user_id,member_state;approved,creation_user,creation_ip');
+select define_function_args('dc_student_rel__new','rel_id,rel_type;dc_student_rel,portal_id,community_id,user_id,member_state;approved,creation_user,creation_ip');
 
-create or replace function dotlrn_club_student_rel__new(integer,varchar,integer,integer,integer,varchar,integer,varchar)
+create or replace function dc_student_rel__new(integer,varchar,integer,integer,integer,varchar,integer,varchar)
 returns integer as '
 DECLARE
         p_rel_id                alias for $1;
@@ -60,7 +60,7 @@ BEGIN
         );
 
         insert
-        into dotlrn_club_student_rels
+        into dc_student_rels
         (rel_id)
         values
         (v_rel_id);
@@ -70,14 +70,14 @@ END;
 ' language 'plpgsql';
 
 
-select define_function_args('dotlrn_club_student_rel__delete','rel_id');
+select define_function_args('dc_student_rel__delete','rel_id');
 
-create function dotlrn_club_student_rel__delete(integer)
+create or replace function dc_student_rel__delete(integer)
 returns integer as '
 DECLARE
         p_rel_id                alias for $1;
 BEGIN
-        delete from dotlrn_club_student_rels where rel_id = p_rel_id; 
+        delete from dc_student_rels where rel_id = p_rel_id; 
 
         PERFORM membership_rel__delete(p_rel_id);
 
@@ -88,7 +88,7 @@ END;
 
 
 
-create table dotlrn_club_instructor_rels (
+create table dc_instructor_rels (
     rel_id                      integer
                                 constraint dotlrn_club_instructor_rels_rel_id_fk
                                 references membership_rels (rel_id)
@@ -96,7 +96,7 @@ create table dotlrn_club_instructor_rels (
                                 primary key
 );                                          
 
-create view dci_rels_full
+create or replace view dc_instructor_rels_full
 as
     select acs_rels.rel_id as rel_id,
            acs_rels.object_id_one as community_id,
@@ -106,21 +106,21 @@ as
             from acs_rel_types
             where acs_rel_types.rel_type = acs_rels.rel_type) as role,
            membership_rels.member_state
-    from dotlrn_club_instructor_rels,
+    from dc_instructor_rels,
          acs_rels,
          membership_rels
-    where dotlrn_club_instructor_rels.rel_id = acs_rels.rel_id
+    where dc_instructor_rels.rel_id = acs_rels.rel_id
     and acs_rels.rel_id = membership_rels.rel_id;
 
-create view dci_rels_approved
+create or replace view dc_instructor_rels_approved
 as
     select *
-    from dci_rels_full
+    from dc_instructor_rels_full
     where member_state = 'approved';
  
-select define_function_args('dotlrn_club_instructor_rel__new','rel_id,rel_type;dotlrn_club_instructor_rel,portal_id,community_id,user_id,member_state;approved,creation_user,creation_ip');
+select define_function_args('dc_instructor_rel__new','rel_id,rel_type;dc_instructor_rel,portal_id,community_id,user_id,member_state;approved,creation_user,creation_ip');
 
-create or replace function dotlrn_club_instructor_rel__new(integer,varchar,integer,integer,integer,varchar,integer,varchar)
+create or replace function dc_instructor_rel__new(integer,varchar,integer,integer,integer,varchar,integer,varchar)
 returns integer as '
 DECLARE
         p_rel_id                alias for $1;
@@ -145,7 +145,7 @@ BEGIN
         );
 
         insert
-        into dotlrn_club_instructor_rels
+        into dc_instructor_rels
         (rel_id)
         values
         (v_rel_id);
@@ -155,14 +155,14 @@ END;
 ' language 'plpgsql';
 
 
-select define_function_args('dotlrn_club_instructor_rel__delete','rel_id');
+select define_function_args('dc_instructor_rel__delete','rel_id');
 
-create function dotlrn_club_instructor_rel__delete(integer)
+create or replace function dc_instructor_rel__delete(integer)
 returns integer as '
 DECLARE
         p_rel_id                alias for $1;
 BEGIN
-        delete from dotlrn_club_instructor_rels where rel_id = p_rel_id; 
+        delete from dc_instructor_rels where rel_id = p_rel_id; 
 
         PERFORM membership_rel__delete(p_rel_id);
 
