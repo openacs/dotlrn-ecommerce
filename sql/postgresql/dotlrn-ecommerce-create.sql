@@ -65,6 +65,18 @@ create table dotlrn_ecommerce_transactions (
 	internal_account text
 );
 
+-- user_field should point to person_info fields
+-- maybe the person_info fields should be object attributes
+create table dotlrn_ecommerce_prereq_map (
+	tree_id		integer references category_trees on delete cascade not null,
+	user_field	text
+);
+
+create table dotlrn_ecommerce_prereqs (
+	section_id	integer references dotlrn_ecommerce_section on delete cascade not null,
+	tree_id		integer references category_trees on delete cascade not null
+);
+
 -- Create custom ecommerce field
 insert into ec_custom_product_fields (field_identifier, field_name, default_value, column_type, last_modified,last_modifying_user, modified_ip_address) values ('maxparticipants', 'Max Participants', '', 'integer', now(), '0', '0.0.0.0');
 alter table ec_custom_product_field_values add maxparticipants integer;

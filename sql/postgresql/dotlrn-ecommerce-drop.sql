@@ -7,6 +7,9 @@
 -- @cvs-id $Id$
 --
 
+drop table dotlrn_ecommerce_transactions;
+drop table dotlrn_ecommerce_prereqs;
+drop table dotlrn_ecommerce_prereq_map;
 drop table dotlrn_ecommerce_section;
 drop table person_info;
 

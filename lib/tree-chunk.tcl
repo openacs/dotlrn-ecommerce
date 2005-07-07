@@ -363,7 +363,7 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
     if { [parameter::get -package_id [ad_conn package_id] -parameter NoPayment -default 0] } {
 	set shopping_cart_add_url [export_vars -base register/ { community_id product_id}]
     } else {
-    	set shopping_cart_add_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id }]
+	set shopping_cart_add_url [export_vars -base ecommerce/prerequisite-confirm { user_id product_id return_url }]
     }
 
     set member_p [dotlrn_community::member_p $community_id $user_id]

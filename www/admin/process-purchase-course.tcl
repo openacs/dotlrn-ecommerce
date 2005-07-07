@@ -325,9 +325,11 @@ if { ! $participant_id } {
 	    {help_text "How is the purchaser related to the participant?"}
 	    {options {$tree_options}}
 	}
+	{isubmit:text(submit) {label "Continue"}}
 	{-section "Group Purchase"}
 	{name:text,optional {label "Group Name"} {html {size 30}}}
 	{num_members:integer(text),optional {label "Number of attendees"} {html {size 30}}}
+	{gsubmit:text(submit) {label "Continue"}}
     }
 
     lappend validate {name
@@ -413,7 +415,7 @@ if { [empty_string_p $maxparticipants] } {
 #    if { ! $waiting_list_p } {
 	lappend validate \
 	    {num_members
-		{ $num_members > 1 }
+		{ $num_members > 1 || [template::element::get_value participant related_user] != -1 }
 		"[_ dotlrn-ecommerce.lt_Please_enter_a_value_]"
 	    } {num_members
 		{ $num_members <= $available_slots || [empty_string_p $num_members] || [template::element::get_value participant related_user] != -1}
@@ -501,11 +503,11 @@ ad_form -extend -name "participant" -export { user_id return_url new_user_p } -v
 	set participant_id $group_id
 	set item_count $num_members
 
-	ad_returnredirect [export_vars -base "../ecommerce/shopping-cart-add" { product_id user_id participant_id item_count }]
+	ad_returnredirect [export_vars -base "../ecommerce/prerequisite-confirm" { product_id user_id participant_id item_count return_url }]
 	ad_script_abort
     }
     
-    set add_url [export_vars -base "../ecommerce/shopping-cart-add" { product_id user_id participant_id item_count }]
+    set add_url [export_vars -base "../ecommerce/prerequisite-confirm" { product_id user_id participant_id item_count return_url }]
     set participant_id [ad_decode $participant_id 0 $user_id $participant_id]
 
     if { $new_user_p } {

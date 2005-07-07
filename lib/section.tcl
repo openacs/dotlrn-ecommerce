@@ -137,11 +137,28 @@ if { ! [ad_form_new_p -key section_id] } {
 	from dotlrn_ecommerce_section
 	where section_id = :section_id
     }
+
+    set tree_options [list]
+    db_foreach prerequisites {
+	select tree_id
+	from dotlrn_ecommerce_prereq_map
+    } {
+	lappend tree_options [list [category_tree::get_name $tree_id] $tree_id]
+    }
+
     ad_form -extend -name add_section -form {
 	{categories:text(category),multiple,optional
 	    {label "Categories"}
 	    {html {size 4}}
 	    {value "$community_id $package_id"}
+	}
+    }
+
+    if { [llength $tree_options] > 0 } {
+	ad_form -extend -name add_section -form {
+	    {prerequisites:integer(checkbox),multiple,optional {label "Check Prerequisites"}
+		{options {$tree_options}}
+	    }
 	}
     }
 } else {
@@ -194,6 +211,15 @@ db_foreach custom_fields_select "
 						     [list "${field_identifier}:text(radio),optional" {label $field_name} {value $default_value} {options {{Yes t} {No f}}}] \
 						    ]
     }
+
+    # maxparticipants is a special field, it is created on install
+    # it can be empty but not zero or negative
+    if { $field_identifier == "maxparticipants" } {
+	lappend validate {maxparticipants
+	    { $maxparticipants > 0 || [empty_string_p $maxparticipants] }
+	    "Please enter a value greater than 0"
+	}
+    }
 }
 
 # Create the section for predefined sessions
@@ -202,8 +228,6 @@ if { [info exists template_calendar_id] } {
 } else {
     set sessions_list [list]
 }
-
-ns_log Notice "** $sessions_list **"
 
 if { [llength $sessions_list] } {
     ad_form -extend -name add_section -form {
@@ -327,6 +351,12 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	    set member_price [template::util::currency::create "$" [lindex $member_price_split 0] [lindex $member_price_split 1] ]
 	}
     }
+
+    set prerequisites [db_list prerequisites {
+	select tree_id
+	from dotlrn_ecommerce_prereqs
+	where section_id = :section_id
+    }]
 } -new_data {
     db_transaction {
         # create the class instance
@@ -463,6 +493,17 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	set tree_id [parameter::get -package_id [ad_conn package_id] -parameter PatronRelationshipCategoryTree -default 0]
 	category_tree::map -tree_id $tree_id -object_id $community_id
 
+	# Prerequisites
+	if { [info exists prerequisites] } {
+	    foreach prereq $prerequisites {
+		db_dml insert_prereq {
+		    insert into dotlrn_ecommerce_prereqs
+		    (section_id, tree_id)
+		    values
+		    (:section_id, :prereq)
+		}
+	    }
+	}
     }
 
     # HAM : let's now add a "Section Administration" portlet for this new section
@@ -644,6 +685,22 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	    }
 	}
 	
+	# Prerequisites
+	if { [info exists prerequisites] } {
+	    db_dml delete_prereq {
+		delete from dotlrn_ecommerce_prereqs
+		where section_id = :section_id
+	    }
+	    foreach prereq $prerequisites {
+		db_dml insert_prereq {
+		    insert into dotlrn_ecommerce_prereqs
+		    (section_id, tree_id)
+		    values
+		    (:section_id, :prereq)
+		}
+	    }
+	}
+
 	dotlrn_ecommerce::section::flush_cache $section_id
     }
 } -after_submit {
