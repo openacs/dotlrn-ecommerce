@@ -106,18 +106,19 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
 	set _days [list]
 	foreach day $_sessions {
 	    # if there's a better way to do this please tell me :)
-	    lappend days_${start}_${end}_${startampm}_${endampm} [expr 1${day} - 100]
+	    lappend days_${month}_${start}_${end}_${startampm}_${endampm} [expr 1${day} - 100]
 	    
-	    if { [lsearch $_days ${start}_${end}_${startampm}_${endampm}] == -1 } {
-		lappend _days ${start}_${end}_${startampm}_${endampm}
+	    if { [lsearch $_days ${month}_${start}_${end}_${startampm}_${endampm}] == -1 } {
+		lappend _days ${month}_${start}_${end}_${startampm}_${endampm}
 	    }
 	}
 	foreach times $_days {
 	    set times [split $times _]
-	    set start [lindex $times 0]
-	    set end [lindex $times 1]
-	    set startampm [lindex $times 2]
-	    set endampm [lindex $times 3]
+	    set month [lindex $times 0]
+	    set start [lindex $times 1]
+	    set end [lindex $times 2]
+	    set startampm [lindex $times 3]
+	    set endampm [lindex $times 4]
 
 	    if { $startampm == $endampm } {
 		set time "${start}-${end}${startampm}"
@@ -125,7 +126,7 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
 		set time "${start}${startampm}-${end}${endampm}"
 	    }
 
-	    lappend text_sessions "$month [join [lsort -integer [set days_${start}_${end}_${startampm}_${endampm}]] ,] $time"
+	    lappend text_sessions "$month [join [lsort -integer [set days_${month}_${start}_${end}_${startampm}_${endampm}]] ,] $time"
 	}
     }
 
