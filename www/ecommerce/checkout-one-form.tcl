@@ -564,7 +564,7 @@ if { $method_count > 1 } {
 	{internal_account:text,optional {label "Internal Account"}}
     }
 } elseif { $method_count == 1 } {
-    ad_form -extend -name checkout -export { {method "[lindex [split $payment_methods]] 0"} } -form {}
+    ad_form -extend -name checkout -export { {method "[lindex [split $payment_methods] 0]"} } -form {}
 } else {
     ad_form -extend -name checkout -export { {method cc} } -form {}
 }
