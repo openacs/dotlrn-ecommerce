@@ -26,6 +26,7 @@
   <msg key="lt_if_you_prefer_using_s">if you prefer using some of your other addresses on file with us.</msg>
   <msg key="lt_multi-page_order_proc">multi-page order process</msg>
   <msg key="lt_No_coursessections_fo">No courses/sections found. Please try again</msg>
+  <msg key="lt_One_or_more_prerequis">One or more prerequisites for this section have not been met:</msg>
   <msg key="lt_Please_enter_a_name_f">Please enter a name for the group</msg>
   <msg key="lt_Please_enter_a_search">Please enter a search string</msg>
   <msg key="lt_Please_enter_a_value_">Please enter a value greater than 1</msg>
@@ -35,8 +36,10 @@
   <msg key="lt_Purchase__another_Cou">Purchase
 	  another Course/Section</msg>
   <msg key="lt_Purchase_another_Cour">Purchase another Course/Section</msg>
+  <msg key="lt_Required_prereqsfield">Required %prereqs.field% was not met</msg>
   <msg key="lt_Return_to_course_cata">Return to course catalog</msg>
   <msg key="lt_Return_to_main_course">Return to main course registration administration</msg>
+  <msg key="lt_Section_Prerequisites">Section Prerequisites</msg>
   <msg key="lt_Select_another_purcha">Select another purchaser</msg>
   <msg key="lt_Thank_You_For_Your_Or">Thank You For Your Order</msg>
   <msg key="lt_The_course_only_has_a">The course only has $available_slots slot(s) left</msg>
