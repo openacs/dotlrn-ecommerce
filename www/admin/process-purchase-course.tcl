@@ -253,7 +253,12 @@ if { ! [empty_string_p $participant] } {
     db_multirow -extend { add_participant_url } participants participants [subst {
 	select u.user_id as _participant_id, u.first_names, u.last_name, u.email, a.phone, a.line1, a.line2
 	from dotlrn_users u
-	left join ec_addresses a
+	left join (select *
+		   from ec_addresses
+		   where address_id
+		   in (select max(address_id)
+		       from ec_addresses
+		       group by user_id)) a
 	on (u.user_id = a.user_id)
 	where u.user_id != :user_id
 	and (case when :participant is null
