@@ -31,6 +31,7 @@
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="GradeCategoryTree"  description="Category tree to hold participant grades"/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="InstructorCommunityId"  description="Specify the community id whose members we will use in the Instructors field in Add Section."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="MemberPriceP"  default="1" description="Whether we give special sale price to members."/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="NoPayment"  default="0" description="Set to 1 if we will not use the shopping card and no payment is necessary to register for a course."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="PatronRelationshipCategoryTree"  description="Category tree to use when adding participant-patron relationships."/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="PaymentMethods"  default="cc" description="A space separeted list of allowed payment methods. Valid payment methods are 'cc' (Credit Card), 'internal_account' (With extra field asking for internal account code) or 'check'."/>
         </parameters>

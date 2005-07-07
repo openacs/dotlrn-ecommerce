@@ -302,8 +302,12 @@ template::list::create \
 	actions {
 	    label ""
 	    display_template {
-		<if @course_list.member_p@ eq 0 and @course_list.pending_p@ eq 0>
+		<if @course_list.member_p@ eq 0 and @course_list.pending_p@ eq 0 and @course_list.prices@ ne "">
 		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.add_to_cart]</a>
+		</if>
+
+		<if @course_list.prices@ eq "">
+		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.register]</a>
 		</if>
 		
 		<if @admin_p@ eq 1>
@@ -353,7 +357,14 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
     set section_edit_url [export_vars -base admin/section-add-edit { course_id section_id return_url }]
     set sections_url [export_vars -base sections { course_id }]
 
-    set shopping_cart_add_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id }]
+    # HAM : check NoPayment parameter
+    # if we're not asking for payment, change shopping cart url
+    # to dotlrn-ecommerce/register
+    if { [parameter::get -package_id [ad_conn package_id] -parameter NoPayment -default 0] } {
+	set shopping_cart_add_url [export_vars -base register/ { community_id product_id}]
+    } else {
+    	set shopping_cart_add_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id }]
+    }
 
     set member_p [dotlrn_community::member_p $community_id $user_id]
     set pending_p [dotlrn_community::member_pending_p -community_id $community_id -user_id $user_id]
@@ -431,5 +442,10 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
 	}
 	
 	set prices \$$prices
+
+	# HAM : if the NoPayment parameter is set to "1" don't show the
+	if { [parameter::get -package_id [ad_conn package_id] -parameter NoPayment -default 0] } {
+		set prices ""
+	}
     }
 }

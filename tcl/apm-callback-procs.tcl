@@ -25,8 +25,14 @@ ad_proc -private dotlrn_ecommerce::install {
     @error 
 } {
 
-    rel_types::new -supertype dotlrn_member_rel -role_two student dc_student_rel "dotLRN Club Student" "dotLRN Club Students" dotlrn_club 0 "" user 0 ""
-   
+    # add new rel types for student and instructors
+    # Roel: Figure out why this is failing but dc_student_rel
+    # is being created
+    catch {
+      rel_types::new -supertype dotlrn_member_rel -role_two instructor dc_instructor_rel "dotLRN Club Instructor" "dotLRN Club Instructors" dotlrn_club 0 "" user 0 ""
+      rel_types::new -supertype dotlrn_member_rel -role_two student dc_student_rel "dotLRN Club Student" "dotLRN Club Students" dotlrn_club 0 "" user 0 ""
+    }
+
     rel_types::new -role_one user -role_two user patron_rel "Patron" "Patrons" user 0 65535 user 0 65535
 
     # Associate a dotlrn_catalog course to an assessment session result
@@ -39,13 +45,6 @@ ad_proc -private dotlrn_ecommerce::install {
 
     set attribute_list [package_object_attribute_list -start_with dotlrn_catalog dotlrn_catalog]
     set sort_order [expr [llength $attribute_list] + 1]
-
-    # add new rel types for student and instructors
-    # Roel: Figure out why this is failing but dc_student_rel
-    # is being created
-    catch {
-      rel_types::new -supertype dotlrn_member_rel -role_two instructor dc_instructor_rel "dotLRN Club Instructor" "dotLRN Club Instructors" dotlrn_club 0 "" user 0 ""
-    }
 
     content::type::attribute::new \
 	-content_type "dotlrn_catalog" \

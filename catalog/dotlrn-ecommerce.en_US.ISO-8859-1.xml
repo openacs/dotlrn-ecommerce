@@ -52,6 +52,7 @@
   <msg key="PriceItem">Price/Item</msg>
   <msg key="Push">Push</msg>
   <msg key="Quantity">Quantity</msg>
+  <msg key="register">Register for this Course</msg>
   <msg key="Subtotal">Subtotal:</msg>
   <msg key="Subtotal_1">Subtotal</msg>
   <msg key="Tax">Tax:</msg>
