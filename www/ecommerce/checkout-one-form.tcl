@@ -521,8 +521,9 @@ if { $show_creditcard_form_p == "t" } {
 }
 
 # Determine supported payment methods
-set payment_methods [parameter::get -parameter PaymentMethods]
-set method_options [list]
+if { [empty_string_p [set payment_methods [parameter::get -parameter PaymentMethods]]] } {
+    lappend payment_methods cc
+}
 foreach payment_method [split $payment_methods] {
     set ${payment_method}_p 1
 
