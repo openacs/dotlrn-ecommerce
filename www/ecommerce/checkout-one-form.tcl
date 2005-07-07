@@ -562,6 +562,10 @@ if { $method_count > 1 } {
 	{method:text(radio) {label "Select a payment method"} {options {$method_options}}}
 	{internal_account:text,optional {label "Internal Account"}}
     }
+} elseif { $method_count == 1 } {
+    ad_form -extend -name checkout -export { {method "[lindex [split $payment_methods]] 0"} } -form {}
+} else {
+    ad_form -extend -name checkout -export { {method cc} } -form {}
 }
 
 if { [info exists cc_p] } {
