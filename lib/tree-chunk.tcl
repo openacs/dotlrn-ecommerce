@@ -302,7 +302,7 @@ template::list::create \
 	actions {
 	    label ""
 	    display_template {
-		<if @course_list.member_p@ eq 0 and @course_list.pending_p@ eq 0 and @course_list.prices@ ne "">
+		<if @course_list.member_p@ eq 0 and @course_list.pending_p@ eq 0 and @course_list.prices@ ne "" and @course_list.waiting_p@ eq 0>
 		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.add_to_cart]</a>
 		</if>
 
@@ -315,7 +315,10 @@ template::list::create \
 		</if>
 
 		<if @course_list.pending_p@ eq 1>
-		<font color="red">(application pending)</font>
+		<font color="red">[_ dotlrn-ecommerce.application_pending]</font>
+		</if>
+		<if @course_list.waiting_p@ eq 1>
+		<font color="red">[_ dotlrn-ecommerce.awaiting_approval]</font>
 		</if>
 	    }
 	    html { width 40% nowrap }
@@ -342,7 +345,7 @@ template::list::create \
 
 set grade_tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
 
-db_multirow -extend { category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructors prices shopping_cart_add_url attendees available_slots pending_p } course_list get_courses { } {
+db_multirow -extend { category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructors prices shopping_cart_add_url attendees available_slots pending_p waiting_p } course_list get_courses { } {
 #     set mapped [category::get_mapped_categories $course_id]
 
 #     foreach element $mapped {
@@ -448,4 +451,15 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
 		set prices ""
 	}
     }
+
+    set waiting_p [db_string awaiting_approval {
+	select 1
+	where exists (select *
+		      from acs_rels r,
+		      membership_rels m
+		      where r.rel_id = m.rel_id
+		      and r.object_id_one = :community_id
+		      and r.object_id_two = :user_id
+		      and m.member_state = 'request approval')
+    } -default 0]
 }
