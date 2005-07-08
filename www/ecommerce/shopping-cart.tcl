@@ -138,7 +138,7 @@ if { $shipping_gateway_in_use} {
 # p.no_shipping_avail_p, p.shipping, p.shipping_additional, p.weight
 # basically collect shipping information for any items where ec_products.no_shipping_avail_p = 't'
 
-db_multirow -extend { line_subtotal patron_name participant_name participant_type } in_cart get_products_in_cart "
+db_multirow -extend { line_subtotal patron_name participant_name participant_type edit_url } in_cart get_products_in_cart "
       select p.product_name, p.one_line_description, p.no_shipping_avail_p, p.shipping, p.shipping_additonal, p.weight, p.product_id, count(*) as quantity, u.offer_code, i.color_choice, i.size_choice, i.style_choice, '' as price 
       from ec_orders o
       join ec_items i on (o.order_id=i.order_id)
@@ -162,6 +162,8 @@ db_multirow -extend { line_subtotal patron_name participant_name participant_typ
 		  set participant_name $group(group_name)
 	      }
 	  }
+	  
+	  set edit_url [export_vars -base ../admin/process-purchase-course { section_id participant_id {user_id $patron_id} }]
       }
 
 for {set i 1} {$i <= [template::multirow size in_cart]} {incr i} {

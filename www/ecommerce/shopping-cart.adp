@@ -32,8 +32,11 @@
 	  @in_cart.product_name@
 	</td>
 	<if @in_cart.patron_id@ eq @in_cart.participant_id@>
-	  <td colspan=2 align=center>
+	  <td>
 	    @in_cart.patron_name@
+	  </td>
+	  <td>
+	    #dotlrn-ecommerce.lt_Participant_pays_for_# (<a href="participant-change?item_id=@in_cart.item_id@">#dotlrn-ecommerce.change#</a>)
 	  </td>
 	</if>
 	<else>
@@ -47,6 +50,7 @@
 	    <else>
 	      @in_cart.participant_name@
 	    </else>
+	    (<a href="participant-change?item_id=@in_cart.item_id@">#dotlrn-ecommerce.change#</a>)
 	  </td>
 	</else>
 	<td align=center>
@@ -57,6 +61,9 @@
 	</if>
 	<td>
 	  <a href="shopping-cart-delete-from?@in_cart.delete_export_vars@">#dotlrn-ecommerce.delete#</a>
+	  <if @admin_p@ and 0>DISABLED FOR NOW
+	    <a href="@in_cart.edit_url;noquote@">#dotlrn-ecommerce.change#</a>
+	  </if>
 	</td>
       </tr>
     </multiple>

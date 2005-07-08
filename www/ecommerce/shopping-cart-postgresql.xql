@@ -20,7 +20,7 @@
 
   <fullquery name="get_products_in_cart">      
     <querytext>
-      select p.product_name, p.one_line_description, p.no_shipping_avail_p, p.shipping, p.shipping_additional, p.weight, p.product_id, count(*) as quantity, u.offer_code, i.color_choice, i.size_choice, i.style_choice, '' as price, deo.patron_id, deo.participant_id
+      select p.product_name, p.one_line_description, p.no_shipping_avail_p, p.shipping, p.shipping_additional, p.weight, p.product_id, count(*) as quantity, u.offer_code, i.color_choice, i.size_choice, i.style_choice, '' as price, deo.patron_id, deo.participant_id, deo.item_id, s.section_id
       from ec_orders o
       join ec_items i on (o.order_id=i.order_id)
       join ec_products p on (i.product_id=p.product_id)
@@ -28,9 +28,10 @@
 	  from ec_user_session_offer_codes usoc 
 	  where usoc.user_session_id=:user_session_id) u on (p.product_id=u.product_id)
       left join dotlrn_ecommerce_orders deo on (i.item_id = deo.item_id)
+      left join dotlrn_ecommerce_section s on (p.product_id = s.product_id)
       where o.user_session_id=:user_session_id 
       and o.order_state='in_basket'
-      group by p.product_name, p.one_line_description, p.no_shipping_avail_p, p.shipping, p.shipping_additional, p.weight, p.product_id, u.offer_code, i.color_choice, i.size_choice, i.style_choice, deo.patron_id, deo.participant_id
+      group by p.product_name, p.one_line_description, p.no_shipping_avail_p, p.shipping, p.shipping_additional, p.weight, p.product_id, u.offer_code, i.color_choice, i.size_choice, i.style_choice, deo.patron_id, deo.participant_id, deo.item_id, s.section_id
     </querytext>
   </fullquery>
 

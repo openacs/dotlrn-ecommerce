@@ -152,6 +152,14 @@ for {set i 0} {$i < $item_count} {incr i} {
 		insert into dotlrn_ecommerce_orders (item_id, patron_id, participant_id)
 		values (:item_id, :user_id, :participant_id)
 	    }
+	} else {
+	    # Update the order
+	    db_dml update_item_order_dotlrn_ecommerce {
+		update dotlrn_ecommerce_orders
+		set patron_id = :user_id,
+		participant_id = :participant_id
+		where item_id = :item_id
+	    }
 	}
     }
 }

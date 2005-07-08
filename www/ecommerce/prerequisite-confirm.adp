@@ -10,10 +10,10 @@
       </multiple>
     </ul>
   </div>
-
+  
   <p />
-  <a href="@shopping_cart_add_url;noquote@" class="button">Continue</a> &nbsp;&nbsp;&nbsp;
+  <a href="@shopping_cart_add_url;noquote@" class="button">#dotlrn-ecommerce.Continue#</a> &nbsp;&nbsp;&nbsp;
   <if @admin_p@ ne 1>
-    <a href="" class="button">Hold slot and wait for confirmation</a> &nbsp;&nbsp;&nbsp;
+    <a href="@request_url;noquote@" class="button">#dotlrn-ecommerce.lt_Hold_slot_and_wait_fo#</a> &nbsp;&nbsp;&nbsp;
   </if>
-  <a href="@return_url;noquote@" class="button">Cancel</a>
+  <a href="@return_url;noquote@" class="button">#dotlrn-ecommerce.Cancel#</a>

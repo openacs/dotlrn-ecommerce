@@ -23,11 +23,12 @@ set package_id [ad_conn package_id]
 set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
 set admin_p [permission::permission_p -object_id $cc_package_id -privilege "admin"]
 
-set section_id [db_string section {
-    select section_id
+db_1row section {
+    select section_id, community_id
     from dotlrn_ecommerce_section
     where product_id = :product_id
-}]
+}
+
 if { $participant_id == 0 } {
     set participant_id $user_id
 }
@@ -75,3 +76,5 @@ if { [template::multirow size prereqs] == 0 } {
     ad_returnredirect $shopping_cart_add_url
     ad_script_abort
 }
+
+set request_url [export_vars -base application-request { participant_id community_id }]
