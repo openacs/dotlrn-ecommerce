@@ -330,11 +330,11 @@ if { ! $participant_id } {
 	    {help_text "How is the purchaser related to the participant?"}
 	    {options {$tree_options}}
 	}
-	{isubmit:text(submit) {label "Continue"}}
+	{isubmit:text(submit) {label "[_ dotlrn-ecommerce.Continue]"}}
 	{-section "Group Purchase"}
 	{name:text,optional {label "Group Name"} {html {size 30}}}
 	{num_members:integer(text),optional {label "Number of attendees"} {html {size 30}}}
-	{gsubmit:text(submit) {label "Continue"}}
+	{gsubmit:text(submit) {label "[_ dotlrn-ecommerce.Continue]"}}
     }
 
     lappend validate {name
@@ -371,9 +371,11 @@ if { ! $participant_id } {
 	    {help_text "How is the purchaser related to the participant?"}
 	    {options {$tree_options}}
 	}
+	{isubmit:text(submit) {label "[_ dotlrn-ecommerce.Continue]"}}
 	{-section "Group Purchase"}
 	{name:text,optional {label "Group Name"} {html {size 30}}}
 	{num_members:integer(text),optional {label "Number of attendees"} {html {size 30}}}
+	{gsubmit:text(submit) {label "[_ dotlrn-ecommerce.Continue]"}}
     }
 
 }
