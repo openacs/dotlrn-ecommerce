@@ -5,10 +5,18 @@
   <msg key="Add_Course">Add Course</msg>
   <msg key="add_section">add section</msg>
   <msg key="add_to_cart">add to cart</msg>
+  <msg key="application_pending">(application pending)</msg>
+  <msg key="awaiting_approval">(awaiting approval)</msg>
   <msg key="Balance_due">Balance due:</msg>
   <msg key="Bill_to">Bill to:</msg>
+  <msg key="Cancel">Cancel</msg>
+  <msg key="change">change</msg>
+  <msg key="Change_Participant">Change Participant</msg>
+  <msg key="Choose_Participant">Choose Participant</msg>
   <msg key="click_here">click here</msg>
+  <msg key="Continue">Continue</msg>
   <msg key="Courses">Courses:</msg>
+  <msg key="Currently_Selected">Currently Selected</msg>
   <msg key="delete">delete</msg>
   <msg key="E-mail_address">E-mail address:</msg>
   <msg key="edit">edit</msg>
@@ -19,14 +27,20 @@
   <msg key="lt_1_Please_review_your_">1. Please review your order list for accuracy.</msg>
   <msg key="lt_2_Complete_this_infor">2. Complete this information.</msg>
   <msg key="lt_Alternately_you_can_u">Alternately, you can use a</msg>
+  <msg key="lt_Back_to_shopping_cart">Back to shopping cart</msg>
   <msg key="lt_Completing_Your_Order">Completing Your Order: Verify and submit order</msg>
   <msg key="lt_Completing_Your_Order_1">Completing Your Order</msg>
   <msg key="lt_for_first_names_last_">for %first_names% %last_name% (if you're not %first_names% %last_name%</msg>
   <msg key="lt_for_the_current_purch">for the current purchases</msg>
+  <msg key="lt_Hold_slot_and_wait_fo">Hold slot and wait for confirmation</msg>
+  <msg key="lt_How_are_you_related_t">How are you related to user $participant_name</msg>
   <msg key="lt_if_you_prefer_using_s">if you prefer using some of your other addresses on file with us.</msg>
   <msg key="lt_multi-page_order_proc">multi-page order process</msg>
   <msg key="lt_No_coursessections_fo">No courses/sections found. Please try again</msg>
   <msg key="lt_One_or_more_prerequis">One or more prerequisites for this section have not been met:</msg>
+  <msg key="lt_Or_create_an_account_">Or create an account for the participant</msg>
+  <msg key="lt_Participant_pays_for_">Participant pays for course</msg>
+  <msg key="lt_patron_name_also_pays">%patron_name% also pays for the course</msg>
   <msg key="lt_Please_enter_a_name_f">Please enter a name for the group</msg>
   <msg key="lt_Please_enter_a_search">Please enter a search string</msg>
   <msg key="lt_Please_enter_a_value_">Please enter a value greater than 1</msg>
@@ -47,6 +61,7 @@
   <msg key="lt_To_complete_your_orde">To complete your order, submit this form, and confirm the information
     on the following page.</msg>
   <msg key="lt_to_send_us_your_order">to send us your order!</msg>
+  <msg key="lt_Users_related_to_the_">Users related to the %patron_name%</msg>
   <msg key="lt_Your_Shopping_Cart_is">Your Shopping Cart is empty.</msg>
   <msg key="Order_list">Order list</msg>
   <msg key="Paid_By">Paid By</msg>
@@ -61,8 +76,10 @@
   <msg key="Tax">Tax:</msg>
   <msg key="TOTAL">TOTAL:</msg>
   <msg key="Total">Total:</msg>
+  <msg key="Users_related_to_you">Users related to you</msg>
   <msg key="View">View</msg>
   <msg key="View_All">View All</msg>
   <msg key="view_bio">view bio</msg>
   <msg key="view_bios">view bios</msg>
+  <msg key="Your_Relationship">Your Relationship</msg>
 </message_catalog>
