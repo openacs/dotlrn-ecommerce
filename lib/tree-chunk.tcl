@@ -302,7 +302,7 @@ template::list::create \
 	actions {
 	    label ""
 	    display_template {
-		<if @course_list.member_p@ eq 0 and @course_list.pending_p@ eq 0 and @course_list.prices@ ne "" and @course_list.waiting_p@ eq 0>
+		<if @course_list.prices@ ne "">
 		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.add_to_cart]</a>
 		</if>
 
@@ -319,6 +319,13 @@ template::list::create \
 		</if>
 		<if @course_list.waiting_p@ eq 1>
 		<font color="red">[_ dotlrn-ecommerce.awaiting_approval]</font>
+		</if>
+		<if @course_list.approved_p@ eq 1>
+		<p />
+		<div align="center">
+		[_ dotlrn-ecommerce.lt_Your_application_was_]<p />
+		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.lt_Continue_Registration]</a>
+		</div>
 		</if>
 	    }
 	    html { width 40% nowrap }
@@ -345,7 +352,7 @@ template::list::create \
 
 set grade_tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
 
-db_multirow -extend { category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructors prices shopping_cart_add_url attendees available_slots pending_p waiting_p } course_list get_courses { } {
+db_multirow -extend { category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructors prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p } course_list get_courses { } {
 #     set mapped [category::get_mapped_categories $course_id]
 
 #     foreach element $mapped {
@@ -461,5 +468,16 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
 		      and r.object_id_one = :community_id
 		      and r.object_id_two = :user_id
 		      and m.member_state = 'request approval')
+    } -default 0]
+
+    set approved_p [db_string approved {
+	select 1
+	where exists (select *
+		      from acs_rels r,
+		      membership_rels m
+		      where r.rel_id = m.rel_id
+		      and r.object_id_one = :community_id
+		      and r.object_id_two = :user_id
+		      and m.member_state = 'request approved')
     } -default 0]
 }

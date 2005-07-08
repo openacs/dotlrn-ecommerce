@@ -55,6 +55,12 @@ if { $user_id != 0 } {
 set user_session_id [ec_get_user_session_id]
 ec_create_new_session_if_necessary [export_url_vars user_id]
 
+set viewing_user_id [ad_conn user_id]
+
+if { $viewing_user_id } {
+    source [acs_root_dir]/packages/dotlrn-ecommerce/www/ecommerce/check-shopping-cart.tcl
+}
+
 # This is not being used anywhere
 #set n_items_in_cart [db_string get_n_items "
 #    select count(*) 

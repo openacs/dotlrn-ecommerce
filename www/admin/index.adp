@@ -26,7 +26,7 @@
 <li>Instructors - <a href=@instructor_community_url@>Community</a> <a href=@instructor_community_url@/members>List</a>
 <li>Assistant Instuctors - <a href=@assistant_community_url@>Community</a> <a href=@assistant_community_url@/members>List</a>
 <li><a href="/dotlrn-ecommerce/Administration/categories/cadmin">Manage Category Trees</a>
-<li><a href="applications">Pending Applications</a>
+<li><a href="../applications">Pending Applications</a>
 
 </ul>
 

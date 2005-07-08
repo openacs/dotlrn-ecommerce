@@ -35,41 +35,57 @@ if { $participant_id == 0 } {
 
 # See if we need to check for prerequisites
 set shopping_cart_add_url [export_vars -base shopping-cart-add { user_id participant_id product_id item_count }]
-template::multirow create prereqs field section user
-db_foreach prereqs {
-    select m.tree_id, m.user_field, s.community_id
-    from dotlrn_ecommerce_prereqs p,
-    dotlrn_ecommerce_prereq_map m,
-    dotlrn_ecommerce_section s
-    where p.tree_id = m.tree_id
-    and p.section_id = s.section_id
-    and s.section_id = :section_id
-} {
-    set section_prereqs [db_list section_prereqs {
-	select category_id
-	from category_object_map_tree
-	where tree_id = :tree_id
-	and object_id = :community_id
-    }]
 
-    set user_prereqs [db_list participant_prereqs {
-	select category_id
-	from category_object_map_tree
-	where tree_id = :tree_id
-	and object_id = :participant_id
-    }]
+set approved_p [db_string approved {
+    select 1
+    where exists (select *
+		  from acs_rels r,
+		  membership_rels m
+		  where r.rel_id = m.rel_id
+		  and r.object_id_one = :community_id
+		  and r.object_id_two = :participant_id
+		  and m.member_state = 'request approved')
+} -default 0]
 
-    # Check if prereq is met
-    if { [llength $user_prereqs] > 0 } {
-	foreach user_prereq $user_prereqs {
-	    if { [llength $section_prereqs] > 0 && [lsearch $section_prereqs $user_prereq] == -1 } {
-		# Prereq not met
-		template::multirow append prereqs [category_tree::get_name $tree_id]
+if { ! $approved_p } {
+    
+    template::multirow create prereqs field section user
+    db_foreach prereqs {
+	select m.tree_id, m.user_field, s.community_id
+	from dotlrn_ecommerce_prereqs p,
+	dotlrn_ecommerce_prereq_map m,
+	dotlrn_ecommerce_section s
+	where p.tree_id = m.tree_id
+	and p.section_id = s.section_id
+	and s.section_id = :section_id
+    } {
+	set section_prereqs [db_list section_prereqs {
+	    select category_id
+	    from category_object_map_tree
+	    where tree_id = :tree_id
+	    and object_id = :community_id
+	}]
+
+	set user_prereqs [db_list participant_prereqs {
+	    select category_id
+	    from category_object_map_tree
+	    where tree_id = :tree_id
+	    and object_id = :participant_id
+	}]
+
+	# Check if prereq is met
+	if { [llength $user_prereqs] > 0 } {
+	    foreach user_prereq $user_prereqs {
+		if { [llength $section_prereqs] > 0 && [lsearch $section_prereqs $user_prereq] == -1 } {
+		    # Prereq not met
+		    template::multirow append prereqs [category_tree::get_name $tree_id]
+		}
 	    }
+	} else {
+	    template::multirow append prereqs [category_tree::get_name $tree_id] [join $section_prereqs ", "] [join $user_prereqs ", "]
 	}
-    } else {
-	template::multirow append prereqs [category_tree::get_name $tree_id] [join $section_prereqs ", "] [join $user_prereqs ", "]
     }
+
 }
 
 if { [template::multirow size prereqs] == 0 } {

@@ -19,8 +19,10 @@
 	  <table border="0" cellspacing="0" cellpadding="5" align="center">
 	    <tr bgcolor="#cccccc">
 	      <td>#dotlrn-ecommerce.Item_Description#</td>
-	      <td>#dotlrn-ecommerce.Paid_By#</td>
-	      <td>#dotlrn-ecommerce.Participant#</td>
+	      <if @user_id@ ne 0>
+		<td>#dotlrn-ecommerce.Paid_By#</td>
+		<td>#dotlrn-ecommerce.Participant#</td>
+	      </if>
 	      <td>#dotlrn-ecommerce.Quantity#</td>
 	      <td>#dotlrn-ecommerce.PriceItem#</td>
 	      <if @product_counter@ gt 1> <td>#dotlrn-ecommerce.Subtotal_1#</td> </if>
@@ -31,28 +33,30 @@
 	<td>
 	  @in_cart.product_name@
 	</td>
-	<if @in_cart.patron_id@ eq @in_cart.participant_id@>
-	  <td>
-	    @in_cart.patron_name@
-	  </td>
-	  <td>
-	    #dotlrn-ecommerce.lt_Participant_pays_for_# (<a href="participant-change?item_id=@in_cart.item_id@">#dotlrn-ecommerce.change#</a>)
-	  </td>
+	<if @user_id@ ne 0>
+	  <if @in_cart.patron_id@ eq @in_cart.participant_id@>
+	    <td>
+	      @in_cart.patron_name@
+	    </td>
+	    <td>
+	      #dotlrn-ecommerce.lt_Participant_pays_for_# (<a href="participant-change?item_id=@in_cart.item_id@">#dotlrn-ecommerce.change#</a>)
+	    </td>
+	  </if>
+	  <else>
+	    <td>
+	      @in_cart.patron_name@
+	    </td>
+	    <td>
+	      <if @in_cart.participant_type@ eq "group">
+		Group: @in_cart.participant_name@
+	      </if>
+	      <else>
+		@in_cart.participant_name@
+	      </else>
+	      (<a href="participant-change?item_id=@in_cart.item_id@">#dotlrn-ecommerce.change#</a>)
+	    </td>
+	  </else>
 	</if>
-	<else>
-	  <td>
-	    @in_cart.patron_name@
-	  </td>
-	  <td>
-	    <if @in_cart.participant_type@ eq "group">
-	      Group: @in_cart.participant_name@
-	    </if>
-	    <else>
-	      @in_cart.participant_name@
-	    </else>
-	    (<a href="participant-change?item_id=@in_cart.item_id@">#dotlrn-ecommerce.change#</a>)
-	  </td>
-	</else>
 	<td align=center>
 	  @in_cart.quantity@
 	</td>
@@ -70,7 +74,7 @@
     
     <if @product_counter@ ne 0>
       <tr bgcolor="#cccccc">
-	<td colspan="3" align="right">#dotlrn-ecommerce.Total#</td>
+	<td <if @user_id@ ne 0>colspan="3" </if>align="right">#dotlrn-ecommerce.Total#</td>
 	<td align=center>@product_counter@</td>
 	<if @product_counter@ gt 1><td bgcolor="#cccccc">&nbsp;</td>
 	</if>
@@ -147,6 +151,6 @@
 
     <ul>
       <li> <a
-	  href="<if @admin_p@>../admin/process-purchase-course?user_id=@user_id@</if><else>../</else>">#dotlrn-ecommerce.lt_Purchase__another_Cou#</a> </li>
+	  href="<if @admin_p@ and @user_id@ ne @viewing_user_id@>../admin/process-purchase-course?user_id=@user_id@</if><else>../</else>">#dotlrn-ecommerce.lt_Purchase__another_Cou#</a> </li>
     </ul>
   </blockquote>

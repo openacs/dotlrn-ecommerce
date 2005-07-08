@@ -30,6 +30,7 @@
   <msg key="lt_Back_to_shopping_cart">Back to shopping cart</msg>
   <msg key="lt_Completing_Your_Order">Completing Your Order: Verify and submit order</msg>
   <msg key="lt_Completing_Your_Order_1">Completing Your Order</msg>
+  <msg key="lt_Continue_Registration">Continue Registration.</msg>
   <msg key="lt_for_first_names_last_">for %first_names% %last_name% (if you're not %first_names% %last_name%</msg>
   <msg key="lt_for_the_current_purch">for the current purchases</msg>
   <msg key="lt_Hold_slot_and_wait_fo">Hold slot and wait for confirmation</msg>
@@ -61,7 +62,10 @@
   <msg key="lt_To_complete_your_orde">To complete your order, submit this form, and confirm the information
     on the following page.</msg>
   <msg key="lt_to_send_us_your_order">to send us your order!</msg>
+  <msg key="lt_User_requests_for_app">User requests for approval</msg>
+  <msg key="lt_Users_in_waiting_list">Users in waiting list</msg>
   <msg key="lt_Users_related_to_the_">Users related to the %patron_name%</msg>
+  <msg key="lt_Your_application_was_">Your application was approved.</msg>
   <msg key="lt_Your_Shopping_Cart_is">Your Shopping Cart is empty.</msg>
   <msg key="Order_list">Order list</msg>
   <msg key="Paid_By">Paid By</msg>
