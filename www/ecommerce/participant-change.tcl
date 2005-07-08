@@ -10,6 +10,7 @@ ad_page_contract {
     @cvs-id $Id$
 } {
     item_id:integer,notnull,optional
+    next_url:optional
 } -properties {
 } -validate {
 } -errors {
@@ -74,9 +75,9 @@ if { [exists_and_not_null item_id] } {
     } {
 	set participant_change_url [export_vars -base participant-change-2 { item_id user_id patron_id }]
     }
-}
 
-set next_url [export_vars -base participant-change-2 { item_id patron_id }]
-set patron_name [person::name -person_id $patron_id]
-set participant_pays_url [export_vars -base participant-change-2 { item_id {user_id $patron_id} patron_id}]
-set admin_p [permission::permission_p -object_id [ad_conn package_id] -privilege "admin"]
+    set next_url [export_vars -base participant-change-2 { item_id patron_id }]
+    set patron_name [person::name -person_id $patron_id]
+    set participant_pays_url [export_vars -base participant-change-2 { item_id {user_id $patron_id} patron_id}]
+    set admin_p [permission::permission_p -object_id [ad_conn package_id] -privilege "admin"]
+}

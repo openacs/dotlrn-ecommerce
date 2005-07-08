@@ -42,7 +42,7 @@ if { ![empty_string_p $rel_id] || $user_id == $patron_id } {
     }
 
     ad_form -name relationship -export { user_id patron_id item_id } -form {
-	{relationship:text(select) {label "[_ dotlrn-ecommerce.lt_How_are_you_related_t]"}
+	{relationship:text(select) {label "[subst [_ dotlrn-ecommerce.lt_How_are_you_related_t]]"}
 	    {options {$tree_options}}}
     } -on_submit {
 	set rel_id [db_exec_plsql relate_patron {

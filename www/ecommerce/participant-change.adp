@@ -26,5 +26,7 @@
   <include src="/packages/dotlrn-ecommerce/lib/user-new"
     next_url="@next_url;noquote@" self_register_p="0" />
 
-  <p />
-  <a href="shopping-cart?user_id=@patron_id@" class="button">#dotlrn-ecommerce.lt_Back_to_shopping_cart#</a>
+  <if @item_id@ defined>
+    <p />
+    <a href="shopping-cart?user_id=@patron_id@" class="button">#dotlrn-ecommerce.lt_Back_to_shopping_cart#</a>
+  </if>
