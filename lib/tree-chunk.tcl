@@ -466,7 +466,7 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
 	
 	set prices \$$prices
 
-	# HAM : if the NoPayment parameter is set to "1" don't show the
+	# HAM : if the NoPayment parameter is set to "1" don't show the prices
 	if { [parameter::get -package_id [ad_conn package_id] -parameter NoPayment -default 0] } {
 		set prices ""
 	}
