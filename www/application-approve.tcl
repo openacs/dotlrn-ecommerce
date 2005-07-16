@@ -56,4 +56,21 @@ if { $user_id != $actor_id } {
 	-body [subst "[_ dotlrn-ecommerce.lt_Your_application_to_j]"]
 }
 
+# Send email to applicant
+set actor_id [ad_conn user_id]
+
+if { $user_id != $actor_id } {
+    set applicant_email [cc_email_from_party $user_id]
+    set actor_email [cc_email_from_party $actor_id]
+    set community_name [dotlrn_community::get_community_name $community_id]
+
+#    set application_url [ad_url]/[apm_package_url_from_key dotlrn-ecommerce]ecommerce/prerequisite-confirm
+
+    acs_mail_lite::send \
+	-to_addr $applicant_email \
+	-from_addr $actor_email \
+	-subject [subst "[_ dotlrn-ecommerce.Application_approved]"] \
+	-body [subst "[_ dotlrn-ecommerce.lt_Your_application_to_j]"]
+}
+
 ad_returnredirect applications

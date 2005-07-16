@@ -18,4 +18,4 @@ ad_page_contract {
 
 dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
 
-ad_returnredirect applications
+ad_returnredirect ../applications

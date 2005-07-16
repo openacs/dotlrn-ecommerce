@@ -98,3 +98,6 @@ set registration_assessment_id [parameter::get -parameter RegistrationId -packag
 if { ! [empty_string_p $registration_assessment_id] } {
     set registration_assessment_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/one-a" { {assessment_id $registration_assessment_id} return_url }]
 }
+
+set tree_id [parameter::get -parameter PatronRelationshipCategoryTree]
+set relationships_category_url [export_vars -base ../Administration/categories/cadmin/tree-view { tree_id }]

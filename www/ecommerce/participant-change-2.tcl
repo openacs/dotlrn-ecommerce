@@ -44,7 +44,6 @@ db_1row section {
 
 set rel_id [relation::get_id -object_id_one $patron_id -object_id_two $user_id -rel_type "patron_rel"]
 set add_url [export_vars -base "shopping-cart-add" { product_id {user_id $patron_id} {participant_id $user_id} return_url }]
-	
 if { ![empty_string_p $rel_id] || $user_id == $patron_id } {
     if { $new_user_p } {
 	ad_returnredirect $add_url

@@ -22,13 +22,13 @@
 <h2>Administrative Setup</h2>
 
 <ul>
-<if @scholarship_installed_p@ eq "1"><li><a href=/dotlrn-ecommerce/Administration/sch/>Scholarship Funds</a></if>
-<if @expenses_installed_p@ eq "1"><li><a href="/dotlrn-ecommerce/Administration/expenses/admin/">Expenses</a></if>
+<if @scholarship_installed_p@ eq "1"><li><a href=../Administration/sch/>Scholarship Funds</a></if>
+<if @expenses_installed_p@ eq "1"><li><a href="../Administration/expenses/admin/">Expenses</a></if>
 <li>Instructors - <a href=@instructor_community_url@>Community</a> <a href=@instructor_community_url@/members>List</a>
 <li>Assistant Instuctors - <a href=@assistant_community_url@>Community</a> <a href=@assistant_community_url@/members>List</a>
-<li><a href="/dotlrn-ecommerce/Administration/categories/cadmin">Manage Category Trees</a>
+<li><a href="../Administration/categories/cadmin">Manage Category Trees</a>
 <li><a href="../applications">Pending Applications</a>
-
+<li><a href="@relationships_category_url;noquote@">Manage Relationship Types</a>
 </ul>
 
 <h2 class="page-title">System Setup</h2>

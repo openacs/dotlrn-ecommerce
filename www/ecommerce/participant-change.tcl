@@ -32,6 +32,14 @@ if { [exists_and_not_null product_id] } {
 	where product_id = :product_id
     }
 
+if { [exists_and_not_null product_id] } {
+#     db_1row order {
+# 	select user_id,
+# 	participant_id
+# 	from dotlrn_ecommerce_orders
+# 	where item_id = :item_id
+#     }
+    
     template::list::create \
 	-name "relations" \
 	-multirow "relations" \
