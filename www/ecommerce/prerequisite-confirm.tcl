@@ -34,7 +34,7 @@ if { $participant_id == 0 } {
 }
 
 # See if we need to check for prerequisites
-set shopping_cart_add_url [export_vars -base shopping-cart-add { user_id participant_id product_id item_count }]
+set shopping_cart_add_url [export_vars -base shopping-cart-add { user_id participant_id product_id item_count {override_p 1} }]
 
 set approved_p [db_string approved {
     select 1
@@ -93,4 +93,4 @@ if { [template::multirow size prereqs] == 0 } {
     ad_script_abort
 }
 
-set request_url [export_vars -base application-request { participant_id community_id }]
+set request_url [export_vars -base application-request { participant_id community_id {type prereq} {next_url $return_url} }]

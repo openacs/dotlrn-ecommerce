@@ -222,6 +222,16 @@ db_foreach custom_fields_select "
     }
 }
 
+# DEDS: waiting list notify
+ad_form -extend -name add_section -form {
+    {notify_waiting_number:text,optional {label "Notify admin when waiting list reaches:"} {html {size 5 maxlength 3}}}
+}
+lappend validate {notify_waiting_number
+    { [empty_string_p $notify_waiting_number] || [regexp {^(0*)(([1-9][0-9]*))$} $notify_waiting_number match zeros value] }
+    "Waiting list count should be blank or an integer greater than 0"
+}
+
+
 # Create the section for predefined sessions
 if { [info exists template_calendar_id] } {
     set sessions_list [db_list_of_lists sessions { }]
@@ -479,8 +489,8 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	# Use item_id as course_id coz course_id is the revision and
 	# its easier to keep track of the item_id
 	db_dml add_section {
-	    insert into dotlrn_ecommerce_section(section_id, course_id, section_name, community_id,product_id) values
-	    (:section_id, :item_id, :section_name, :community_id, :product_id)
+	    insert into dotlrn_ecommerce_section(section_id, course_id, section_name, community_id,product_id, notify_waiting_number) values
+	    (:section_id, :item_id, :section_name, :community_id, :product_id, :notify_waiting_number)
 	}
 
 	# for this to work, dotlrn_eccomerce_section must be an object 
@@ -551,7 +561,8 @@ ad_form -extend -name add_section -validate $validate -on_request {
     db_transaction {
 	db_dml update_section {
 	    update dotlrn_ecommerce_section set
-	    section_name = :section_name
+	    section_name = :section_name,
+	    notify_waiting_number = :notify_waiting_number
 	    where section_id = :section_id
 	}
 
@@ -648,7 +659,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	    } else {
 		set sale_price_id [db_nextval ec_sale_price_id_sequence]
 		set sale_price $member_price
-		set offer_code ""
+		set offer_code "dotlrn-ecommerce"
 		
 		db_dml sale_insert "
 		insert into ec_sale_prices

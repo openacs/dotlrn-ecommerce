@@ -1,4 +1,11 @@
- <table class="cal-table-display" cellpadding="0" cellspacing="0" border="0" width="99%">
+<table cellpaddin=2 cellspacing=2 border=0>
+	<tr>
+		<td bgcolor="#1958B7">&nbsp;&nbsp;</td><td>Before 12pm</td>
+		<td bgcolor="#FFFD88">&nbsp;&nbsp;</td><td>Between 12pm and 5pm</td>
+		<td bgcolor="#A7C3FE">&nbsp;&nbsp;</td><td>After 5pm</td>
+	</tr>
+</table> 
+<table class="cal-table-display" cellpadding="0" cellspacing="0" border="0" width="99%">
   <tr>
     <td class="cal-month-title-text" colspan="7">
       <a href="@previous_month_url;noquote@"><img border=0 src="<%=[dt_left_arrow]%>" alt="back one month"></a>
@@ -36,17 +43,18 @@
                   <td class="cal-month-day" <if @add_p@>onclick="javascript:location.href='@items.add_url@';"</if>>
                 </else>
                   <if @items.day_url@ not nil><a href="@items.day_url@">@items.day_number@</a></if><else>@items.day_number@</else>
-
+	
                   <group column="day_number">
                     <if @items.event_name@ true>
                       <div class="cal-month-event">
-                        <if @items.time_p@ true>@items.ansi_start_time@</if>
+                        <if @items.time_p@ true>
+				<if @items.fontcolor@ not nil><font color="@items.fontcolor@">@items.ansi_start_time@</font></if><else>@items.ansi_start_time@</else>				
+			</if>
                         <a href=@items.event_url@>@items.calendar_name@</a>
                         </if>
                       </div>
                     </if>
                   </group>
-
                 </td>
               </else>
               <if @items.end_of_week_p@ true>

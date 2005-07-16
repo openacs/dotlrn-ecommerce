@@ -194,12 +194,8 @@ db_multirow -extend {community_url calendar_url num_sessions attendees available
 
     set num_sessions [db_string num_sessions {} ]
 
-    db_1row attendees { }
-
-    if { ! [empty_string_p $maxparticipants] } {
-	set available_slots [expr $maxparticipants - $attendees]
-    }
-    
+    set attendees [dotlrn_ecommerce::section::attendees $section_id]
+    set available_slots [dotlrn_ecommerce::section::available_slots $section_id]
     set sessions [util_memoize [list dotlrn_ecommerce::section::sessions $calendar_id]]
 }
 

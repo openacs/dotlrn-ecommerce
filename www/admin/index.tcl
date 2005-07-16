@@ -30,8 +30,20 @@ set return_url [ad_return_url]
 
 # HAM : check if scholarship is installed
 set scholarship_installed_p [apm_package_installed_p "scholarship-fund"]
+
 # HAM : check if expenses is installed
 set expenses_installed_p [apm_package_installed_p "expenses"]
+
+# HAM : count number of pending applications and user requests
+set pending_count [db_string "count_pending" "select count(user_id)
+	from dotlrn_member_rels_full r, dotlrn_communities_all c
+	where r.community_id = c.community_id
+	and member_state = 'needs approval'"]
+
+set request_count [db_string "count_requests" "select count(user_id)
+	from dotlrn_member_rels_full r, dotlrn_communities_all c
+	where r.community_id = c.community_id
+	and member_state = 'request approval'"]
 
 set course_options [db_list_of_lists courses {
     select course_name, course_id

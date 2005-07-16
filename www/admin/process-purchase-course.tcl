@@ -166,24 +166,6 @@ if { ( [empty_string_p $section] || [llength $section_list] == 1 ) && ! $section
     }
 }
 
-# Select a participant/participants
-# set participant_list [linsert [db_list_of_lists participants [subst {
-#     select first_names||' '||last_name||' ('||email||')', u.user_id
-#     from dotlrn_users u
-#     left join ec_addresses a
-#     on (u.user_id = a.user_id)
-#     where u.user_id != :user_id
-#     and (case when :participant is null
-# 	 then true
-# 	 else $participant_search_clause end)
-# }]] 0 {{} 0}]
-
-# if { [llength $participant_list] == 1 } {
-#     set form [rp_getform]
-#     ns_set delkey $form __refreshing_p
-#     ns_set put $form __refreshing_p 0
-# } else
-
 if { ! [empty_string_p $participant] } {
     # Search found users, show a more detailed list
     template::list::create \
@@ -280,10 +262,6 @@ foreach tree [category_tree::get_tree $tree_id] {
 }
 
 if { ! $participant_id } {
-#	{participant_pays_p:boolean(checkbox),optional {label ""} {options {{"Check here if $user_info(first_names) $user_info(last_name) is both purchasing and attending the course" t}}}
-#	    {help_text "If you select this option, there's no need to select a user below.<br />Leave this unchecked for group purchases"}
-#	}
-
     set locale [ad_conn locale]
     set related_user_options [linsert [db_list_of_lists related_users {
 	select *
@@ -510,17 +488,17 @@ ad_form -extend -name "participant" -export { user_id return_url new_user_p } -v
 	set participant_id $group_id
 	set item_count $num_members
 
-	ad_returnredirect [export_vars -base "../ecommerce/prerequisite-confirm" { product_id user_id participant_id item_count return_url }]
+	ad_returnredirect [export_vars -base "../ecommerce/shopping-cart-add" { product_id user_id participant_id item_count return_url }]
 	ad_script_abort
     }
     
-    set add_url [export_vars -base "../ecommerce/prerequisite-confirm" { product_id user_id participant_id item_count return_url }]
+    set add_url [export_vars -base "../ecommerce/shopping-cart-add" { product_id user_id participant_id item_count return_url }]
     set participant_id [ad_decode $participant_id 0 $user_id $participant_id]
 
     if { $new_user_p } {
 	ad_returnredirect $add_url
     } else {
-	ad_returnredirect [export_vars -base "participant-add" { {user_id $participant_id} section_id return_url add_url }]
+	ad_returnredirect [export_vars -base "../ecommerce/participant-add" { {user_id $participant_id} section_id return_url add_url }]
     }
 
     ad_script_abort

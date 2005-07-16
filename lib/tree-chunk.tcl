@@ -277,7 +277,7 @@ template::list::create \
 
 		<if @course_list.section_grades@ not nil> (@course_list.section_grades@)</if>
 		<if @course_list.sessions@ not nil><br />@course_list.sessions;noquote@</if>
-		<if @course_list.instructors@ not nil><br />@course_list.instructors;noquote@</if>
+		<if @course_list.instructor_names@ not nil><br />@course_list.instructor_names;noquote@</if>
 		<if @course_list.prices@ not nil><br />@course_list.prices;noquote@</if>
 		<br />@course_list.attendees;noquote@ participant<if @course_list.attendees@ gt 1>s</if>
 		<if @course_list.available_slots@ not nil and @course_list.available_slots@ gt 0>,<br />@course_list.available_slots;noquote@ available</if>
@@ -302,6 +302,7 @@ template::list::create \
 	actions {
 	    label ""
 	    display_template {
+		<div style="float: left">
 		<if @course_list.prices@ ne "">
 		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.add_to_cart]</a>
 		</if>
@@ -320,11 +321,14 @@ template::list::create \
 		<if @course_list.waiting_p@ eq 1>
 		<font color="red">[_ dotlrn-ecommerce.awaiting_approval]</font>
 		</if>
+		<if @course_list.instructor_p@ ne -1>
+		<a href="applications" class="button">[_ dotlrn-ecommerce.view_applications]</a>
+		</if>
+		</div>
 		<if @course_list.approved_p@ eq 1>
-		<p />
-		<div align="center">
+		<div align="center" style="float: right">
 		[_ dotlrn-ecommerce.lt_Your_application_was_]<p />
-		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.lt_Continue_Registration]</a>
+		<a href="@course_list.registration_approved_url;noquote@" class="button">[_ dotlrn-ecommerce.lt_Continue_Registration]</a>
 		</div>
 		</if>
 	    }
@@ -352,7 +356,7 @@ template::list::create \
 
 set grade_tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
 
-db_multirow -extend { category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructors prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p } course_list get_courses { } {
+db_multirow -extend { category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url } course_list get_courses { } {
 #     set mapped [category::get_mapped_categories $course_id]
 
 #     foreach element $mapped {
@@ -371,18 +375,20 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
     # if we're not asking for payment, change shopping cart url
     # to dotlrn-ecommerce/register
     if { [parameter::get -package_id [ad_conn package_id] -parameter NoPayment -default 0] } {
-	set shopping_cart_add_url [export_vars -base register/ { community_id product_id}]
+	set shopping_cart_add_url [export_vars -base register/ { community_id product_id }]
     } else {
-	set shopping_cart_add_url [export_vars -base ecommerce/prerequisite-confirm { user_id product_id return_url }]
+	set shopping_cart_add_url [export_vars -base ecommerce/participant-change { user_id product_id return_url }]
     }
 
+    set registration_approved_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id }]
+    
     set member_p [dotlrn_community::member_p $community_id $user_id]
     set pending_p [dotlrn_community::member_pending_p -community_id $community_id -user_id $user_id]
     
     set section_grades ""
     set course_grades ""
     set sessions ""
-    set instructors ""
+    set instructor_names ""
     set prices ""
 
     array unset arr_sessions
@@ -422,19 +428,26 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
 	set sessions [util_memoize [list dotlrn_ecommerce::section::sessions $calendar_id]]
 
 	set instructors [util_memoize [list dotlrn_ecommerce::section::instructors $community_id $__instructors]]
+	
+	set instructor_names [list]
+	set instructor_ids [list]
+	foreach instructor $instructors {
+	    lappend instructor_names [lindex $instructor 1]
+	    lappend instructor_ids [lindex $instructor 0]
+	}
 
-	if { [llength $instructors] == 1 } {
-	    set instructors "Instructor: [join $instructors ", "]"
-	} elseif { [llength $instructors] > 1 } {
-	    set instructors "Instructors: [join $instructors ", "]"
+	if { [llength $instructor_names] == 1 } {
+	    set instructor_names "Instructor: [join $instructor_names ", "]"
+	} elseif { [llength $instructor_names] > 1 } {
+	    set instructor_names "Instructors: [join $instructor_names ", "]"
 	} else {
-	    set instructors ""
+	    set instructor_names ""
 	}
-	if { ! [empty_string_p $instructors] && $member_p } {
-	    append instructors " <a href=\"${community_url}facilitator-bio\" class=\"button\">[_ dotlrn-ecommerce.view_bios]</a>"
+	if { ! [empty_string_p $instructor_names] && $member_p } {
+	    append instructor_names " <a href=\"${community_url}facilitator-bio\" class=\"button\">[_ dotlrn-ecommerce.view_bios]</a>"
 	}
 
-	db_1row attendees { }
+	set attendees [dotlrn_ecommerce::section::attendees $section_id]
 
 	if { ! [empty_string_p $maxparticipants] } {
 	    set available_slots [expr $maxparticipants - $attendees]
@@ -459,25 +472,25 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
 	}
     }
 
-    set waiting_p [db_string awaiting_approval {
-	select 1
-	where exists (select *
-		      from acs_rels r,
-		      membership_rels m
-		      where r.rel_id = m.rel_id
-		      and r.object_id_one = :community_id
-		      and r.object_id_two = :user_id
-		      and m.member_state = 'request approval')
-    } -default 0]
+    set member_state [db_string awaiting_approval {
+	select m.member_state
+	from acs_rels r,
+	membership_rels m
+	where r.rel_id = m.rel_id
+	and r.object_id_one = :community_id
+	and r.object_id_two = :user_id
+	limit 1
+    } -default ""]
+    
+    switch $member_state {
+	"request approval" {
+	    set waiting_p 1
+	}
+	"waitinglist approved" -
+	"request approved" {
+	    set approved_p 1
+	}
+    }
 
-    set approved_p [db_string approved {
-	select 1
-	where exists (select *
-		      from acs_rels r,
-		      membership_rels m
-		      where r.rel_id = m.rel_id
-		      and r.object_id_one = :community_id
-		      and r.object_id_two = :user_id
-		      and m.member_state = 'request approved')
-    } -default 0]
+    set instructor_p [lsearch $instructor_ids $user_id]
 }

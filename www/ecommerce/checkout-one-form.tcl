@@ -141,13 +141,14 @@ set last_product_id 0
 
 db_foreach order_details_select "
 	select i.price_name, i.price_charged, i.color_choice, i.size_choice, i.style_choice,
-	    p.product_name, p.one_line_description, p.product_id, count(*) as quantity 
+	    p.product_name, p.one_line_description, p.product_id, count(*) as quantity, c.offer_code
 	from ec_items i, ec_products p
+        left join ec_user_session_offer_codes c on (c.product_id = p.product_id and c.user_session_id = :user_session_id)
 	where i.order_id = :order_id
 	and i.product_id = p.product_id
-	group by p.product_name, p.one_line_description, p.product_id, i.price_name, i.price_charged, i.color_choice, i.size_choice, i.style_choice" {
+	group by p.product_name, p.one_line_description, p.product_id, i.price_name, i.price_charged, i.color_choice, i.size_choice, i.style_choice, c.offer_code" {
 	    if {$product_id != $last_product_id} {
-	        set lowest_price [lindex [ec_lowest_price_and_price_name_for_an_item $product_id $user_id] 0]
+	        set lowest_price [lindex [ec_lowest_price_and_price_name_for_an_item $product_id $user_id $offer_code] 0]
 	    }
             set option_list [list]
 	    if { ![empty_string_p $color_choice] } {

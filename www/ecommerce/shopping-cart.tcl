@@ -354,5 +354,32 @@ set ec_system_owner [ec_system_owner]
 db_release_unused_handles
 
 set admin_p [permission::permission_p -object_id [ad_conn package_id] -privilege "admin"]
+set suppress_membership_p 0
+if {[parameter::get -parameter MemberPriceP -default 0]} {
+    set category_id [parameter::get -parameter "MembershipECCategoryId" -default ""]
+    if {[empty_string_p $category_id]} {
+	set suppress_membership_p 1
+    } else {
+	set suppress_membership_p [db_string get_in_basket {
+	    select count(*)
+	    from ec_orders o,
+	    ec_items i,
+	    ec_category_product_map m
+	    where o.user_session_id = :user_session_id
+	    and o.order_id = i.order_id
+	    and i.product_id = m.product_id
+	    and m.category_id = :category_id
+	}]
+	if {!$suppress_membership_p} {
+	    set group_id [parameter::get -parameter MemberGroupId -default 0]
+	    if {$group_id} {
+		set suppress_membership_p [group::member_p -group_id $group_id -user_id $user_id]
+	    } else {
+		# just set to 1 if we do not find a group
+		set suppress_membership_p 1
+	    }
+	}
+    }
+}
 
 ad_return_template

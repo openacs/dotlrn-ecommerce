@@ -16,7 +16,9 @@ auth::require_login -account_status closed
 if { ![exists_and_not_null user_id] } {
     set user_id [ad_conn untrusted_user_id]
 } elseif { $user_id != [auth::get_user_id -account_status closed] } {
-    permission::require_permission -object_id $user_id -privilege admin
+# Don't check for permissions since ordinary users can edit other
+# people's profiles
+#    permission::require_permission -object_id $user_id -privilege admin
 }
 
 if { ![exists_and_not_null return_url] } {
@@ -140,22 +142,22 @@ ad_form -extend -name user_info  -export { section_id add_url } -form {
     }
     
     {grade:text(select),optional
-	{label "Grade"}
+	{label "[_ dotlrn-ecommerce.Grade]"}
 	{options {$grade_options}}
     }
 
     {allergies:text,optional
-	{label "Medical Issues"}
+	{label "[_ dotlrn-ecommerce.Medical_Issues]"}
 	{html {size 60}}
     }
 
     {special_needs:text,optional
-	{label "Special Needs"}
+	{label "[_ dotlrn-ecommerce.Special_Needs]"}
 	{html {size 60}}
     }
 
-    {add:text(submit) {label "Proceed"}}
-    {cancel:text(submit) {label "Cancel"}}
+    {add:text(submit) {label "[_ dotlrn-ecommerce.Proceed]"}}
+    {cancel:text(submit) {label "[_ dotlrn-ecommerce.Cancel]"}}
 } -on_request {
     foreach var { authority_id first_names last_name email username screen_name url bio } {
         set $var $user($var)

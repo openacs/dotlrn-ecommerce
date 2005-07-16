@@ -31,7 +31,7 @@ ad_proc -public dotlrn_ecommerce::section::instructors {
 } {
     set instructor_string [join $instructors ,]
     if { ![empty_string_p $instructor_string] } {
-    	return [db_list instructors { }]
+    	return [db_list_of_lists instructors { }]
     } else {
 	return ""
     }
@@ -226,14 +226,7 @@ ad_proc -public dotlrn_ecommerce::section::available_slots {
     }
 
     if { ![empty_string_p $maxparticipants] } {
-	db_1row attendees {
-	    select count(*) as attendees
-	    from dotlrn_member_rels_approved
-	    where community_id = :community_id
-	    and (rel_type = 'dotlrn_member_rel'
-		 or rel_type = 'dc_student_rel')
-	}
-
+	set attendees [dotlrn_ecommerce::section::attendees $section_id]
 	set available_slots [expr $maxparticipants - $attendees]
 	if { $available_slots < 0 } {
 	    set available_slots 0
@@ -244,3 +237,127 @@ ad_proc -public dotlrn_ecommerce::section::available_slots {
     return ""
 }
 
+ad_proc -public dotlrn_ecommerce::section::attendees {
+    section_id
+} {
+    Return number of attendees
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-07-14
+    
+    @param section_id
+
+    @return 
+    
+    @error 
+} {
+    return [db_string attendees {
+	select count(*) as attendees
+	from dotlrn_member_rels_full
+	where community_id = (select community_id
+			      from dotlrn_ecommerce_section
+			      where section_id = :section_id)
+	and (rel_type = 'dotlrn_member_rel' or rel_type = 'dc_student_rel')
+	and member_state in ('approved', 'request approval', 'request approved', 'waitinglist approved')
+    }]
+}
+
+ad_proc -public dotlrn_ecommerce::section::check_elapsed_registrations {
+} {
+    Check registrations
+
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-07-14
+    
+    @return 
+    
+    @error 
+} {
+    set time_period [parameter::get -package_id [apm_package_id_from_key dotlrn-ecommerce] -parameter ApprovedRegistrationTimePeriod -default 86400]
+
+    db_foreach check_applications {
+	select community_id, user_id
+	from acs_objects o, dotlrn_member_rels_full r
+	where o.object_id = r.rel_id
+	and (current_timestamp - o.creation_date)::interval >= (:time_period||' seconds')::interval
+	and r.member_state in ('request approved', 'waitinglist approved')
+    } {
+	dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
+    }
+}
+
+ad_proc -public dotlrn_ecommerce::section::approve_next_in_waiting_list {
+    community_id
+} {
+    Approve people in waiting list if slot becomes available
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-07-14
+    
+    @return 
+    
+    @error 
+} {
+    set section_id [db_string section {
+	select section_id
+	from dotlrn_ecommerce_section
+	where community_id = :community_id
+    }]
+    set available_slots [dotlrn_ecommerce::section::available_slots $section_id]
+
+    if { $available_slots > 0 } {
+	db_foreach next_in_waiting_list [subst {
+	    select pretty_name as community_name, person__name(r.user_id) as person_name, r.user_id, p.email
+	    from acs_objects o, dotlrn_member_rels_full r, dotlrn_communities_all c, parties p
+	    where o.object_id = r.rel_id
+	    and r.community_id = c.community_id
+	    and r.user_id = p.party_id
+	    and member_state = 'needs approval'
+	    and r.community_id = :community_id
+
+	    order by o.creation_date
+	    limit $available_slots
+	}] {
+	    set admin_email [parameter::get -package_id [ad_acs_kernel_id] -parameter AdminOwner]
+
+	    db_dml approve_request {
+		update membership_rels
+		set member_state = 'waitinglist approved'
+		where rel_id in (select r.rel_id
+				 from acs_rels r,
+				 membership_rels m
+				 where r.rel_id = m.rel_id
+				 and r.object_id_one = :community_id
+				 and r.object_id_two = :user_id
+				 and m.member_state = 'needs approval')
+	    }
+
+	    acs_mail_lite::send \
+		-to_addr $email \
+		-from_addr $admin_email \
+		-subject "[subst [_ dotlrn-ecommerce.lt_A_space_has_opened_up]]" \
+		-body "[subst [_ dotlrn-ecommerce.lt_A_space_has_opened_up_1]]"
+	}
+    }
+}
+
+ad_proc -public dotlrn_ecommerce::section::check_and_approve_sections_for_slots {
+} {
+    Check all sections for opened slots
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-07-14
+    
+    @return 
+    
+    @error 
+} {
+    db_foreach sections {
+	select community_id
+	from dotlrn_ecommerce_section
+    } {
+	ns_log notice "DEBUG:: Checking community $community_id for open slots"
+	dotlrn_ecommerce::section::approve_next_in_waiting_list $community_id
+	ns_log notice "DEBUG:: Done check"
+    }
+}

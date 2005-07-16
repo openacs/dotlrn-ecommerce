@@ -51,7 +51,7 @@
 
 	<fullquery name="dotlrn_ecommerce::section::instructors.instructors">
 	<querytext>
-		select u.first_names||' '||u.last_name
+		select u.user_id, u.first_names||' '||u.last_name
 		from dotlrn_users u, dotlrn_member_rels_approved r
 		where u.user_id = r.user_id
 		and r.community_id = :community_id

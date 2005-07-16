@@ -34,7 +34,115 @@ ad_page_contract {
 
     user_id:integer,notnull
     {participant_id:integer 0}
+    
+    {override_p 0}
 }
+
+# Roel: Participant also pays
+if { $participant_id == 0 } {
+    set participant_id $user_id
+}
+
+if { [acs_object_type $participant_id] != "group" } {
+    ns_log notice "DEBUG:: checking if this should go to the waiting list"
+
+    set admin_p [permission::permission_p -object_id [ad_conn package_id] -privilege admin]
+
+    db_0or1row section_info {
+	select section_id, community_id
+	from dotlrn_ecommerce_section
+	where product_id = :product_id
+    }
+
+    if { [exists_and_not_null community_id] } {
+	ns_log notice "DEBUG:: checking available slots"
+	set member_state [db_string awaiting_approval {
+	    select m.member_state
+	    from acs_rels r,
+	    membership_rels m
+	    where r.rel_id = m.rel_id
+	    and r.object_id_one = :community_id
+	    and r.object_id_two = :participant_id
+	    limit 1
+	} -default ""]
+
+	# FIRST check if the section is full
+	# and if prerequisites are met
+	
+	# Is section full?
+	if { $member_state != "waitinglist approved" } {
+	    set available_slots [dotlrn_ecommerce::section::available_slots $section_id]
+	    ns_log notice "DEBUG:: $available_slots available slots, override $override_p, admin $admin_p"
+
+	    if { $available_slots == 0 && ( $override_p != 1 || $admin_p == 0 ) } {
+		# No more slots left, ask user if he wants to go to
+		# waiting list
+		
+		if { $admin_p && $user_id != [ad_conn user_id] } {
+		    set return_url [export_vars -base ../admin/process-purchase-course { user_id }]
+		} else {
+		    set return_url ..
+		}
+		ad_returnredirect [export_vars -base waiting-list-confirm { product_id user_id participant_id return_url }]
+		ad_script_abort
+	    }
+	}
+
+	# Are prerequisites met?
+	if { $member_state != "request approved" } {
+	    ns_log notice "DEBUG:: checking prerequisites"
+	    set prereq_not_met 0
+	    db_foreach prereqs {
+		select m.tree_id, m.user_field, s.community_id
+		from dotlrn_ecommerce_prereqs p,
+		dotlrn_ecommerce_prereq_map m,
+		dotlrn_ecommerce_section s
+		where p.tree_id = m.tree_id
+		and p.section_id = s.section_id
+		and s.section_id = :section_id
+	    } {
+		set section_prereqs [db_list section_prereqs {
+		    select category_id
+		    from category_object_map_tree
+		    where tree_id = :tree_id
+		    and object_id = :community_id
+		}]
+
+		set user_prereqs [db_list participant_prereqs {
+		    select category_id
+		    from category_object_map_tree
+		    where tree_id = :tree_id
+		    and object_id = :participant_id
+		}]
+
+		# Check if prereq is met
+		if { [llength $user_prereqs] > 0 } {
+		    foreach user_prereq $user_prereqs {
+			if { [llength $section_prereqs] > 0 && [lsearch $section_prereqs $user_prereq] == -1 } {
+			    # Prereq not met
+			    incr prereq_not_met
+			}
+		    }
+		} else {
+		    incr prereq_not_met
+		}
+	    }
+
+	    if { $prereq_not_met > 0 } {
+		ns_log notice "DEBUG:: prerequisites not met"
+		if { $admin_p && $user_id != [ad_conn user_id] } {
+		    set return_url [export_vars -base ../admin/process-purchase-course { user_id }]
+		} else {
+		    set return_url ..
+		}
+		ad_returnredirect [export_vars -base prerequisite-confirm { product_id user_id participant_id return_url }]
+		ad_script_abort
+	    }
+	}
+    }
+
+}
+
 # added default values to above params so that this page works
 # when a post from a form to shopping-cart-add originates from another domain.
 
@@ -49,7 +157,7 @@ ad_page_contract {
 # 5. ad_returnredirect them to their shopping cart
 
 set user_session_id [ec_get_user_session_id]
-ec_create_new_session_if_necessary [export_url_vars product_id user_id participant_id]
+ec_create_new_session_if_necessary [export_url_vars product_id user_id participant_id item_count]
 set n_confirmed_orders [db_string get_n_confirmed_orders "
     select count(*) 
     from ec_orders 
@@ -122,10 +230,30 @@ if { [value_if_exists order_id] < 1 || [ad_var_type_check_number_p $order_id] ==
 # That should be enough to protect from double clicks yet provides a
 # more intuitive user experience.
 
-# Roel: Participant also pays
-if { $participant_id == 0 } {
-    set participant_id $user_id
+# DEDS: do we use the member price
+set use_member_price_p 0
+if {[parameter::get -parameter MemberPriceP -default 0]} {
+    set ec_category_id [parameter::get -parameter "MembershipECCategoryId" -default ""]
+    set group_id [parameter::get -parameter MemberGroupId -default 0]
+    if {$group_id} {
+	set use_member_price_p [group::member_p -group_id $group_id -user_id $user_id]
+    }
+    if {!$use_member_price_p} {
+	if {![empty_string_p $ec_category_id]} {
+	    set use_member_price_p [db_string get_in_basket {
+		select count(*)
+		from ec_orders o,
+		ec_items i,
+		ec_category_product_map m
+		where o.user_session_id = :user_session_id
+		and o.order_id = i.order_id
+		and i.product_id = m.product_id
+		and m.category_id = :ec_category_id
+	    }]
+	}
+    }
 }
+
 for {set i 0} {$i < $item_count} {incr i} {
     db_transaction {
 	set item_id [db_nextval ec_item_id_sequence]
@@ -159,6 +287,54 @@ for {set i 0} {$i < $item_count} {incr i} {
 		set patron_id = :user_id,
 		participant_id = :participant_id
 		where item_id = :item_id
+	    }
+	}
+	if {$use_member_price_p} {
+	    set offer_code [db_string get_offer_code {
+                select offer_code
+                from ec_sale_prices
+                where product_id = :product_id
+                      and offer_code = 'dotlrn-ecommerce'
+	    } -default ""]
+	    if {![empty_string_p $offer_code]} {
+		# DEDS: at this point we need to insert or update an offer
+		set offer_code_exists_p [db_string get_offer_code_p {
+		    select count(*) 
+		    from ec_user_session_offer_codes 
+		    where user_session_id=:user_session_id
+		    and product_id=:product_id
+		}]
+		if {$offer_code_exists_p} {
+		    db_dml update_ec_us_offers {
+			update ec_user_session_offer_codes 
+			set offer_code = :offer_code
+			where user_session_id = :user_session_id
+			and product_id = :product_id
+		    }
+		} else {
+		    db_dml inert_uc_offer_code {
+			insert into ec_user_session_offer_codes
+			(user_session_id, product_id, offer_code) 
+			values 
+			(:user_session_id, :product_id, :offer_code)
+		    }
+		}
+	    }
+	}
+	# DEDS
+	# at this point if user is purchasing
+	# a member product then we probably need to adjust
+	# any other products in basket
+	if {[parameter::get -parameter MemberPriceP -default 0]} {
+	    if {![empty_string_p $ec_category_id]} {
+		if {[db_string membership_product_p {
+		    select count(*)
+		    from ec_category_product_map
+		    where category_id = :ec_category_id
+		    and product_id = :product_id
+		}]} {
+		    dotlrn_ecommerce::ec::toggle_offer_codes -order_id $order_id -insert
+		}
 	    }
 	}
     }

@@ -60,7 +60,7 @@ if { [exists_and_not_null rel_group_id] } {
     if { [permission::permission_p -object_id $rel_group_id -privilege "admin"] } {
         ad_form -extend -name register -form {
             {rel_type:text(select)
-                {label "Role"}
+                {label "[_ dotlrn-ecommerce.Role]"}
                 {options {[group::get_rel_types_options -group_id $rel_group_id]}}
             }
         }
@@ -82,21 +82,21 @@ foreach tree [category_tree::get_tree $tree_id] {
 
 ad_form -extend -name register -form {
     {grade:text(select),optional
-	{label "Grade"}
+	{label "[_ dotlrn-ecommerce.Grade]"}
 	{options {$grade_options}}
     }
 
     {allergies:text,optional
-	{label "Medical Issues"}
+	{label "[_ dotlrn-ecommerce.Medical_Issues]"}
 	{html {size 60}}
     }
 
     {special_needs:text,optional
-	{label "Special Needs"}
+	{label "[_ dotlrn-ecommerce.Special_Needs]"}
 	{html {size 60}}
     }
 
-    {add:text(submit) {label "Add Participant"}}
+    {add:text(submit) {label "[_ dotlrn-ecommerce.Add_Participant]"}}
 }
 
 ad_form -extend -name register -on_request {

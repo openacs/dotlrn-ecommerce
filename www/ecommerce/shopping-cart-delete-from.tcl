@@ -44,4 +44,22 @@ if { [exists_and_not_null patron_id] && [exists_and_not_null participant_id] } {
 db_dml delete_item_from_cart "delete from ec_items where order_id=:order_id and product_id=:product_id and color_choice [ec_decode $color_choice "" "is null" "= :color_choice"] and size_choice [ec_decode $size_choice "" "is null" "= :size_choice"] and style_choice [ec_decode $style_choice "" "is null" "= :style_choice"]"
 db_release_unused_handles
 
+# DEDS
+# at this point if user is deleting
+# a member product then we probably need to adjust
+# any other products in basket
+if {[parameter::get -parameter MemberPriceP -default 0]} {
+    set ec_category_id [parameter::get -parameter "MembershipECCategoryId" -default ""]
+    if {![empty_string_p $ec_category_id]} {
+	if {[db_string membership_product_p {
+	    select count(*)
+	    from ec_category_product_map
+	    where category_id = :ec_category_id
+	    and product_id = :product_id
+	}]} {
+	    dotlrn_ecommerce::ec::toggle_offer_codes -order_id $order_id
+	}
+    }
+}
+
 rp_internal_redirect shopping-cart
