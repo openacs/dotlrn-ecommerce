@@ -4,7 +4,7 @@ ad_page_contract {
     
     Select participant for ordinary users
     
-    @author  (mgh@localhost.localdomain)
+    @author Roel Canicula (roelmc@pldtdsl.net)
     @creation-date 2005-07-08
     @arch-tag: f24b7927-abe0-463d-bcd0-a96b6c6b5cdb
     @cvs-id $Id$
@@ -31,14 +31,6 @@ if { [exists_and_not_null product_id] } {
 	from dotlrn_ecommerce_section
 	where product_id = :product_id
     }
-
-if { [exists_and_not_null product_id] } {
-#     db_1row order {
-# 	select user_id,
-# 	participant_id
-# 	from dotlrn_ecommerce_orders
-# 	where item_id = :item_id
-#     }
     
     template::list::create \
 	-name "relations" \
