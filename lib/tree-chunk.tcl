@@ -227,11 +227,13 @@ if { $admin_p } {
     lappend actions "[_ dotlrn-ecommerce.Add_Course]" admin/course-add-edit "[_ dotlrn-ecommerce.Add_Course]"
 }
 
+set allow_other_registration_p [parameter::get -parameter AllowRegistrationForOtherUsers -default 1]
+
 template::list::create \
     -name course_list \
     -multirow course_list \
     -key course_id \
-    -pass_properties { admin_p } \
+    -pass_properties { admin_p allow_other_registration_p } \
     -actions $actions \
     -filters $filters \
     -bulk_action_method post \
@@ -304,7 +306,9 @@ template::list::create \
 	    display_template {
 		<div style="float: left">
 		<if @course_list.prices@ ne "">
+		<if @allow_other_registration_p@ or @course_list.member_p@ eq 0>
 		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.add_to_cart]</a>
+		</if>
 		</if>
 
 		<if @course_list.prices@ eq "">
@@ -377,7 +381,11 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
     if { [parameter::get -package_id [ad_conn package_id] -parameter NoPayment -default 0] } {
 	set shopping_cart_add_url [export_vars -base register/ { community_id product_id }]
     } else {
-	set shopping_cart_add_url [export_vars -base ecommerce/participant-change { user_id product_id return_url }]
+	if { $allow_other_registration_p } {
+	    set shopping_cart_add_url [export_vars -base ecommerce/participant-change { user_id product_id return_url }]
+	} else {
+	    set shopping_cart_add_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id }]
+	}
     }
 
     set registration_approved_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id }]

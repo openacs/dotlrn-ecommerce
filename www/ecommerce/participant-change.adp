@@ -20,17 +20,19 @@
 	</else>
       </else>
     </else>
-    <p />
-    <h3>
-      <if @admin_p@>
-	#dotlrn-ecommerce.lt_Users_related_to_the_#
-      </if>
-      <else>
-	#dotlrn-ecommerce.Users_related_to_you#
-      </else>
-    </h3>
-    <p />
-    <listtemplate name="relations"></listtemplate>
+    <if @relations:rowcount@ gt 0>
+      <p />
+      <h3>
+	<if @admin_p@>
+	  #dotlrn-ecommerce.lt_Users_related_to_the_#
+	</if>
+	<else>
+	  #dotlrn-ecommerce.Users_related_to_you#
+	</else>
+      </h3>
+      <p />
+      <listtemplate name="relations"></listtemplate>
+    </if>
     <p />  
     <h3>#dotlrn-ecommerce.lt_Or_create_an_account_#</h3>
     <p />
