@@ -90,25 +90,10 @@ db_1row section {
 
 dotlrn_ecommerce::section::flush_cache $section_id
 
-if { [db_0or1row get_assessment {
-    select c.assessment_id
-
-    from dotlrn_ecommerce_section s,
-    dotlrn_catalogi c,
-    cr_items i
-
-    where s.course_id = c.item_id
-    and c.item_id = i.item_id
-    and i.live_revision = c.course_id
-    and s.product_id = :product_id
-
-    limit 1
-}] } {
-    if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
-	ad_returnredirect [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]assessment" { assessment_id { return_url $next_url } }]
-	ad_script_abort
-	
-    }
+set assessment_id [dotlrn_ecommerce::section::application_assessment $section_id]
+if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
+    ad_returnredirect [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]assessment" { assessment_id { return_url $next_url } }]
+    ad_script_abort    
 }
 
 # Redirect to application assessment if exists

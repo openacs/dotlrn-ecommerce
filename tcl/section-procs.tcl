@@ -361,3 +361,33 @@ ad_proc -public dotlrn_ecommerce::section::check_and_approve_sections_for_slots 
 	ns_log notice "DEBUG:: Done check"
     }
 }
+
+ad_proc -public dotlrn_ecommerce::section::application_assessment {
+    section_id
+} {
+    Return application assessment
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-07-20
+    
+    @param community_id
+
+    @return 
+    
+    @error 
+} {
+    return [db_string get_assessment {
+	select c.assessment_id
+
+	from dotlrn_ecommerce_section s,
+	dotlrn_catalogi c,
+	cr_items i
+
+	where s.course_id = c.item_id
+	and c.item_id = i.item_id
+	and i.live_revision = c.course_id
+	and s.section_id = :section_id
+
+	limit 1
+    } -default ""]
+}

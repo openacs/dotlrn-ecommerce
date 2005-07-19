@@ -307,7 +307,7 @@ template::list::create \
 		<div style="float: left">
 		<if @course_list.prices@ ne "">
 		<if @allow_other_registration_p@ or (@course_list.member_p@ ne 1 and @course_list.pending_p@ ne 1 and @course_list.waiting_p@ ne 1 and @course_list.approved_p@ ne 1)>
-		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.add_to_cart]</a>
+		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">@course_list.button@</a>
 		</if>
 		</if>
 
@@ -360,12 +360,14 @@ template::list::create \
 
 set grade_tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
 
-db_multirow -extend { category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url } course_list get_courses { } {
+db_multirow -extend { category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button } course_list get_courses { } {
 #     set mapped [category::get_mapped_categories $course_id]
 
 #     foreach element $mapped {
 # 	append category_name "[category::get_name $element], "
 #     }
+
+    set button [_ dotlrn-ecommerce.add_to_cart]
 
     set category_name [string range $category_name 0 [expr [string length $category_name] - 3]]
     set community_url [dotlrn_community::get_community_url $community_id]
@@ -464,6 +466,10 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
 
 	if { ! [empty_string_p $maxparticipants] } {
 	    set available_slots [expr $maxparticipants - $attendees]
+
+	    if { $available_slots <= 0 } {
+		set button "[_ dotlrn-ecommerce.join_waiting_list]"
+	    }
 	}
     }
 
@@ -507,4 +513,9 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
     }
 
     set instructor_p [lsearch $instructor_ids $user_id]
+
+    set assessment_id [dotlrn_ecommerce::section::application_assessment $section_id]
+    if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
+	set button "[_ dotlrn-ecommerce.apply_for_course]"
+    }
 }

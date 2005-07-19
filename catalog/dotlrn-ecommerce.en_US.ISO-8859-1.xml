@@ -9,6 +9,7 @@
   <msg key="Application_approved">Application approved</msg>
   <msg key="application_pending">(application pending)</msg>
   <msg key="Application_rejected">Application rejected</msg>
+  <msg key="apply_for_course">apply for course</msg>
   <msg key="awaiting_approval">(awaiting approval)</msg>
   <msg key="Balance_due">Balance due:</msg>
   <msg key="Bill_to">Bill to:</msg>
@@ -32,6 +33,7 @@
   <msg key="info">info</msg>
   <msg key="Instructor">Instructor</msg>
   <msg key="Item_Description">Item Description</msg>
+  <msg key="join_waiting_list">join waiting list</msg>
   <msg key="List_Registrants">List Registrants</msg>
   <msg key="lt_1_Please_review_your_">1. Please review your order list for accuracy.</msg>
   <msg key="lt_2_Complete_this_infor">2. Complete this information.</msg>
