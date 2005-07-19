@@ -97,7 +97,7 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 		
 		if { [catch {
 
-		    set waiting_list_p 0
+#		    set waiting_list_p 0
 # 		    if { ! [empty_string_p $maxparticipants] } {
 # 			db_1row attendees {
 # 			    select count(*) as attendees
@@ -121,25 +121,25 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 # 			}
 # 		    }
 
-		    if { ! [empty_string_p $method] && $method != "cc" } {
-			set waiting_list_p 1
-		    }
+#		    if { ! [empty_string_p $method] && $method != "cc" } {
+#			set waiting_list_p 1
+#		    }
 
-		    if { ! $waiting_list_p } {
-			dotlrn_community::add_user $community_id $user_id
-		    } else {
-			dotlrn_community::add_user -member_state "needs approval" $community_id $user_id
+#		    if { ! $waiting_list_p } {
+		    dotlrn_community::add_user $community_id $user_id
+#		    } else {
+#			dotlrn_community::add_user -member_state "needs approval" $community_id $user_id
 			# DEDS
 			# we hit a waitlist
 			# we need to check if we possibly notify for this community
 			# we do the actual check if we reached the number at the end
 			# of the proc so that we save on execution time
-			ns_log notice "dotlrn-ecommerce wait list notify: hit wait list on $community_id"
-			if {[lsearch $community_notify_waitlist_list $community_id] == -1} {
-			    lappend community_notify_waitlist_list $community_id
-			}
-			ns_log notice "dotlrn-ecommerce wait list notify: list is now $community_notify_waitlist_list"
-		    }
+#			ns_log notice "dotlrn-ecommerce wait list notify: hit wait list on $community_id"
+#			if {[lsearch $community_notify_waitlist_list $community_id] == -1} {
+#			    lappend community_notify_waitlist_list $community_id
+#			}
+#			ns_log notice "dotlrn-ecommerce wait list notify: list is now $community_notify_waitlist_list"
+#		    }
 
 		    if { ! [exists_and_not_null patron_id] } {
 			set patron_id $saved_patron_id

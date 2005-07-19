@@ -617,25 +617,25 @@ db_foreach get_items_in_cart "
     where item_id = :item_id"
 
     # Get associated application assessments
-    set assessment_ids [list]
-    if { [db_0or1row get_assessment {
-	select c.assessment_id
+#     set assessment_ids [list]
+#     if { [db_0or1row get_assessment {
+# 	select c.assessment_id
 
-	from dotlrn_ecommerce_section s,
-	dotlrn_catalogi c,
-	cr_items i
+# 	from dotlrn_ecommerce_section s,
+# 	dotlrn_catalogi c,
+# 	cr_items i
 
-	where s.course_id = c.item_id
-	and c.item_id = i.item_id
-	and i.live_revision = c.course_id
-	and s.product_id = :product_id
+# 	where s.course_id = c.item_id
+# 	and c.item_id = i.item_id
+# 	and i.live_revision = c.course_id
+# 	and s.product_id = :product_id
 
-	limit 1
-    }] } {
-	if { [lsearch $assessment_ids $assessment_id] == -1 && ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
-	    lappend assessment_ids $assessment_id
-	}
-    }
+# 	limit 1
+#     }] } {
+# 	if { [lsearch $assessment_ids $assessment_id] == -1 && ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
+# 	    lappend assessment_ids $assessment_id
+# 	}
+#     }
 }
 
 # 3. Determine base shipping cost & put it into ec_orders
@@ -905,14 +905,14 @@ if { $method == "cc" } {
 set checkout_url [export_vars -base [apm_package_url_from_key dotlrn-ecommerce]ecommerce/checkout-3.tcl { {url checkout-one-form-2} user_id participant_id }]
 
 # Determine if there's an application assessment
-if { [llength $assessment_ids] > 0 } {
-    # Since we can have multiple sections under the shopping cart, we
-    # can have multiple associated assessments, we keep track of all
-    # these assessments but for now just use the first one
+# if { [llength $assessment_ids] > 0 } {
+#     # Since we can have multiple sections under the shopping cart, we
+#     # can have multiple associated assessments, we keep track of all
+#     # these assessments but for now just use the first one
 
-    ad_returnredirect [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]assessment" { {assessment_id "[lindex $assessment_ids 0]"} {return_url $checkout_url} }]
-    ad_script_abort
-}
+#     ad_returnredirect [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]assessment" { {assessment_id "[lindex $assessment_ids 0]"} {return_url $checkout_url} }]
+#     ad_script_abort
+# }
 
 db_release_unused_handles
 #rp_form_put url checkout-one-form-2

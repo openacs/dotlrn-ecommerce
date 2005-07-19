@@ -37,7 +37,12 @@ if { $type == "pending" } {
 	    member_state {
 		label "Member Request"
 		display_template {
+		    <if @applications.member_state@ eq "needs approval">
 		    User is in waiting list
+		    </if>
+		    <else>
+		    User has submitted an application and is waiting for approval
+		    </else>
 		}
 	    }
 	    assessment_result {
@@ -66,7 +71,7 @@ if { $type == "pending" } {
 	select pretty_name as community_name, person__name(user_id) as person_name, member_state, c.community_id, user_id as applicant_user_id
 	from dotlrn_member_rels_full r, dotlrn_communities_all c
 	where r.community_id = c.community_id
-	and member_state = 'needs approval'
+	and member_state in ('needs approval', 'awaiting payment')
     } {
 	set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} }]
 	set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} }]
@@ -90,7 +95,7 @@ if { $type == "pending" } {
 	    and s.course_id = c.item_id
 	    and c.assessment_id = a.item_id
 	    and a.assessment_id = ss.assessment_id
-	    and ss.subject_id = :user_id
+	    and ss.subject_id = :applicant_user_id
 	    
 	    order by creation_datetime desc
 	    

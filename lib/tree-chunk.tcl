@@ -306,7 +306,7 @@ template::list::create \
 	    display_template {
 		<div style="float: left">
 		<if @course_list.prices@ ne "">
-		<if @allow_other_registration_p@ or @course_list.member_p@ eq 0>
+		<if @allow_other_registration_p@ or (@course_list.member_p@ ne 1 and @course_list.pending_p@ ne 1 and @course_list.waiting_p@ ne 1 and @course_list.approved_p@ ne 1)>
 		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.add_to_cart]</a>
 		</if>
 		</if>
@@ -384,7 +384,12 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
 	if { $allow_other_registration_p } {
 	    set shopping_cart_add_url [export_vars -base ecommerce/participant-change { user_id product_id return_url }]
 	} else {
-	    set shopping_cart_add_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id }]
+	    set return_url [export_vars -base shopping-cart-add { user_id product_id }]
+	    if { $user_id == 0 } {
+		set shopping_cart_add_url [export_vars -base ecommerce/login { return_url }]
+	    } else {
+		set shopping_cart_add_url ecommerce/$return_url
+	    }
 	}
     }
 
@@ -491,6 +496,7 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
     } -default ""]
     
     switch $member_state {
+	"awaiting payment" -
 	"request approval" {
 	    set waiting_p 1
 	}

@@ -66,78 +66,108 @@ if { [acs_object_type $participant_id] != "group" } {
 	    limit 1
 	} -default ""]
 
-	# FIRST check if the section is full
-	# and if prerequisites are met
-	
-	# Is section full?
-	if { $member_state != "waitinglist approved" } {
-	    set available_slots [dotlrn_ecommerce::section::available_slots $section_id]
-	    ns_log notice "DEBUG:: $available_slots available slots, override $override_p, admin $admin_p"
+	if { $member_state != "approved" &&
+	     $member_state != "waitinglist approved" &&
+	     $member_state != "payment received" } {
 
-	    if { $available_slots == 0 && ( $override_p != 1 || $admin_p == 0 ) } {
-		# No more slots left, ask user if he wants to go to
-		# waiting list
-		
-		if { $admin_p && $user_id != [ad_conn user_id] } {
-		    set return_url [export_vars -base ../admin/process-purchase-course { user_id }]
-		} else {
-		    set return_url ..
-		}
-		ad_returnredirect [export_vars -base waiting-list-confirm { product_id user_id participant_id return_url }]
-		ad_script_abort
-	    }
-	}
+	    # FIRST check if the section is full
+	    # and if prerequisites are met
+	    
+	    # Is section full?
+	    if { $member_state != "waitinglist approved" } {
+		set available_slots [dotlrn_ecommerce::section::available_slots $section_id]
+		ns_log notice "DEBUG:: $available_slots available slots, override $override_p, admin $admin_p"
 
-	# Are prerequisites met?
-	if { $member_state != "request approved" } {
-	    ns_log notice "DEBUG:: checking prerequisites"
-	    set prereq_not_met 0
-	    db_foreach prereqs {
-		select m.tree_id, m.user_field, s.community_id
-		from dotlrn_ecommerce_prereqs p,
-		dotlrn_ecommerce_prereq_map m,
-		dotlrn_ecommerce_section s
-		where p.tree_id = m.tree_id
-		and p.section_id = s.section_id
-		and s.section_id = :section_id
-	    } {
-		set section_prereqs [db_list section_prereqs {
-		    select category_id
-		    from category_object_map_tree
-		    where tree_id = :tree_id
-		    and object_id = :community_id
-		}]
-
-		set user_prereqs [db_list participant_prereqs {
-		    select category_id
-		    from category_object_map_tree
-		    where tree_id = :tree_id
-		    and object_id = :participant_id
-		}]
-
-		# Check if prereq is met
-		if { [llength $user_prereqs] > 0 } {
-		    foreach user_prereq $user_prereqs {
-			if { [llength $section_prereqs] > 0 && [lsearch $section_prereqs $user_prereq] == -1 } {
-			    # Prereq not met
-			    incr prereq_not_met
-			}
+		if { $available_slots == 0 && ( $override_p != 1 || $admin_p == 0 ) } {
+		    # No more slots left, ask user if he wants to go to
+		    # waiting list
+		    
+		    if { $admin_p && $user_id != [ad_conn user_id] } {
+			set return_url [export_vars -base ../admin/process-purchase-course { user_id }]
+		    } else {
+			set return_url ..
 		    }
-		} else {
-		    incr prereq_not_met
+		    ad_returnredirect [export_vars -base waiting-list-confirm { product_id user_id participant_id return_url }]
+		    ad_script_abort
 		}
 	    }
 
-	    if { $prereq_not_met > 0 } {
-		ns_log notice "DEBUG:: prerequisites not met"
-		if { $admin_p && $user_id != [ad_conn user_id] } {
-		    set return_url [export_vars -base ../admin/process-purchase-course { user_id }]
-		} else {
-		    set return_url ..
+	    # Are prerequisites met?
+	    if { $member_state != "request approved" } {
+		ns_log notice "DEBUG:: checking prerequisites"
+		set prereq_not_met 0
+		db_foreach prereqs {
+		    select m.tree_id, m.user_field, s.community_id
+		    from dotlrn_ecommerce_prereqs p,
+		    dotlrn_ecommerce_prereq_map m,
+		    dotlrn_ecommerce_section s
+		    where p.tree_id = m.tree_id
+		    and p.section_id = s.section_id
+		    and s.section_id = :section_id
+		} {
+		    set section_prereqs [db_list section_prereqs {
+			select category_id
+			from category_object_map_tree
+			where tree_id = :tree_id
+			and object_id = :community_id
+		    }]
+
+		    set user_prereqs [db_list participant_prereqs {
+			select category_id
+			from category_object_map_tree
+			where tree_id = :tree_id
+			and object_id = :participant_id
+		    }]
+
+		    # Check if prereq is met
+		    if { [llength $user_prereqs] > 0 } {
+			foreach user_prereq $user_prereqs {
+			    if { [llength $section_prereqs] > 0 && [lsearch $section_prereqs $user_prereq] == -1 } {
+				# Prereq not met
+				incr prereq_not_met
+			    }
+			}
+		    } else {
+			incr prereq_not_met
+		    }
 		}
-		ad_returnredirect [export_vars -base prerequisite-confirm { product_id user_id participant_id return_url }]
-		ad_script_abort
+
+		if { $prereq_not_met > 0 } {
+		    ns_log notice "DEBUG:: prerequisites not met"
+		    if { $admin_p && $user_id != [ad_conn user_id] } {
+			set return_url [export_vars -base ../admin/process-purchase-course { user_id }]
+		    } else {
+			set return_url ..
+		    }
+		    ad_returnredirect [export_vars -base prerequisite-confirm { product_id user_id participant_id return_url }]
+		    ad_script_abort
+		}
 	    }
+
+	    # Check application assessment
+	    if { $member_state != "payment received" } {
+		if { [db_0or1row get_assessment {
+		    select c.assessment_id
+
+		    from dotlrn_ecommerce_section s,
+		    dotlrn_catalogi c,
+		    cr_items i
+
+		    where s.course_id = c.item_id
+		    and c.item_id = i.item_id
+		    and i.live_revision = c.course_id
+		    and s.product_id = :product_id
+
+		    limit 1
+		}] } {
+		    if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
+			set return_url [ad_conn package_url]
+			ad_returnredirect [export_vars -base application-request { participant_id community_id {next_url $return_url} { type payment } }]
+			ad_script_abort
+			
+		    }
+		}
+	    }	    
 	}
     }
 
