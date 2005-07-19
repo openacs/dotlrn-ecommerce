@@ -380,6 +380,8 @@ if {[parameter::get -parameter MemberPriceP -default 0]} {
 	    }
 	}
     }
+} else {
+    set suppress_membership_p 1
 }
 
 ad_return_template
