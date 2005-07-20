@@ -18,20 +18,54 @@ ad_page_contract {
 } -errors {
 }
 
-dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
-
-# Send email to applicant
 set actor_id [ad_conn user_id]
 
-if { $user_id != $actor_id && $send_email_p } {
-    set applicant_email [cc_email_from_party $user_id]
-    set actor_email [cc_email_from_party $actor_id]
-    set community_name [dotlrn_community::get_community_name $community_id]
-    acs_mail_lite::send \
-	-to_addr $applicant_email \
-	-from_addr $actor_email \
-	-subject [subst "[_ dotlrn-ecommerce.Application_rejected]"] \
-	-body [subst "[_ dotlrn-ecommerce.lt_Your_application_to_j_1]"]
+if { !$send_email_p || $user_id == $actor_id } {
+    dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
+    ad_returnredirect applications
+} else {
+    # Send email to applicant
+    switch $type {
+        prereq {
+            set title "[_ dotlrn-ecommerce.Reject_prereq]"
+        }
+        default {
+            set title "[_ dotlrn-ecommerce.Reject_application]"
+        }
+    }
+    set context [list [list applications "Pending applications"] $title]
+    ad_form \
+        -name email_form \
+        -form {
+            {user_id:text(hidden)}
+            {community_id:text(hidden)}
+            {type:text(hidden)}
+            {reason:text(textarea),optional {label "[_ dotlrn-ecommerce.Reason]"} {html {rows 10 cols 60}}}
+        } \
+        -on_request {
+        } \
+        -on_submit {
+            dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
+            set applicant_email [cc_email_from_party $user_id]
+            set actor_email [cc_email_from_party $actor_id]
+            set community_name [dotlrn_community::get_community_name $community_id]
+            switch $type {
+                prereq {
+                    set subject "[_ dotlrn-ecommerce.Application_prereq_rejected]"
+                    set body "[_ dotlrn-ecommerce.lt_Your_prereq_rejected]"
+                }
+                default {
+                    set subject "[_ dotlrn-ecommerce.Application_rejected]"
+                    set body "[_ dotlrn-ecommerce.lt_Your_application_to_j_1]"
+                }
+            }
+            acs_mail_lite::send \
+                -to_addr $applicant_email \
+                -from_addr $actor_email \
+                -subject $subject \
+                -body $body
+        } \
+        -after_submit {
+            ad_returnredirect applications
+        }
 }
-
-ad_returnredirect applications
