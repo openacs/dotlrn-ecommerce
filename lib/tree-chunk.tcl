@@ -529,18 +529,20 @@ db_multirow -extend { section_pages_url category_name community_url course_edit_
     } -default ""]
     
     switch $member_state {
+	"needs approval" -
 	"awaiting payment" -
 	"request approval" {
 	    set waiting_p 1
 	}
 	"waitinglist approved" -
+	"payment received" -
 	"request approved" {
 	    set approved_p 1
 	}
     }
 
     # HAM : if we don't have an instructor id 
-    set instructor_p ""
+    set instructor_p -1
     if { [exists_and_not_null instructor_ids] } {
     	set instructor_p [lsearch $instructor_ids $user_id]
     } 
