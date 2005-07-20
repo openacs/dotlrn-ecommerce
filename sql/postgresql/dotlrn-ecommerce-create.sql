@@ -85,7 +85,7 @@ alter table ec_custom_p_field_values_audit add maxparticipants integer;
 
 -- Add member states
 alter table membership_rels drop constraint membership_rel_mem_ck;
-alter table membership_rels add CONSTRAINT membership_rel_mem_ck CHECK ((((((((member_state)::text = 'merged'::text) OR ((member_state)::text = 'approved'::text)) OR ((member_state)::text = 'needs approval'::text)) OR ((member_state)::text = 'banned'::text)) OR ((member_state)::text = 'rejected'::text)) OR ((member_state)::text = 'deleted'::text) OR ((member_state)::text = 'request approval'::text) OR ((member_state)::text = 'request approved'::text) OR ((member_state)::text = 'waitinglist approved'::text) OR ((member_state)::text = 'awaiting payment'::text) OR ((member_state)::text = 'payment approved'::text)));
+alter table membership_rels add CONSTRAINT membership_rel_mem_ck CHECK ((((((((member_state)::text = 'merged'::text) OR ((member_state)::text = 'approved'::text)) OR ((member_state)::text = 'needs approval'::text)) OR ((member_state)::text = 'banned'::text)) OR ((member_state)::text = 'rejected'::text)) OR ((member_state)::text = 'deleted'::text) OR ((member_state)::text = 'request approval'::text) OR ((member_state)::text = 'request approved'::text) OR ((member_state)::text = 'waitinglist approved'::text) OR ((member_state)::text = 'awaiting payment'::text) OR ((member_state)::text = 'payment received'::text)));
 
 \i dotlrn-ecommerce-memberships-create.sql
 \i dotlrn-ecommerce-admin-portlet-create.sql
