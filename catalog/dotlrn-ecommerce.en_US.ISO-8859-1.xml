@@ -26,6 +26,7 @@
   <msg key="delete">delete</msg>
   <msg key="E-mail_address">E-mail address:</msg>
   <msg key="edit">edit</msg>
+  <msg key="Edit_My_Application">Edit My Application</msg>
   <msg key="Expense_Tracking">Expense Tracking</msg>
   <msg key="Gift_Certificate">Gift Certificate:</msg>
   <msg key="Grade">Grade</msg>
@@ -131,5 +132,7 @@
   <msg key="view_applications">view applications</msg>
   <msg key="view_bio">view bio</msg>
   <msg key="view_bios">view bios</msg>
+  <msg key="Your_Applications">Your Applications</msg>
+  <msg key="Your_Order_History">Your Order History</msg>
   <msg key="Your_Relationship">Your Relationship</msg>
 </message_catalog>
