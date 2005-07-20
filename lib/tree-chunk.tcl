@@ -281,8 +281,10 @@ template::list::create \
 		<if @course_list.sessions@ not nil><br />@course_list.sessions;noquote@</if>
 		<if @course_list.instructor_names@ not nil><br />@course_list.instructor_names;noquote@</if>
 		<if @course_list.prices@ not nil><br />@course_list.prices;noquote@</if>
+		<if @course_list.show_participants_p@ eq "t">
 		<br />@course_list.attendees;noquote@ participant<if @course_list.attendees@ gt 1>s</if>
 		<if @course_list.available_slots@ not nil and @course_list.available_slots@ gt 0>,<br />@course_list.available_slots;noquote@ available</if>
+		</if>
 		</if>
 	    }
 	    html { width 40% }

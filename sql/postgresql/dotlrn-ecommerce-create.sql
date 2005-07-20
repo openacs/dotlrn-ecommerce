@@ -25,10 +25,11 @@ create table dotlrn_ecommerce_section (
 	account_code_revenue varchar(100),
 	account_code_expense varchar(100),
 	max_participants     integer,
-	waiting_list_p       char(1) check (daily_p in ('t','f')),
+	waiting_list_p       char(1) check (waiting_list_p in ('t','f')),
 	notify_waiting_number integer,
 	member_price_number   numeric,
-	non_member_price      numeric
+	non_member_price      numeric,
+	show_participants_p   char(1) check (show_participants_p in ('t','f'))
 );
 
 create index dotlrn_ecommerce_community_id_idx ON dotlrn_ecommerce_section (community_id);
