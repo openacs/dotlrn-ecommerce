@@ -372,7 +372,8 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
     set category_name [string range $category_name 0 [expr [string length $category_name] - 3]]
     set community_url [dotlrn_community::get_community_url $community_id]
     set return_url [ad_return_url]
-    set course_edit_url [export_vars -base admin/course-add-edit { course_id return_url }]
+    # set course_edit_url [export_vars -base admin/course-add-edit { course_id return_url }]
+    set course_edit_url [export_vars -base admin/course-info { course_id course_name course_key }]
     set section_add_url [export_vars -base admin/section-add-edit { course_id return_url }]
     set section_edit_url [export_vars -base admin/section-add-edit { course_id section_id return_url }]
     set sections_url [export_vars -base sections { course_id }]
@@ -512,7 +513,11 @@ db_multirow -extend { category_name community_url course_edit_url section_add_ur
 	}
     }
 
-    set instructor_p [lsearch $instructor_ids $user_id]
+    # HAM : if we don't have an instructor id 
+    set instructor_p ""
+    if { [exists_and_not_null instructor_ids] } {
+    	set instructor_p [lsearch $instructor_ids $user_id]
+    } 
 
     set assessment_id [dotlrn_ecommerce::section::application_assessment $section_id]
     if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
