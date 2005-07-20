@@ -30,50 +30,93 @@ if { $type == "full" } {
     set old_member_state "awaiting payment"
 }
 
-db_dml approve_request {
-    update membership_rels
-    set member_state = :new_member_state
-    where rel_id in (select r.rel_id
-		     from acs_rels r,
-		     membership_rels m
-		     where r.rel_id = m.rel_id
-		     and r.object_id_one = :community_id
-		     and r.object_id_two = :user_id
-		     and m.member_state = :old_member_state)
-}
-
-# Send email to applicant
 set actor_id [ad_conn user_id]
 
-if { $user_id != $actor_id } {
-    set applicant_email [cc_email_from_party $user_id]
-    set actor_email [cc_email_from_party $actor_id]
-    set community_name [dotlrn_community::get_community_name $community_id]
+if { $user_id == $actor_id } {
+    db_dml approve_request {
+        update membership_rels
+        set member_state = :new_member_state
+        where rel_id in (select r.rel_id
+                         from acs_rels r,
+                         membership_rels m
+                         where r.rel_id = m.rel_id
+                         and r.object_id_one = :community_id
+                         and r.object_id_two = :user_id
+                         and m.member_state = :old_member_state)
+    }
+    ad_returnredirect applications
+} else {
+    if { $type == "prereq" } {
+        ad_form \
+            -name email_form \
+            -form {
+                {user_id:text(hidden)}
+                {community_id:text(hidden)}
+                {type:text(hidden)}
+                {reason:text(textarea),optional {label "[_ dotlrn-ecommerce.Reason]"} {html {rows 10 cols 60}}}
+            } \
+            -on_request {
+            } \
+            -on_submit {
+                db_dml approve_request {
+                    update membership_rels
+                    set member_state = :new_member_state
+                    where rel_id in (select r.rel_id
+                                     from acs_rels r,
+                                     membership_rels m
+                                     where r.rel_id = m.rel_id
+                                     and r.object_id_one = :community_id
+                                     and r.object_id_two = :user_id
+                                     and m.member_state = :old_member_state)
+                }
+                set applicant_email [cc_email_from_party $user_id]
+                set actor_email [cc_email_from_party $actor_id]
+                set community_name [dotlrn_community::get_community_name $community_id]
+                set subject "[_ dotlrn-ecommerce.Application_prereq_approved]"
+                set body "[_ dotlrn-ecommerce.lt_Your_prereq_approved]"
+                if {![empty_string_p [string trim $reason]]} {
+                    append body "
+[_ dotlrn-ecommerce.Reason]:
+[string trim $reason]"
+                }
+                acs_mail_lite::send \
+                    -to_addr $applicant_email \
+                    -from_addr $actor_email \
+                    -subject $subject \
+                    -body $body
+            } \
+            -after_submit {
+                ad_returnredirect applications
+            }
+    } else {
+        db_dml approve_request {
+            update membership_rels
+            set member_state = :new_member_state
+            where rel_id in (select r.rel_id
+                         from acs_rels r,
+                         membership_rels m
+                         where r.rel_id = m.rel_id
+                         and r.object_id_one = :community_id
+                         and r.object_id_two = :user_id
+                         and m.member_state = :old_member_state)
+        }
 
-#    set application_url [ad_url]/[apm_package_url_from_key dotlrn-ecommerce]ecommerce/prerequisite-confirm
-
-    acs_mail_lite::send \
-	-to_addr $applicant_email \
-	-from_addr $actor_email \
-	-subject [subst "[_ dotlrn-ecommerce.Application_approved]"] \
-	-body [subst "[_ dotlrn-ecommerce.lt_Your_application_to_j]"]
+        # Send email to applicant
+        set applicant_email [cc_email_from_party $user_id]
+        set actor_email [cc_email_from_party $actor_id]
+        set community_name [dotlrn_community::get_community_name $community_id]
+        
+        #    set application_url [ad_url]/[apm_package_url_from_key dotlrn-ecommerce]ecommerce/prerequisite-confirm
+        
+        if {![dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type "on approval"]} {
+            acs_mail_lite::send \
+                -to_addr $applicant_email \
+                -from_addr $actor_email \
+                -subject [subst "[_ dotlrn-ecommerce.Application_approved]"] \
+                -body [subst "[_ dotlrn-ecommerce.lt_Your_application_to_j]"]
+        }
+        
+        ad_returnredirect applications
+    }
 }
 
-# Send email to applicant
-set actor_id [ad_conn user_id]
-
-if { $user_id != $actor_id } {
-    set applicant_email [cc_email_from_party $user_id]
-    set actor_email [cc_email_from_party $actor_id]
-    set community_name [dotlrn_community::get_community_name $community_id]
-
-#    set application_url [ad_url]/[apm_package_url_from_key dotlrn-ecommerce]ecommerce/prerequisite-confirm
-
-    acs_mail_lite::send \
-	-to_addr $applicant_email \
-	-from_addr $actor_email \
-	-subject [subst "[_ dotlrn-ecommerce.Application_approved]"] \
-	-body [subst "[_ dotlrn-ecommerce.lt_Your_application_to_j]"]
-}
-
-ad_returnredirect applications
