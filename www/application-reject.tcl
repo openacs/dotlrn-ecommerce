@@ -11,7 +11,7 @@ ad_page_contract {
 } {
     community_id:integer,notnull
     user_id:integer,notnull
-    {type waiting_list}
+    {type full}
     {send_email_p 1}
 } -properties {
 } -validate {

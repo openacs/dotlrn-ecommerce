@@ -11,7 +11,7 @@ ad_page_contract {
 } {
     community_id:integer,notnull
     user_id:integer,notnull
-    {type waiting_list}
+    {type full}
 } -properties {
 } -validate {
 } -errors {
@@ -19,12 +19,15 @@ ad_page_contract {
 
 ### Check for security
 
-if { $type == "waiting_list" } {
+if { $type == "full" } {
     set new_member_state "waitinglist approved"
     set old_member_state "needs approval"
-} else {
+} elseif { $type == "prereq" } {
     set new_member_state "request approved"
     set old_member_state "request approval"
+} elseif { $type == "payment" } {
+    set new_member_state "payment received"
+    set old_member_state "awaiting payment"
 }
 
 db_dml approve_request {

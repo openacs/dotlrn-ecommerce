@@ -73,8 +73,14 @@ if { $type == "pending" } {
 	where r.community_id = c.community_id
 	and member_state in ('needs approval', 'awaiting payment')
     } {
-	set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} }]
-	set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} }]
+	if { $member_state == "needs approval" } {
+	    set list_type full
+	} elseif { $member_state == "awaiting payment" } {
+	    set list_type payment
+	}
+
+	set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} {type $list_type} }]
+	set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} {type $list_type} }]
 	
 	# Get associated assessment
 	if { [db_0or1row assessment {

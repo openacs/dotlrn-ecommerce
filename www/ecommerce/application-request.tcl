@@ -58,7 +58,7 @@ if {[catch {set rel_id [relation_add \
 		select count(*)
 		from membership_rels m,
 		acs_rels r
-		where m.member_state = 'needs approval'
+		where m.member_state in ('needs approval', 'awaiting payment')
 		      and m.rel_id = r.rel_id
 		      and r.rel_type = 'dotlrn_member_rel'
 		      and r.object_id_one = :community_id
