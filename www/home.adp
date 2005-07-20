@@ -69,14 +69,14 @@
   </else>
 
   <h2>#dotlrn-ecommerce.Your_Order_History#</h2>
-  <ul>
+  <ul class="action-links">
     <multiple name="orders">
       <li><a href="@orders.order_url;noquote@">@orders.order_id@</a>; @orders.confirmed_date@</li>
     </multiple>
   </ul>
 
   <h2>#dotlrn-ecommerce.Your_Applications#</h2>
-  <ul>
+  <ul class="action-links">
     <multiple name="sessions">
       <li><a href="@sessions.asm_url;noquote@">@sessions.pretty_name@</a> [<a href="@sessions.edit_asm_url;noquote@">#dotlrn-ecommerce.Edit_My_Application#</a>]</li>
     </multiple>
