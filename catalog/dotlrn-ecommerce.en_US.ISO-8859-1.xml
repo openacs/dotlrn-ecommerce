@@ -94,6 +94,7 @@
   <msg key="lt_Users_in_waiting_list">Users in waiting list</msg>
   <msg key="lt_Users_related_to_the_">Users related to the %patron_name%</msg>
   <msg key="lt_Whos_participating_in">Who's participating in this course?</msg>
+  <msg key="lt_You_have_no_applicati">You have no applications</msg>
   <msg key="lt_You_may_continue_with">You may continue with the purchase</msg>
   <msg key="lt_You_may_wish_to_conti">You may wish to continue and go on the waiting list for confirmation.</msg>
   <msg key="lt_Your_application_to_j">Your application to join $community_name was approved.</msg>
@@ -132,6 +133,7 @@
   <msg key="view_applications">view applications</msg>
   <msg key="view_bio">view bio</msg>
   <msg key="view_bios">view bios</msg>
+  <msg key="You_have_no_orders">You have no orders</msg>
   <msg key="Your_Applications">Your Applications</msg>
   <msg key="Your_Order_History">Your Order History</msg>
   <msg key="Your_Relationship">Your Relationship</msg>
