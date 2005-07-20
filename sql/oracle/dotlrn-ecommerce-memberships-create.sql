@@ -137,8 +137,7 @@ as
 -- dc_instructor__new
  function new (
         rel_id in membership_rels.rel_id%TYPE default null,
-        rel_type in acs_rels.rel_type%TYPE default 'membership_rel',
-	portal_id in portals.portal_id%TYPE,
+        rel_type in acs_rels.rel_type%TYPE default 'dc_instructor_rel',
         community_id in dotlrn_communities.community_id%TYPE,	
 	user_id in users.user_id%TYPE,
         member_state in membership_rels.member_state%TYPE,
@@ -161,8 +160,7 @@ as
 -- dc_instructor_rel__new
  function new (
         rel_id in membership_rels.rel_id%TYPE default null,
-        rel_type in acs_rels.rel_type%TYPE default 'membership_rel',
-	portal_id in portals.portal_id%TYPE,
+        rel_type in acs_rels.rel_type%TYPE default 'dc_instructor_rel',
         community_id in dotlrn_communities.community_id%TYPE,
 	user_id in users.user_id%TYPE,
         member_state in membership_rels.member_state%TYPE,
