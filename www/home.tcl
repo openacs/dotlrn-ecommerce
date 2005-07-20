@@ -92,6 +92,7 @@ db_multirow -extend { order_url } orders get_orders {
     set confirmed_date [util_AnsiDatetoPrettyDate $confirmed_date]
 }
 
+set sessions_with_applications 0
 db_multirow -extend { asm_url edit_asm_url } sessions sessions {
     select c.community_id, c.pretty_name
     from dotlrn_member_rels_full r, dotlrn_communities c
@@ -125,5 +126,6 @@ db_multirow -extend { asm_url edit_asm_url } sessions sessions {
     }] } {
 	set asm_url [export_vars -base /assessment/session { session_id }]
 	set edit_asm_url [export_vars -base /assessment/assessment { assessment_id }]
+	incr sessions_with_applications
     }
 }

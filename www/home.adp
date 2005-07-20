@@ -77,16 +77,26 @@
 
 	<h2>#dotlrn-ecommerce.Your_Order_History#</h2>
 	<ul class="action-links">
-	  <multiple name="orders">
-	    <li><a href="@orders.order_url;noquote@">@orders.order_id@</a>; @orders.confirmed_date@</li>
-	  </multiple>
+	  <if @orders:rowcount@ gt 0>
+	    <multiple name="orders">
+	      <li><a href="@orders.order_url;noquote@">@orders.order_id@</a>; @orders.confirmed_date@</li>
+	    </multiple>
+	  </if>
+	  <else>
+	    <li>#dotlrn-ecommerce.You_have_no_orders#</li>
+	  </else>
 	</ul>
 
 	<h2>#dotlrn-ecommerce.Your_Applications#</h2>
 	<ul class="action-links">
-	  <multiple name="sessions">
-	    <li><a href="@sessions.asm_url;noquote@">@sessions.pretty_name@</a> [<a href="@sessions.edit_asm_url;noquote@">#dotlrn-ecommerce.Edit_My_Application#</a>]</li>
-	  </multiple>
+	  <if @sessions_with_applications@ gt 0>
+	    <multiple name="sessions">
+	      <li><a href="@sessions.asm_url;noquote@">@sessions.pretty_name@</a> [<a href="@sessions.edit_asm_url;noquote@">#dotlrn-ecommerce.Edit_My_Application#</a>]</li>
+	    </multiple>
+	  </if>
+	  <else>
+	    <li>#dotlrn-ecommerce.lt_You_have_no_applicati#</li>
+	  </else>
 	</ul>
 
       </td>
