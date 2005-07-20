@@ -576,7 +576,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 
 	# Update price
 	db_dml update_price {
-	    update ec_products set price = :price where product_id = :product_id
+	    update ec_products set price = :price, product_name = :section_name where product_id = :product_id
 	}
 
 	# things to insert into ec_custom_product_field_values if they exist
