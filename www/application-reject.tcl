@@ -59,6 +59,12 @@ if { !$send_email_p || $user_id == $actor_id } {
                     set body "[_ dotlrn-ecommerce.lt_Your_application_to_j_1]"
                 }
             }
+            if {![empty_string_p [string trim $reason]]} {
+                append body "
+[_ dotlrn-ecommerce.Reason]:
+[string trim $reason]"
+
+            }
             acs_mail_lite::send \
                 -to_addr $applicant_email \
                 -from_addr $actor_email \
