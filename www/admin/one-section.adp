@@ -16,7 +16,7 @@
 <a href=.>#dotlrn-ecommerce.lt_eCommerce_Administrat#</a><br>
 #dotlrn-ecommerce.Course_Page# <a href="course-info?course_id=@course_id@">@course_name@</a><br>
 <p>
-<a href="https://mos.zill.net/dotlrn-ecommerce/admin/process-purchase-all?section_id=@section_id@">#dotlrn-ecommerce.lt_Process_Purchase_for_#</a>
+<a href="process-purchase-all?section_id=@section_id@">#dotlrn-ecommerce.lt_Process_Purchase_for_#</a>
 <p><a href="@community_url@/file-storage/">Public Pages</a></p>
 <if @attendance_show_p@>
 <h2>#dotlrn-ecommerce.lt_Sessions_and_Attendan#</h2>
