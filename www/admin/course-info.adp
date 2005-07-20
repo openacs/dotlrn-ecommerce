@@ -59,7 +59,7 @@
 </if>
 <if @asm@ not eq #dotlrn-catalog.not_associated#>
     <tr><td></td>
-        <td><b>#dotlrn-catalog.asm#:</b></td><td>@asm@</td>
+        <td><b>#dotlrn-catalog.asm#:</b></td><td><a href="@asm_url@">@asm@</a></td>
     </tr>
 </if>
 <if @category_p@ eq "1">

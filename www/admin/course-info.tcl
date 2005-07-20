@@ -32,6 +32,7 @@ db_1row get_course_info { }
 set page_title "$course_name"
 
 set asm_name [db_string get_asm_name { } -default "[_ dotlrn-catalog.not_associated]"]
+set asm_url "/assessment/asm-admin/one-a?assessment_id=$assessment_id"
 set item_id [dotlrn_catalog::get_item_id -revision_id $course_id]
 set creation_user [dotlrn_catalog::get_creation_user -object_id $item_id]
 set rel [dotlrn_catalog::has_relation -course_id $course_id]
