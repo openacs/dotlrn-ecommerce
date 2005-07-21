@@ -301,7 +301,7 @@ template::list::create \
 		</else>(<a href="@course_list.section_pages_url@">more info</a>)
 
 		<if @course_list.section_grades@ not nil> (@course_list.section_grades@)</if>
-		<if @course_list.sessions@ not nil><br />@course_list.sessions;noquote@</if>
+		<if @course_list.sessions@ not nil and @course_list.show_sessions_p@ eq "t"><br />@course_list.sessions;noquote@</if>
 		<if @course_list.instructor_names@ not nil><br />@course_list.instructor_names;noquote@</if>
 		<if @course_list.prices@ not nil><br />@course_list.prices;noquote@</if>
 		<if @course_list.show_participants_p@ eq "t">

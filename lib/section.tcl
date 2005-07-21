@@ -226,6 +226,7 @@ db_foreach custom_fields_select "
 ad_form -extend -name add_section -form {
     {notify_waiting_number:text,optional {label "Notify admin when waiting list reaches:"} {html {size 5 maxlength 3}}}
     {show_participants_p:text(radio) {label "Show Number of Participants"} {options {{Yes t} {No f}}}}
+    {show_sessions_p:text(radio) {label "Show Sessions Information"} {options {{Yes t} {No f}}}}
 }
 lappend validate {notify_waiting_number
     { [empty_string_p $notify_waiting_number] || [regexp {^(0*)(([1-9][0-9]*))$} $notify_waiting_number match zeros value] }
@@ -310,6 +311,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	set ${cal_item_id} $start_date
     }
     set show_participants_p t
+    set show_sessions_p t
 } -new_request {
     set product_id 0
     set price [template::util::currency::create "$" "0" "." "00" ]
@@ -491,8 +493,8 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	# Use item_id as course_id coz course_id is the revision and
 	# its easier to keep track of the item_id
 	db_dml add_section {
-	    insert into dotlrn_ecommerce_section(section_id, course_id, section_name, community_id,product_id, notify_waiting_number, show_participants_p) values
-	    (:section_id, :item_id, :section_name, :community_id, :product_id, :notify_waiting_number, :show_participants_p)
+	    insert into dotlrn_ecommerce_section(section_id, course_id, section_name, community_id,product_id, notify_waiting_number, show_participants_p, show_sessions_p) values
+	    (:section_id, :item_id, :section_name, :community_id, :product_id, :notify_waiting_number, :show_participants_p, :show_sessions_p)
 	}
 
 	# for this to work, dotlrn_eccomerce_section must be an object 
@@ -565,7 +567,8 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	    update dotlrn_ecommerce_section set
 	    section_name = :section_name,
 	    notify_waiting_number = :notify_waiting_number,
-	    show_participants_p = :show_participants_p
+	    show_participants_p = :show_participants_p,
+	    show_sessions_p = :show_sessions_p
 	    where section_id = :section_id
 	}
 
