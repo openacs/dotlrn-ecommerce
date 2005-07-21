@@ -1,0 +1,27 @@
+# internally redirect to file-storage
+
+set urlv [split [ad_conn path_info] "/"]
+set section_id [lindex $urlv 0]
+set the_url [lrange $urlv 1 end]
+
+# TODO DAVEB Make this a procedure
+set section_package_id [db_string get_package_id "select package_id from dotlrn_communities_all dc, dotlrn_ecommerce_section ds where ds.community_id=dc.community_id and ds.section_id=:section_id" -default 0]
+if {$section_package_id == 0} {
+#    ad_returnnotfound
+#    ad_script_abort
+	ad_return_complaint 1 "404 section_id '${section_id}' urlv '${urlv}' section_package_id '${section_package_id}'"
+}
+#	ad_return_complaint 1 "200 section_id '${section_id}' urlv '${urlv}' section_package_id '${section_package_id}'"
+set section_community_node_id [site_node::get_node_id_from_object_id -object_id $section_package_id]
+set fs_package_id [site_node::get_children -node_id $section_community_node_id -package_key file-storage -element package_id]
+set fs_root_folder [fs::get_root_folder -package_id $fs_package_id]
+set pages_folder [content::item::get_id -root_folder_id $fs_root_folder -item_path "public"]
+
+# FIXME breaks on FORMS!
+if {![string match "*folder%5fid=*" [ad_conn query]] || [string match "*folder_id=*" [ad_conn query]]} {
+	rp_form_put folder_id $pages_folder	
+}
+if {[string equal "" [lindex $the_url 0]]} {
+ set the_url "index"
+}
+rp_internal_redirect /packages/file-storage/www/${the_url}

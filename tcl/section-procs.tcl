@@ -391,3 +391,26 @@ ad_proc -public dotlrn_ecommerce::section::application_assessment {
 	limit 1
     } -default ""]
 }
+
+ad_proc -public dotlrn_ecommerce::section::get_public_folder_id {
+    section_id
+} {
+    @param section_id 
+    @return the file storage folder for the section's Public Files
+} {
+    return [util_memoize [list dotlrn_ecommerce::section::get_public_folder_id_not_cached $section_id]]
+}
+
+ad_proc -private dotlrn_ecommerce::section::get_public_folder_id_not_cached {
+    section_id
+} {
+    @param section_id 
+    @return the file storage folder for the section's Public Files
+} {
+    set section_package_id [db_string get_package_id "select package_id from dotlrn_communities_all dc, dotlrn_ecommerce_section ds where ds.community_id=dc.community_id and ds.section_id=:section_id" -default 0]    
+    set section_community_node_id [site_node::get_node_id_from_object_id -object_id $section_package_id]
+    set fs_package_id [site_node::get_children -node_id $section_community_node_id -package_key file-storage -element package_id]
+    set fs_root_folder [fs::get_root_folder -package_id $fs_package_id]
+    set section_folder_id [content::item::get_id -root_folder_id $fs_root_folder -item_path "public"]
+    return $section_folder_id
+}

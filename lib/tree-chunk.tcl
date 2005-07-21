@@ -294,7 +294,7 @@ template::list::create \
 	    display_template {
 		<if @course_list.section_id@ not nil> 
 		<if @admin_p@ eq 1 or @course_list.member_p@ eq 1>
-		<b>Section: <a href="@course_list.community_url;noquote@">@course_list.section_name@</a></b>
+		<b>Section: @course_list.section_name@</b>
 		</if>
 		<else>
 		<b>Section @course_list.section_name@</b>
