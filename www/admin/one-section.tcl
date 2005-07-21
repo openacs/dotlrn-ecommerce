@@ -31,7 +31,9 @@ set community_package_id [dotlrn_community::get_package_id $community_id]
 
 set context [list [list "course-list" "Course List"] [list "course-info?course_id=$course_id" "$course_name"] $section_name ]
 
-
+set public_pages_url "../pages/${section_id}/"
+set section_folder_id [dotlrn_ecommerce::section::get_public_folder_id $section_id]
+set public_pages_admin_url [export_vars -base ${community_url}/file-storage/ {{folder_id $section_folder_id}}]
 set num_attendees [db_string num_attendees { }]
 
 set attendance_show_p [apm_package_installed_p "attendance"]

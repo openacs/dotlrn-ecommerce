@@ -298,8 +298,7 @@ template::list::create \
 		</if>
 		<else>
 		<b>Section @course_list.section_name@</b>
-		</else>(<a href="@course_list.section_pages_url@">more info</a>)
-
+		</else>
 		<if @course_list.section_grades@ not nil> (@course_list.section_grades@)</if>
 		<if @course_list.sessions@ not nil and @course_list.show_sessions_p@ eq "t"><br />@course_list.sessions;noquote@</if>
 		<if @course_list.instructor_names@ not nil><br />@course_list.instructor_names;noquote@</if>
@@ -308,6 +307,10 @@ template::list::create \
 		<br />@course_list.attendees;noquote@ participant<if @course_list.attendees@ gt 1>s</if>
 		<if @course_list.available_slots@ not nil and @course_list.available_slots@ gt 0>,<br />@course_list.available_slots;noquote@ available</if>
 		</if>
+		<include-optional src="/packages/file-storage/lib/folder-links" folder_id="@course_list.section_folder_id@" base_url="@course_list.section_pages_url@">
+	        <strong>\#dotlrn-ecommerce.More_Information\#</strong><br />
+		<include-output>
+		</include-optional>
 		</if>
 	    }
 	    html { width 40% }
@@ -383,7 +386,7 @@ template::list::create \
 
 set grade_tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
 
-db_multirow -extend { section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button } course_list get_courses { } {
+db_multirow -extend { section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button } course_list get_courses { } {
 #     set mapped [category::get_mapped_categories $course_id]
 
 #     foreach element $mapped {
@@ -400,7 +403,8 @@ db_multirow -extend { section_pages_url category_name community_url course_edit_
     set section_add_url [export_vars -base admin/section-add-edit { course_id return_url }]
     set section_edit_url [export_vars -base admin/one-section { course_id section_id return_url }]
     set section_pages_url "pages/${section_id}/"
-   
+    set section_folder_id [dotlrn_ecommerce::section::get_public_folder_id $section_id]
+
     set sections_url [export_vars -base sections { course_id }]
     set community_url "pages/${section_id}/"
 
