@@ -43,6 +43,11 @@ if {[catch {set rel_id [relation_add \
 			   ]} errmsg]} {
     ad_return_complaint "There was a problem with your request" $errmsg
 } else {
+    switch $member_state {
+	"awaiting payment" {
+	    dotlrn_community::send_member_email -community_id $community_id -to_user $participant_id -type "awaiting payment"
+	}
+    }
     ns_log notice "DEBUG:: RELATION $participant_id, $community_id, $rel_id"
     set wait_list_notify_email [parameter::get -package_id [ad_acs_kernel_id] -parameter AdminOwner]
     set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
