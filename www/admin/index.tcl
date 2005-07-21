@@ -101,3 +101,5 @@ if { ! [empty_string_p $registration_assessment_id] } {
 
 set tree_id [parameter::get -parameter PatronRelationshipCategoryTree]
 set relationships_category_url [export_vars -base ../Administration/categories/cadmin/tree-view { tree_id }]
+
+set package_locale [lang::system::locale]

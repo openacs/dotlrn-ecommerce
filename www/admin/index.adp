@@ -29,10 +29,17 @@
 <li><a href="../Administration/categories/cadmin">Manage Category Trees</a>
 <li><a href="../applications">Pending Applications</a>
 <li><a href="@relationships_category_url;noquote@">Manage Relationship Types</a>
+<li>Email templates
+<ul>
+  <li>Application approval (default <i>Note: this is customizable on a per section basis</i>) [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=Application_approved&return_url=@return_url@">subject</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_Your_application_to_j&return_url=@return_url@">body</a> ]
+  <li>Application approval (granted spot from waiting list) [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_A_space_has_opened_up&return_url=@return_url@">subject</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_A_space_has_opened_up_1&return_url=@return_url@">body</a> ]
+  <li>Application approval (waiver of prerequisites approved) [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=Application_prereq_approved&return_url=@return_url@">subject</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_Your_prereq_approved&return_url=@return_url@">body</a> ]
+  <li>Reject application [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=Application_rejected&return_url=@return_url@">subject</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_Your_application_to_j_1&return_url=@return_url@">body</a> ]
+  <li>Reject waiver of prerequisites [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=Application_prereq_rejected&return_url=@return_url@">subject</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_Your_prereq_rejected&return_url=@return_url@">body</a> ]
+</ul>
 </ul>
 
 <h2 class="page-title">System Setup</h2>
 <ul>
 <li><a href=course-attributes>Manage Course Attributes</a>
 </ul>
-
