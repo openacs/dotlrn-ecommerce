@@ -129,3 +129,5 @@ db_multirow -extend { asm_url edit_asm_url } sessions sessions {
 	incr sessions_with_applications
     }
 }
+
+set catalog_url [ad_conn package_url]

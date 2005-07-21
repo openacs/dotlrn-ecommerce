@@ -161,7 +161,7 @@ if { [acs_object_type $participant_id] != "group" } {
 		    limit 1
 		}] } {
 		    if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
-			set return_url [ad_conn package_url]
+			set return_url [ad_conn package_url]application-confirm
 			ad_returnredirect [export_vars -base application-request { participant_id community_id {next_url $return_url} { type payment } }]
 			ad_script_abort
 			

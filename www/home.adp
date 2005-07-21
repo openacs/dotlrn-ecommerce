@@ -38,6 +38,7 @@
 	    <li><a href="unsubscribe">#acs-subsite.Close_your_account#</a></li>
 	  </if>
 
+	  <li><a href="@catalog_url;noquote@">#dotlrn-ecommerce.lt_Register_for_another_#</a></li>
 	</ul>
 
 	<if @portrait_state@ eq upload>
@@ -84,7 +85,7 @@
 	  </if>
 	  <else>
 	    <li>#dotlrn-ecommerce.You_have_no_orders#</li>
-	  </else>
+	</else>
 	</ul>
 
 	<h2>#dotlrn-ecommerce.Your_Applications#</h2>

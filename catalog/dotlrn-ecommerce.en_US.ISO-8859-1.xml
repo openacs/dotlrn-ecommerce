@@ -29,6 +29,7 @@
   <msg key="Edit_My_Application">Edit My Application</msg>
   <msg key="Expense_Tracking">Expense Tracking</msg>
   <msg key="Gift_Certificate">Gift Certificate:</msg>
+  <msg key="Go_to_My_Account">Go to My Account</msg>
   <msg key="Grade">Grade</msg>
   <msg key="Im_a_new_customer">I'm a new customer:</msg>
   <msg key="info">info</msg>
@@ -41,6 +42,7 @@
   <msg key="lt_A_space_has_opened_up">A space has opened up in $community_name.</msg>
   <msg key="lt_A_space_has_opened_up_1">A space has opened up in $community_name. Please register via the website or call to get registered via phone.</msg>
   <msg key="lt_Alternately_you_can_u">Alternately, you can use a</msg>
+  <msg key="lt_Application_Confirmed">Application Confirmed</msg>
   <msg key="lt_Approved_Applications">Approved Applications</msg>
   <msg key="lt_Approved_Users_from_W">Approved Users from Waiting List</msg>
   <msg key="lt_Back_to_shopping_cart">Back to shopping cart</msg>
@@ -77,6 +79,8 @@
   <msg key="lt_Purchase__another_Cou">Purchase
 	  another Course/Section</msg>
   <msg key="lt_Purchase_another_Cour">Purchase another Course/Section</msg>
+  <msg key="lt_Register_for_Another_">Register for Another Course</msg>
+  <msg key="lt_Register_for_another_">Register for another course</msg>
   <msg key="lt_Registering_for_class">Registering for classes with %service_name% is quick and easy</msg>
   <msg key="lt_Required_prereqsfield">Required %prereqs.field% was not met</msg>
   <msg key="lt_Return_to_course_cata">Return to course catalog</msg>
@@ -84,6 +88,7 @@
   <msg key="lt_Section_Prerequisites">Section Prerequisites</msg>
   <msg key="lt_Select_another_purcha">Select another purchaser</msg>
   <msg key="lt_Sessions_and_Attendan">Sessions and Attendance</msg>
+  <msg key="lt_Thank_you_for_your_ap">Thank you for your application.</msg>
   <msg key="lt_Thank_You_For_Your_Or">Thank You For Your Order</msg>
   <msg key="lt_The_course_only_has_a">The course only has $available_slots slot(s) left</msg>
   <msg key="lt_The_following_has_bee">The following has been sent to the purchaser</msg>

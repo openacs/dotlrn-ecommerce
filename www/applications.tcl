@@ -145,7 +145,7 @@ if { $type == "pending" } {
 					group by user_id)) e
 	on (r.user_id = e.user_id), dotlrn_communities_all c
 	where r.community_id = c.community_id
-	and member_state = 'waitinglist approved'
+	and member_state in ('waitinglist approved', 'payment received')
     } {
 	set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} {send_email_p 0} }]
     }
