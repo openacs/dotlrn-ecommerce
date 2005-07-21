@@ -33,6 +33,7 @@ if { $type == "pending" } {
 		display_template {
 		    @applications.course_name@: @applications.section_name@
 		}
+		html { nowrap }
 	    }
 	    person_name {
 		label "Participant"
@@ -126,6 +127,7 @@ if { $type == "pending" } {
 		display_template {
 		    @approved_applications.course_name@: @approved_applications.section_name@
 		}
+		html { nowrap }
 	    }
 	    person_name {
 		label "Participant"
@@ -170,6 +172,7 @@ template::list::create \
 	    display_template {
 		@for_approval.course_name@: @for_approval.section_name@
 	    }
+	    html { nowrap }
 	}
 	person_name {
 	    label "Participant"
@@ -267,6 +270,7 @@ template::list::create \
 	    display_template {
 		@approved_applications_prereq.course_name@: @approved_applications_prereq.section_name@
 	    }
+	    html { nowrap }
 	}
 	person_name {
 	    label "Participant"
