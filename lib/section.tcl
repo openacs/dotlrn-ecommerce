@@ -10,8 +10,6 @@ if {![info exists has_edit]} {
     set has_edit 0
 }
 
-
-
 dotlrn_catalog::get_course_data -course_id $course_id
 #set item_id [dotlrn_catalog::get_item_id -revision_id $course_id]
 
