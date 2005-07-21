@@ -28,8 +28,11 @@ if { $type == "pending" } {
 	-no_data "No pending applications" \
 	-page_flush_p 1 \
 	-elements {
-	    community_name {
+	    section_name {
 		label "Section"
+		display_template {
+		    @applications.course_name@: @applications.section_name@
+		}
 	    }
 	    person_name {
 		label "Participant"
@@ -68,9 +71,10 @@ if { $type == "pending" } {
 	}
     
     db_multirow -extend { approve_url reject_url asm_url } applications applications {
-	select pretty_name as community_name, person__name(user_id) as person_name, member_state, c.community_id, user_id as applicant_user_id
-	from dotlrn_member_rels_full r, dotlrn_communities_all c
-	where r.community_id = c.community_id
+	select person__name(user_id) as person_name, member_state, r.community_id, user_id as applicant_user_id, s.section_name, t.course_name
+	from dotlrn_member_rels_full r, dotlrn_ecommerce_section s, dotlrn_catalogi t
+	where r.community_id = s.community_id
+	and s.course_id = t.item_id
 	and member_state in ('needs approval', 'awaiting payment')
     } {
 	if { $member_state == "needs approval" } {
@@ -117,8 +121,11 @@ if { $type == "pending" } {
 	-no_data "No approved applications" \
 	-page_flush_p 1 \
 	-elements {
-	    community_name {
+	    section_name {
 		label "Section"
+		display_template {
+		    @approved_applications.course_name@: @approved_applications.section_name@
+		}
 	    }
 	    person_name {
 		label "Participant"
@@ -136,15 +143,16 @@ if { $type == "pending" } {
 	}
     
     db_multirow -extend { approve_url reject_url asm_url } approved_applications approved_applications {
-	select pretty_name as community_name, person__name(r.user_id) as person_name, c.community_id, r.user_id as applicant_user_id, e.phone
+	select person__name(r.user_id) as person_name, r.community_id, r.user_id as applicant_user_id, e.phone, s.section_name, t.course_name
 	from dotlrn_member_rels_full r
 	left join (select *
 		   from ec_addresses
 		   where address_id in (select max(address_id)
 					from ec_addresses
 					group by user_id)) e
-	on (r.user_id = e.user_id), dotlrn_communities_all c
-	where r.community_id = c.community_id
+	on (r.user_id = e.user_id), dotlrn_ecommerce_section s, dotlrn_catalogi t
+	where r.community_id = s.community_id
+	and s.course_id = t.item_id
 	and member_state in ('waitinglist approved', 'payment received')
     } {
 	set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} {send_email_p 0} }]
@@ -157,8 +165,11 @@ template::list::create \
     -no_data "No requests for approval" \
     -page_flush_p 1 \
     -elements {
-	community_name {
+	section_name {
 	    label "Section"
+	    display_template {
+		@for_approval.course_name@: @for_approval.section_name@
+	    }
 	}
 	person_name {
 	    label "Participant"
@@ -203,14 +214,16 @@ if { $admin_p } {
 }
 
 db_multirow -extend { approve_url reject_url asm_url } for_approval for_approval [subst {
-    select pretty_name as community_name, 
-    person__name(user_id) as person_name, 
+    select person__name(user_id) as person_name, 
     member_state, 
-    c.community_id, 
+    r.community_id, 
     user_id,
-    r.rel_id
-    from dotlrn_member_rels_full r, dotlrn_communities_all c
-    where r.community_id = c.community_id
+    r.rel_id,
+    s.section_name,
+    t.course_name
+    from dotlrn_member_rels_full r, dotlrn_ecommerce_section s, dotlrn_catalogi t
+    where r.community_id = s.community_id
+    and s.course_id = t.item_id
     and member_state = 'request approval'
 
     $user_clause
@@ -249,8 +262,11 @@ template::list::create \
     -no_data "No approved applications" \
     -page_flush_p 1 \
     -elements {
-	community_name {
+	section_name {
 	    label "Section"
+	    display_template {
+		@approved_applications_prereq.course_name@: @approved_applications_prereq.section_name@
+	    }
 	}
 	person_name {
 	    label "Participant"
@@ -268,16 +284,17 @@ template::list::create \
     }
 
 db_multirow -extend { approve_url reject_url asm_url } approved_applications_prereq approved_applications_prereq {
-    select pretty_name as community_name, person__name(r.user_id) as person_name, c.community_id, r.user_id as applicant_user_id, e.phone, (current_timestamp - o.creation_date)::interval as elapsed_time
+    select person__name(r.user_id) as person_name, r.community_id, r.user_id as applicant_user_id, e.phone, (current_timestamp - o.creation_date)::interval as elapsed_time, s.section_name, t.course_name
     from acs_objects o, dotlrn_member_rels_full r
     left join (select *
 	       from ec_addresses
 	       where address_id in (select max(address_id)
 				    from ec_addresses
 				    group by user_id)) e
-    on (r.user_id = e.user_id), dotlrn_communities_all c
+    on (r.user_id = e.user_id), dotlrn_ecommerce_section s, dotlrn_catalogi t
     where o.object_id = r.rel_id
-    and r.community_id = c.community_id
+    and r.community_id = s.community_id
+    and s.course_id = t.item_id
     and member_state = 'request approved'
 } {
     set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} {send_email_p 0} }]
