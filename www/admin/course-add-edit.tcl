@@ -53,6 +53,7 @@ set elements ""
 set count 1
 foreach attribute $attribute_list {
     switch [lindex $attribute 2] {
+	display_p -
 	community_id { continue }
     }
     set element_mode ""
@@ -109,6 +110,10 @@ ad_form -extend -name add_course -form {
 	{html {size 4}}
 	{value "$revision_id $cc_package_id"}
 	{help_text "Hold the &lt;Ctrl&gt; key to select multiple categories"}
+    }
+    {display_p:boolean(radio)
+	{label "[_ dotlrn-ecommerce.Display_Course]"}
+	{options {{Yes t} {No f}}}
     }
 }
 
@@ -190,6 +195,7 @@ ad_form -extend -name add_course -on_submit {
     set context [list [list course-list "[_ dotlrn-catalog.course_list]"] "[_ dotlrn-catalog.new_course]"]
     set page_title "[_ dotlrn-catalog.new_course]"
     set revision_id "-1"
+    set display_p t
 } -edit_request {
     set context [list [list course-list "[_ dotlrn-catalog.course_list]"] "[_ dotlrn-catalog.edit_course]"]
     set page_title "[_ dotlrn-catalog.edit_course]"
