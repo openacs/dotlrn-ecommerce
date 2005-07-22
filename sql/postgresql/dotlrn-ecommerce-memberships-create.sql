@@ -9,7 +9,7 @@ create table dc_student_rels (
                                 references membership_rels (rel_id)
                                 constraint dotlrn_club_student_rels_rel_id_pk
                                 primary key
-);                                          
+);
 
 create or replace view dc_student_rels_full
 as
