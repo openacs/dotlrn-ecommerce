@@ -53,6 +53,16 @@ ad_proc -private dotlrn_ecommerce::install {
 	-pretty_name "Template Community" \
 	-sort_order $sort_order \
 	-column_spec integer
+
+    incr sort_order
+
+    content::type::attribute::new \
+	-content_type "dotlrn_catalog" \
+	-attribute_name "display_p" \
+	-datatype "boolean" \
+	-pretty_name "Flag to display or hide course" \
+	-sort_order $sort_order \
+	-column_spec "boolean default true"
 }
 
 ad_proc -private dotlrn-catalog::package_mount {

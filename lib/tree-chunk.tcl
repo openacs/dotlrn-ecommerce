@@ -95,25 +95,29 @@ if { ! [empty_string_p $level] } {
 #set category_trees [category_tree::get_mapped_trees $cc_package_id]
 
 # Display only categories with associated courses/sections
-set used_categories [db_list used_categories {
-    select distinct category_id
-    from (
+set show_used_categories_only_p [parameter::get -parameter ShowUsedCategoriesOnlyP]
 
-    select category_id
-    from categories c
-    where exists (select 1
-		  from category_object_map
-		  where category_id in (select category_id
-					from categories
-					where left_ind > c.left_ind
-					and right_ind < c.right_ind))
-    union
+if { $show_used_categories_only_p } {
+    set used_categories [db_list used_categories {
+	select distinct category_id
+	from (
 
-    select category_id
-    from category_object_map
+	      select category_id
+	      from categories c
+	      where exists (select 1
+			    from category_object_map
+			    where category_id in (select category_id
+						  from categories
+						  where left_ind > c.left_ind
+						  and right_ind < c.right_ind))
+	      union
 
-    ) c
-}]
+	      select category_id
+	      from category_object_map
+
+	      ) c
+    }]
+}
 
 foreach tree_id $category_trees {
 
@@ -128,7 +132,7 @@ foreach tree_id $category_trees {
     set $name [list]
 
     foreach element $tree_list {
-	if { [lsearch $used_categories [lindex $element 0]] != -1 } {
+	if { ! $show_used_categories_only_p || [lsearch $used_categories [lindex $element 0]] != -1 } {
 	    set ident [lindex $element 3]
 	    set spacer ""
 	    for { set i 1 } { $i < $ident } { incr i } {
@@ -332,6 +336,7 @@ template::list::create \
 	actions {
 	    label ""
 	    display_template {
+		<if @course_list.section_id@ not nil>
 		<div style="float: left">
 		<if @course_list.prices@ ne "">
 		<if @allow_other_registration_p@ or (@course_list.member_p@ ne 1 and @course_list.pending_p@ ne 1 and @course_list.waiting_p@ ne 1 and @course_list.approved_p@ ne 1)>
@@ -361,6 +366,7 @@ template::list::create \
 		<a href="@course_list.registration_approved_url;noquote@" class="button">[_ dotlrn-ecommerce.lt_Continue_Registration]</a>
 		</div>
 		</if>
+		</if>
 	    }
 	    html { width 40% nowrap }
 	}
@@ -374,7 +380,7 @@ template::list::create \
 	values {
 	    { { <a name="@course_list.course_key@"></a><if @admin_p@ eq 1><a href="admin/course-info?course_id=@course_list.course_id@" class="button">[_ dotlrn-ecommerce.info]</a> <a href="@course_list.course_edit_url;noquote@" class="button">[_ dotlrn-ecommerce.edit]</a> <a href="@course_list.section_add_url;noquote@" class="button">[_ dotlrn-ecommerce.add_section]</a></if>
 		<br />@course_list.course_grades@
-	       <p>
+		<p>
 		@course_list.course_info;noquote@
 		<p>
 		

@@ -30,7 +30,8 @@
 		where 
 		ci.item_id = dec.course_id(+) and 
 		dec.product_id = v.product_id(+) and
-		dc.course_id = ci.live_revision
+		dc.course_id = ci.live_revision and
+		dc.display_p
 
 		[template::list::filter_where_clauses -and -name course_list]
 
