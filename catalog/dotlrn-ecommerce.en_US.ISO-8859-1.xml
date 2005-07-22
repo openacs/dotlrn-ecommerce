@@ -10,6 +10,7 @@
   <msg key="application_pending">(application pending)</msg>
   <msg key="Application_rejected">Application rejected</msg>
   <msg key="apply_for_course">apply for course</msg>
+  <msg key="assistant_instructor">Assistant Instructor</msg>
   <msg key="awaiting_approval">(awaiting approval)</msg>
   <msg key="Balance_due">Balance due:</msg>
   <msg key="Bill_to">Bill to:</msg>
@@ -77,8 +78,7 @@
   <msg key="lt_Please_select_a_secti">Please select a section from the list</msg>
   <msg key="lt_Please_select_a_secti_1">Please select a section under this course</msg>
   <msg key="lt_Process_Purchase_for_">Process Purchase for %section_name%</msg>
-  <msg key="lt_Purchase__another_Cou">Purchase
-	  another Course/Section</msg>
+  <msg key="lt_Purchase__another_Cou">Purchase another Course/Section</msg>
   <msg key="lt_Purchase_another_Cour">Purchase another Course/Section</msg>
   <msg key="lt_Register_for_Another_">Register for Another Course</msg>
   <msg key="lt_Register_for_another_">Register for another course</msg>
@@ -93,8 +93,7 @@
   <msg key="lt_Thank_You_For_Your_Or">Thank You For Your Order</msg>
   <msg key="lt_The_course_only_has_a">The course only has $available_slots slot(s) left</msg>
   <msg key="lt_The_following_has_bee">The following has been sent to the purchaser</msg>
-  <msg key="lt_To_complete_your_orde">To complete your order, submit this form, and confirm the information
-    on the following page.</msg>
+  <msg key="lt_To_complete_your_orde">To complete your order, submit this form, and confirm the information on the following page.</msg>
   <msg key="lt_to_send_us_your_order">to send us your order!</msg>
   <msg key="lt_User_requests_for_app">User requests for approval</msg>
   <msg key="lt_Users_in_waiting_list">Users in waiting list</msg>

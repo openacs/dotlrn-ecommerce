@@ -62,8 +62,33 @@ ad_proc -private dotlrn_ecommerce::install {
 	-datatype "boolean" \
 	-pretty_name "Flag to display or hide course" \
 	-sort_order $sort_order \
-	-default_value "true"
+	-default_value "true" \
 	-column_spec "boolean"
+}
+
+ad_proc -private dotlrn_ecommerce::after_upgrade {
+    -from_version_name
+    -to_version_name
+} {
+    
+    
+    @author Hamilton Chua (hamilton.chua@gmail.com)
+    @creation-date 2005-07-22
+    
+    @param from_version_name
+
+    @param to_version_name
+
+    @return 
+    
+    @error 
+} {
+
+    #apm_upgrade_logic \
+    #    -from_version_name $from_version_name \
+    #    -to_version_name $to_version_name \
+    #    -spec {
+    #	}
 }
 
 ad_proc -private dotlrn-catalog::package_mount {

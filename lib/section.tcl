@@ -105,7 +105,7 @@ if { $instructor_community_id == 0 && ![db_0or1row "checkinstructorcommunity" "s
 	}
 	
 	ad_form -extend -name add_section -form {
-		{ instructors:string(multiselect),multiple,optional {label "Instructors"} {options { $instructors_list } }	}
+		{ instructors:string(multiselect),multiple,optional {label "#dotlrn-ecommerce.Instructor#"} {options { $instructors_list } }	}
 	}
 }
 
@@ -123,7 +123,7 @@ if { $assistant_community_id == 0 && ![db_0or1row "checkassistantcommunity" "sel
 	}
 	
 	ad_form -extend -name add_section -form {
-		{ assistants:string(multiselect),multiple,optional {label "Assistants"} {options { $assistants_list } }	}
+		{ assistants:string(multiselect),multiple,optional {label "#dotlrn-ecommerce.assistant_instructor#"} {options { $assistants_list } }	}
 	}
 
 }
@@ -166,6 +166,14 @@ if { ! [ad_form_new_p -key section_id] } {
 	    {html {size 4}}
 	}
     }
+}
+
+# TICKET #159 section_description
+ad_form -extend -name add_section -form {
+	{description:text(textarea)
+	    {label "Description"}
+	    {html {cols 25 rows 10}}
+	}
 }
 
 
@@ -491,8 +499,8 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	# Use item_id as course_id coz course_id is the revision and
 	# its easier to keep track of the item_id
 	db_dml add_section {
-	    insert into dotlrn_ecommerce_section(section_id, course_id, section_name, community_id,product_id, notify_waiting_number, show_participants_p, show_sessions_p) values
-	    (:section_id, :item_id, :section_name, :community_id, :product_id, :notify_waiting_number, :show_participants_p, :show_sessions_p)
+	    insert into dotlrn_ecommerce_section(section_id, course_id, section_name, community_id,product_id, notify_waiting_number, show_participants_p, show_sessions_p, description) values
+	    (:section_id, :item_id, :section_name, :community_id, :product_id, :notify_waiting_number, :show_participants_p, :show_sessions_p, :description)
 	}
 
 	# for this to work, dotlrn_eccomerce_section must be an object 
@@ -566,7 +574,8 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	    section_name = :section_name,
 	    notify_waiting_number = :notify_waiting_number,
 	    show_participants_p = :show_participants_p,
-	    show_sessions_p = :show_sessions_p
+	    show_sessions_p = :show_sessions_p,
+	    description = :description
 	    where section_id = :section_id
 	}
 

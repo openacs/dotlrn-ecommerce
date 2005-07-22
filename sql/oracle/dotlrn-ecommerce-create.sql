@@ -19,7 +19,8 @@ create table dotlrn_ecommerce_section (
 	waiting_list_p       char(1) check (waiting_list_p in ('t','f')),
 	notify_waiting_number integer,
 	member_price_number   numeric,
-	non_member_price      numeric
+	non_member_price      numeric,
+	description	 text
 );
 
 create index de_community_id_idx ON dotlrn_ecommerce_section (community_id);

@@ -7,17 +7,18 @@
     <initial-install-p>f</initial-install-p>
     <singleton-p>t</singleton-p>
     
-    <version name="0.1d" url="http://openacs.org/repository/download/apm/dotlrn-ecommerce-0.1d.apm">
+    <version name="0.1d1" url="http://openacs.org/repository/download/apm/dotlrn-ecommerce-0.1d1.apm">
         <owner url="mailto:roelmc@solutiongrove.com">Roel Canicula</owner>
         <summary>Package to tie the dotLRN, Ecommerce, Assessments and dotLRN Catalog packages together</summary>
         <vendor url="http://www.solutiongrove.com">Solution Grove</vendor>
         <description format="text/html">Package to tie the dotLRN, Ecommerce, Assessments and dotLRN Catalog packages together.  Initially intended for the MOS and MGH projects, the goal is to create a reusable module for similar projects.</description>
         <maturity>0</maturity>
 
-        <provides url="dotlrn-ecommerce" version="0.1d"/>
+        <provides url="dotlrn-ecommerce" version="0.1d1"/>
 
         <callbacks>
             <callback type="after-install"  proc="dotlrn_ecommerce::install"/>
+	    <callback type="after-upgrade"  proc="dotlrn_ecommerce::after_upgrade"/>
         </callbacks>
         <parameters>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="AllowRegistrationForOtherUsers"  default="1" description="Allow registration for other users."/>
