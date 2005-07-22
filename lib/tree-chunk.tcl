@@ -95,7 +95,7 @@ if { ! [empty_string_p $level] } {
 #set category_trees [category_tree::get_mapped_trees $cc_package_id]
 
 # Display only categories with associated courses/sections
-set show_used_categories_only_p [parameter::get -parameter ShowUsedCategoriesOnlyP]
+set show_used_categories_only_p [parameter::get -package_id [ad_conn package_id] -parameter ShowUsedCategoriesOnlyP -default "0"]
 
 if { $show_used_categories_only_p } {
     set used_categories [db_list used_categories {

@@ -62,7 +62,8 @@ ad_proc -private dotlrn_ecommerce::install {
 	-datatype "boolean" \
 	-pretty_name "Flag to display or hide course" \
 	-sort_order $sort_order \
-	-column_spec "boolean default true"
+	-default_value "true"
+	-column_spec "boolean"
 }
 
 ad_proc -private dotlrn-catalog::package_mount {
