@@ -310,11 +310,11 @@ template::list::create \
 		<if @course_list.show_participants_p@ eq "t">
 		<br />@course_list.attendees;noquote@ participant<if @course_list.attendees@ gt 1>s</if>
 		<if @course_list.available_slots@ not nil and @course_list.available_slots@ gt 0>,<br />@course_list.available_slots;noquote@ available</if>
+		<if @course_list.available_slots@ eq 0>
+		<br />[_ dotlrn-ecommerce.lt_This_section_is_curre]
 		</if>
-		<include-optional src="/packages/file-storage/lib/folder-links" folder_id="@course_list.section_folder_id@" base_url="@course_list.section_pages_url@">
-	        <strong>\#dotlrn-ecommerce.More_Information\#</strong><br />
-		<include-output>
-		</include-optional>
+		</if>
+		@course_list.fs_chunk;noquote@
 		</if>
 	    }
 	    html { width 40% }
@@ -392,12 +392,7 @@ template::list::create \
 
 set grade_tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
 
-db_multirow -extend { section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button } course_list get_courses { } {
-#     set mapped [category::get_mapped_categories $course_id]
-
-#     foreach element $mapped {
-# 	append category_name "[category::get_name $element], "
-#     }
+db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button } course_list get_courses { } {
 
     set button [_ dotlrn-ecommerce.add_to_cart]
 
@@ -408,8 +403,9 @@ db_multirow -extend { section_folder_id section_pages_url category_name communit
     set course_edit_url [export_vars -base admin/course-info { course_id course_name course_key }]
     set section_add_url [export_vars -base admin/section-add-edit { course_id return_url }]
     set section_edit_url [export_vars -base admin/one-section { course_id section_id return_url }]
-    set section_pages_url "pages/${section_id}/"
-    set section_folder_id [dotlrn_ecommerce::section::get_public_folder_id $section_id]
+# Roel: Moved to proc
+#    set section_pages_url "pages/${section_id}/"
+#    set section_folder_id [dotlrn_ecommerce::section::get_public_folder_id $section_id]
 
     set sections_url [export_vars -base sections { course_id }]
     set community_url "pages/${section_id}/"
@@ -499,7 +495,7 @@ db_multirow -extend { section_folder_id section_pages_url category_name communit
 	    append instructor_names " <a href=\"${community_url}facilitator-bio\" class=\"button\">[_ dotlrn-ecommerce.view_bios]</a>"
 	}
 
-	set attendees [dotlrn_ecommerce::section::attendees $section_id]
+	set attendees [util_memoize [list dotlrn_ecommerce::section::attendees $section_id]]
 
 	if { ! [empty_string_p $maxparticipants] } {
 	    set available_slots [expr $maxparticipants - $attendees]
@@ -511,9 +507,10 @@ db_multirow -extend { section_folder_id section_pages_url category_name communit
     }
 
     if { ! [empty_string_p $product_id] } {
-	db_1row price { }
+	set prices [util_memoize [list dotlrn_ecommerce::section::price $section_id]]
 	if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0 ] } {
-	    if { [db_0or1row member_price {   }] } {
+	    set member_price [util_memoize [list dotlrn_ecommerce::section::member_price $section_id]]
+	    if { $member_price } {
 		if { ! [empty_string_p $member_price] } {
 		    append prices " / $member_price"
 		}
@@ -528,15 +525,7 @@ db_multirow -extend { section_folder_id section_pages_url category_name communit
 	}
     }
 
-    set member_state [db_string awaiting_approval {
-	select m.member_state
-	from acs_rels r,
-	membership_rels m
-	where r.rel_id = m.rel_id
-	and r.object_id_one = :community_id
-	and r.object_id_two = :user_id
-	limit 1
-    } -default ""]
+    set member_state [util_memoize [list dotlrn_ecommerce::section::member_state $user_id $community_id]]
     
     switch $member_state {
 	"needs approval" -
@@ -557,8 +546,10 @@ db_multirow -extend { section_folder_id section_pages_url category_name communit
     	set instructor_p [lsearch $instructor_ids $user_id]
     } 
 
-    set assessment_id [dotlrn_ecommerce::section::application_assessment $section_id]
+    set assessment_id [util_memoize [list dotlrn_ecommerce::section::application_assessment $section_id]]
     if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
 	set button "[_ dotlrn-ecommerce.apply_for_course]"
     }
+
+    set fs_chunk [util_memoize [list dotlrn_ecommerce::section::fs_chunk $section_id]]
 }
