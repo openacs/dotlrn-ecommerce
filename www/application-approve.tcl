@@ -12,6 +12,7 @@ ad_page_contract {
     community_id:integer,notnull
     user_id:integer,notnull
     {type full}
+    {return_url "applications"}
 } -properties {
 } -validate {
 } -errors {
@@ -31,6 +32,13 @@ if { $type == "full" } {
 }
 
 set actor_id [ad_conn user_id]
+set section_id [db_string section {
+    select section_id
+    from dotlrn_ecommerce_section
+    where community_id = :community_id
+}]
+
+dotlrn_ecommerce::section::flush_cache $section_id
 
 if { $user_id == $actor_id } {
     db_dml approve_request {
@@ -44,11 +52,13 @@ if { $user_id == $actor_id } {
                          and r.object_id_two = :user_id
                          and m.member_state = :old_member_state)
     }
-    ad_returnredirect applications
+    
+    ad_returnredirect $return_url
 } else {
     if { $type == "prereq" } {
         ad_form \
             -name email_form \
+	    -export { application_type } \
             -form {
                 {user_id:text(hidden)}
                 {community_id:text(hidden)}
@@ -86,7 +96,7 @@ if { $user_id == $actor_id } {
                     -body $body
             } \
             -after_submit {
-                ad_returnredirect applications
+                ad_returnredirect $return_url
             }
     } else {
         db_dml approve_request {
@@ -106,8 +116,6 @@ if { $user_id == $actor_id } {
         set actor_email [cc_email_from_party $actor_id]
         set community_name [dotlrn_community::get_community_name $community_id]
         
-        #    set application_url [ad_url]/[apm_package_url_from_key dotlrn-ecommerce]ecommerce/prerequisite-confirm
-        
         if {![dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type "on approval"]} {
             acs_mail_lite::send \
                 -to_addr $applicant_email \
@@ -116,7 +124,7 @@ if { $user_id == $actor_id } {
                 -body [subst "[_ dotlrn-ecommerce.lt_Your_application_to_j]"]
         }
         
-        ad_returnredirect applications
+        ad_returnredirect $return_url
     }
 }
 

@@ -13,6 +13,7 @@ ad_page_contract {
     user_id:integer,notnull
     {type full}
     {send_email_p 1}
+    {return_url "applications"}    
 } -properties {
 } -validate {
 } -errors {
@@ -22,7 +23,7 @@ set actor_id [ad_conn user_id]
 
 if { !$send_email_p || $user_id == $actor_id } {
     dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
-    ad_returnredirect applications
+    ad_returnredirect $return_redirect
 } else {
     # Send email to applicant
     switch $type {
@@ -72,6 +73,6 @@ if { !$send_email_p || $user_id == $actor_id } {
                 -body $body
         } \
         -after_submit {
-            ad_returnredirect applications
+            ad_returnredirect $return_url
         }
 }
