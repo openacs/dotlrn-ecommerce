@@ -168,10 +168,19 @@ ad_proc -public dotlrn_ecommerce::section::flush_cache {
     set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id $community_id]
 
     # Start flushing
-    set section_grades [util_memoize_flush [list dotlrn_ecommerce::section::section_grades $community_id $grade_tree_id]]
-    set course_grades [util_memoize_flush [list dotlrn_ecommerce::section::course_grades $item_id $grade_tree_id]]
-    set sessions [util_memoize_flush [list dotlrn_ecommerce::section::sessions $calendar_id]]
-    set instructors [util_memoize_flush [list dotlrn_ecommerce::section::instructors $community_id $__instructors]]
+    util_memoize_flush [list dotlrn_ecommerce::section::section_grades $community_id $grade_tree_id]
+    util_memoize_flush [list dotlrn_ecommerce::section::course_grades $item_id $grade_tree_id]
+    util_memoize_flush [list dotlrn_ecommerce::section::sessions $calendar_id]
+    util_memoize_flush [list dotlrn_ecommerce::section::instructors $community_id $__instructors]
+    util_memoize_flush [list dotlrn_ecommerce::section::attendees $section_id]
+    util_memoize_flush [list dotlrn_ecommerce::section::price $section_id]
+    util_memoize_flush [list dotlrn_ecommerce::section::member_price $section_id]
+    util_memoize_flush [list dotlrn_ecommerce::section::application_assessment $section_id]
+
+    set user_id [ad_conn user_id]
+    if { $user_id } {
+	util_memoize_flush [list dotlrn_ecommerce::section::member_state $user_id $community_id]
+    }
 }
 
 ad_proc -public dotlrn_ecommerce::section::maxparticipants {
@@ -258,7 +267,7 @@ ad_proc -public dotlrn_ecommerce::section::attendees {
 			      from dotlrn_ecommerce_section
 			      where section_id = :section_id)
 	and (rel_type = 'dotlrn_member_rel' or rel_type = 'dc_student_rel')
-	and member_state in ('approved', 'request approval', 'request approved', 'waitinglist approved')
+	and member_state in ('approved', 'request approval', 'request approved', 'waitinglist approved', 'payment received')
     }]
 }
 
@@ -276,13 +285,14 @@ ad_proc -public dotlrn_ecommerce::section::check_elapsed_registrations {
     set time_period [parameter::get -package_id [apm_package_id_from_key dotlrn-ecommerce] -parameter ApprovedRegistrationTimePeriod -default 86400]
 
     db_foreach check_applications {
-	select community_id, user_id
+	select community_id, user_id, (current_timestamp - o.creation_date)::interval as xxx
 	from acs_objects o, dotlrn_member_rels_full r
 	where o.object_id = r.rel_id
 	and (current_timestamp - o.creation_date)::interval >= (:time_period||' seconds')::interval
-	and r.member_state in ('request approved', 'waitinglist approved')
+	and r.member_state in ('request approved', 'waitinglist approved', 'payment received')
     } {
 	dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
+	ns_log notice "DEBUG::XXXXXXXXXXXXXXXXXXXX $xxx, $community_id, $user_id"
     }
 }
 
@@ -413,4 +423,106 @@ ad_proc -private dotlrn_ecommerce::section::get_public_folder_id_not_cached {
     set fs_root_folder [fs::get_root_folder -package_id $fs_package_id]
     set section_folder_id [content::item::get_id -root_folder_id $fs_root_folder -item_path "public"]
     return $section_folder_id
+}
+
+ad_proc -public dotlrn_ecommerce::section::price {
+    section_id
+} {
+    Return Section's price
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-07-23
+    
+    @param section_id
+
+    @return 
+    
+    @error 
+} {
+    return [db_string price {
+	select price as prices
+	from ec_products
+	where product_id = (select product_id
+			    from dotlrn_ecommerce_section
+			    where section_id = :section_id)
+    } -default 0]
+
+}
+
+ad_proc -public dotlrn_ecommerce::section::member_price {
+    section_id
+} {
+    Return Section's member price
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-07-23
+    
+    @param section_id
+
+    @return 
+    
+    @error 
+} {
+    return [db_string member_price {
+	select sale_price as member_price
+	from ec_sale_prices
+	where product_id = (select product_id
+			    from dotlrn_ecommerce_section
+			    where section_id = :section_id)
+	limit 1
+    } -default 0]
+}
+
+ad_proc -public dotlrn_ecommerce::section::member_state {
+    user_id
+    community_id
+} {
+    Return member state
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-07-23
+    
+    @param user_id
+
+    @param community_id
+
+    @return 
+    
+    @error 
+} {
+    return [db_string member_state {
+	select m.member_state
+	from acs_rels r,
+	membership_rels m
+	where r.rel_id = m.rel_id
+	and r.object_id_one = :community_id
+	and r.object_id_two = :user_id
+	limit 1
+    } -default ""]
+}
+
+ad_proc -public dotlrn_ecommerce::section::fs_chunk {
+    section_id
+} {
+    File storage includelet for caching
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-07-23
+    
+    @param section_id
+
+    @return 
+    
+    @error 
+} {
+    set section_folder_id [dotlrn_ecommerce::section::get_public_folder_id $section_id]
+    set section_pages_url "pages/${section_id}/"
+    set __adp_stub ""
+    
+    return [eval [template::adp_compile -string [subst {
+	<include-optional src="/packages/file-storage/lib/folder-links" folder_id="$section_folder_id" base_url="$section_pages_url">
+	<strong>\#dotlrn-ecommerce.More_Information\#</strong><br />
+	<include-output>
+	</include-optional>
+    }]]]
 }
