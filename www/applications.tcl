@@ -11,6 +11,7 @@ ad_page_contract {
 } {
     type:optional
     orderby:optional
+    section_id:optional
 } -properties {
 } -validate {
 } -errors {
@@ -54,6 +55,9 @@ template::list::create \
 		<if @applications.member_state@ in "needs approval" "request approval" "awaiting payment">
 		@applications.number@
 		</if>
+		<else>
+		Approved
+		</else>
 	    }
 	}
 	person_name {
@@ -120,6 +124,7 @@ template::list::create \
 	    }
 	    where_clause { member_state = :type }
 	}
+	section_id {}
     } -orderby {
 	section_name {
 	    label "[_ dotlrn-ecommerce.Section_1]"
@@ -138,6 +143,23 @@ template::list::create \
 	}
     }
 
+if { $admin_p } {
+    set user_clause ""
+} else {
+    set user_clause {
+	and c.community_id in (select community_id
+			       from dotlrn_member_rels_full
+			       where user_id = :user_id
+			       and rel_type = 'dotlrn_admin_rel')
+    }
+}
+
+if { [exists_and_not_null section_id] } {
+    set section_clause {and s.section_id = :section_id}
+} else {
+    set section_clause ""
+}
+
 db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url } applications applications [subst {
     select person__name(r.user_id) as person_name, member_state, r.community_id, r.user_id as applicant_user_id, s.section_name, t.course_name, s.section_id, r.rel_id, e.phone,
     (select count(*)
@@ -155,10 +177,15 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	       where address_id in (select max(address_id)
 				    from ec_addresses
 				    group by user_id)) e
-    on (r.user_id = e.user_id), dotlrn_ecommerce_section s, dotlrn_catalogi t
+    on (r.user_id = e.user_id), dotlrn_ecommerce_section s, dotlrn_catalogi t, cr_items i
     where r.community_id = s.community_id
     and s.course_id = t.item_id
+    and t.course_id = i.live_revision
     and member_state in ('needs approval', 'waitinglist approved', 'request approval', 'request approved', 'awaiting payment', 'payment received')
+
+    $user_clause
+    $section_clause
+
     [template::list::filter_where_clauses -and -name applications]
     [template::list::orderby_clause -name applications -orderby]         
 }] {

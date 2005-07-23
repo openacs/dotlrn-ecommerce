@@ -285,14 +285,13 @@ ad_proc -public dotlrn_ecommerce::section::check_elapsed_registrations {
     set time_period [parameter::get -package_id [apm_package_id_from_key dotlrn-ecommerce] -parameter ApprovedRegistrationTimePeriod -default 86400]
 
     db_foreach check_applications {
-	select community_id, user_id, (current_timestamp - o.creation_date)::interval as xxx
+	select community_id, user_id
 	from acs_objects o, dotlrn_member_rels_full r
 	where o.object_id = r.rel_id
-	and (current_timestamp - o.creation_date)::interval >= (:time_period||' seconds')::interval
+	and (current_timestamp - o.last_modified)::interval >= (:time_period||' seconds')::interval
 	and r.member_state in ('request approved', 'waitinglist approved', 'payment received')
     } {
 	dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
-	ns_log notice "DEBUG::XXXXXXXXXXXXXXXXXXXX $xxx, $community_id, $user_id"
     }
 }
 

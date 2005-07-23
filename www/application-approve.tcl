@@ -20,15 +20,20 @@ ad_page_contract {
 
 ### Check for security
 
-if { $type == "full" } {
-    set new_member_state "waitinglist approved"
-    set old_member_state "needs approval"
-} elseif { $type == "prereq" } {
-    set new_member_state "request approved"
-    set old_member_state "request approval"
-} elseif { $type == "payment" } {
-    set new_member_state "payment received"
-    set old_member_state "awaiting payment"
+switch $type {
+    full {
+	set new_member_state "waitinglist approved"
+	set old_member_state "needs approval"
+    }
+    prereq {
+	set new_member_state "request approved"
+	set old_member_state "request approval"
+
+    }
+    payment {
+	set new_member_state "payment received"
+	set old_member_state "awaiting payment"
+    }
 }
 
 set actor_id [ad_conn user_id]
@@ -41,18 +46,32 @@ set section_id [db_string section {
 dotlrn_ecommerce::section::flush_cache $section_id
 
 if { $user_id == $actor_id } {
-    db_dml approve_request {
-        update membership_rels
-        set member_state = :new_member_state
-        where rel_id in (select r.rel_id
-                         from acs_rels r,
-                         membership_rels m
-                         where r.rel_id = m.rel_id
-                         and r.object_id_one = :community_id
-                         and r.object_id_two = :user_id
-                         and m.member_state = :old_member_state)
+
+    db_transaction {
+	set rels [db_list rels {
+	    select r.rel_id
+	    from acs_rels r,
+	    membership_rels m
+	    where r.rel_id = m.rel_id
+	    and r.object_id_one = :community_id
+	    and r.object_id_two = :user_id
+	    and m.member_state = :old_member_state
+	}]
+
+	db_dml approve_request [subst {
+	    update membership_rels
+	    set member_state = :new_member_state
+	    where rel_id in ([join $rels ,])
+	}]
+
+	db_dml update_objects [subst {
+	    update acs_objects
+	    set last_modified = current_timestamp
+	    where object_id in ([join $rels ,])
+	}]
+    } on_error {
     }
-    
+
     ad_returnredirect $return_url
 } else {
     if { $type == "prereq" } {
@@ -68,17 +87,31 @@ if { $user_id == $actor_id } {
             -on_request {
             } \
             -on_submit {
-                db_dml approve_request {
-                    update membership_rels
-                    set member_state = :new_member_state
-                    where rel_id in (select r.rel_id
-                                     from acs_rels r,
-                                     membership_rels m
-                                     where r.rel_id = m.rel_id
-                                     and r.object_id_one = :community_id
-                                     and r.object_id_two = :user_id
-                                     and m.member_state = :old_member_state)
-                }
+		db_transaction {
+		    set rels [db_list rels {
+			select r.rel_id
+			from acs_rels r,
+			membership_rels m
+			where r.rel_id = m.rel_id
+			and r.object_id_one = :community_id
+			and r.object_id_two = :user_id
+			and m.member_state = :old_member_state
+		    }]
+
+		    db_dml approve_request [subst {
+			update membership_rels
+			set member_state = :new_member_state
+			where rel_id in ([join $rels ,])
+		    }]
+
+		    db_dml update_objects [subst {
+			update acs_objects
+			set last_modified = current_timestamp
+			where object_id in ([join $rels ,])
+		    }]
+		} on_error {
+		}
+
                 set applicant_email [cc_email_from_party $user_id]
                 set actor_email [cc_email_from_party $actor_id]
                 set community_name [dotlrn_community::get_community_name $community_id]
@@ -98,33 +131,46 @@ if { $user_id == $actor_id } {
             -after_submit {
                 ad_returnredirect $return_url
             }
-    } else {
-        db_dml approve_request {
-            update membership_rels
-            set member_state = :new_member_state
-            where rel_id in (select r.rel_id
-                         from acs_rels r,
-                         membership_rels m
-                         where r.rel_id = m.rel_id
-                         and r.object_id_one = :community_id
-                         and r.object_id_two = :user_id
-                         and m.member_state = :old_member_state)
-        }
 
-        # Send email to applicant
-        set applicant_email [cc_email_from_party $user_id]
-        set actor_email [cc_email_from_party $actor_id]
-        set community_name [dotlrn_community::get_community_name $community_id]
-        
-        if {![dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type "on approval"]} {
-            acs_mail_lite::send \
-                -to_addr $applicant_email \
-                -from_addr $actor_email \
-                -subject [subst "[_ dotlrn-ecommerce.Application_approved]"] \
-                -body [subst "[_ dotlrn-ecommerce.lt_Your_application_to_j]"]
-        }
-        
-        ad_returnredirect $return_url
-    }
+    } else {
+db_transaction {
+    set rels [db_list rels {
+	select r.rel_id
+	from acs_rels r,
+	membership_rels m
+	where r.rel_id = m.rel_id
+	and r.object_id_one = :community_id
+	and r.object_id_two = :user_id
+	and m.member_state = :old_member_state
+    }]
+
+    db_dml approve_request [subst {
+	update membership_rels
+	set member_state = :new_member_state
+	where rel_id in ([join $rels ,])
+    }]
+
+    db_dml update_objects [subst {
+	update acs_objects
+	set last_modified = current_timestamp
+	where object_id in ([join $rels ,])
+    }]
+} on_error {
 }
 
+# Send email to applicant
+set applicant_email [cc_email_from_party $user_id]
+set actor_email [cc_email_from_party $actor_id]
+set community_name [dotlrn_community::get_community_name $community_id]
+
+if {![dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type "on approval"]} {
+    acs_mail_lite::send \
+	-to_addr $applicant_email \
+	-from_addr $actor_email \
+	-subject [subst "[_ dotlrn-ecommerce.Application_approved]"] \
+	-body [subst "[_ dotlrn-ecommerce.lt_Your_application_to_j]"]
+}
+
+ad_returnredirect $return_url
+}
+}
