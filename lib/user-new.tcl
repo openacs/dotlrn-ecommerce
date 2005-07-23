@@ -50,7 +50,10 @@ if { ![empty_string_p $url] } {
 # Pre-generate user_id for double-click protection
 set user_id [db_nextval acs_object_id_seq]
 
-ad_form -name register -export {next_url user_id return_url add_url addpatron_url} -form [auth::get_registration_form_elements]
+set form [auth::get_registration_form_elements]
+set form [lrange $form 0 3]
+
+ad_form -name register -export {next_url user_id return_url add_url addpatron_url {password ""} {password_confirm ""} {screen_name ""} {url ""} {secret_question ""} {secret_answer ""} } -form $form
 
 if { [exists_and_not_null rel_group_id] } {
     ad_form -extend -name register -form {
@@ -80,12 +83,22 @@ foreach tree [category_tree::get_tree $tree_id] {
     lappend grade_options [list [lindex $tree 1] [lindex $tree 0]]
 }
 
-ad_form -extend -name register -form {
-    {grade:text(select),optional
-	{label "[_ dotlrn-ecommerce.Grade]"}
-	{options {$grade_options}}
+if { [llength $grade_options] > 0 } {
+    ad_form -extend -name register -form {
+	{grade:text(select)
+	    {label "[_ dotlrn-ecommerce.Grade]"}
+	    {options {$grade_options}}
+	}
     }
-
+} else {
+    ad_form -extend -name register -form {
+	{grade:text(select),optional
+	    {label "[_ dotlrn-ecommerce.Grade]"}
+	    {options {$grade_options}}
+	}
+    }
+}
+ad_form -extend -name register -form {
     {allergies:text,optional
 	{label "[_ dotlrn-ecommerce.Medical_Issues]"}
 	{html {size 60}}
@@ -102,6 +115,16 @@ ad_form -extend -name register -form {
 ad_form -extend -name register -on_request {
     # Populate elements from local variables
 
+    # Try to default to Adult, this may not exist
+    set locale [ad_conn locale]
+    db_0or1row default_grade {
+	select c.category_id as grade
+	from category_translations t, categories c
+	where t.category_id = c.category_id 
+	and t.name = 'Adult'
+	and t.locale = :locale
+	and c.tree_id = :tree_id
+    }
 } -on_submit {
 
     db_transaction {

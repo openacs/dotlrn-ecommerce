@@ -32,7 +32,7 @@ acs_user::get -user_id $user_id -array user -include_bio
 
 set authority_name [auth::authority::get_element -authority_id $user(authority_id) -element pretty_name]
 
-set form_elms { authority_id username first_names last_name email screen_name url bio }
+set form_elms { authority_id username first_names last_name email bio }
 foreach elm $form_elms {
     set elm_mode($elm) {}
 }
@@ -112,15 +112,15 @@ if {[apm_package_enabled_p "categories"]} {
     }
 }
 
-if { ![string equal [acs_user::ScreenName] "none"] } {
-    ad_form -extend -name user_info -form \
-        [list \
-             [list screen_name:text[ad_decode [acs_user::ScreenName] "solicit" ",optional" ""] \
-                  {label "[_ acs-subsite.Screen_name]"} \
-                  {html {size 50}} \
-                  {mode $elm_mode(screen_name)} \
-                 ]]
-}
+# if { ![string equal [acs_user::ScreenName] "none"] } {
+#     ad_form -extend -name user_info -form \
+#         [list \
+#              [list screen_name:text[ad_decode [acs_user::ScreenName] "solicit" ",optional" ""] \
+#                   {label "[_ acs-subsite.Screen_name]"} \
+#                   {html {size 50}} \
+#                   {mode $elm_mode(screen_name)} \
+#                  ]]
+# }
 
 set tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
 set grade_options [list {}]
@@ -128,12 +128,13 @@ foreach tree [category_tree::get_tree $tree_id] {
     lappend grade_options [list [lindex $tree 1] [lindex $tree 0]]
 }
 
+#     {url:text,optional
+#         {label "[_ acs-subsite.Home_page]"}
+#         {html {size 50}}
+#         {mode $elm_mode(url)}
+#     }
+
 ad_form -extend -name user_info  -export { section_id add_url } -form {
-    {url:text,optional
-        {label "[_ acs-subsite.Home_page]"}
-        {html {size 50}}
-        {mode $elm_mode(url)}
-    }
     {bio:text(textarea),optional
         {label "[_ acs-subsite.About_You]"}
         {html {rows 8 cols 60}}
@@ -159,7 +160,7 @@ ad_form -extend -name user_info  -export { section_id add_url } -form {
     {add:text(submit) {label "[_ dotlrn-ecommerce.Proceed]"}}
     {cancel:text(submit) {label "[_ dotlrn-ecommerce.Cancel]"}}
 } -on_request {
-    foreach var { authority_id first_names last_name email username screen_name url bio } {
+    foreach var { authority_id first_names last_name email username bio } {
         set $var $user($var)
     }
     db_0or1row person_info {
@@ -245,11 +246,11 @@ ad_form -extend -name user_info  -export { section_id add_url } -form {
 # LARS HACK: Make the URL and email elements real links
 if { ![form is_valid user_info] } {
     element set_properties user_info email -display_value "<a href=\"mailto:[element get_value user_info email]\">[element get_value user_info email]</a>"
-    if {![string match -nocase "http://*" [element get_value user_info url]]} {
-	element set_properties user_info url -display_value \
-		"<a href=\"http://[element get_value user_info url]\">[element get_value user_info url]</a>"
-    } else {
-	element set_properties user_info url -display_value \
-		"<a href=\"[element get_value user_info url]\">[element get_value user_info url]</a>"
-    }
+#     if {![string match -nocase "http://*" [element get_value user_info url]]} {
+# 	element set_properties user_info url -display_value \
+# 		"<a href=\"http://[element get_value user_info url]\">[element get_value user_info url]</a>"
+#     } else {
+# 	element set_properties user_info url -display_value \
+# 		"<a href=\"[element get_value user_info url]\">[element get_value user_info url]</a>"
+#     }
 }
