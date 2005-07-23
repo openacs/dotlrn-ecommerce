@@ -13,6 +13,7 @@
 </td>
 <td width=50% valign=top>
 <h2>#dotlrn-ecommerce.Quick_Links#</h2>
+<a href=..>#dotlrn-ecommerce.Course_Catalog#</a><br>
 <a href=.>#dotlrn-ecommerce.lt_eCommerce_Administrat#</a><br>
 #dotlrn-ecommerce.Course_Page# <a href="course-info?course_id=@course_id@">@course_name@</a><br>
 <p>

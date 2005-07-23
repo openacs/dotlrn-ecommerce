@@ -38,3 +38,8 @@ set num_attendees [db_string num_attendees { }]
 
 set attendance_show_p [apm_package_installed_p "attendance"]
 set expensetracking_show_p [apm_package_installed_p "expenses"]
+
+# Flush cache for this section
+# Shouldn't have much effect on performance and will keep the data
+# more up to date
+dotlrn_ecommerce::section::flush_cache $section_id
