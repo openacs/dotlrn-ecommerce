@@ -23,8 +23,9 @@
 <h2>#dotlrn-ecommerce.Registration#</h2>
 
 #dotlrn-ecommerce.lt_num_attendees_partici# <br>
-<a href="@community_url;noquote@members">#dotlrn-ecommerce.List_Registrants#</a><br>
-<a href="patrons?section_id=@section_id@">#dotlrn-ecommerce.Related_Users#</a></br>
+<a href="@community_url;noquote@members">#dotlrn-ecommerce.List_Registrants#</a><br />
+<a href="patrons?section_id=@section_id@">#dotlrn-ecommerce.Related_Users#</a><br />
+<a href="../applications?section_id=@section_id@">#dotlrn-ecommerce.lt_Waiting_List_and_Prer#</a><br />
 
 
 <h2>#dotlrn-ecommerce.Public_Pages#</h2>

@@ -15,8 +15,7 @@
 <if @registration_assessment_url@ defined>
 <li><a href="@registration_assessment_url;noquote@">Manage Registration Assessment</a>
 </if>
-<li><a href="../applications?type=pending">Pending Applications</a> (@pending_count@)</a>
-<li><a href="../applications?type=request">User Requests for Applications (@request_count@)</a>
+<li><a href="../applications">#dotlrn-ecommerce.lt_Waiting_List_and_Prer#</a>
 </ul>
 
 <h2>Administrative Setup</h2>
