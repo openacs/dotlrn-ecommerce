@@ -310,7 +310,7 @@ template::list::create \
 		<if @course_list.show_participants_p@ eq "t">
 		<br />@course_list.attendees;noquote@ participant<if @course_list.attendees@ gt 1>s</if>
 		<if @course_list.available_slots@ not nil and @course_list.available_slots@ gt 0>,<br />@course_list.available_slots;noquote@ available</if>
-		<if @course_list.available_slots@ eq 0>
+		<if @course_list.available_slots@ le 0>
 		<br />[_ dotlrn-ecommerce.lt_This_section_is_curre]
 		</if>
 		</if>
@@ -354,7 +354,7 @@ template::list::create \
 		<font color="red">[_ dotlrn-ecommerce.application_pending]</font>
 		</if>
 		<if @course_list.waiting_p@ eq 1>
-		<font color="red"><#_ (You are number @course_list.waiting_list_number@ on the wait list)#></font>
+		<font color="red">[_ dotlrn-ecommerce.lt_You_are_number_course]</font>
 		</if>
 		<if @course_list.waiting_p@ eq 2>
 		<font color="red">[_ dotlrn-ecommerce.awaiting_approval]</font>
@@ -501,6 +501,9 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
 
 	if { ! [empty_string_p $maxparticipants] } {
 	    set available_slots [expr $maxparticipants - $attendees]
+	    if { $available_slots < 0 } {
+		set available_slots 0
+	    }
 
 	    if { $available_slots <= 0 } {
 		set button "[_ dotlrn-ecommerce.join_waiting_list]"
