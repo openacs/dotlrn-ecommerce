@@ -354,6 +354,9 @@ template::list::create \
 		<font color="red">[_ dotlrn-ecommerce.application_pending]</font>
 		</if>
 		<if @course_list.waiting_p@ eq 1>
+		<font color="red"><#_ (You are number @course_list.waiting_list_number@ on the wait list)#></font>
+		</if>
+		<if @course_list.waiting_p@ eq 2>
 		<font color="red">[_ dotlrn-ecommerce.awaiting_approval]</font>
 		</if>
 		<if @course_list.instructor_p@ ne -1>
@@ -392,7 +395,7 @@ template::list::create \
 
 set grade_tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
 
-db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button } course_list get_courses { } {
+db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number } course_list get_courses { } {
 
     set button [_ dotlrn-ecommerce.add_to_cart]
 
@@ -431,7 +434,6 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
     set registration_approved_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id }]
     
     set member_p [dotlrn_community::member_p $community_id $user_id]
-    set pending_p [dotlrn_community::member_pending_p -community_id $community_id -user_id $user_id]
     
     set section_grades ""
     set course_grades ""
@@ -527,11 +529,19 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
 
     set member_state [util_memoize [list dotlrn_ecommerce::section::member_state $user_id $community_id]]
     
+    set waiting_p 0
+    set pending_p 0
+    set approved_p 0
     switch $member_state {
-	"needs approval" -
-	"awaiting payment" -
-	"request approval" {
+	"needs approval" {
 	    set waiting_p 1
+	    set waiting_list_number [dotlrn_ecommerce::section::waiting_list_number $user_id $community_id]
+	}
+	"awaiting payment" {
+	    set waiting_p 2
+	}
+	"request approval" {
+	    set pending_p 2
 	}
 	"waitinglist approved" -
 	"payment received" -

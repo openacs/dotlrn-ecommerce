@@ -525,3 +525,36 @@ ad_proc -public dotlrn_ecommerce::section::fs_chunk {
 	</include-optional>
     }]]]
 }
+
+ad_proc -public dotlrn_ecommerce::section::waiting_list_number {
+    user_id
+    community_id
+} {
+    Return number in waiting list
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-07-25
+    
+    @param user_id
+
+    @param community_id
+
+    @return 
+    
+    @error 
+} {
+    return [db_string waitin_list_number {
+	select count(*)
+	from (select *
+	      from dotlrn_member_rels_full rr,
+		      acs_objects o
+	      where rr.rel_id = o.object_id
+	      and rr.rel_id <= (select rel_id
+				from dotlrn_member_rels_full
+				where community_id = :community_id
+				and user_id = :user_id)
+	      and rr.community_id = :community_id
+	      and rr.member_state = 'needs approval'
+	      order by o.creation_date) r
+    } -default ""]
+}
