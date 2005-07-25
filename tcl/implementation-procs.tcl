@@ -89,7 +89,7 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 
 	    # Get community mapped to product
 	    db_foreach communities {
-		select community_id
+		select section_id, community_id
 		from dotlrn_ecommerce_section
 		where product_id = :product_id
 	    } {
@@ -170,6 +170,8 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 		    # Fixes for possible double click
 		    ns_log notice "dotlrn-ecommerce callback: Probably a double-click: $errMsg"
 		}
+
+		dotlrn_ecommerce::section::flush_cache $section_id
 	    }
 	}
     }
