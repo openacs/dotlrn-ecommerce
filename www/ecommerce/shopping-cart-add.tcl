@@ -85,7 +85,7 @@ if { [acs_object_type $participant_id] != "group" } {
 		    if { $admin_p && $user_id != [ad_conn user_id] } {
 			set return_url [export_vars -base ../admin/process-purchase-course { user_id }]
 		    } else {
-			set return_url ..
+			set return_url [apm_package_url_from_key dotlrn-ecommerce]application-confirm
 		    }
 		    ad_returnredirect [export_vars -base waiting-list-confirm { product_id user_id participant_id return_url }]
 		    ad_script_abort
@@ -137,7 +137,7 @@ if { [acs_object_type $participant_id] != "group" } {
 		    if { $admin_p && $user_id != [ad_conn user_id] } {
 			set return_url [export_vars -base ../admin/process-purchase-course { user_id }]
 		    } else {
-			set return_url ..
+			set return_url [apm_package_url_from_key dotlrn-ecommerce]application-confirm
 		    }
 		    ad_returnredirect [export_vars -base prerequisite-confirm { product_id user_id participant_id return_url }]
 		    ad_script_abort
