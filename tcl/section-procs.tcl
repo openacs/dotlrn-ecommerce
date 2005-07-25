@@ -138,7 +138,7 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
 ad_proc -public dotlrn_ecommerce::section::flush_cache {
     section_id
 } {
-    
+    Flush cached procs
     
     @author Roel Canicula (roelmc@pldtdsl.net)
     @creation-date 2005-05-20
@@ -238,9 +238,10 @@ ad_proc -public dotlrn_ecommerce::section::available_slots {
 	set attendees [dotlrn_ecommerce::section::attendees $section_id]
 	set available_slots [expr $maxparticipants - $attendees]
 	if { $available_slots < 0 } {
-	    set available_slots 0
+	    return 0
+	} else {
+	    return $available_slots
 	}
-	return $available_slots
     }
 
     return ""
@@ -260,7 +261,7 @@ ad_proc -public dotlrn_ecommerce::section::attendees {
     
     @error 
 } {
-    return [db_string attendees {
+    set registered_attendees [db_string attendees {
 	select count(*) as attendees
 	from dotlrn_member_rels_full
 	where community_id = (select community_id
@@ -269,6 +270,29 @@ ad_proc -public dotlrn_ecommerce::section::attendees {
 	and (rel_type = 'dotlrn_member_rel' or rel_type = 'dc_student_rel')
 	and member_state in ('approved', 'request approval', 'request approved', 'waitinglist approved', 'payment received')
     }]
+
+    set maxparticipants [dotlrn_ecommerce::section::maxparticipants $section_id]
+    if { ! [empty_string_p $maxparticipants] } {
+	set actual_open_slots [expr $maxparticipants - $registered_attendees]
+	
+	if { $actual_open_slots > 0 } {
+	    incr registered_attendees [db_string in_waiting_list [subst {
+		select count(*) 
+		from (select *
+		      from dotlrn_member_rels_full
+		      where community_id = (select community_id
+					    from dotlrn_ecommerce_section
+					    where section_id = :section_id)
+		      and (rel_type = 'dotlrn_member_rel' or rel_type = 'dc_student_rel')
+		      and member_state = 'needs approval'
+		      limit $actual_open_slots) u
+	    }] -default 0]
+	}
+
+	return $registered_attendees
+    } else {
+	return $registered_attendees
+    }
 }
 
 ad_proc -public dotlrn_ecommerce::section::check_elapsed_registrations {
