@@ -20,4 +20,4 @@
     <a href="@shopping_cart_add_url;noquote@" class="button">#dotlrn-ecommerce.Continue#</a> &nbsp;&nbsp;&nbsp;
   </if>
   <a href="@request_url;noquote@" class="button">#dotlrn-ecommerce.lt_Go_on_the_waiting_lis#</a> &nbsp;&nbsp;&nbsp;
-  <a href="@return_url;noquote@" class="button">#dotlrn-ecommerce.Cancel#</a>
+  <a href="@cancel_url;noquote@" class="button">#dotlrn-ecommerce.Cancel#</a>

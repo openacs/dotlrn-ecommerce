@@ -14,6 +14,7 @@ ad_page_contract {
     user_id:integer,notnull
     {participant_id:integer 0}
     return_url:notnull
+    cancel_url:notnull
 } -properties {
 } -validate {
 } -errors {
