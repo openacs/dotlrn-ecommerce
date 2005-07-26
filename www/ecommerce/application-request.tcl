@@ -93,7 +93,7 @@ db_1row section {
     where community_id = :community_id
 }
 
-dotlrn_ecommerce::section::flush_cache $section_id
+dotlrn_ecommerce::section::flush_cache -user_id $participant_id $section_id
 
 set assessment_id [dotlrn_ecommerce::section::application_assessment $section_id]
 if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {

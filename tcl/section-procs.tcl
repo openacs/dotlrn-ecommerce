@@ -136,6 +136,7 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
 }
 
 ad_proc -public dotlrn_ecommerce::section::flush_cache {
+    -user_id 
     section_id
 } {
     Flush cached procs
@@ -177,9 +178,9 @@ ad_proc -public dotlrn_ecommerce::section::flush_cache {
     util_memoize_flush [list dotlrn_ecommerce::section::member_price $section_id]
     util_memoize_flush [list dotlrn_ecommerce::section::application_assessment $section_id]
 
-    set user_id [ad_conn user_id]
-    if { $user_id } {
+    if { [exists_and_not_null user_id] } {
 	util_memoize_flush [list dotlrn_ecommerce::section::member_state $user_id $community_id]
+	util_memoize_flush [list dotlrn_ecommerce::section::waiting_list_number $user_id $community_id]
     }
 }
 
