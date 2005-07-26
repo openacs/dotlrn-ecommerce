@@ -538,13 +538,13 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
     switch $member_state {
 	"needs approval" {
 	    set waiting_p 1
-	    set waiting_list_number [dotlrn_ecommerce::section::waiting_list_number $user_id $community_id]
+	    set waiting_list_number [util_memoize [list dotlrn_ecommerce::section::waiting_list_number $user_id $community_id]]
 	}
 	"awaiting payment" {
 	    set waiting_p 2
 	}
 	"request approval" {
-	    set pending_p 2
+	    set pending_p 1
 	}
 	"waitinglist approved" -
 	"payment received" -
