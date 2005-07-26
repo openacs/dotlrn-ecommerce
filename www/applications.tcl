@@ -104,7 +104,7 @@ template::list::create \
 	    label ""
 	    display_template {
 		<if @applications.member_state@ in "needs approval" "request approval" "awaiting payment">
-		<a href="@applications.approve_url;noquote@" class="button">[_ dotlrn-ecommerce.Approve]</a>
+		<a href="@applications.approve_url;noquote@" class="button">[_ dotlrn-ecommerce.Approve]</a> &nbsp;
 		<a href="@applications.reject_url;noquote@" class="button">[_ dotlrn-ecommerce.Reject]</a>
 		</if>
 		<else>
@@ -152,7 +152,7 @@ if { $admin_p } {
     set user_clause ""
 } else {
     set user_clause {
-	and c.community_id in (select community_id
+	and r.community_id in (select community_id
 			       from dotlrn_member_rels_full
 			       where user_id = :user_id
 			       and rel_type = 'dotlrn_admin_rel')
