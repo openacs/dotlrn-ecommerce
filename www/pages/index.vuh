@@ -1,0 +1,38 @@
+################## KLUDGE BY STAS ###############
+# Try and look up the item in the content repository
+#################################################
+ad_page_contract {
+   
+    @author Unknown
+    @creation-date Unknown
+    @cvs-id $Id$
+} {    
+    { revision_id "" }
+}
+set urlv [split [ad_conn path_info] "/"]
+set section_id [lindex $urlv 0]
+set the_url [join [lrange $urlv 1 end] "/"]
+
+if {[catch {set pages_folder [dotlrn_ecommerce::section::get_public_folder_id $section_id]} errmsg]} {
+#	ad_return_complaint 1 "pages_folder '${pages_folder_id}' '${errmsg}'"
+	ns_returnnotfound
+}
+
+set the_root [ns_info pageroot]
+
+set content_type "file_storage_object"
+if {[string equal "" $the_url]} {
+    set the_url "/"
+}
+
+
+set file_id [content::item::get_id -item_path $the_url -root_folder_id $pages_folder -resolve_index t]
+#ad_return_complaint 1 "file_id = '${file_id}'"
+if {[string equal "" $file_id]} {
+#	ad_return_complaint 1 "pages_folder '${pages_folder}' '${errmsg}' the_url '${the_url}' '[ad_conn path_info]' '${urlv}'"	
+	ns_returnnotfound
+}
+
+rp_form_put file_id $file_id
+
+rp_internal_redirect /packages/dotlrn-ecommerce/lib/fs-cms
