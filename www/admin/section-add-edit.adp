@@ -5,11 +5,11 @@
 
 <if @section_id@ eq "">
    <include src=/packages/dotlrn-ecommerce/lib/section
-   course_id="@course_id@" return_url="@return_url@" item_id="@item_id@" sessions="@sessions@" />
+   course_id="@course_id@" return_url="@return_url@" item_id="@item_id@" sessions="@sessions@" submitted_p="@submitted_p@" />
 </if>
 <else>
    <include src=/packages/dotlrn-ecommerce/lib/section
    section_id=@section_id@ course_id="@course_id@"
-   return_url="@return_url@" item_id="@item_id@" sessions="@sessions@" />
+   return_url="@return_url@" item_id="@item_id@" sessions="@sessions@" submitted_p="@submitted_p@" />
 </else>
 

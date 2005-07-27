@@ -10,14 +10,14 @@ proc dotlrn_ecommerce_check_grade { section_id categories } {
     set grade_tree_id [parameter::get -parameter GradeCategoryTree -default 0]
 
     if { $grade_tree_id } {
-	db_1row community {
+	if { [db_0or1row community {
 	    select community_id
 	    from dotlrn_ecommerce_section
 	    where section_id = :section_id
-	}
-
-	if { $categories == [list [list $community_id [ad_conn package_id]]] } {
-	    set categories ""
+	}] } {
+	    if { $categories == [list [list $community_id [ad_conn package_id]]] } {
+		set categories ""
+	    }
 	}
 
 	lappend categories 0
@@ -785,3 +785,5 @@ ad_form -extend -name add_section -validate $validate -on_request {
 
 # Used by en_US version of new_class_instance message
 set class_instances_pretty_name [parameter::get -localize -parameter class_instances_pretty_name]
+set f [rp_getform]
+ns_set print $f
