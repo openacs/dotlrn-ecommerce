@@ -361,6 +361,9 @@ template::list::create \
 		<if @course_list.waiting_p@ eq 1>
 		<font color="red">[_ dotlrn-ecommerce.lt_You_are_number_course]</font>
 		</if>
+		<if @course_list.asm_url@ not nil>
+		<a href="@course_list.asm_url;noquote@" class="button">[_ dotlrn-ecommerce.review_application]</a>
+		</if>
 		<if @course_list.waiting_p@ eq 2>
 		<font color="red">[_ dotlrn-ecommerce.awaiting_approval]</font>
 		</if>
@@ -400,7 +403,7 @@ template::list::create \
 
 set grade_tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
 
-db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number } course_list get_courses { } {
+db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url } course_list get_courses { } {
 
     set button [_ dotlrn-ecommerce.add_to_cart]
 
@@ -547,12 +550,42 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
 	}
 	"awaiting payment" {
 	    set waiting_p 2
+	    if {![empty_string_p $assessment_id]} {
+		if { [db_0or1row assessment {
+		    select ss.session_id
+		    from as_sessions ss,
+		         cr_items i
+		    where i.item_id = :assessment_id
+		    and ss.assessment_id = coalesce(i.live_revision,i.latest_revision)
+		    and ss.subject_id = :user_id
+		    order by creation_datetime desc
+		    limit 1
+		}] } {
+		    set asm_url [export_vars -base /assessment/session { session_id }]
+		}
+	    }
 	}
 	"request approval" {
 	    set pending_p 1
 	}
+	"payment received" {
+	    set approved_p 1
+	    if {![empty_string_p $assessment_id]} {
+		if { [db_0or1row assessment {
+		    select ss.session_id
+		    from as_sessions ss,
+		         cr_items i
+		    where i.item_id = :assessment_id
+		    and ss.assessment_id = coalesce(i.live_revision,i.latest_revision)
+		    and ss.subject_id = :user_id
+		    order by creation_datetime desc
+		    limit 1
+		}] } {
+		    set asm_url [export_vars -base /assessment/session { session_id }]
+		}
+	    }
+	}
 	"waitinglist approved" -
-	"payment received" -
 	"request approved" {
 	    set approved_p 1
 	}
