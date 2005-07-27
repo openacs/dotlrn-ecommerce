@@ -35,13 +35,13 @@ if { [exists_and_not_null product_id] } {
     template::list::create \
 	-name "relations" \
 	-multirow "relations" \
-	-no_data "No related users" \
+	-no_data "[_ dotlrn-ecommerce.No_related_users]" \
 	-elements {
 	    ruser {
-		label "Related User"
+		label "[_ dotlrn-ecommerce.lt_Who_is_taking_the_cou]"
 	    }
 	    email {
-		label "Email"
+		label "[_ dotlrn-ecommerce.Email]"
 	    }
 	    actions {
 		label ""

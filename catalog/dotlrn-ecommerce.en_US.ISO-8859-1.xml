@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d1" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Action">Action</msg>
   <msg key="Add_Course">Add Course</msg>
@@ -36,6 +36,7 @@
   <msg key="E-mail_address">E-mail address:</msg>
   <msg key="edit">edit</msg>
   <msg key="Edit_My_Application">Edit My Application</msg>
+  <msg key="Email">Email</msg>
   <msg key="Email_t_approve_application">Approve application</msg>
   <msg key="Email_t_submit_application">Submit application</msg>
   <msg key="Email_templates">Email Templates</msg>
@@ -117,6 +118,7 @@
   <msg key="lt_Users_in_waiting_list">Users in waiting list</msg>
   <msg key="lt_Users_related_to_the_">Users related to the %patron_name%</msg>
   <msg key="lt_Waiting_List_and_Prer">Waiting List and Prerequisite Applications</msg>
+  <msg key="lt_Who_is_taking_the_cou">Who is taking the course?</msg>
   <msg key="lt_Whos_participating_in">Who's participating in this course?</msg>
   <msg key="lt_You_are_number_course">(You are number @course_list.waiting_list_number@ on the wait list)</msg>
   <msg key="lt_You_have_no_applicati">You have no applications</msg>
@@ -134,6 +136,7 @@
   <msg key="Member_Request">Member Request</msg>
   <msg key="More_Information">More Information:</msg>
   <msg key="No_applications">No applications</msg>
+  <msg key="No_related_users">No related users</msg>
   <msg key="Order_list">Order list</msg>
   <msg key="Paid_By">Paid By</msg>
   <msg key="Participant">Participant</msg>
