@@ -405,6 +405,14 @@ set grade_tree_id [parameter::get -package_id [ad_conn package_id] -parameter Gr
 
 db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url } course_list get_courses { } {
 
+    # Since dotlrn-ecommerce is based on dotlrn-catalog,
+    # it's possible to have a dotlrn_catalog object without an
+    # associated section, eventually change SQL to look at
+    # dotlrn_ecommerce_section first
+    if { [empty_string_p $section_id] } {
+	continue
+    }
+
     set button [_ dotlrn-ecommerce.add_to_cart]
 
     set category_name [string range $category_name 0 [expr [string length $category_name] - 3]]
@@ -419,7 +427,7 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
 #    set section_folder_id [dotlrn_ecommerce::section::get_public_folder_id $section_id]
 
     set sections_url [export_vars -base sections { course_id }]
-    set community_url "pages/${section_id}/"
+#    set community_url "pages/${section_id}/"
 
     # HAM : check NoPayment parameter
     # if we're not asking for payment, change shopping cart url
