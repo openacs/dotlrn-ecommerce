@@ -143,11 +143,12 @@ if { $instructor_community_id == 0 && ![db_0or1row "checkinstructorcommunity" "s
 	set _instructors [dotlrn_community::list_users  $instructor_community_id]
 	set instructors_list [list]
 	foreach instructor $_instructors {
-		set instructor_user_id [ns_set get $instructor user_id]
-		set instructor_name "[ns_set get $instructor first_names] [ns_set get $instructor last_name]"
-		lappend instructors_list [list $instructor_name $instructor_user_id ]
+	    set instructor_user_id [ns_set get $instructor user_id]
+	    set instructor_name "[ns_set get $instructor first_names] [ns_set get $instructor last_name]"
+	    lappend instructors_list [list $instructor_name $instructor_user_id ]
 	}
-	
+	set instructors_list [lsort -index 0 -dictionary $instructors_list]
+
 	ad_form -extend -name add_section -form {
 		{ instructors:string(multiselect),multiple,optional {label "#dotlrn-ecommerce.Instructor#"} {options { $instructors_list } }	}
 	}
@@ -165,6 +166,7 @@ if { $assistant_community_id == 0 && ![db_0or1row "checkassistantcommunity" "sel
 		set assistant_name "[ns_set get $assistant first_names] [ns_set get $assistant last_name]"
 		lappend assistants_list [list $assistant_name $assistant_user_id ]
 	}
+	set assistants_list [lsort -index 0 -dictionary $assistants_list]
 	
 	ad_form -extend -name add_section -form {
 		{ assistants:string(multiselect),multiple,optional {label "#dotlrn-ecommerce.assistant_instructor#"} {options { $assistants_list } }	}
