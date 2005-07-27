@@ -342,9 +342,11 @@ template::list::create \
 		<if @allow_other_registration_p@>
 		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">@course_list.button@</a>
 		</if>
+		<else>
                 <if @course_list.member_p@ ne 1 and @course_list.pending_p@ ne 1 and @course_list.waiting_p@ ne 1 and @course_list.waiting_p@ ne 2 and @course_list.approved_p@ ne 1>
 		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">@course_list.button@</a>
 		</if>
+		</else>
 		</if>
 		<if @course_list.prices@ eq "">
 		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.register]</a>
