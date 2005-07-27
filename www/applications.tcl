@@ -195,7 +195,7 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
     [template::list::filter_where_clauses -and -name applications]
     [template::list::orderby_clause -name applications -orderby]         
 }] {
-    set list_type [ad_decode $member_state "needs approval" full "request approval" prereq "awaiting payment" payment]
+    set list_type [ad_decode $member_state "needs approval" full "request approval" prereq "awaiting payment" payment full]
 
     set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} {type $list_type} }]
     set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} {type $list_type} }]
