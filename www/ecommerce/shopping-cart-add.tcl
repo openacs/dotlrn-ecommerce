@@ -38,6 +38,11 @@ ad_page_contract {
     {override_p 0}
 }
 
+# avoid anonymous participants
+if {$user_id == 0} {
+    set user_id [auth::require_login]
+}
+
 # Roel: Participant also pays
 if { $participant_id == 0 } {
     set participant_id $user_id
