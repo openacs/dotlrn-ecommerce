@@ -11,5 +11,7 @@
   <p />
   <b>Or create an account for the purchaser</b>
   
-  <include src="/packages/acs-subsite/lib/user-new"
-    next_url="@next_url;noquote@" self_register_p="0"/>
+  <include src="/packages/dotlrn-ecommerce/lib/user-new"
+    next_url="@next_url;noquote@"
+    self_register_p="0"
+    user_type="purchaser" />
