@@ -14,12 +14,12 @@
 auth::self_registration
 
 # Set default parameter values
+# user_type - participant or purchaser for now
 array set parameter_defaults {
     self_register_p 1
     next_url {}
     return_url {}
-    add_url {}
-    addpatron_url {}
+    user_type participant
 }
 foreach parameter [array names parameter_defaults] { 
     if { ![exists_and_not_null $parameter] } { 
@@ -51,9 +51,35 @@ if { ![empty_string_p $url] } {
 set user_id [db_nextval acs_object_id_seq]
 
 set form [auth::get_registration_form_elements]
+# Roel - remove password, url fields improve this
 set form [lrange $form 0 3]
+set formlen [llength $form]
 
-ad_form -name register -export {next_url user_id return_url add_url addpatron_url {password ""} {password_confirm ""} {screen_name ""} {url ""} {secret_question ""} {secret_answer ""} } -form $form
+set allow_no_email_p [parameter::get -parameter AllowNoEmailForPurchaser]
+set validate [list]
+
+if { $user_type == "purchaser" && $allow_no_email_p } {
+    for { set i 0 } { $i < $formlen } { incr i } {
+	set field [lindex $form $i]
+	if { [lindex $field 0] == "email:text(text)" } {
+	    set field [lreplace $field 0 0 "email:text(text),optional"]
+	    set form [lreplace $form $i $i $field]
+	}
+    }
+
+    set form [linsert $form 1 {no_email_p:integer(checkbox),optional
+	{label ""}
+	{options {{"[_ dotlrn-ecommerce.User_has_no_email]" 1}}}
+	{html {onchange "this.form.email.disabled = ! this.form.email.disabled;"}}
+    }]
+    
+    lappend validate {email
+	{ ![empty_string_p $email] || [template::element::get_value register no_email_p] == 1 }
+	"[_ dotlrn-ecommerce.Email_is_required]"
+    }
+}
+
+ad_form -name register -export {next_url user_id return_url {password ""} {password_confirm ""} {screen_name ""} {url ""} {secret_question ""} {secret_answer ""} } -form $form
 
 if { [exists_and_not_null rel_group_id] } {
     ad_form -extend -name register -form {
@@ -77,57 +103,86 @@ if { [exists_and_not_null rel_group_id] } {
 }
 
 # Roel: Extra info for students
-set tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
-set grade_options [list {}]
-foreach tree [category_tree::get_tree $tree_id] {
-    lappend grade_options [list [lindex $tree 1] [lindex $tree 0]]
-}
+if { $user_type == "participant" } {
 
-if { [llength $grade_options] > 0 } {
-    ad_form -extend -name register -form {
-	{grade:text(select)
-	    {label "[_ dotlrn-ecommerce.Grade]"}
-	    {options {$grade_options}}
+    set tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
+    set grade_options [list {}]
+    foreach tree [category_tree::get_tree $tree_id] {
+	lappend grade_options [list [lindex $tree 1] [lindex $tree 0]]
+    }
+
+    if { [llength $grade_options] > 0 } {
+	ad_form -extend -name register -form {
+	    {grade:text(select)
+		{label "[_ dotlrn-ecommerce.Grade]"}
+		{options {$grade_options}}
+	    }
+	}
+    } else {
+	ad_form -extend -name register -form {
+	    {grade:text(select),optional
+		{label "[_ dotlrn-ecommerce.Grade]"}
+		{options {$grade_options}}
+	    }
 	}
     }
+    ad_form -extend -name register -form {
+	{allergies:text,optional
+	    {label "[_ dotlrn-ecommerce.Medical_Issues]"}
+	    {html {size 60}}
+	}
+
+	{special_needs:text,optional
+	    {label "[_ dotlrn-ecommerce.Special_Needs]"}
+	    {html {size 60}}
+	}
+    }
+
 } else {
     ad_form -extend -name register -form {
-	{grade:text(select),optional
-	    {label "[_ dotlrn-ecommerce.Grade]"}
-	    {options {$grade_options}}
+	{grade:text(hidden) {value ""}}
+	{allergies:text(hidden) {value ""}}
+	{special_needs:text(hidden) {value ""}}
+    }
+}
+
+switch $user_type {
+    participant {
+	ad_form -extend -name register -form {
+	    {add:text(submit) {label "[_ dotlrn-ecommerce.Add_Participant]"}}
+	}
+    }
+    purchaser {
+	ad_form -extend -name register -form {
+	    {add:text(submit) {label "[_ dotlrn-ecommerce.Add_Purchaser]"}}
 	}
     }
 }
-ad_form -extend -name register -form {
-    {allergies:text,optional
-	{label "[_ dotlrn-ecommerce.Medical_Issues]"}
-	{html {size 60}}
-    }
 
-    {special_needs:text,optional
-	{label "[_ dotlrn-ecommerce.Special_Needs]"}
-	{html {size 60}}
-    }
-
-    {add:text(submit) {label "[_ dotlrn-ecommerce.Add_Participant]"}}
-}
-
-ad_form -extend -name register -on_request {
+ad_form -extend -name register -validate $validate -on_request {
     # Populate elements from local variables
 
-    # Try to default to Adult, this may not exist
-    set locale [ad_conn locale]
-    db_0or1row default_grade {
-	select c.category_id as grade
-	from category_translations t, categories c
-	where t.category_id = c.category_id 
-	and t.name = 'Adult'
-	and t.locale = :locale
-	and c.tree_id = :tree_id
+    if { $user_type == "participant" } {
+	# Try to default to Adult, this may not exist
+	set locale [ad_conn locale]
+	db_0or1row default_grade {		
+	    select c.category_id as grade	
+	    from category_translations t, categories c
+	    where t.category_id = c.category_id 
+	    and t.name = 'Adult'
+	    and t.locale = :locale
+	    and c.tree_id = :tree_id
+	}
     }
 } -on_submit {
 
     db_transaction {
+	if { [empty_string_p $email] } {
+	    # Generate an email address
+	    set domain [parameter::get -parameter DefaultEmailDomain]
+	    set email "noemail-[util_text_to_url "$first_names $last_name"]-$user_id@$domain"
+	}
+
         array set creation_info [auth::create_user \
                                      -user_id $user_id \
                                      -verify_password_confirm \
@@ -198,14 +253,6 @@ ad_form -extend -name register -on_request {
 	}
 
 } -after_submit {
-
-#     if { ! [empty_string_p [template::element get_value register add]] } {
-# 	ad_returnredirect [export_vars -base $add_url { user_id }]
-# 	ad_script_abort
-#     } elseif { ! [empty_string_p [template::element get_value register addpatron]] } {
-# 	ad_returnredirect [export_vars -base $addpatron_url { user_id }]
-# 	ad_script_abort
-#     }
 
     if { ![empty_string_p $next_url] } {
         # Add user_id and account_message to the URL

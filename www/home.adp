@@ -10,7 +10,7 @@
 
 	<h2>#acs-subsite.Basic_Information#</h2>
 
-	<include src="/packages/acs-subsite/lib/user-info" />
+	<include src="/packages/dotlrn-ecommerce/lib/user-info" cancel="@cancel@" add_url="home" return_url="home" />
 	<p><a href="@community_member_url@">#acs-subsite.lt_What_other_people_see#</a></p>
 
 	<list name="fragments">

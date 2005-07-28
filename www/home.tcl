@@ -3,6 +3,8 @@
 ad_page_contract {
     user's workspace page
     @cvs-id $Id$
+} {
+    {cancel ""}
 } -properties {
     system_name:onevalue
     context:onevalue
@@ -44,7 +46,9 @@ set notifications_url [lindex [site_node::get_children -node_id [subsite::get_el
 
 set system_name [ad_system_name]
 
-set portrait_upload_url [export_vars -base "../user/portrait/upload" { { return_url [ad_return_url] } }]
+set return_url [ad_return_url]
+
+set portrait_upload_url [export_vars -base "../user/portrait/upload" { return_url }]
 
 if { [llength [lang::system::get_locales]] > 1 } { 
     set change_locale_url [apm_package_url_from_key "acs-lang"]

@@ -1,10 +1,6 @@
-#
-# Expects: 
-#  user_id:optional
-#  return_url:optional
-#  edit_p:optional
-#  message:optional
-#
+if { ![exists_and_not_null user_type] } {
+    set user_type participant
+}
 
 if { ! [empty_string_p $cancel] } {
     ad_returnredirect $return_url
@@ -122,18 +118,6 @@ if {[apm_package_enabled_p "categories"]} {
 #                  ]]
 # }
 
-set tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
-set grade_options [list {}]
-foreach tree [category_tree::get_tree $tree_id] {
-    lappend grade_options [list [lindex $tree 1] [lindex $tree 0]]
-}
-
-#     {url:text,optional
-#         {label "[_ acs-subsite.Home_page]"}
-#         {html {size 50}}
-#         {mode $elm_mode(url)}
-#     }
-
 ad_form -extend -name user_info  -export { section_id add_url } -form {
     {bio:text(textarea),optional
         {label "[_ acs-subsite.About_You]"}
@@ -141,25 +125,47 @@ ad_form -extend -name user_info  -export { section_id add_url } -form {
         {mode $elm_mode(bio)}
         {display_value {[ad_text_to_html -- $user(bio)]}}
     }
+}
+
+if { $user_type == "participant" } {
+    set tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
+    set grade_options [list {}]
+    foreach tree [category_tree::get_tree $tree_id] {
+	lappend grade_options [list [lindex $tree 1] [lindex $tree 0]]
+    }
+
+    ad_form -extend -name user_info -form {
+	{grade:text(select),optional
+	    {label "[_ dotlrn-ecommerce.Grade]"}
+	    {options {$grade_options}}
+	}
+
+	{allergies:text,optional
+	    {label "[_ dotlrn-ecommerce.Medical_Issues]"}
+	    {html {size 60}}
+	}
+
+	{special_needs:text,optional
+	    {label "[_ dotlrn-ecommerce.Special_Needs]"}
+	    {html {size 60}}
+	}
+    }
+} else {
+    ad_form -extend -name register -form {
+	{grade:text(hidden) {value ""}}
+	{allergies:text(hidden) {value ""}}
+	{special_needs:text(hidden) {value ""}}
+    }
+}
     
-    {grade:text(select),optional
-	{label "[_ dotlrn-ecommerce.Grade]"}
-	{options {$grade_options}}
+if { [exists_and_equal edit_p 1] } {
+    ad_form -extend -name user_info -form {
+	{add:text(submit) {label "[_ dotlrn-ecommerce.Proceed]"}}
+	{cancel:text(submit) {label "[_ dotlrn-ecommerce.Cancel]"}}
     }
+}
 
-    {allergies:text,optional
-	{label "[_ dotlrn-ecommerce.Medical_Issues]"}
-	{html {size 60}}
-    }
-
-    {special_needs:text,optional
-	{label "[_ dotlrn-ecommerce.Special_Needs]"}
-	{html {size 60}}
-    }
-
-    {add:text(submit) {label "[_ dotlrn-ecommerce.Proceed]"}}
-    {cancel:text(submit) {label "[_ dotlrn-ecommerce.Cancel]"}}
-} -on_request {
+ad_form -extend -name user_info -form {} -on_request {
     foreach var { authority_id first_names last_name email username bio } {
         set $var $user($var)
     }
@@ -235,11 +241,7 @@ ad_form -extend -name user_info  -export { section_id add_url } -form {
         auth::verify_account_status
     }
     
-    if { ! [empty_string_p [template::element get_value user_info add]] } {
-	ad_returnredirect $add_url
-    } else {
-	ad_returnredirect $return_url
-    }
+    ad_returnredirect $add_url
     ad_script_abort
 }
 
