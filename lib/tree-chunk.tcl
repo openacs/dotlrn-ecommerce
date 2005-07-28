@@ -254,6 +254,8 @@ if { $admin_p } {
     lappend actions "[_ dotlrn-ecommerce.Add_Course]" admin/course-add-edit "[_ dotlrn-ecommerce.Add_Course]"
 }
 
+lappend actions "[_ dotlrn-ecommerce.My_Shopping_Cart]" [export_vars -base ecommerce/shopping-cart] "[_ dotlrn-ecommerce.My_Shopping_Cart]"
+
 set allow_other_registration_p [parameter::get -parameter AllowRegistrationForOtherUsers -default 1]
 
 template::list::create \
