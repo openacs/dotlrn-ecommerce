@@ -827,7 +827,11 @@ if { [string equal $gift_certificate_covers_cost_p "f"] } {
 		    (:order_id, 'internal_account', :internal_account)
 		}
 	    }
-	} elseif { $method == "check" } {
+	} elseif { $method == "check" ||
+		   $method == "cash" ||
+		   $method == "invoice" ||
+		   $method == "scholarship"
+	       } {
 	    if { [db_0or1row check_transaction {
 		select 1
 		from dotlrn_ecommerce_transactions
@@ -835,7 +839,7 @@ if { [string equal $gift_certificate_covers_cost_p "f"] } {
 	    }] } {
 		db_dml update_transaction_check {
 		    update dotlrn_ecommerce_transactions
-		    set method = 'check',
+		    set method = :method,
 		    internal_account = null
 		    where order_id = :order_id
 		}
@@ -844,7 +848,7 @@ if { [string equal $gift_certificate_covers_cost_p "f"] } {
 		    insert into dotlrn_ecommerce_transactions
 		    (order_id, method)
 		    values
-		    (:order_id, 'check')
+		    (:order_id, :method)
 		}
 	    }
 	}

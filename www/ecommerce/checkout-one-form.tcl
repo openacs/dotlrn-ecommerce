@@ -22,6 +22,8 @@ ad_page_contract {
     {creditcard_expire_2 ""}
 }
 
+set admin_p [permission::permission_p -object_id [ad_conn package_id] -privilege "admin"]
+
 set form [rp_getform]
 ns_set delkey $form creditcard_expires
 
@@ -525,8 +527,27 @@ if { $show_creditcard_form_p == "t" } {
 if { [empty_string_p [set payment_methods [parameter::get -parameter PaymentMethods]]] } {
     lappend payment_methods cc
 }
+
+set method_count 0
+set new_payment_methods [list]
 foreach payment_method [split $payment_methods] {
-    set ${payment_method}_p 1
+    set _payment_method [split $payment_method :]
+    if { [llength $_payment_method] == 2 } {
+	lappend new_payment_methods [set payment_method [lindex $_payment_method 0]]
+
+	switch [lindex $_payment_method 1] {
+	    admin {
+		if { $admin_p } {
+		    set ${payment_method}_p 1
+		} else {
+		    continue
+		}
+	    }
+	}
+    } else {
+	set ${payment_method}_p 1
+	lappend new_payment_methods $payment_method
+    }
 
     switch $payment_method {
 	internal_account {
@@ -554,15 +575,30 @@ foreach payment_method [split $payment_methods] {
 		"A full credit card expiration date (month and year) is required"
 	    }
 	}
+	cash {
+	    lappend method_options [list "User pays cash" cash]
+	}
+	invoice {
+	    lappend method_options [list "Invoice" invoice]
+	}
+	scholarship {
+	    lappend method_options [list "Scholarship" scholarship]
+	}
     }
+    incr method_count
 }
-set method_count [llength [split $payment_methods]]
+set payment_methods $new_payment_methods
 
 if { $method_count > 1 } {
     ad_form -extend -name checkout -form {
 	{-section "Payment Information"}
 	{method:text(radio) {label "Select a payment method"} {options {$method_options}}}
-	{internal_account:text,optional {label "Internal Account"}}
+    }
+
+    if { [exists_and_equal internal_account_p 1] } {
+	ad_form -extend -name checkout -form {
+	    {internal_account:text,optional {label "Internal Account"}}
+	}
     }
 } elseif { $method_count == 1 } {
     ad_form -extend -name checkout -export { {method "[lindex [split $payment_methods] 0]"} } -form {}
@@ -571,11 +607,21 @@ if { $method_count > 1 } {
 }
 
 if { [info exists cc_p] } {
-    ad_form -extend -name checkout -form {
-	{-section "Credit card information"}
-	{creditcard_number:text,optional {label "Credit card number"}}
-	{creditcard_type:text(select),optional {label Type} {options {{"Please select one" ""} {VISA v} {MasterCard m} {"American Express" a}}}}
-	{creditcard_expires:text(inform),optional {label Expires} {value $ec_expires_widget}}
+    if { $method_count == 1 } {
+	# The creditcard_expires field is a hack, improve it
+	ad_form -extend -name checkout -form {
+	    {-section "Credit card information"}
+	    {creditcard_number:text {label "Credit card number"}}
+	    {creditcard_type:text(select) {label Type} {options {{"Please select one" ""} {VISA v} {MasterCard m} {"American Express" a}}}}
+	    {creditcard_expires:text(inform) {label "Expires <span class=\"form-required-mark\">*</span>"} {value $ec_expires_widget}}
+	}
+    } else {
+	ad_form -extend -name checkout -form {
+	    {-section "Credit card information"}
+	    {creditcard_number:text,optional {label "Credit card number"}}
+	    {creditcard_type:text(select),optional {label Type} {options {{"Please select one" ""} {VISA v} {MasterCard m} {"American Express" a}}}}
+	    {creditcard_expires:text(inform),optional {label "Expires"} {value $ec_expires_widget}}
+	}
     }
 }
 

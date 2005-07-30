@@ -64,7 +64,7 @@ create table dotlrn_ecommerce_orders (
 
 create table dotlrn_ecommerce_transactions (
 	order_id	 integer references ec_orders on delete cascade not null unique,
-	method		 text check (method in ('cc', 'internal_account', 'check')) not null,
+	method		 text check (method in ('cc', 'internal_account', 'check', 'cash', 'invoice', 'scholarship')) not null,
 	internal_account text
 );
 
