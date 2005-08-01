@@ -163,14 +163,23 @@ set applicant_email [cc_email_from_party $user_id]
 set actor_email [cc_email_from_party $actor_id]
 set community_name [dotlrn_community::get_community_name $community_id]
 
-if {![dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type "on approval"]} {
+# could be from waiting list 
+if {$new_member_state eq "waitinglist approved"} {
+    # site wide template
     acs_mail_lite::send \
-	-to_addr $applicant_email \
-	-from_addr $actor_email \
-	-subject [subst "[_ dotlrn-ecommerce.Application_approved]"] \
-	-body [subst "[_ dotlrn-ecommerce.lt_Your_application_to_j]"]
+        -to_addr $applicant_email \
+        -from_addr $actor_email \
+        -subject [subst "[_ dotlrn-ecommerce.lt_A_space_has_opened_up]"] \
+        -body [subst "[_ dotlrn-ecommerce.lt_A_space_has_opened_up_1]"]
+} else {
+    if {![dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type "on approval"]} {
+        acs_mail_lite::send \
+            -to_addr $applicant_email \
+            -from_addr $actor_email \
+            -subject [subst "[_ dotlrn-ecommerce.Application_approved]"] \
+            -body [subst "[_ dotlrn-ecommerce.lt_Your_application_to_j]"]
+    }
 }
-
 ad_returnredirect $return_url
 }
 }

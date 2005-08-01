@@ -43,14 +43,32 @@ if {[catch {set rel_id [relation_add \
 			   ]} errmsg]} {
     ad_return_complaint "There was a problem with your request" $errmsg
 } else {
-    switch $member_state {
+    switch -- $member_state {
 	"awaiting payment" {
 	    dotlrn_community::send_member_email -community_id $community_id -to_user $participant_id -type "awaiting payment"
 	}
+        "needs approval" -
+        "request approval" {
+            set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
+            if {$member_state eq "needs approval"} {
+                set subject [_ dotlrn-ecommerce.lt_Added_to_waiting_list]
+                set body [_ dotlrn-ecommerce.lt_Added_to_waiting_list_1]
+            } else {
+                set subject [_ dotlrn-ecommerce.lt_Requested_waiver_of_prereq]
+                set body [_ dotlrn-ecommerce.lt_Requested_waiver_of_prereq_1]
+            }
+
+            acs_mail_lite::send \
+                -to_addr [cc_email_from_user_id $participant_id] \
+                -from_addr $mail_from \
+                -subject $subject \
+                -body $body
+        }
     }
     ns_log notice "DEBUG:: RELATION $participant_id, $community_id, $rel_id"
     set wait_list_notify_email [parameter::get -package_id [ad_acs_kernel_id] -parameter AdminOwner]
     set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
+
     ns_log notice "application-request: wait list notify: potential community is $community_id"
     if {[db_0or1row get_nwn {
 	select s.notify_waiting_number,

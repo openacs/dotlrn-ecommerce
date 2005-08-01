@@ -162,6 +162,10 @@ ad_form -extend -name add_course -on_submit {
     if { ![string equal $category_ids "-1"] } {
 	category::map_object -object_id $revision_id $category_ids
     }
+
+    # add email template defaults
+    dotlrn_ecommerce::copy_course_default_email -community_id $community_id
+    
 } -edit_data {
     # New revision in the CR
     catch {

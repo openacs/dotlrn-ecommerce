@@ -46,8 +46,8 @@
 
 <h2>#dotlrn-ecommerce.Email_templates#</h2>
 <a href="email-template?action=submit_app&section_id=@section_id@">#dotlrn-ecommerce.Email_t_submit_application#</a><br />
-<a href="email-template?action=approve_app&section_id=@section_id@">#dotlrn-ecommerce.Email_t_approve_application#</a>
-
+<a href="email-template?action=approve_app&section_id=@section_id@">#dotlrn-ecommerce.Email_t_approve_application#</a><br />
+<a href="email-template?action=on+join&section_id=@section_id@">Welcome Message</a>
 <h2>#dotlrn-ecommerce.Related_Items#</h2>
 
 <a href="/ecommerce/admin/products/one?product_id=@product_id@">#dotlrn-ecommerce.Product#</a><br>

@@ -66,6 +66,8 @@
   <msg key="lt_2_Complete_this_infor">2. Complete this information.</msg>
   <msg key="lt_A_space_has_opened_up">A space has opened up in %community_name%.</msg>
   <msg key="lt_A_space_has_opened_up_1">A space has opened up in %community_name%. Please register via the website or call to get registered via phone.</msg>
+  <msg key="lt_Added_to_waiting_list">Added to waiting list for %community_name%</msg>
+  <msg key="lt_Added_to_waiting_list_1">You have been added to the waiting list for %community_name%. You will be notified  by email if a space opens up.</msg>
   <msg key="lt_Alternately_you_can_u">Alternately, you can use a</msg>
   <msg key="lt_Application_approval_">Application approval (default &lt;i&gt;Note: this is customizable on a per section basis&lt;/i&gt;)</msg>
   <msg key="lt_Application_approval__1">Application approval (granted spot from waiting list)</msg>
@@ -118,6 +120,8 @@
   <msg key="lt_Register_for_another_">Register for another course</msg>
   <msg key="lt_Registering_for_class">Registering for classes with %service_name% is quick and easy</msg>
   <msg key="lt_Reject_waiver_of_prer">Reject waiver of prerequisites</msg>
+  <msg key="lt_Requested_waiver_of_prereq">Waiver of prerequites for %community_name%</msg>
+  <msg key="lt_Requested_waiver_of_prereq_1">You request for waiver of prerequisites for %community_name% has been received.</msg>
   <msg key="lt_Required_prereqsfield">Required %prereqs.field% was not met</msg>
   <msg key="lt_Return_to_course_cata">Return to course catalog</msg>
   <msg key="lt_Return_to_main_course">Return to main course registration administration</msg>

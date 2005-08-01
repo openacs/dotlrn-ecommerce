@@ -307,3 +307,17 @@ catch {
 	set template_calendar_url [export_vars -base ${template_community_url}calendar/cal-item-new { {item_type_id $template_item_type_id} {calendar_id $template_calendar_id} {view day} }]
     }
 }
+
+set return_url [ad_return_url]
+
+db_multirow -extend {edit_url} email_templates get_email_templates "select * from dotlrn_member_emails where community_id=:template_community_id" {
+    set edit_url [export_vars -base email-template {{community_id $template_community_id} {action $type} return_url}]
+}
+
+template::list::create \
+    -name email_templates \
+    -multirow email_templates \
+    -elements {
+        subject {label "Email subject"  link_url_col edit_url}
+        type {label "Type"}
+    }

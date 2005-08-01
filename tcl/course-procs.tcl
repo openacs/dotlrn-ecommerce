@@ -51,3 +51,58 @@ ad_proc -public dotlrn_ecommerce::course::new {
 
     return [content::item::get_live_revision -item_id $item_id]
 }
+
+ad_proc -private dotlrn_ecommerce::copy_course_default_email {
+    -community_id
+} {
+    Copy default email templates into the template community
+} {
+    set var_list [list community_name [dotlrn_community::get_community_name $community_id]]
+    db_transaction {
+        foreach type [list "on join" "awaiting payment" "on approval"] {
+            set from_addr ""
+            set email [_ [email_type_message_key -type $type -key body] $var_list]
+            set subject [_ [email_type_message_key -type $type -key subject] $var_list]
+            db_dml add_email "insert into dotlrn_member_emails
+                          (community_id,subject,from_addr,email,type)
+                          values
+                          (:community_id,:subject,:from_addr,:email,:type)"
+        }
+    }
+}
+
+ad_proc -private dotlrn_ecommerce::active_email_types {
+    {-package_id ""}
+} {
+    list of valid email types for this dotlrn_ecommerce
+} {
+    return [list "on join" "awaiting payment" "on approval"]
+}
+ad_proc -private dotlrn_ecommerce::email_type_message_key {
+    -type
+    -key
+} {
+    Get the message key for an email type
+
+    @param type email type
+    @param key message key, can by subject or body
+} {
+    if {[string equal "subject" $key]} {
+        return [string map \
+                [list \
+                     submit_app dotlrn-ecommerce.Application_submitted \
+                     approve_app dotlrn-ecommerce.Application_approved \
+                     "on join" "some stuff"] \
+                   $type]
+    } elseif {[string equal "body" $key]} {
+        return [string map \
+                [list \
+                     submit_app dotlrn-ecommerce.lt_Your_application_has_been_submitted \
+                     approve_app dotlrn-ecommerce.lt_Your_application_to_j \
+                     "on join" "some stuff"] \
+                   $type]
+    } else {
+        error "Key must be 'subject' or 'body'"
+    }
+     
+}

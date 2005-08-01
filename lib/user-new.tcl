@@ -106,14 +106,14 @@ if { [exists_and_not_null rel_group_id] } {
 if { $user_type == "participant" } {
 
     set tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
-    set grade_options [list {}]
+    set grade_options [list {"--" ""}]
     foreach tree [category_tree::get_tree $tree_id] {
 	lappend grade_options [list [lindex $tree 1] [lindex $tree 0]]
     }
 
     if { [llength $grade_options] > 0 } {
 	ad_form -extend -name register -form {
-	    {grade:text(select)
+	    {grade:text(select),optional
 		{label "[_ dotlrn-ecommerce.Grade]"}
 		{options {$grade_options}}
 	    }

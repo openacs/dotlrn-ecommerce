@@ -9,7 +9,8 @@ ad_page_contract {
     @arch-tag: cb528bf6-f4e5-4c87-bbe9-e987780a6709
     @cvs-id $Id$
 } {
-    section_id:notnull
+    {section_id ""}
+    {community_id ""}
     {action ""}
     {return_url ""}
 } -properties {
@@ -28,6 +29,9 @@ switch -exact $action {
     "approve_app" {
 	set type "on approval"
     }
+    "on join" {
+        set type $action
+    }
     default {
         set type ""
     }
@@ -39,10 +43,12 @@ if {[empty_string_p $type]} {
 
 
 set title "Add/edit email template"
-set community_id [db_string get_community_id {
-    select community_id
-    from dotlrn_ecommerce_section
-    where section_id = :section_id
-}]
+if {![exists_and_not_null community_id]} {
+    set community_id [db_string get_community_id {
+        select community_id
+            from dotlrn_ecommerce_section
+            where section_id = :section_id
+        }]
+}
 
 set extra_vars [list [list action $action] [list section_id $section_id]]

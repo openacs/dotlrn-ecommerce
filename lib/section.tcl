@@ -559,7 +559,9 @@ ad_form -extend -name add_section -validate $validate -on_request {
 
 	# Map patron relationships
 	set tree_id [parameter::get -package_id [ad_conn package_id] -parameter PatronRelationshipCategoryTree -default 0]
-	category_tree::map -tree_id $tree_id -object_id $community_id
+        if {!$tree_id == 0} {
+            category_tree::map -tree_id $tree_id -object_id $community_id
+        }
 
 	# Prerequisites
 	if { [info exists prerequisites] } {
