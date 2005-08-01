@@ -59,7 +59,7 @@ if {[catch {set rel_id [relation_add \
             }
 
             acs_mail_lite::send \
-                -to_addr [cc_email_from_user_id $participant_id] \
+                -to_addr [cc_email_from_party $participant_id] \
                 -from_addr $mail_from \
                 -subject $subject \
                 -body $body
