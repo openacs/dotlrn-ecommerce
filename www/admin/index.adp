@@ -30,10 +30,14 @@
 <li><a href="@relationships_category_url;noquote@">#dotlrn-ecommerce.lt_Manage_Relationship_T#</a>
 <li>#dotlrn-ecommerce.Email_templates_1#
 <ul>
+<if @enable_applications_p@>
   <li>Application approval (default <i>Note: this is customizable on a per section basis</i>) [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=Application_approved&return_url=@return_url@">subject</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_Your_application_to_j&return_url=@return_url@">body</a> ]
+</if>
   <li>Application approval (granted spot from waiting list) [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_A_space_has_opened_up&return_url=@return_url@">subject</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_A_space_has_opened_up_1&return_url=@return_url@">body</a> ]
   <li>Application approval (waiver of prerequisites approved) [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=Application_prereq_approved&return_url=@return_url@">subject</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_Your_prereq_approved&return_url=@return_url@">body</a> ]
+<if @enable_applications_p@>
   <li>Reject application [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=Application_rejected&return_url=@return_url@">subject</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_Your_application_to_j_1&return_url=@return_url@">body</a> ]
+</if>
   <li>Reject waiver of prerequisites [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=Application_prereq_rejected&return_url=@return_url@">subject</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_Your_prereq_rejected&return_url=@return_url@">body</a> ]
   <li>Purchase receipt [ <a href="/ecommerce/admin/email-templates/edit.tcl?email_template_id=1&return_url=@return_url@">edit</a> ]
 </ul>

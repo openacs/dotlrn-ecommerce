@@ -25,10 +25,25 @@ set package_id [ad_conn package_id]
 set admin_p [permission::permission_p -object_id $package_id -privilege "admin"]
 set return_url [ad_return_url]
 
+set enable_applications_p [parameter::get -package_id [ad_conn package_id] -parameter EnableCourseApplicationsP -default 1]
+
 if { [exists_and_not_null type] } {
     set _type $type
 } else {
     set _type all
+}
+
+set filters {
+    {"[_ dotlrn-ecommerce.In_Waiting_List]" "needs approval"}
+    {"[_ dotlrn-ecommerce.lt_Approved_Waiting_List]" "waitinglist approved"}
+    {"[_ dotlrn-ecommerce.For_PreReq_Approval]" "request approval"}
+    {"[_ dotlrn-ecommerce.lt_Approved_PreReq_Appli]" "request approved"}
+}
+
+if { $enable_applications_p } {
+    lappend filters \
+	{"[_ dotlrn-ecommerce.Applications]" "awaiting payment"} \
+	{"[_ dotlrn-ecommerce.lt_Approved_Applications]" "payment received"}
 }
 
 template::list::create \
@@ -116,21 +131,14 @@ template::list::create \
 	    }
 	    html { width 125 align center nowrap }
 	}
-    } -filters {
+    } -filters [subst {
 	type {
 	    label "[_ dotlrn-ecommerce.Type_of_Request]"
-	    values {
-		{"[_ dotlrn-ecommerce.In_Waiting_List]" "needs approval"}
-		{"[_ dotlrn-ecommerce.lt_Approved_Waiting_List]" "waitinglist approved"}
-		{"[_ dotlrn-ecommerce.For_PreReq_Approval]" "request approval"}
-		{"[_ dotlrn-ecommerce.Applications]" "awaiting payment"}
-		{"[_ dotlrn-ecommerce.lt_Approved_PreReq_Appli]" "request approved"}
-		{"[_ dotlrn-ecommerce.lt_Approved_Applications]" "payment received"}
-	    }
+	    values { $filters }
 	    where_clause { member_state = :type }
 	}
 	section_id {}
-    } -orderby {
+    }] -orderby {
 	section_name {
 	    label "[_ dotlrn-ecommerce.Section_1]"
 	    orderby "lower(s.section_name)"
@@ -165,6 +173,12 @@ if { [exists_and_not_null section_id] } {
     set section_clause ""
 }
 
+if { $enable_applications_p } {
+    set member_state_clause { and member_state in ('needs approval', 'waitinglist approved', 'request approval', 'request approved', 'awaiting payment', 'payment received') }
+} else {
+    set member_state_clause { and member_state in ('needs approval', 'waitinglist approved', 'request approval', 'request approved') }
+}
+
 db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url register_url } applications applications [subst {
     select person__name(r.user_id) as person_name, member_state, r.community_id, r.user_id as applicant_user_id, s.section_name, t.course_name, s.section_id, r.rel_id, e.phone, o.creation_user as patron_id,
     (select count(*)
@@ -187,8 +201,8 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
     and s.course_id = t.item_id
     and t.course_id = i.live_revision
     and r.rel_id = o.object_id
-    and member_state in ('needs approval', 'waitinglist approved', 'request approval', 'request approved', 'awaiting payment', 'payment received')
 
+    $member_state_clause
     $user_clause
     $section_clause
 

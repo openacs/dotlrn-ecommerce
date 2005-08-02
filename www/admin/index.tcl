@@ -103,3 +103,4 @@ set tree_id [parameter::get -parameter PatronRelationshipCategoryTree]
 set relationships_category_url [export_vars -base ../Administration/categories/cadmin/tree-view { tree_id }]
 
 set package_locale [lang::system::locale]
+set enable_applications_p [parameter::get -package_id [ad_conn package_id] -parameter EnableCourseApplicationsP -default 1]
