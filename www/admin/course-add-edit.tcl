@@ -23,6 +23,8 @@ if {[info exists course_id]} {
     set revision_id -1
 }
 
+set enable_applications_p [parameter::get -package_id [ad_conn package_id] -parameter EnableCourseApplicationsP -default 1]
+
 # Check for create permissions over dotlrn-catalog package
 permission::require_permission -party_id $user_id -object_id $cc_package_id -privilege "create"
 
@@ -40,10 +42,12 @@ if { [info exist mode] } {
 # Get assessments
 set asm_list [list [list "[_ dotlrn-catalog.not_associate]" "-1"]]
 db_foreach assessment { } {
-    if { [permission::permission_p -object_id $assessment_id -privilege "admin"] == 1 } {
+    if { [permission::permission_p -object_id $assessment_id -privilege "admin"] == 1 && $enable_applications_p == 1 } {
 	lappend asm_list [list $title $assessment_id] 
     }
 }
+
+unset assessment_id
 
 # Get a list of all the attributes asociated to dotlrn_catalog
 set attribute_list [package_object_attribute_list -start_with dotlrn_catalog dotlrn_catalog]
@@ -55,6 +59,11 @@ foreach attribute $attribute_list {
     switch [lindex $attribute 2] {
 	display_p -
 	community_id { continue }
+	assessment_id {
+	    if { ! $enable_applications_p } {
+		continue
+	    }
+	}
     }
     set element_mode ""
     set aditional_type ""
