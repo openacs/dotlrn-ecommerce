@@ -28,6 +28,7 @@
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="AssessmentPackage"  description="Assessment package to be used in waiting lists."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="AssistantCommunityId"  description="Specify the community id whose members we will use in the Assistant field in the add section form."/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="DefaultEmailDomain"  description="Default email domain to be used for group participants and purchasers with no email address."/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="EnableCourseApplicationsP"  default="0" description="Allow assigning an assessment to a course which will require users to apply for the course first and be put on the waiting list automatically."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="GradeCategoryTree"  description="Category tree to hold participant grades"/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="InstructorCommunityId"  description="Specify the community id whose members we will use in the Instructors field in Add Section."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="MemberGroupId"  description="The group id that determines the members"/>
