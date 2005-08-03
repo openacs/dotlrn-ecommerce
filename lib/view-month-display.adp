@@ -1,20 +1,13 @@
-<table cellpaddin=2 cellspacing=2 border=0>
-	<tr>
-		<td bgcolor="#1958B7">&nbsp;&nbsp;</td><td>Before 12pm</td>
-		<td bgcolor="#E7911E">&nbsp;&nbsp;</td><td>Between 12pm and 5pm</td>
-		<td bgcolor="#A7C3FE">&nbsp;&nbsp;</td><td>After 5pm</td>
-	</tr>
-</table> 
 <table class="cal-table-display" cellpadding="0" cellspacing="0" border="0" width="99%">
   <tr>
-    <td class="cal-month-title-text" colspan="7">
+    <td class="cal-month-title-text" colspan="7" align="center">
       <a href="@previous_month_url;noquote@"><img border=0 src="<%=[dt_left_arrow]%>" alt="back one month"></a>
       @month_string@ @year@
       <a href="@next_month_url;noquote@"><img border=0 src="<%=[dt_right_arrow]%>" alt="forward one month"></a>
     </td>
   </tr>
   <tr>
-    <td>
+    <td align="center">
 
       <table class="cal-month-table" cellpadding="2" cellspacing="2" border="5">
         <tbody>
@@ -68,7 +61,13 @@
     </td>
   </tr>
 </table>
-
+<table cellpaddin=2 cellspacing=2 border=0>
+	<tr>
+		<td bgcolor="#1958B7">&nbsp;&nbsp;</td><td>Before 12pm</td>
+		<td bgcolor="#E7911E">&nbsp;&nbsp;</td><td>Between 12pm and 5pm</td>
+		<td bgcolor="#A7C3FE">&nbsp;&nbsp;</td><td>After 5pm</td>
+	</tr>
+</table> 
 
 
 

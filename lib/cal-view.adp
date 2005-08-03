@@ -12,11 +12,11 @@ div.cal-month-event {
 </STYLE>
 <table cellpadding="3" cellspacing="3">
   <tr>
-    <td class="list-filter-pane-big" valign="top" width=20%>
+    <td class="list-filter-pane-big" valign="top" width="20%">
         <listfilters name="course_list" style="course-filters"></listfilters>
     </td>
     <td valign="top">
-	<p><a href=".?view=calendar&date=@date@" class="button">View All</a></p>
+	<if @show_view_all@ eq "1" ><p><a href=".?view=calendar&date=@date@" class="button">View All</a></p></if>
 <include src="view-month-display" calendar_id_list="@calendar_id_list@" item_template="@item_template@" next_month_template="@next_month_template@" prev_month_template="@prev_month_template@" date="@date@" add_p="f" link_day_p="f">
     </td>
   </tr>

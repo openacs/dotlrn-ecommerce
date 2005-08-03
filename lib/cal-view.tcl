@@ -5,8 +5,12 @@ ad_page_contract {
     @creation-date   11-02-2005
 
 } {
+    course_type_f:optional
     category_f:optional
     uncat_f:optional
+    grade_f:optional
+    terms_f:optional
+    zone_f:optional
     instructor:optional
     { level "" }
     { date "" }
@@ -212,6 +216,15 @@ set filters [linsert $filters 0 date {} view {
     label "View"
     values { {List ""} }
 }]
+
+#ns_log notice " *** $grade_f ***"
+
+if { [exists_and_not_null course_type_f] || [exists_and_not_null grade_f] || [exists_and_not_null terms_f] || [exists_and_not_null zone_f]|| [exists_and_not_null instructor] } {
+	set show_view_all "1"
+} else {
+	set show_view_all "0"
+}
+
 
 set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
 set admin_p [permission::permission_p -object_id $cc_package_id -privilege "admin"]
