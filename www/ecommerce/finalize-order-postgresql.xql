@@ -47,9 +47,9 @@
   <fullquery name="insert_financial_transaction">
     <querytext>
       insert into ec_financial_transactions
-      (transaction_id, order_id, transaction_amount, transaction_type, inserted_date)
+      (creditcard_id, transaction_id, order_id, transaction_amount, transaction_type, inserted_date)
       values
-      (:transaction_id, :order_id, :transaction_amount, 'charge', current_timestamp)
+      (:creditcard_id, :transaction_id, :order_id, :transaction_amount, 'charge', current_timestamp)
     </querytext>
   </fullquery>
 

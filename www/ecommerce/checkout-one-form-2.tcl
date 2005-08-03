@@ -798,6 +798,26 @@ if { [string equal $gift_certificate_covers_cost_p "f"] } {
 	    }
 
 	}
+
+	if { [db_0or1row check_transaction {
+	    select 1
+	    from dotlrn_ecommerce_transactions
+	    where order_id = :order_id
+	}] } {
+	    db_dml update_transaction_check {
+		update dotlrn_ecommerce_transactions
+		set method = 'cc',
+		internal_account = null
+		where order_id = :order_id
+	    }
+	} else {
+	    db_dml save_transaction_check {
+		insert into dotlrn_ecommerce_transactions
+		(order_id, method)
+		values
+		(:order_id, 'cc')
+	    }
+	}
     } else {
 	# Other payment methods
 	# Just store it

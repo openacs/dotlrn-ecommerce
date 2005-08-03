@@ -582,6 +582,8 @@ foreach payment_method [split $payment_methods] {
 	    lappend method_options [list "Invoice" invoice]
 	}
 	scholarship {
+	    # Purchasing via scholarships should only be available to
+	    # admins by logic, but this can be set in the param
 	    lappend method_options [list "Scholarship" scholarship]
 	}
     }
@@ -673,13 +675,26 @@ ad_form -extend -name checkout -form {
 	set method check
     } elseif { [lsearch $payment_methods internal_account] != -1 } {
 	set method internal_account
+    } elseif { [lsearch $payment_methods cash] != -1 } {
+	set method internal_account
+    } elseif { [lsearch $payment_methods invoice] != -1 } {
+	set method internal_account
+    } elseif { [lsearch $payment_methods scholarship] != -1 } {
+	set method internal_account
     }
 
 } -on_submit {
 
     set form [rp_getform]
     set submit_url [ad_return_url]
+
     regsub -nocase checkout-one-form $submit_url checkout-one-form-2 submit_url
+
+    if { $method == "scholarship" } {
+	# Go to page where one can select scholarships to purchase from
+	ad_returnredirect [export_vars -base checkout-scholarships { user_id {return_url $submit_url} }]
+	ad_script_abort
+    }
 
     ad_returnredirect $submit_url
     ad_script_abort

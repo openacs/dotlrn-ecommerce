@@ -4,9 +4,9 @@ ad_page_contract {
 
     (1) put this order into the 'confirmed' state
     (2) try to authorize the user's credit card info and either
-        (a) redirect them to a thank you page, or
-        (b) redirect them to a "please fix your credit card info" 
-            page
+    (a) redirect them to a thank you page, or
+    (b) redirect them to a "please fix your credit card info" 
+    page
 
     @author
     @creation-date
@@ -249,6 +249,8 @@ set order_shipping_tax [db_string get_order_shipping_tax "
 
 if {$hard_goods_cost > 0} {
 
+    ns_log notice "DEBUG:: hard"
+
     # The order contains hard goods that come at a cost.
 
     if {$soft_goods_cost > 0} {
@@ -257,7 +259,7 @@ if {$hard_goods_cost > 0} {
 	# cost.
 
 	if {$applied_certificate_amount >= [expr $soft_goods_cost + $soft_goods_tax]} {
-
+	    
 	    # The applied certificates cover the cost of the soft
 	    # goods. 
 
@@ -286,11 +288,13 @@ if {$hard_goods_cost > 0} {
 		set transaction_id [db_nextval ec_transaction_id_sequence]
 		set transaction_amount [expr $hard_goods_cost + $hard_goods_tax + $hard_goods_shipping + $hard_goods_shipping_tax + $order_shipping + $order_shipping_tax - \
 					    [expr $applied_certificate_amount - $soft_goods_cost - $soft_goods_tax]]
-		db_dml insert_financial_transaction "
+		if { ![empty_string_p $creditcard_id] } {
+		    db_dml insert_financial_transaction "
 		    insert into ec_financial_transactions
-		    (transaction_id, order_id, transaction_amount, transaction_type, inserted_date)
+		    (creditcard_id, transaction_id, order_id, transaction_amount, transaction_type, inserted_date)
 		    values
-		    (:transaction_id, :order_id, :transaction_amount, 'charge', sysdate)"
+		    (:creditcard_id, :transaction_id, :order_id, :transaction_amount, 'charge', sysdate)"
+		}
 
 		array set response [ec_creditcard_authorization $order_id $transaction_id]
 		set result $response(response_code)
@@ -355,11 +359,13 @@ if {$hard_goods_cost > 0} {
 		set transaction_amount [expr $soft_goods_cost + $soft_goods_tax - \
 					    [expr $applied_certificate_amount - [expr $hard_goods_cost + $hard_goods_tax + $hard_goods_shipping + $hard_goods_shipping_tax + \
 										     $order_shipping + $order_shipping_tax]]] 
-		db_dml insert_financial_transaction "
+		if { ![empty_string_p $creditcard_id] } {
+		    db_dml insert_financial_transaction "
 		    insert into ec_financial_transactions
-		    (transaction_id, order_id, transaction_amount, transaction_type, inserted_date)
+		    (creditcard_id, transaction_id, order_id, transaction_amount, transaction_type, inserted_date)
 		    values
-		    (:transaction_id, :order_id, :transaction_amount, 'charge', sysdate)"
+		    (:creditcard_id, :transaction_id, :order_id, :transaction_amount, 'charge', sysdate)"
+		}
 
 		array set response [ec_creditcard_authorization $order_id $transaction_id]
 		set result $response(response_code)
@@ -459,11 +465,13 @@ if {$hard_goods_cost > 0} {
 
 		set transaction_id [db_nextval ec_transaction_id_sequence]
 		set transaction_amount [expr $soft_goods_cost + $soft_goods_tax - $applied_certificate_amount]
-		db_dml insert_financial_transaction "
+		if { ![empty_string_p $creditcard_id] } {
+		    db_dml insert_financial_transaction "
 		    insert into ec_financial_transactions
-		    (transaction_id, order_id, transaction_amount, transaction_type, inserted_date)
+		    (creditcard_id, transaction_id, order_id, transaction_amount, transaction_type, inserted_date)
 		    values
-		    (:transaction_id, :order_id, :transaction_amount, 'charge', sysdate)"
+		    (:creditcard_id, :transaction_id, :order_id, :transaction_amount, 'charge', sysdate)"
+		}
 
 		array set response [ec_creditcard_authorization $order_id $transaction_id]
 		set result $response(response_code)
@@ -486,11 +494,13 @@ if {$hard_goods_cost > 0} {
 		    set transaction_amount [expr $hard_goods_cost + $hard_goods_tax + $hard_goods_shipping + $hard_goods_shipping_tax + $order_shipping + $order_shipping_tax + \
 						$soft_goods_cost + $soft_goods_tax - $transaction_amount]
 		    set transaction_id [db_nextval ec_transaction_id_sequence]
-		    db_dml insert_financial_transaction "
+		    if { ![empty_string_p $creditcard_id] } {
+			db_dml insert_financial_transaction "
 			insert into ec_financial_transactions
-			(transaction_id, order_id, transaction_amount, transaction_type, inserted_date)
+			(creditcard_id, transaction_id, order_id, transaction_amount, transaction_type, inserted_date)
 			values
-			(:transaction_id, :order_id, :transaction_amount, 'charge', sysdate)"
+			(:creditcard_id, :transaction_id, :order_id, :transaction_amount, 'charge', sysdate)"
+		    }
 
 		    array set response [ec_creditcard_authorization $order_id $transaction_id]
 		    set result $response(response_code)
@@ -640,11 +650,13 @@ if {$hard_goods_cost > 0} {
 	    set transaction_id [db_nextval ec_transaction_id_sequence]
 	    set transaction_amount [expr $hard_goods_cost + $hard_goods_tax + $hard_goods_shipping  + $hard_goods_shipping_tax + $order_shipping + $order_shipping_tax - \
 					[expr $applied_certificate_amount - $soft_goods_cost - $soft_goods_tax]]
-	    db_dml insert_financial_transaction "
+	    if { ![empty_string_p $creditcard_id] } {
+		db_dml insert_financial_transaction "
 		insert into ec_financial_transactions
-		(transaction_id, order_id, transaction_amount, transaction_type, inserted_date)
+		(creditcard_id, transaction_id, order_id, transaction_amount, transaction_type, inserted_date)
 		values
-		(:transaction_id, :order_id, :transaction_amount, 'charge', sysdate)"
+		(:creditcard_id, :transaction_id, :order_id, :transaction_amount, 'charge', sysdate)"
+	    }
 
 	    array set response [ec_creditcard_authorization $order_id $transaction_id]
 	    set result $response(response_code)
@@ -740,7 +752,7 @@ if {$hard_goods_cost > 0} {
 
 	    ec_update_state_to_authorized $order_id 
 	    ad_returnredirect $return_url
-
+	    ad_script_abort
 	} else {
 
 	    # The certificates only partially cover the cost of the
@@ -748,52 +760,62 @@ if {$hard_goods_cost > 0} {
 
 	    set transaction_id [db_nextval ec_transaction_id_sequence]
 	    set transaction_amount [expr $soft_goods_cost + $soft_goods_tax - $applied_certificate_amount]
-	    db_dml insert_financial_transaction "
+
+	    if { ![empty_string_p $creditcard_id] } {
+		db_dml insert_financial_transaction "
 		insert into ec_financial_transactions
-		(transaction_id, order_id, transaction_amount, transaction_type, inserted_date)
+		(creditcard_id, transaction_id, order_id, transaction_amount, transaction_type, inserted_date)
 		values
-		(:transaction_id, :order_id, :transaction_amount, 'charge', sysdate)"
+		(:creditcard_id, :transaction_id, :order_id, :transaction_amount, 'charge', sysdate)"
 
-	    array set response [ec_creditcard_authorization $order_id $transaction_id]
-	    set result $response(response_code)
-	    set transaction_id $response(transaction_id)
-	    if { [string equal $result "authorized"] } {
-		ec_email_new_order $order_id
+		array set response [ec_creditcard_authorization $order_id $transaction_id]
+		set result $response(response_code)
+		set transaction_id $response(transaction_id)
+		if { [string equal $result "authorized"] } {
+		    ec_email_new_order $order_id
+		    
+		    # Change the order state from 'confirmed' to
+		    # 'authorized'.
 
-		# Change the order state from 'confirmed' to
-		# 'authorized'.
+		    ec_update_state_to_authorized $order_id 
 
-		ec_update_state_to_authorized $order_id 
+		    # Record the date & time of the authorization and
+		    # schedule the transaction for settlement.
 
-		# Record the date & time of the authorization and
-		# schedule the transaction for settlement.
-
-		db_dml schedule_settlement "
+		    db_dml schedule_settlement "
 			update ec_financial_transactions 
 			set authorized_date = sysdate, to_be_captured_p = 't', to_be_captured_date = sysdate
 			where transaction_id = :transaction_id"
 
-		# Mark the transaction now, rather than waiting for
-		# the scheduled procedures to mark the transaction.
+		    # Mark the transaction now, rather than waiting for
+		    # the scheduled procedures to mark the transaction.
 
-		array set response [ec_creditcard_marking $transaction_id]
-		set mark_result $response(response_code)
-		set pgw_transaction_id $response(transaction_id)
-		if { [string equal $mark_result "invalid_input"]} {
-		    set problem_details "
+		    array set response [ec_creditcard_marking $transaction_id]
+		    set mark_result $response(response_code)
+		    set pgw_transaction_id $response(transaction_id)
+		    if { [string equal $mark_result "invalid_input"]} {
+			set problem_details "
 			When trying to mark the transaction for the items that don't require shipment (transaction $transaction_id) at [ad_conn url], the following result occurred: $mark_result"
-		    db_dml record_marking_problem "
+			db_dml record_marking_problem "
 			insert into ec_problems_log
 			(problem_id, problem_date, problem_details, order_id)
 			values
 			(ec_problem_id_sequence.nextval, sysdate, :problem_details, :order_id)"
-		} elseif {[string equal $mark_result "success"]} {
-		    db_dml update_marked_date "
+		    } elseif {[string equal $mark_result "success"]} {
+			db_dml update_marked_date "
 			update ec_financial_transactions 
 			set marked_date = sysdate
 			where transaction_id = :pgw_transaction_id"
+		    }
+		    ad_returnredirect $return_url
+		    ad_script_abort
 		}
+	    } else {
+		# Gift cert covers cost, no cc transaction needed,
+		# authorize immediately
+		ec_update_state_to_authorized $order_id 
 		ad_returnredirect $return_url
+		ad_script_abort
 	    }
 
 	    if {[string equal $result "failed_authorization"] || [string equal $result "no_recommendation"] } {
