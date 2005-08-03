@@ -23,7 +23,7 @@ set actor_id [ad_conn user_id]
 
 if { !$send_email_p || $user_id == $actor_id } {
     dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
-    ad_returnredirect $return_redirect
+    ad_returnredirect $return_url
 } else {
     # Send email to applicant
     switch $type {
