@@ -227,27 +227,21 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
      } {
 	# Get associated assessment
 	if { [db_0or1row assessment {
-	    select ss.session_id
-	    
-	    from dotlrn_ecommerce_section s,
-	    (select c.*
-	     from dotlrn_catalogi c,
-	     cr_items i
-	     where c.course_id = i.live_revision) c,
-	    (select a.*
-	     from as_assessmentsi a,
-	     cr_items i
-	     where a.assessment_id = i.latest_revision) a,
-	    as_sessions ss
-	    
-	    where s.community_id = :community_id
-	    and s.course_id = c.item_id
-	    and c.assessment_id = a.item_id
-	    and a.assessment_id = ss.assessment_id
-	    and ss.subject_id = :applicant_user_id
-	    
-	    order by creation_datetime desc
-	    
+	    select ss.session_id 
+	    from dotlrn_ecommerce_section des, 
+	         dotlrn_catalog dc, 
+	         cr_items i1, 
+	         cr_items i2, 
+	         cr_revisions r, 
+	         as_sessions ss 
+	    where des.community_id = :community_id 
+	          and i1.item_id = des.course_id 
+	          and i1.live_revision = dc.course_id 
+	          and dc.assessment_id = i2.item_id 
+	          and r.item_id = i2.item_id 
+	          and r.revision_id = ss.assessment_id 
+	          and ss.subject_id = :applicant_user_id
+	    order by ss.creation_datetime desc
 	    limit 1
 	}] } {
 	    set asm_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/results-session" { session_id }]
