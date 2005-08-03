@@ -247,12 +247,8 @@ set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
 set admin_p [permission::permission_p -object_id $cc_package_id -privilege "admin"]
 
 set actions [list]
-# HAM : View Calendar / View All
-if { [string equal $view "calendar"] } {
-	lappend actions "[_ dotlrn-ecommerce.View_Calendar]" ? "[_ dotlrn-ecommerce.View_Calendar]"
-} else {
-	lappend actions "[_ dotlrn-ecommerce.View_All]" ?view=calendar "[_ dotlrn-ecommerce.View_All]"
-}
+
+lappend actions "[_ dotlrn-ecommerce.View_All]" ? "[_ dotlrn-ecommerce.View_All]"
 
 if { $admin_p } {
     lappend actions "[_ dotlrn-ecommerce.Add_Course]" admin/course-add-edit "[_ dotlrn-ecommerce.Add_Course]"

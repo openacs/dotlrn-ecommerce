@@ -10,6 +10,7 @@ ad_page_contract {
     instructor:optional
     { level "" }
     { date "" }
+    { view "calendar" }
     
     { orderby course_name }
     { groupby course_name }

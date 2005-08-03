@@ -215,9 +215,6 @@ db_foreach dbqd.calendar.www.views.select_items {} {
     } else {
 	set day_link ""
     }
-	ns_log Notice "$ansi_start_time"
-
-ns_log Notice "*** [lc_time_fmt $ansi_start_date '%H'] ***"
 
     if { [lc_time_fmt $ansi_start_date "%H"]  < 12 } {
         set fontcolor "#1958B7"
@@ -230,8 +227,6 @@ ns_log Notice "*** [lc_time_fmt $ansi_start_date '%H'] ***"
     if { [lc_time_fmt $ansi_start_date "%H"]  > 17 } {
         set fontcolor "#A7C3FE"
     }
-
-ns_log Notice " **** $fontcolor ****"
 
     multirow append items \
 	$name \
