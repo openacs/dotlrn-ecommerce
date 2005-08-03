@@ -59,11 +59,14 @@ if {[catch {set rel_id [relation_add \
                 set body [_ dotlrn-ecommerce.lt_Requested_waiver_of_prereq_1]
             }
 
-            acs_mail_lite::send \
-                -to_addr [cc_email_from_party $participant_id] \
-                -from_addr $mail_from \
-                -subject $subject \
-                -body $body
+  	    if { [parameter::get -package_id [ad_conn package_id] -parameter NotifyApplicantOnRequest] } {
+		ns_log notice "DEBUG:: SENDING APPLICATION NOTIFICATION"
+		acs_mail_lite::send \
+			-to_addr [cc_email_from_party $participant_id] \
+			-from_addr $mail_from \
+			-subject $subject \
+			-body $body
+	   }
         }
     }
     ns_log notice "DEBUG:: RELATION $participant_id, $community_id, $rel_id"

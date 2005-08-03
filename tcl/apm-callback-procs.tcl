@@ -64,6 +64,9 @@ ad_proc -private dotlrn_ecommerce::install {
 	-sort_order $sort_order \
 	-default_value "true" \
 	-column_spec "boolean"
+
+    # I think default_value does not set the default for the column so we do a db_dml 
+    db_dml "update_default" "alter table dotlrn_catalog alter display_p set default 'true'"
 }
 
 ad_proc -private dotlrn_ecommerce::after_upgrade {
