@@ -224,7 +224,7 @@ ns_log Notice "*** [lc_time_fmt $ansi_start_date '%H'] ***"
     }
 
     if { [lc_time_fmt $ansi_start_date "%H"]  >= 12  && [lc_time_fmt $ansi_start_date "%H"]  <= 17 } {
-        set fontcolor "#0C3773"
+        set fontcolor "#E7911E"
     }
 
     if { [lc_time_fmt $ansi_start_date "%H"]  > 17 } {

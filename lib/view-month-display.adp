@@ -1,7 +1,7 @@
 <table cellpaddin=2 cellspacing=2 border=0>
 	<tr>
 		<td bgcolor="#1958B7">&nbsp;&nbsp;</td><td>Before 12pm</td>
-		<td bgcolor="#0C3773">&nbsp;&nbsp;</td><td>Between 12pm and 5pm</td>
+		<td bgcolor="#E7911E">&nbsp;&nbsp;</td><td>Between 12pm and 5pm</td>
 		<td bgcolor="#A7C3FE">&nbsp;&nbsp;</td><td>After 5pm</td>
 	</tr>
 </table> 
