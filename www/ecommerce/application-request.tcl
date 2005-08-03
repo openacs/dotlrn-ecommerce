@@ -13,6 +13,7 @@ ad_page_contract {
     community_id:integer,notnull
     {type full}
     next_url:notnull
+    {as_done_p 0}
 } -properties {
 } -validate {
 } -errors {
@@ -21,6 +22,19 @@ ad_page_contract {
 set extra_vars [ns_set create]
 ns_set put $extra_vars user_id $participant_id
 ns_set put $extra_vars community_id $community_id
+
+db_1row section {
+    select section_id, product_id
+    from dotlrn_ecommerce_section
+    where community_id = :community_id
+}
+
+set assessment_id [dotlrn_ecommerce::section::application_assessment $section_id]
+if { ! [empty_string_p $assessment_id] && $assessment_id != -1 && !$as_done_p} {
+    set return_url "[ad_return_url]&as_done_p=1"
+    ad_returnredirect [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]assessment" { assessment_id return_url }]
+    ad_script_abort    
+}
 
 switch $type {
     full {
@@ -109,19 +123,7 @@ Total persons in the waiting list for ${section_name}: $current_waitlisted"
     }
 }
 
-db_1row section {
-    select section_id, product_id
-    from dotlrn_ecommerce_section
-    where community_id = :community_id
-}
-
 dotlrn_ecommerce::section::flush_cache -user_id $participant_id $section_id
-
-set assessment_id [dotlrn_ecommerce::section::application_assessment $section_id]
-if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
-    ad_returnredirect [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]assessment" { assessment_id { return_url $next_url } }]
-    ad_script_abort    
-}
 
 # Redirect to application assessment if exists
 set assessment_id [parameter::get -parameter ApplicationAssessment -default ""]
