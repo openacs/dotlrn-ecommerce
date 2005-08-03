@@ -11,7 +11,8 @@ table.list {
 </STYLE>
 <p>
 
-
+<a class=button href="course-add-edit">#dotlrn-catalog.new_course#</a>
+<br>
 <form action="course-list" method="GET">
     #dotlrn-catalog.search_courses# 
     <input name="keyword" onfocus="if(this.value=='Please enter Course Name or Course Key')this.value='';" onblur="if(this.value=='')this.value='#dotlrn-catalog.please_type#';" value="#dotlrn-catalog.please_type#" size=40 />
