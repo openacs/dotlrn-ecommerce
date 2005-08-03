@@ -94,6 +94,9 @@ template::list::create \
 		<if @applications.member_state@ eq "needs approval">
 		[_ dotlrn-ecommerce.lt_User_is_in_waiting_li]
 		</if>
+                <elseif @applications.member_state@ eq "payment received">
+		[_ dotlrn-ecommerce.lt_User_application_appr]
+                </elseif>
 		<else>
 		[_ dotlrn-ecommerce.lt_User_has_submitted_an]
 		</else>
