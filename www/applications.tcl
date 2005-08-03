@@ -69,9 +69,12 @@ template::list::create \
 	    html { align center }
 	    hide_p {[ad_decode $_type "waitinglist approved" 1 "request approved" 1 "payment received" 1 "all" 0 0]}
 	    display_template {
-		<if @applications.member_state@ in "needs approval" "request approval" "awaiting payment">
+		<if @applications.member_state@ in "needs approval" "request approval">
 		@applications.number@
 		</if>
+		<elseif @applications.member_state@ eq "awaiting payment">
+                Awaiting approval
+                </elseif>
 		<else>
 		Approved
 		</else>
