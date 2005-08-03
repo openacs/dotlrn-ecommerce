@@ -14,4 +14,4 @@ td.list-filter-pane-big {
     <div align="right"><a href="admin"><img border=0 src=/dotlrn-catalog/images/admin.gif></a></div>
 </if>
 <if @view@ eq "calendar"><include src="/packages/dotlrn-ecommerce/lib/cal-view" tree_id=@tree_id@></if><else>
-<include src="/packages/dotlrn-ecommerce/lib/tree-chunk" tree_id=@tree_id@></else>
+<include src="/packages/dotlrn-ecommerce/lib/tree-chunk" tree_id=@tree_id@ view=@view@></else>

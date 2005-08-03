@@ -18,7 +18,7 @@ table.list {
 </form>
 <br>
 <a class=button href="course-add-edit">#dotlrn-catalog.new_course#</a>
-<br>
+<br><br>
 <listtemplate name=course_list></listtemplate>
 
 <br>
