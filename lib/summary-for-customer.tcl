@@ -95,6 +95,6 @@ set subtotal [expr $price + $shipping]
 set total [expr $price + $shipping + $tax]
 set balance [expr $price + $shipping + $tax - $gift_certificate]
 
-foreach i {price shipping gift_certificate tax subtotal total balance} {
-    set $i [ec_pretty_price [set $i] $currency]
-}
+#foreach i {price shipping gift_certificate tax subtotal total balance} {
+#    set $i [ec_pretty_price [set $i] $currency]
+#}
