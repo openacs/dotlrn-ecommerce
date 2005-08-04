@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d1" locale="en_US" charset="ISO-8859-1">
-
+<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d3" locale="en_US" charset="ISO-8859-1">
   <msg key="Action">Action</msg>
   <msg key="Add_Course">Add Course</msg>
   <msg key="Add_Participant">Add Participant</msg>
@@ -21,12 +20,15 @@
   <msg key="assistant_instructor">Assistant Instructor</msg>
   <msg key="Assistant_Instuctors">Assistant Instuctors</msg>
   <msg key="awaiting_approval">(awaiting approval)</msg>
+  <msg key="Balance">Balance</msg>
   <msg key="Balance_due">Balance due:</msg>
   <msg key="Bill_to">Bill to:</msg>
   <msg key="body">body</msg>
   <msg key="Cancel">Cancel</msg>
+  <msg key="Cash">Cash</msg>
   <msg key="change">change</msg>
   <msg key="Change_Participant">Change Participant</msg>
+  <msg key="Check">Check</msg>
   <msg key="Choose_Participant">Choose Participant</msg>
   <msg key="click_here">click here</msg>
   <msg key="Community_User_Pages">Community User Pages</msg>
@@ -35,8 +37,10 @@
   <msg key="Course_Page">Course Page:</msg>
   <msg key="Course_Quick_Jump">Course Quick Jump</msg>
   <msg key="Courses">Courses:</msg>
+  <msg key="Credit_Card">Credit Card</msg>
   <msg key="Currently_Selected">Currently Selected</msg>
   <msg key="delete">delete</msg>
+  <msg key="Display_All_Orders">Display All Orders</msg>
   <msg key="Display_Course">Display Course</msg>
   <msg key="E-mail_address">E-mail address:</msg>
   <msg key="edit">edit</msg>
@@ -54,14 +58,20 @@
   <msg key="Go_to_My_Account">Go to My Account</msg>
   <msg key="Grade">Grade</msg>
   <msg key="Im_a_new_customer">I'm a new customer:</msg>
+  <msg key="In_the_last">In the last</msg>
+  <msg key="In_the_last_24_hours">In the last 24 hours</msg>
+  <msg key="In_the_last_week">In the last week</msg>
   <msg key="In_Waiting_List">In Waiting List</msg>
   <msg key="info">info</msg>
   <msg key="Instructor">Instructor</msg>
   <msg key="Instructors">Instructors</msg>
+  <msg key="Internal_Account">Internal Account</msg>
+  <msg key="Invoice">Invoice</msg>
   <msg key="Item_Description">Item Description</msg>
   <msg key="join_waiting_list">join waiting list</msg>
   <msg key="List">List</msg>
   <msg key="List_Registrants">List Registrants</msg>
+  <msg key="List_Users">List Users</msg>
   <msg key="lt_1_Please_review_your_">1. Please review your order list for accuracy.</msg>
   <msg key="lt_2_Complete_this_infor">2. Complete this information.</msg>
   <msg key="lt_A_space_has_opened_up">A space has opened up in %community_name%.</msg>
@@ -100,11 +110,13 @@
   <msg key="lt_Manage_Relationship_T">Manage Relationship Types</msg>
   <msg key="lt_multi-page_order_proc">multi-page order process</msg>
   <msg key="lt_No_coursessections_fo">No courses/sections found. Please try again</msg>
+  <msg key="lt_No_orders_for_this_se">No orders for this section</msg>
   <msg key="lt_num_attendees_partici">%num_attendees% participants registered</msg>
   <msg key="lt_Number_in_Waiting_Lis">Number in Waiting List</msg>
   <msg key="lt_One_or_more_prerequis">One or more prerequisites for this section have not been met:</msg>
   <msg key="lt_Or_create_an_account_">Or create an account for the participant</msg>
   <msg key="lt_Or_put_this_purchase_">Or put this purchase in the waiting list</msg>
+  <msg key="lt_Orders_in_the_Last_7_">Orders in the Last 7 Days</msg>
   <msg key="lt_Participant_pays_for_">Participant pays for course</msg>
   <msg key="lt_patron_name_also_pays">%patron_name% also pays for the course</msg>
   <msg key="lt_Please_enter_a_name_f">Please enter a name for the group</msg>
@@ -163,11 +175,21 @@
   <msg key="More_Information">More Information:</msg>
   <msg key="My_Shopping_Cart">My Shopping Cart</msg>
   <msg key="No_applications">No applications</msg>
+  <msg key="No_orders">No orders</msg>
   <msg key="No_related_users">No related users</msg>
+  <msg key="Order_Details">Order Details</msg>
+  <msg key="Order_History">Order History</msg>
+  <msg key="Order_ID">Order ID</msg>
   <msg key="Order_list">Order list</msg>
+  <msg key="Order_Summary">Order Summary</msg>
+  <msg key="Orders_with">Orders with</msg>
+  <msg key="Outstanding_blance">Outstanding blance</msg>
   <msg key="Paid_By">Paid By</msg>
   <msg key="Participant">Participant</msg>
   <msg key="Participants">Participants</msg>
+  <msg key="Payment_Method">Payment Method</msg>
+  <msg key="Payment_method">Payment method</msg>
+  <msg key="Per_User">Per User</msg>
   <msg key="Phone_Number">Phone Number</msg>
   <msg key="PreReq_Approval_List">PreReq Approval List</msg>
   <msg key="PriceItem">Price/Item</msg>
@@ -175,6 +197,7 @@
   <msg key="Process_Registration">Process Registration</msg>
   <msg key="Product">Product</msg>
   <msg key="Public_Pages">Public Pages</msg>
+  <msg key="Purchaser">Purchaser</msg>
   <msg key="Push">Push</msg>
   <msg key="Quantity">Quantity</msg>
   <msg key="Quick_Links">Quick Links</msg>
@@ -189,10 +212,12 @@
   <msg key="Related_Users">Related Users</msg>
   <msg key="review_application">Review your application</msg>
   <msg key="Role">Role</msg>
+  <msg key="Scholarship">Scholarship</msg>
   <msg key="Scholarship_Funds">Scholarship Funds</msg>
   <msg key="Section">Section</msg>
   <msg key="Section_1">Name</msg>
   <msg key="Section_Information">Section Information</msg>
+  <msg key="Section_Name">Section Name</msg>
   <msg key="Section_Quick_Jump">Section Quick Jump</msg>
   <msg key="Shopping_Cart">Shopping Cart</msg>
   <msg key="Special_Needs">Special Needs</msg>
@@ -204,14 +229,19 @@
   <msg key="The_section_is_full">The section is full</msg>
   <msg key="TOTAL">TOTAL:</msg>
   <msg key="Total">Total:</msg>
+  <msg key="Total_1">Total</msg>
+  <msg key="Total_Amount">Total Amount</msg>
   <msg key="Type_of_Request">Type of Request</msg>
   <msg key="User_has_no_email">User has no email</msg>
+  <msg key="User_Info">User Info</msg>
+  <msg key="User_information_for">User information for</msg>
   <msg key="Users_related_to_you">Users related to you</msg>
   <msg key="View">View</msg>
   <msg key="View_All">View All</msg>
   <msg key="view_applications">view applications</msg>
   <msg key="view_bio">view bio</msg>
   <msg key="view_bios">view bios</msg>
+  <msg key="View_Orders">View Orders</msg>
   <msg key="View_Pending">View Pending</msg>
   <msg key="View_User_Requests">View User Requests</msg>
   <msg key="Waiting_List">Waiting List</msg>
