@@ -26,6 +26,7 @@
 <a href="@community_url;noquote@members">#dotlrn-ecommerce.List_Registrants#</a><br />
 <a href="patrons?section_id=@section_id@">#dotlrn-ecommerce.Related_Users#</a><br />
 <a href="../applications?section_id=@section_id@">#dotlrn-ecommerce.lt_Waiting_List_and_Prer#</a><br />
+<a href="ecommerce/index?section_id=@section_id@">#dotlrn-ecommerce.Order_Summary#</a>
 
 
 <h2>#dotlrn-ecommerce.Public_Pages#</h2>

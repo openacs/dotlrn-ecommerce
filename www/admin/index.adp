@@ -17,6 +17,12 @@
 <li><a href="@registration_assessment_url;noquote@">#dotlrn-ecommerce.lt_Manage_Registration_A#</a>
 </if>
 <li><a href="../applications">#dotlrn-ecommerce.lt_Waiting_List_and_Prer#</a>
+<li>#dotlrn-ecommerce.View_Orders#
+<ul>
+<li><a href="users">#dotlrn-ecommerce.Per_User#</a>
+<li><a href="ecommerce/index?start=1%20day">#dotlrn-ecommerce.In_the_last_24_hours#</a>
+<li><a href="ecommerce/index?start=7%20days">#dotlrn-ecommerce.In_the_last_week#</a>
+</ul>
 </ul>
 
 <h2>#dotlrn-ecommerce.Administrative_Setup#</h2>
