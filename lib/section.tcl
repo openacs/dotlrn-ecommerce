@@ -537,7 +537,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 
 		set sale_price_id [db_nextval ec_sale_price_id_sequence]
 		set sale_price $member_price
-		set offer_code ""
+		set offer_code "dotlrn-ecommerce"
 	
 		db_dml sale_insert { }
 	}
