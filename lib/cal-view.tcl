@@ -20,6 +20,15 @@ ad_page_contract {
     { groupby course_name }
 }
 
+
+set currently_viewing "Currently Viewing:"
+
+if { [exists_and_not_null course_type_f] } { append currently_viewing " Course Type"}
+if { [exists_and_not_null grade_f] } { append currently_viewing ", Grade"}
+if { [exists_and_not_null terms_f] } { append currently_viewing ", Terms"}
+if { [exists_and_not_null zone_f] } { append currently_viewing ", Zone"}
+if { [exists_and_not_null zone_f] } { append currently_viewing ", Instructor"}
+
 set calendar_id_list [list]
 
 set package_id [ad_conn package_id]
