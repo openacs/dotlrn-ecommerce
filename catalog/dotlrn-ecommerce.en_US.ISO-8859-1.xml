@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d2" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d1" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Action">Action</msg>
   <msg key="Add_Course">Add Course</msg>
@@ -142,6 +142,7 @@
   <msg key="lt_Users_in_waiting_list">Users in waiting list</msg>
   <msg key="lt_Users_related_to_the_">Users related to the %patron_name%</msg>
   <msg key="lt_Waiting_List_and_Prer">Waiting List and Prerequisite Applications</msg>
+  <msg key="lt_Welcome_to_section_1">Welcome to %course_name%</msg>
   <msg key="lt_Who_is_taking_the_cou">Who is taking the course?</msg>
   <msg key="lt_Whos_participating_in">Who's participating in this course?</msg>
   <msg key="lt_You_are_number_course">(You are number @course_list.waiting_list_number@ on the wait list)</msg>
@@ -214,6 +215,8 @@
   <msg key="View_Pending">View Pending</msg>
   <msg key="View_User_Requests">View User Requests</msg>
   <msg key="Waiting_List">Waiting List</msg>
+  <msg key="Welcome_message">Welcome message</msg>
+  <msg key="Welcome_to_section">Welcome to %course_name%</msg>
   <msg key="You_have_no_orders">You have no orders</msg>
   <msg key="Your_Applications">Your Applications</msg>
   <msg key="Your_Order_History">Your Order History</msg>
