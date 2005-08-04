@@ -221,7 +221,7 @@ template::list::create \
 	registration {
 	    label "Registration"
 	    display_template {
-		<a href=@section_list.community_url;noquote@members>Registrants</a><br>
+		<a href="@section_list.community_url;noquote@members">Registrants</a><br>
 		@section_list.attendees@ participant<if @section_list.attendees@ ne 1>s</if><if @section_list.available_slots@ not nil>,<br />@section_list.available_slots@ available</if>
 	    }
 	}
