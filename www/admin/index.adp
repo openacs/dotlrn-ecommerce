@@ -30,6 +30,7 @@
 <li><a href="@relationships_category_url;noquote@">#dotlrn-ecommerce.lt_Manage_Relationship_T#</a>
 <li>#dotlrn-ecommerce.Email_templates_1#
 <ul>
+  <li>#dotlrn-ecommerce.Welcome_message# [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=Welcome_to_section&return_url=@return_url@">#dotlrn-ecommerce.subject#</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_Welcome_to_section_1&return_url=@return_url@">#dotlrn-ecommerce.body#</a> ]                
 <if @enable_applications_p@>
   <li>Application approval (default <i>Note: this is customizable on a per section basis</i>) [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=Application_approved&return_url=@return_url@">subject</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_Your_application_to_j&return_url=@return_url@">body</a> ]
 </if>
