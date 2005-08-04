@@ -25,6 +25,7 @@ set context [list {Process Purchase}]
 if { [empty_string_p $search] } {
     # Clear shopping cart
     set user_session_id [ec_get_user_session_id]
+    db_dml delete_offers "delete from ec_user_session_offer_codes where user_session_id = :user_session_id"
 
     set order_id [db_string get_order_id "select order_id from ec_orders where user_session_id=:user_session_id and order_state='in_basket'" -default ""]
 
