@@ -78,6 +78,7 @@ ad_proc -private dotlrn_ecommerce::active_email_types {
 } {
     return [list "on join" "awaiting payment" "on approval"]
 }
+
 ad_proc -private dotlrn_ecommerce::email_type_message_key {
     -type
     -key
@@ -90,16 +91,20 @@ ad_proc -private dotlrn_ecommerce::email_type_message_key {
     if {[string equal "subject" $key]} {
         return [string map \
                 [list \
+                     "awaiting payment" dotlrn-ecommerce.Application_submitted \
+                     "on approval" dotlrn-ecommerce.Application_approved \
                      submit_app dotlrn-ecommerce.Application_submitted \
                      approve_app dotlrn-ecommerce.Application_approved \
-                     "on join" "some stuff"] \
+                     "on join" dotlrn-ecommerce.Welcome_to_section] \
                    $type]
     } elseif {[string equal "body" $key]} {
         return [string map \
                 [list \
+                     "awaiting payment" dotlrn-ecommerce.lt_Your_application_has_been_submitted \
+                     "on approval" dotlrn-ecommerce.lt_Your_application_to_j \
                      submit_app dotlrn-ecommerce.lt_Your_application_has_been_submitted \
                      approve_app dotlrn-ecommerce.lt_Your_application_to_j \
-                     "on join" "some stuff"] \
+                     "on join" dotlrn-ecommerce.lt_Welcome_to_section_1] \
                    $type]
     } else {
         error "Key must be 'subject' or 'body'"

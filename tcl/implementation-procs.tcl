@@ -298,3 +298,27 @@ ad_proc -public dotlrn_ecommerce::ec::toggle_offer_codes {
 	}
     }
 }
+
+ad_proc -callback dotlrn::default_member_email -impl dotlrn-ecommerce {
+} {
+    Check course community_id and template community_id in section or
+    course specific template does not exist
+} {
+    set course_community_id [db_string get_ccid "select dc.community_id
+    from dotlrn_catalog dc,
+    dotlrn_ecommerce_section ds
+    where ds.community_id=:community_id
+    and ds.course_id=dc.course_id" -default ""]
+    set template_community_id ""
+    #    set template_community_id [parameter::get -package_id [apm_package_id_from_key dotlrn-ecommerce] -parameter TemplateCommunityId -default ""]
+    if {[db_0or1row get_email "select * from dotlrn_member_emails where type=:type and community_id=coalesce(:course_community_id,:template_community_id,:community_id)"]} {
+        return -code return [list $from_addr $subject $email]
+    } else {
+        set subject [lang::message::lookup "" [dotlrn_ecommerce::email_type_message_key -type $type -key subject]]
+        set email [lang::message::lookup "" [dotlrn_ecommerce::email_type_message_key -type $type -key body]]
+        set from_addr [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
+        # check to see if message keys exist
+        return -code return [list $from_addr $subject $email]
+    }
+    else return -code continue
+}
