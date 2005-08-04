@@ -43,7 +43,7 @@
                         <if @items.time_p@ true>
 				<if @items.fontcolor@ not nil><font color="@items.fontcolor@">@items.ansi_start_time@</font></if><else>@items.ansi_start_time@</else>				
 			</if>
-                        <a href=@items.event_url@>@items.calendar_name@</a>
+                        <a href=@items.event_url@>** @items.calendar_name@ **</a>
                         </if>
                       </div>
                     </if>

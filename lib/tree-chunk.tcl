@@ -423,7 +423,8 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
     # set course_edit_url [export_vars -base admin/course-add-edit { course_id return_url }]
     set course_edit_url [export_vars -base admin/course-info { course_id course_name course_key }]
     set section_add_url [export_vars -base admin/section-add-edit { course_id return_url }]
-    set section_edit_url [export_vars -base admin/one-section { course_id section_id return_url }]
+    set section_edit_url [export_vars -base admin/one-section { course_id section_id }]
+    # set section_edit_url [export_vars -base admin/one-section { course_id section_id return_url }]
 # Roel: Moved to proc
 #    set section_pages_url "pages/${section_id}/"
 #    set section_folder_id [dotlrn_ecommerce::section::get_public_folder_id $section_id]

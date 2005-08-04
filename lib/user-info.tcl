@@ -135,11 +135,10 @@ if { $user_type == "participant" } {
     }
 
     ad_form -extend -name user_info -form {
-	{grade:text(select),optional
+	{grade:text(select)
 	    {label "[_ dotlrn-ecommerce.Grade]"}
-	    {options {$grade_options}}
-	}
-
+	    {options {$grade_options} }
+	} 
 	{allergies:text,optional
 	    {label "[_ dotlrn-ecommerce.Medical_Issues]"}
 	    {html {size 60}}
@@ -150,6 +149,7 @@ if { $user_type == "participant" } {
 	    {html {size 60}}
 	}
     }
+
 } else {
     ad_form -extend -name register -form {
 	{grade:text(hidden) {value ""}}
