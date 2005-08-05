@@ -551,40 +551,40 @@ foreach payment_method [split $payment_methods] {
 
     switch $payment_method {
 	internal_account {
-	    lappend method_options [list "Internal account number" internal_account]
+	    lappend method_options [list "[_ dotlrn-ecommerce.lt_Internal_account_numb]" internal_account]
 	    lappend validate {internal_account
 		{ [exists_and_not_null internal_account] || [template::element::get_value checkout method] != "internal_account" }
-		"Please enter an internal account code"
+		"[_ dotlrn-ecommerce.lt_Please_enter_an_inter]"
 	    }
 	}
 	check {
-	    lappend method_options [list "User sends in a check" check]
+	    lappend method_options [list "[_ dotlrn-ecommerce.Check]" check]
 	}
 	cc {
-	    lappend method_options [list "Pay via credit card" cc]
+	    lappend method_options [list "[_ dotlrn-ecommerce.Credit_Card]" cc]
 	    lappend validate {creditcard_number
 		{ [template::element::get_value checkout method] != "cc" || [exists_and_not_null creditcard_number] }
-		"Please enter a credit card number"
+		"[_ dotlrn-ecommerce.lt_Please_enter_a_credit]"
 	    }
 	    lappend validate {creditcard_type
 		{ [template::element::get_value checkout method] != "cc" || [exists_and_not_null creditcard_type] }
-		"Please select a credit card type"
+		"[_ dotlrn-ecommerce.lt_Please_select_a_credi]"
 	    }
 	    lappend validate {creditcard_expires
 		{ [template::element::get_value checkout method] != "cc" || ([exists_and_not_null creditcard_expire_1] && [exists_and_not_null creditcard_expire_2]) }
-		"A full credit card expiration date (month and year) is required"
+		"[_ dotlrn-ecommerce.lt_A_full_credit_card_ex]"
 	    }
 	}
 	cash {
-	    lappend method_options [list "User pays cash" cash]
+	    lappend method_options [list "[_ dotlrn-ecommerce.Cash]" cash]
 	}
 	invoice {
-	    lappend method_options [list "Invoice" invoice]
+	    lappend method_options [list "[_ dotlrn-ecommerce.Invoice]" invoice]
 	}
 	scholarship {
 	    # Purchasing via scholarships should only be available to
 	    # admins by logic, but this can be set in the param
-	    lappend method_options [list "Scholarship" scholarship]
+	    lappend method_options [list "[_ dotlrn-ecommerce.Scholarship]" scholarship]
 	}
     }
     incr method_count
@@ -593,13 +593,13 @@ set payment_methods $new_payment_methods
 
 if { $method_count > 1 } {
     ad_form -extend -name checkout -form {
-	{-section "Payment Information"}
-	{method:text(radio) {label "Select a payment method"} {options {$method_options}}}
+	{-section "[_ dotlrn-ecommerce.Payment_Information]"}
+	{method:text(radio) {label "[_ dotlrn-ecommerce.Select]"} {options {$method_options}}}
     }
 
     if { [exists_and_equal internal_account_p 1] } {
 	ad_form -extend -name checkout -form {
-	    {internal_account:text,optional {label "Internal Account"}}
+	    {internal_account:text,optional {label "[_ dotlrn-ecommerce.Internal_Account]"}}
 	}
     }
 } elseif { $method_count == 1 } {
@@ -612,17 +612,17 @@ if { [info exists cc_p] } {
     if { $method_count == 1 } {
 	# The creditcard_expires field is a hack, improve it
 	ad_form -extend -name checkout -form {
-	    {-section "Credit card information"}
-	    {creditcard_number:text {label "Credit card number"}}
-	    {creditcard_type:text(select) {label Type} {options {{"Please select one" ""} {VISA v} {MasterCard m} {"American Express" a}}}}
-	    {creditcard_expires:text(inform) {label "Expires <span class=\"form-required-mark\">*</span>"} {value $ec_expires_widget}}
+	    {-section "[_ dotlrn-ecommerce.lt_Credit_card_informati]"}
+	    {creditcard_number:text {label "[_ dotlrn-ecommerce.Credit_card_number]"}}
+	    {creditcard_type:text(select) {label "[_ dotlrn-ecommerce.Type]"} {options {{"[_ dotlrn-ecommerce.Please_select_one]" ""} {VISA v} {MasterCard m} {"American Express" a}}}}
+	    {creditcard_expires:text(inform) {label "[_ dotlrn-ecommerce.Expires] <span class=\"form-required-mark\">*</span>"} {value $ec_expires_widget}}
 	}
     } else {
 	ad_form -extend -name checkout -form {
-	    {-section "Credit card information"}
-	    {creditcard_number:text,optional {label "Credit card number"}}
-	    {creditcard_type:text(select),optional {label Type} {options {{"Please select one" ""} {VISA v} {MasterCard m} {"American Express" a}}}}
-	    {creditcard_expires:text(inform),optional {label "Expires"} {value $ec_expires_widget}}
+	    {-section "[_ dotlrn-ecommerce.lt_Credit_card_informati]"}
+	    {creditcard_number:text,optional {label "[_ dotlrn-ecommerce.Credit_card_number]"}}
+	    {creditcard_type:text(select),optional {label Type} {options {{"[_ dotlrn-ecommerce.Please_select_one]" ""} {VISA v} {MasterCard m} {"American Express" a}}}}
+	    {creditcard_expires:text(inform),optional {label "[_ dotlrn-ecommerce.Expires]"} {value $ec_expires_widget}}
 	}
     }
 }
@@ -862,8 +862,8 @@ if { [exists_and_equal shipping_required "t"] } {
 append hidden_vars [export_form_vars billing_address_id shipping_address_id user_id participant_id]
 
 # Get scholarships
-db_multirow scholarships scholarships {
-    select f.title, sum(g.grant_amount) as grant_amount
+db_multirow -extend { pretty_grant_amount pretty_available } scholarships scholarships {
+    select f.title, sum(g.grant_amount) as grant_amount, sum(gift_certificate_amount_left(gc.gift_certificate_id)) as available
     from scholarship_fundi f, 
     scholarship_fund_grants g,
     ec_gift_certificates gc
@@ -872,8 +872,10 @@ db_multirow scholarships scholarships {
     and g.user_id = :user_id
 
     group by f.title
+    having sum(gift_certificate_amount_left(gc.gift_certificate_id)) > 0
 } {
-    set grant_amount [ec_pretty_price $grant_amount]
+    set pretty_grant_amount [ec_pretty_price $grant_amount]
+    set pretty_available [ec_pretty_price $available]
 }
 
 db_release_unused_handles

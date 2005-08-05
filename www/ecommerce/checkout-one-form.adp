@@ -21,7 +21,7 @@
 <if @scholarships:rowcount@ gt 0>
     <h3>#dotlrn-ecommerce.Scholarships#</h3>
     <multiple name="scholarships">
-      @scholarships.title@; Amount Granted @scholarships.grant_amount@<br />
+      @scholarships.title@; Amount Granted @scholarships.pretty_grant_amount@<if @scholarships.grant_amount@ gt @scholarships.available@>; Available @scholarships.pretty_available@</if><br />
     </multiple>
 </if>
 
