@@ -33,7 +33,6 @@
 <li>#dotlrn-ecommerce.Instructors# - [ <a href=@instructor_community_url@>#dotlrn.Community#</a> | <a href=@instructor_community_url@/members>#dotlrn-ecommerce.List#</a> ]
 <li>#dotlrn-ecommerce.Assistant_Instuctors# - [ <a href=@assistant_community_url@>#dotlrn.Community#</a> | <a href=@assistant_community_url@/members>#dotlrn-ecommerce.List#</a> ]
 <li><a href="../Administration/categories/cadmin">#dotlrn-ecommerce.lt_Manage_Category_Trees#</a>
-<li><a href="@relationships_category_url;noquote@">#dotlrn-ecommerce.lt_Manage_Relationship_T#</a>
 <li>#dotlrn-ecommerce.Email_templates_1#
 <ul>
   <li>#dotlrn-ecommerce.Welcome_message#[ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=Welcome_to_section&return_url=@return_url@">#dotlrn-ecommerce.subject#</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_Welcome_to_section_1&return_url=@return_url@">#dotlrn-ecommerce.body#</a> ]                
