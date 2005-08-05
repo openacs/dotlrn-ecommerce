@@ -100,3 +100,4 @@ create table dotlrn_ecommerce_transaction_invoice_payments (
 
 \i dotlrn-ecommerce-memberships-create.sql
 \i dotlrn-ecommerce-admin-portlet-create.sql
+\i dotlrn-eccmmerce-views-create.sql
