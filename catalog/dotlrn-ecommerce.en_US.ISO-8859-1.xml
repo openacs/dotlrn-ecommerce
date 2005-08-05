@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <message_catalog package_key="dotlrn-ecommerce" package_version="0.1d3" locale="en_US" charset="ISO-8859-1">
+
   <msg key="Action">Action</msg>
   <msg key="Add_Course">Add Course</msg>
   <msg key="Add_Participant">Add Participant</msg>
@@ -57,6 +58,7 @@
   <msg key="Gift_Certificate">Gift Certificate:</msg>
   <msg key="Go_to_My_Account">Go to My Account</msg>
   <msg key="Grade">Grade</msg>
+  <msg key="Grant_Scholarships">Grant Scholarships</msg>
   <msg key="Im_a_new_customer">I'm a new customer:</msg>
   <msg key="In_the_last">In the last</msg>
   <msg key="In_the_last_24_hours">In the last 24 hours</msg>
@@ -214,6 +216,7 @@
   <msg key="Role">Role</msg>
   <msg key="Scholarship">Scholarship</msg>
   <msg key="Scholarship_Funds">Scholarship Funds</msg>
+  <msg key="Scholarships">Scholarships</msg>
   <msg key="Section">Section</msg>
   <msg key="Section_1">Name</msg>
   <msg key="Section_Information">Section Information</msg>
