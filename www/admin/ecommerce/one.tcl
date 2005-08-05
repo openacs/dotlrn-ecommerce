@@ -277,7 +277,7 @@ switch $method {
 	doc_body_append "<blockquote>This order was paid by <b>invoice</b>."
 	
 	set invoice_payment_sum 0
-	doc_body_append "<ul>"
+	doc_body_append "<ul><b>Payments</b>"
 	db_foreach invoice_payments {
 	    select amount, to_char(payment_date, 'Month dd, yyyy hh:miam') as pretty_payment_date, method as invoice_method
 	    from dotlrn_ecommerce_transaction_invoice_payments

@@ -125,7 +125,7 @@ template::list::create \
 	    label ""
 	    display_template {
 		<if @applications.member_state@ in "needs approval" "request approval" "awaiting payment">
-		<a href="@applications.approve_url;noquote@" class="button">[_ dotlrn-ecommerce.Approve]</a> &nbsp;
+		<a href="@applications.approve_url;noquote@" class="button">[_ dotlrn-ecommerce.Approve]</a>
 		<a href="@applications.reject_url;noquote@" class="button">[_ dotlrn-ecommerce.Reject]</a>
 		</if>
 		<else>
