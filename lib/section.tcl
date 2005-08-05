@@ -270,7 +270,7 @@ db_foreach custom_fields_select "
     # maxparticipants is a required field and can not be 0 or less than 0
     if { $field_identifier == "maxparticipants" } {
 	lappend validate {maxparticipants
-	    { $maxparticipants > 0 && [empty_string_p $maxparticipants] }
+	    { $maxparticipants > 0 || [empty_string_p $maxparticipants] }
 	    "Please enter a value greater than 0"
 	}
     }
