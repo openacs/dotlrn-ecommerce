@@ -204,6 +204,17 @@ foreach item_id $item_id_list {
 	set item_state='received_back', received_back_date=to_date(:received_back_datetime,'YYYY-MM-DD HH12:MI:SSAM'), price_refunded=:price_bind_variable,
 	shipping_refunded=:shipping_bind_variable, price_tax_refunded=:price_tax_to_refund, shipping_tax_refunded=:shipping_tax_to_refund, refund_id=:refund_id
 	where item_id=:item_id"
+
+    # Remove the participant from the community
+    if { [db_0or1row community {
+	select s.community_id, o.participant_id
+	from dotlrn_ecommerce_section s, ec_items i, dotlrn_ecommerce_orders o
+	where s.product_id = i.product_id
+	and i.item_id = o.item_id
+	and i.item_id = :item_id
+    }] } {
+	dotlrn_community::remove_user $community_id $participant_id
+    }
 }
 
 set base_shipping_tax_charged [db_string get_base_shipping_tax "

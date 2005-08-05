@@ -103,9 +103,8 @@ db_foreach get_return_item_list $sql {
 	<tr>
 	  <td>$product_name</td>
 	   <td><input type=text name=\"price_to_refund.${item_id}\" value=\"[format "%0.2f" $price_charged]\" size=\"5\"> (out of [ec_pretty_price $price_charged])</td>
- 	   <td><input type=text name=\"shipping_to_refund.${item_id}\" value=\"[format "%0.2f" [expr $shipping_charged * $shipping_refund_percent]]\" size=\"5\"> 
-	       (out of [ec_pretty_price $shipping_charged])</td>
-	</tr>"
+	</tr>
+ 	   <input type=hidden name=\"shipping_to_refund.${item_id}\" value=\"[format "%0.2f" [expr $shipping_charged * $shipping_refund_percent]]\" size=\"5\">"
 }
 
 append doc_body "
@@ -114,7 +113,7 @@ append doc_body "
       <blockquote>
         <table border=0 cellspacing=0 cellpadding=10>
           <tr>
-            <th>Item</th><th>Price to Refund</th><th>Shipping to Refund</th>
+            <th>Item</th><th>Price to Refund</th>
          </tr>
          $items_to_print
        </table>"
@@ -129,9 +128,7 @@ set base_shipping [db_string base_shipping_select "
     where order_id=:order_id"]
 
 append doc_body "
-      <p>Base shipping charge to refund: 
-      <input type=text name=base_shipping_to_refund value=\"[format "%0.2f" [expr $base_shipping * $shipping_refund_percent]]\" size=\"5\"> 
-      (out of [ec_pretty_price $base_shipping])</p>
+      <input type=hidden name=base_shipping_to_refund value=\"[format "%0.2f" [expr $base_shipping * $shipping_refund_percent]]\" size=\"5\"> 
     </blockquote>
 
     <center><input type=submit value=\"Continue\"></center>
