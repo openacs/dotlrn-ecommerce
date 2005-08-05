@@ -73,32 +73,32 @@ foreach payment_method [split $payment_methods] {
     
     switch $payment_method {
 	internal_account {
-	    lappend method_options [list "Internal account number" internal_account]
+	    lappend method_options [list "[_ dotlrn-ecommerce.lt_Internal_account_numb]" internal_account]
 	    lappend validate {internal_account
 		{ [exists_and_not_null internal_account] || [template::element::get_value checkout method] != "internal_account" }
-		"Please enter an internal account code"
+		"[_ dotlrn-ecommerce.lt_Please_enter_an_inter]"
 	    }
 	}
 	check {
-	    lappend method_options [list "User sends in a check" check]
+	    lappend method_options [list "[_ dotlrn-ecommerce.Check]" check]
 	}
 	cc {
-	    lappend method_options [list "Pay via credit card" cc]
+	    lappend method_options [list "[_ dotlrn-ecommerce.Credit_Card]" cc]
 	    lappend validate {creditcard_number
 		{ [template::element::get_value checkout method] != "cc" || [exists_and_not_null creditcard_number] }
-		"Please enter a credit card number"
+		"[_ dotlrn-ecommerce.lt_Please_enter_a_credit]"
 	    }
 	    lappend validate {creditcard_type
 		{ [template::element::get_value checkout method] != "cc" || [exists_and_not_null creditcard_type] }
-		"Please select a credit card type"
+		"[_ dotlrn-ecommerce.lt_Please_select_a_credi]"
 	    }
 	    lappend validate {creditcard_expires
 		{ [template::element::get_value checkout method] != "cc" || ([exists_and_not_null creditcard_expire_1] && [exists_and_not_null creditcard_expire_2]) }
-		"A full credit card expiration date (month and year) is required"
+		"[_ dotlrn-ecommerce.lt_A_full_credit_card_ex]"
 	    }
 	}
 	cash {
-	    lappend method_options [list "User pays cash" cash]
+	    lappend method_options [list "[_ dotlrn-ecommerce.Cash]" cash]
 	}
     }
     incr method_count
@@ -107,19 +107,19 @@ set payment_methods $new_payment_methods
 
 # Build the form 
 ad_form -name checkout -export { order_id } -form {
-    {-section "Amount to be Paid"}
-    {amount:float {label "Amount to be Paid"} {html {size 10}}}
+    {-section "[_ dotlrn-ecommerce.Amount_to_be_Paid]"}
+    {amount:float {label "[_ dotlrn-ecommerce.Amount_to_be_Paid]"} {html {size 10}}}
 }
 
 if { $method_count > 1 } {
     ad_form -extend -name checkout -form {
-	{-section "Payment Information"}
-	{method:text(radio) {label "Select a payment method"} {options {$method_options}}}
+	{-section "[_ dotlrn-ecommerce.Payment_Information]"}
+	{method:text(radio) {label "[_ dotlrn-ecommerce.lt_Select_a_payment_meth]"} {options {$method_options}}}
     }
 
     if { [exists_and_equal internal_account_p 1] } {
 	ad_form -extend -name checkout -form {
-	    {internal_account:text,optional {label "Internal Account"}}
+	    {internal_account:text,optional {label "[_ dotlrn-ecommerce.Internal_Account]"}}
 	}
     }
 } elseif { $method_count == 1 } {
@@ -156,17 +156,17 @@ if { [info exists cc_p] } {
 	# The creditcard_expires field is a hack, improve it
 	# retrieve a saved address
 	ad_form -extend -name checkout -form {
-	    {-section "Credit card information"}
-	    {creditcard_number:text {label "Credit card number"}}
-	    {creditcard_type:text(select) {label Type} {options {{"Please select one" ""} {VISA v} {MasterCard m} {"American Express" a}}}}
-	    {creditcard_expires:text(inform) {label "Expires <span class=\"form-required-mark\">*</span>"} {value $ec_expires_widget}}
+	    {-section "[_ dotlrn-ecommerce.lt_Credit_card_informati]"}
+	    {creditcard_number:text {label "[_ dotlrn-ecommerce.Credit_card_number]"}}
+	    {creditcard_type:text(select) {label Type} {options {{"[_ dotlrn-ecommerce.Please_select_one]" ""} {VISA v} {MasterCard m} {"American Express" a}}}}
+	    {creditcard_expires:text(inform) {label "[_ dotlrn-ecommerce.Expires] <span class=\"form-required-mark\">*</span>"} {value $ec_expires_widget}}
 	}
     } else {
 	ad_form -extend -name checkout -form {
-	    {-section "Credit card information"}
-	    {creditcard_number:text,optional {label "Credit card number"}}
-	    {creditcard_type:text(select),optional {label Type} {options {{"Please select one" ""} {VISA v} {MasterCard m} {"American Express" a}}}}
-	    {creditcard_expires:text(inform),optional {label "Expires"} {value $ec_expires_widget}}
+	    {-section "[_ dotlrn-ecommerce.lt_Credit_card_informati]"}
+	    {creditcard_number:text,optional {label "[_ dotlrn-ecommerce.Credit_card_number]"}}
+	    {creditcard_type:text(select),optional {label Type} {options {{"[_ dotlrn-ecommerce.Please_select_one]" ""} {VISA v} {MasterCard m} {"American Express" a}}}}
+	    {creditcard_expires:text(inform),optional {label "[_ dotlrn-ecommerce.Expires]"} {value $ec_expires_widget}}
 	}
     }
 }
@@ -182,7 +182,7 @@ set invoice_payments_sum [db_string invoice_payments_sum {
 
 lappend validate {amount
     { $amount > 0 && $amount <= ($total_price - $invoice_payments_sum) }
-    "You may only enter up to the amount [ec_pretty_price [expr $total_price - $invoice_payments_sum]]"
+    "[_ dotlrn-ecommerce.lt_You_may_only_enter_up] [ec_pretty_price [expr $total_price - $invoice_payments_sum]]"
 }
 
 ad_form -extend -name checkout -validate $validate  -form {} -on_request {
@@ -285,8 +285,6 @@ ad_form -extend -name checkout -validate $validate  -form {} -on_request {
 		    set authorized_date = current_timestamp
 		    where transaction_id = :transaction_id"
 		}
-
-		ns_log notice "DEBUG:: $result"
 
 		if { [string equal $result "authorized"] || [string equal $result "no_recommendation"] } {
 		    ad_returnredirect [export_vars -base one { order_id }]

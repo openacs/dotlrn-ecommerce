@@ -9,6 +9,7 @@
   <msg key="add_to_cart">register for course</msg>
   <msg key="Administer_Public_Pages">Administer Public Pages</msg>
   <msg key="Administrative_Setup">Administrative Setup</msg>
+  <msg key="Amount_to_be_Paid">Amount to be Paid</msg>
   <msg key="Application">Application</msg>
   <msg key="Application_approved">Application approved</msg>
   <msg key="application_pending">(application pending)</msg>
@@ -39,6 +40,7 @@
   <msg key="Course_Quick_Jump">Course Quick Jump</msg>
   <msg key="Courses">Courses:</msg>
   <msg key="Credit_Card">Credit Card</msg>
+  <msg key="Credit_card_number">Credit card number</msg>
   <msg key="Currently_Selected">Currently Selected</msg>
   <msg key="delete">delete</msg>
   <msg key="Display_All_Orders">Display All Orders</msg>
@@ -54,6 +56,7 @@
   <msg key="Email_templates_1">Email templates</msg>
   <msg key="Expense_Tracking">Expense Tracking</msg>
   <msg key="Expenses">Expenses</msg>
+  <msg key="Expires">Expires</msg>
   <msg key="For_PreReq_Approval">For PreReq Approval</msg>
   <msg key="Gift_Certificate">Gift Certificate:</msg>
   <msg key="Go_to_My_Account">Go to My Account</msg>
@@ -76,6 +79,7 @@
   <msg key="List_Users">List Users</msg>
   <msg key="lt_1_Please_review_your_">1. Please review your order list for accuracy.</msg>
   <msg key="lt_2_Complete_this_infor">2. Complete this information.</msg>
+  <msg key="lt_A_full_credit_card_ex">A full credit card expiration date (month and year) is required</msg>
   <msg key="lt_A_space_has_opened_up">A space has opened up in %community_name%.</msg>
   <msg key="lt_A_space_has_opened_up_1">A space has opened up in %community_name%. Please register via the website or call to get registered via phone.</msg>
   <msg key="lt_Added_to_waiting_list">Added to waiting list for %community_name%</msg>
@@ -96,6 +100,7 @@
   <msg key="lt_Continue_Registration">Continue Registration.</msg>
   <msg key="lt_Continue_Registration_1">Continue Registration</msg>
   <msg key="lt_Create_a_Participant_">Create a Participant Account</msg>
+  <msg key="lt_Credit_card_informati">Credit card information</msg>
   <msg key="lt_eCommerce_Administrat">eCommerce Administration</msg>
   <msg key="lt_Edit_Section_Informat">Edit Section Information</msg>
   <msg key="lt_for_first_names_last_">for %first_names% %last_name% (if you're not %first_names% %last_name%</msg>
@@ -106,6 +111,7 @@
   <msg key="lt_I_am_a_returning_cust">I am a returning customer:</msg>
   <msg key="lt_if_you_prefer_using_s">if you prefer using some of your other addresses on file with us.</msg>
   <msg key="lt_Im_participating_in_t">I'm participating in this course</msg>
+  <msg key="lt_Internal_account_numb">Internal account number</msg>
   <msg key="lt_Manage_Category_Trees">Manage Category Trees</msg>
   <msg key="lt_Manage_Course_Attribu">Manage Course Attributes</msg>
   <msg key="lt_Manage_Registration_A">Manage Registration Assessment</msg>
@@ -121,10 +127,13 @@
   <msg key="lt_Orders_in_the_Last_7_">Orders in the Last 7 Days</msg>
   <msg key="lt_Participant_pays_for_">Participant pays for course</msg>
   <msg key="lt_patron_name_also_pays">%patron_name% also pays for the course</msg>
+  <msg key="lt_Please_enter_a_credit">Please enter a credit card number</msg>
   <msg key="lt_Please_enter_a_name_f">Please enter a name for the group</msg>
   <msg key="lt_Please_enter_a_search">Please enter a search string</msg>
   <msg key="lt_Please_enter_a_value_">Please enter a value greater than 1</msg>
+  <msg key="lt_Please_enter_an_inter">Please enter an internal account code</msg>
   <msg key="lt_Please_enter_the_numb">Please enter the number of attendees</msg>
+  <msg key="lt_Please_select_a_credi">Please select a credit card type</msg>
   <msg key="lt_Please_select_a_secti">Please select a section from the list</msg>
   <msg key="lt_Please_select_a_secti_1">Please select a section under this course</msg>
   <msg key="lt_Process_Purchase_for_">Process Purchase for %section_name%</msg>
@@ -140,6 +149,7 @@
   <msg key="lt_Return_to_course_cata">Return to course catalog</msg>
   <msg key="lt_Return_to_main_course">Return to main course registration administration</msg>
   <msg key="lt_Section_Prerequisites">Section Prerequisites</msg>
+  <msg key="lt_Select_a_payment_meth">Select a payment method</msg>
   <msg key="lt_Select_another_purcha">Select another purchaser</msg>
   <msg key="lt_Sessions_and_Attendan">Sessions and Attendance</msg>
   <msg key="lt_Thank_you_for_your_ap">Thank you for your application.</msg>
@@ -162,6 +172,7 @@
   <msg key="lt_You_are_number_course">(You are number @course_list.waiting_list_number@ on the wait list)</msg>
   <msg key="lt_You_have_no_applicati">You have no applications</msg>
   <msg key="lt_You_may_continue_with">You may continue with the purchase</msg>
+  <msg key="lt_You_may_only_enter_up">You may only enter up to the amount</msg>
   <msg key="lt_You_may_wish_to_conti">You may wish to continue and go on the waiting list for confirmation.</msg>
   <msg key="lt_Your_application_to_j">Your application to join %community_name% was approved.</msg>
   <msg key="lt_Your_application_to_j_1">Your application to join %community_name% was rejected.</msg>
@@ -189,10 +200,12 @@
   <msg key="Paid_By">Paid By</msg>
   <msg key="Participant">Participant</msg>
   <msg key="Participants">Participants</msg>
+  <msg key="Payment_Information">Payment Information</msg>
   <msg key="Payment_Method">Payment Method</msg>
   <msg key="Payment_method">Payment method</msg>
   <msg key="Per_User">Per User</msg>
   <msg key="Phone_Number">Phone Number</msg>
+  <msg key="Please_select_one">Please select one</msg>
   <msg key="PreReq_Approval_List">PreReq Approval List</msg>
   <msg key="PriceItem">Price/Item</msg>
   <msg key="Proceed">Proceed</msg>
@@ -222,6 +235,7 @@
   <msg key="Section_Information">Section Information</msg>
   <msg key="Section_Name">Section Name</msg>
   <msg key="Section_Quick_Jump">Section Quick Jump</msg>
+  <msg key="Select">a payment method</msg>
   <msg key="Shopping_Cart">Shopping Cart</msg>
   <msg key="Special_Needs">Special Needs</msg>
   <msg key="subject">subject</msg>
@@ -234,6 +248,7 @@
   <msg key="Total">Total:</msg>
   <msg key="Total_1">Total</msg>
   <msg key="Total_Amount">Total Amount</msg>
+  <msg key="Type">Type</msg>
   <msg key="Type_of_Request">Type of Request</msg>
   <msg key="User_has_no_email">User has no email</msg>
   <msg key="User_Info">User Info</msg>
@@ -254,4 +269,6 @@
   <msg key="Your_Applications">Your Applications</msg>
   <msg key="Your_Order_History">Your Order History</msg>
   <msg key="Your_Relationship">Your Relationship</msg>
+  <msg key="Zone">Zone</msg>
+  <msg key="Zones">Zones</msg>
 </message_catalog>
