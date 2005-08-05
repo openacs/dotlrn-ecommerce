@@ -159,6 +159,7 @@
   <msg key="lt_This_section_is_curre">This section is currently full, but we are taking registrations for the waiting list.</msg>
   <msg key="lt_To_complete_your_orde">To complete your order, submit this form, and confirm the information on the following page.</msg>
   <msg key="lt_to_send_us_your_order">to send us your order!</msg>
+  <msg key="lt_Total_Amount_Received">Total Amount Received</msg>
   <msg key="lt_User_application_appr">Application approved</msg>
   <msg key="lt_User_has_submitted_an">User has submitted an application and is waiting for approval</msg>
   <msg key="lt_User_is_in_waiting_li">User is in waiting list</msg>
@@ -248,6 +249,7 @@
   <msg key="Total">Total:</msg>
   <msg key="Total_1">Total</msg>
   <msg key="Total_Amount">Total Amount</msg>
+  <msg key="Total_Refunds">Total Refunds</msg>
   <msg key="Type">Type</msg>
   <msg key="Type_of_Request">Type of Request</msg>
   <msg key="User_has_no_email">User has no email</msg>
