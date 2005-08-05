@@ -104,6 +104,7 @@
    </else>
 </tr>
 
+<if @show_template_community_admin@ eq 1>
 <if @template_community_id@ defined>
 <tr>
       <td></td>
@@ -111,6 +112,7 @@
       <td><a href="@template_community_url;noquote@"
 	class="button">User</a> <a href="@template_community_url;noquote@one-community-admin" class="button">Admin</a> <a href="@template_calendar_url;noquote@" class="button">Add Session</a></td>
 </tr>
+</if>
 </if>
 
 </table>

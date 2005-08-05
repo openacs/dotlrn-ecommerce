@@ -25,6 +25,9 @@ if { [string equal $index ""] } {
     set return_url "${return_url}&index=yes"
 }
 
+# HAM : do we show template community buttons
+set show_template_community_admin [parameter::get -parameter ShowTemplateCommunityAdminP -default 0]
+
 # Check permission over course_id
 permission::require_permission -object_id $course_id -privilege "admin"
 
