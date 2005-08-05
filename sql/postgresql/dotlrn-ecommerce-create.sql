@@ -13,7 +13,7 @@ create table dotlrn_ecommerce_section (
 	section_id      integer primary key,
 	course_id 	integer references cr_items(item_id),
 	community_id    integer references dotlrn_communities_all(community_id),
-	product_id	integer references  ec_products,
+	product_id	integer references ec_products(product_id),
 	section_name	varchar(2000),
 	age		varchar(2000),
 	date_time_start timestamptz,  	   
