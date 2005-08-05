@@ -200,7 +200,27 @@ append doc_body "
 # Request the credit card number to be re-entered if it is no longer
 # on file, yet there is money to refund.
 
-if { [empty_string_p $creditcard_number] && $cash_amount_to_refund > 0 } {
+# Only ask for credit card info if credit card was used in purchase
+
+set method [db_string method {
+    select method
+    from dotlrn_ecommerce_transactions
+    where order_id = :order_id
+} -default cc]
+
+if { $method == "invoice" } {
+    if { [db_0or1row cc_transaction_in_invoice {
+	select 1
+	where exists (select *
+		      from dotlrn_ecommerce_transaction_invoice_payments
+		      where order_id = :order_id
+		      and method = 'cc')
+    }] } {
+	set method cc
+    }
+}
+
+if { [empty_string_p $creditcard_number] && $cash_amount_to_refund > 0 && $method == "cc" } {
     append doc_body "
     <p>Please re-enter the credit card number of the card used for this order:</p>
     <table border=0 cellspacing=0 cellpadding=10>

@@ -95,7 +95,7 @@
 
   <fullquery name="select_unrefund_transactions">
     <querytext>
-      select transaction_id, transaction_amount, refunded_transaction_id, to_be_captured_date
+      select transaction_id, transaction_amount, refunded_transaction_id, to_char(to_be_captured_date, 'yyyy-mm-dd hh24:mi:ss') as to_be_captured_date
       from ec_financial_transactions
       where order_id = :order_id
       and transaction_type = 'refund'

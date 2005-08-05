@@ -44,6 +44,24 @@ ad_page_contract {
     creditcard_last_four:optional
 }
 
+set method [db_string method {
+    select method
+    from dotlrn_ecommerce_transactions
+    where order_id = :order_id
+} -default cc]
+
+if { $method == "invoice" } {
+    if { [db_0or1row cc_transaction_in_invoice {
+	select 1
+	where exists (select *
+		      from dotlrn_ecommerce_transaction_invoice_payments
+		      where order_id = :order_id
+		      and method = 'cc')
+    }] } {
+	set method cc
+    }
+}
+
 # The customer service rep must be logged on and have admin
 # privileges.
 
@@ -77,7 +95,7 @@ if { [db_string get_refund_id_check "
 # Check if money needs to be refunded and if the credit card number is
 # still on file.
 
-if { [expr $cash_amount_to_refund] > 0 } {
+if { [expr $cash_amount_to_refund] > 0 && $method == "cc" } {
 
     # Make sure that all the credit card information is there.
 
@@ -146,10 +164,12 @@ if { $exception_count > 0 } {
 # 2. Put records into ec_refunds, individual items, the order, and
 #    ec_financial_transactions
 
-db_dml update_cc_number_incctable "
-    update ec_creditcards 
+if { $method == "cc" } {
+    db_dml update_cc_number_incctable "
+    update ec_creditcards 	
     set creditcard_number=:creditcard_number 
     where creditcard_id=:creditcard_id"
+}
 db_dml insert_new_ec_refund "
     insert into ec_refunds
     (refund_id, order_id, refund_amount, refund_date, refunded_by, refund_reasons)
@@ -206,7 +226,7 @@ db_dml update_ec_order_set_shipping_refunds "
 # in parts and the customer returned items from various shipments.
 
 set refund_amount $cash_amount_to_refund 
-while { $refund_amount > 0 } {
+while { $refund_amount > 0 && $method == "cc" } {
     
     # See if the refund matches a single charge transaction. The
     # test < 0.01 is needed for reasons of rounding errors.
@@ -258,9 +278,8 @@ while { $refund_amount > 0 } {
 	    (transaction_id, refunded_transaction_id, order_id, refund_id, creditcard_id, transaction_amount, transaction_type, inserted_date, to_be_captured_date)
 	    values
 	    (:refund_transaction_id, :charged_transaction_id, :order_id, :refund_id, :creditcard_id, :refund_amount, 'refund', sysdate, :scheduled_hour)"
-
+	
 	# Record the amount that was refunded of the charge transaction.
-
 	db_dml record_refunded_amount "
 	    update ec_financial_transactions
 	    set refunded_amount = coalesce(refunded_amount, 0) + :refund_amount
@@ -436,7 +455,7 @@ if { $certificate_amount_to_reinstate > 0 } {
 
 # 4. Try to do the refund(s)
 
-if {$cash_amount_to_refund > 0} {
+if {$cash_amount_to_refund > 0 && $method == "cc" } {
     set page_title "Refund results"
     set results_explanation ""
     db_foreach select_unrefund_transactions "
