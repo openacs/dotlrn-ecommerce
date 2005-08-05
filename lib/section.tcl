@@ -216,7 +216,7 @@ if { [llength $tree_options] > 0 } {
 
 # TICKET #159 section_description
 ad_form -extend -name add_section -form {
-	{description:text(textarea)
+	{description:text(textarea),optional
 	    {label "Description"}
 	    {html {cols 25 rows 10}}
 	}
