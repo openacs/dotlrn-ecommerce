@@ -177,6 +177,7 @@ ad_proc -public dotlrn_ecommerce::section::flush_cache {
     util_memoize_flush [list dotlrn_ecommerce::section::price $section_id]
     util_memoize_flush [list dotlrn_ecommerce::section::member_price $section_id]
     util_memoize_flush [list dotlrn_ecommerce::section::application_assessment $section_id]
+    util_memoize_flush [list dotlrn_ecommerce::section::section_zones $community_id]
 
     if { [exists_and_not_null user_id] } {
 	util_memoize_flush [list dotlrn_ecommerce::section::member_state $user_id $community_id]
@@ -582,4 +583,33 @@ ad_proc -public dotlrn_ecommerce::section::waiting_list_number {
 	      and rr.member_state = 'needs approval'
 	      order by o.creation_date) r
     } -default ""]
+}
+
+ad_proc -public dotlrn_ecommerce::section::section_zones {
+    community_id
+} {
+    Return zones
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-08-05
+    
+    @param section_id
+
+    @return 
+    
+    @error 
+} {
+    set locale [ad_conn locale]
+
+    if { [db_0or1row zone {
+	select tree_id as zone_tree_id
+	from category_tree_translations
+	where name = 'Zone'
+	and locale = :locale
+	limit 1
+    }] } {
+	return [db_list section_zones { }]    
+    }
+
+    return [list]
 }

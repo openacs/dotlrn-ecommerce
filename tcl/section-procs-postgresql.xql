@@ -60,4 +60,14 @@
 	</querytext>
 	</fullquery>
 
+	<fullquery name="dotlrn_ecommerce::section::section_zones.section_zones">
+	<querytext>
+		select t.name
+		from category_object_map_tree m, category_translations t
+		where t.category_id = m.category_id
+		and t.locale = coalesce(:locale, 'en_US')
+		and m.object_id = :community_id
+		and m.tree_id = :zone_tree_id
+	</querytext>
+	</fullquery>
 </queryset>
