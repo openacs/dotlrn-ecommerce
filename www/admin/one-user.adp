@@ -10,7 +10,7 @@
 
 	<h2>#acs-subsite.Basic_Information#</h2>
 
-	<include src="/packages/dotlrn-ecommerce/lib/user-info" cancel="@cancel@" add_url="home" return_url="home" />
+	<include src="/packages/dotlrn-ecommerce/lib/user-info" cancel="@cancel@" add_url="home" return_url="home" user_id="@user_id@" />
 
       </td>
       <td width=50% valign=top>
