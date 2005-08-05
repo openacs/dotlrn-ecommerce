@@ -247,9 +247,11 @@ db_foreach custom_fields_select "
 							]
 	}
     } elseif {[string equal $column_type integer] || [string equal $column_type number]} {
-	ad_form -extend -name add_section -form [list \
-						     [list "${field_identifier}:float,optional" {label $field_name} {value $default_value} {html {size 5}}] \
-						    ]
+	if { $field_identifier == "maxparticipants" } {
+		ad_form -extend -name add_section -form [list [list "${field_identifier}:float" {label $field_name} {value $default_value} {html {size 5}}] ]
+	} else {
+		ad_form -extend -name add_section -form [list [list "${field_identifier}:float,optional" {label $field_name} {value $default_value} {html {size 5}}] ]
+	}
     } elseif {[string equal $column_type "varchar(200)"]} {
 	ad_form -extend -name add_section -form [list \
 						     [list "${field_identifier}:text(text),optional" {label $field_name} {value $default_value} {html {size 50 maxlength 200}}] \
@@ -265,10 +267,10 @@ db_foreach custom_fields_select "
     }
 
     # maxparticipants is a special field, it is created on install
-    # it can be empty but not zero or negative
+    # maxparticipants is a required field and can not be 0 or less than 0
     if { $field_identifier == "maxparticipants" } {
 	lappend validate {maxparticipants
-	    { $maxparticipants > 0 || [empty_string_p $maxparticipants] }
+	    { $maxparticipants > 0 && [empty_string_p $maxparticipants] }
 	    "Please enter a value greater than 0"
 	}
     }
