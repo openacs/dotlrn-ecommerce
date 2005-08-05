@@ -249,8 +249,6 @@ set order_shipping_tax [db_string get_order_shipping_tax "
 
 if {$hard_goods_cost > 0} {
 
-    ns_log notice "DEBUG:: hard"
-
     # The order contains hard goods that come at a cost.
 
     if {$soft_goods_cost > 0} {
@@ -769,6 +767,7 @@ if {$hard_goods_cost > 0} {
 		(:creditcard_id, :transaction_id, :order_id, :transaction_amount, 'charge', sysdate)"
 
 		array set response [ec_creditcard_authorization $order_id $transaction_id]
+
 		set result $response(response_code)
 		set transaction_id $response(transaction_id)
 		if { [string equal $result "authorized"] } {

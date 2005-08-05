@@ -20,12 +20,11 @@ template::list::create \
     -key fund_id \
     -name scholarships \
     -multirow scholarships \
-    -bulk_actions {Purchase checkout-scholarships-2 Purchase} \
+    -bulk_actions {Continue checkout-scholarships-2 Continue} \
     -bulk_action_export_vars { user_id return_url } \
     -elements {
         title { label "Title" }
         description { label "Description" }
-	amount { label "Amount in Fund" }
 	grant_amount {
 	    label "Amount to Grant"
 	    display_template {

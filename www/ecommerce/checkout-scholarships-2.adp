@@ -7,17 +7,19 @@
     <if @total_amount@ eq 0>
       <h3>You have not granted any scholarship amount</h3>
     </if>
-    <if @amountsub@ lt 0>
-      <h3>The scholarship granted does not cover the order amount</h3>
-    </if>
+    <else>
+      <if @amountsub@ lt 0>
+	<h3>The scholarship granted does not cover the order amount of @pretty_total_price@.</h3>
+      </if>
+      <if @amountsub@ ge 0 and @amountsub@ lt 0.01>
+	<h3>The scholarship covers the order amount of @pretty_total_price@.</h3>
+      </if>
+    </else>
     <if @amountsub@ gt 0>
       <h3>
-	The scholarship granted exceeds the order amount.<br />
-	The balance shall be granted to the user as a gift certificate.
+	The scholarship granted exceeds the order amount of @pretty_total_price@.<br />
+	The balance can be used by the user in future purchases.
       </h3>
-    </if>
-    <if @amountsub@ in 0 0.0 0.00>
-      <h3>The scholarship covers the order amount</h3>
     </if>
   </div>
 

@@ -104,6 +104,8 @@ ad_page_contract {
 
     {method cc}
     internal_account:optional
+
+    {scholarship_p 0}
 }
 
 # We need them to be logged in

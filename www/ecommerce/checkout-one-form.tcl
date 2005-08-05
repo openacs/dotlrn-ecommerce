@@ -861,4 +861,19 @@ if { [exists_and_equal shipping_required "t"] } {
 }
 append hidden_vars [export_form_vars billing_address_id shipping_address_id user_id participant_id]
 
+# Get scholarships
+db_multirow scholarships scholarships {
+    select f.title, sum(g.grant_amount) as grant_amount
+    from scholarship_fundi f, 
+    scholarship_fund_grants g,
+    ec_gift_certificates gc
+    where f.fund_id = g.fund_id
+    and g.gift_certificate_id = gc.gift_certificate_id
+    and g.user_id = :user_id
+
+    group by f.title
+} {
+    set grant_amount [ec_pretty_price $grant_amount]
+}
+
 db_release_unused_handles
