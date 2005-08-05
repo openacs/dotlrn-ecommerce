@@ -150,7 +150,7 @@ db_multirow -extend { order_url section_url pretty_total pretty_balance person_u
 				  then ec_total_price(o.order_id) - 
 				  (select coalesce(sum(amount), 0)
 				   from dotlrn_ecommerce_transaction_invoice_payments
-				   where order_id = o.order_id) 
+				   where order_id = o.order_id) + ec_total_refund(o.order_id)
 				  else 0 end) as price_to_display,
 
     o.user_id as purchasing_user_id, u.first_names, u.last_name, count(*) as n_items, person__name(o.user_id), t.method, s.section_id as _section_id, s.section_name, s.course_id, 
