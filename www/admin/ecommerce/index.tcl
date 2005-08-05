@@ -65,14 +65,29 @@ template::list::create \
 	method {
 	    label "[_ dotlrn-ecommerce.Payment_Method]"
 	}
-	price_to_display {
+	total_price {
 	    label "[_ dotlrn-ecommerce.Total_Amount]"
 	    html { align right }
 	    display_template {
-		<if @orders.price_to_display@ gt 0>@orders.pretty_total@<br /></if>
-		<if @orders.refund_price@ gt 0>
-		Refund: @orders.pretty_refund@
-		</if>
+		@orders.pretty_actual_total@
+	    }
+	    aggregate sum
+	    aggregate_label "[_ dotlrn-ecommerce.Total_1]:"
+	}
+	refund_price {
+	    label "[_ dotlrn-ecommerce.Total_Refunds]"
+	    html { align right }
+	    display_template {
+		@orders.pretty_refund@
+	    }
+	    aggregate sum
+	    aggregate_label "[_ dotlrn-ecommerce.Total_1]:"
+	}
+	price_to_display {
+	    label "[_ dotlrn-ecommerce.lt_Total_Amount_Received]"
+	    html { align right }
+	    display_template {
+		@orders.pretty_total@
 	    }
 	    aggregate sum
 	    aggregate_label "[_ dotlrn-ecommerce.Total_1]:"
@@ -128,15 +143,29 @@ template::list::create \
 	}
     }
 
-db_multirow -extend { order_url section_url pretty_total pretty_balance person_url pretty_refund } orders orders [subst {
-    select o.order_id, o.confirmed_date, o.order_state, ec_total_price(o.order_id) as price_to_display, o.user_id as purchasing_user_id, u.first_names, u.last_name, count(*) as n_items, person__name(o.user_id), t.method, s.section_id as _section_id, s.section_name, s.course_id, 
+db_multirow -extend { order_url section_url pretty_total pretty_balance person_url pretty_refund pretty_actual_total } orders orders [subst {
+    select o.order_id, o.confirmed_date, o.order_state, 
+
+    ec_total_price(o.order_id) - (case when t.method = 'invoice' 
+				  then ec_total_price(o.order_id) - 
+				  (select coalesce(sum(amount), 0)
+				   from dotlrn_ecommerce_transaction_invoice_payments
+				   where order_id = o.order_id) 
+				  else 0 end) as price_to_display,
+
+    o.user_id as purchasing_user_id, u.first_names, u.last_name, count(*) as n_items, person__name(o.user_id), t.method, s.section_id as _section_id, s.section_name, s.course_id, 
 
     case when t.method = 'invoice' then
     ec_total_price(o.order_id) - ec_order_gift_cert_amount(o.order_id) - 
     (select coalesce(sum(amount), 0)
      from dotlrn_ecommerce_transaction_invoice_payments
      where order_id = o.order_id) + ec_total_refund(o.order_id)
-    else 0 end as balance, ec_total_refund(o.order_id) as refund_price
+    else 0 end as balance, ec_total_refund(o.order_id) as refund_price, ec_total_price(o.order_id) + ec_total_refund(o.order_id) as total_price, 
+    (select to_char(refund_date, 'Mon dd, yyyy')
+     from ec_refunds
+     where order_id = o.order_id
+     order by refund_date desc
+     limit 1) as refund_date
 
     from ec_orders o
     join ec_items i using (order_id)
@@ -148,7 +177,7 @@ db_multirow -extend { order_url section_url pretty_total pretty_balance person_u
     
     [template::list::filter_where_clauses -and -name orders]
     
-    group by o.order_id, o.confirmed_date, o.order_state, ec_total_price(o.order_id), o.user_id, u.first_names, u.last_name, o.in_basket_date, t.method, s.section_name, s.section_id, s.course_id, o.authorized_date, balance, refund_price
+    group by o.order_id, o.confirmed_date, o.order_state, ec_total_price(o.order_id), o.user_id, u.first_names, u.last_name, o.in_basket_date, t.method, s.section_name, s.section_id, s.course_id, o.authorized_date, balance, refund_price, refund_date
 
     order by o.in_basket_date desc
 }] {
@@ -168,6 +197,7 @@ db_multirow -extend { order_url section_url pretty_total pretty_balance person_u
     set section_url [export_vars -base ../one-section { {section_id $_section_id} }]
     set person_url [export_vars -base ../one-user { {user_id $purchasing_user_id} }]
     set pretty_refund [ec_pretty_price $refund_price]
+    set pretty_actual_total [ec_pretty_price $total_price]
 }
 
 if { [info exists section_id] } {
