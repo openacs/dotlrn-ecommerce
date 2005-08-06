@@ -107,7 +107,7 @@
   <msg key="lt_for_the_current_purch">for the current purchases</msg>
   <msg key="lt_Go_on_the_waiting_lis">Go on the waiting list</msg>
   <msg key="lt_Hold_slot_and_wait_fo">Hold slot and wait for confirmation</msg>
-  <msg key="lt_How_are_you_related_t">How are you related to user $participant_name</msg>
+  <msg key="lt_How_are_you_related_t">Is this person your</msg>
   <msg key="lt_I_am_a_returning_cust">I am a returning customer:</msg>
   <msg key="lt_if_you_prefer_using_s">if you prefer using some of your other addresses on file with us.</msg>
   <msg key="lt_Im_participating_in_t">I'm participating in this course</msg>
@@ -175,7 +175,7 @@
   <msg key="lt_You_may_continue_with">You may continue with the purchase</msg>
   <msg key="lt_You_may_only_enter_up">You may only enter up to the amount</msg>
   <msg key="lt_You_may_wish_to_conti">You may wish to continue and go on the waiting list for confirmation.</msg>
-  <msg key="lt_Your_application_to_j">Your application to join %community_name% was approved.</msg>
+  <msg key="lt_Your_application_to_j">Your application to join $community_name was approved. Please register via the MOS website or call to get registered via phone.</msg>
   <msg key="lt_Your_application_to_j_1">Your application to join %community_name% was rejected.</msg>
   <msg key="lt_Your_application_was_">Your application was approved.</msg>
   <msg key="lt_Your_prereq_approved">Your waiver of prerequisites to %community_name% was approved.</msg>
@@ -224,7 +224,7 @@
   <msg key="Reject">Reject</msg>
   <msg key="Reject_application">Reject application</msg>
   <msg key="Reject_prereq">Reject waiver of prerequisite</msg>
-  <msg key="Related_Items">Related Items</msg>
+  <msg key="Related_Items">Expert Administartion Options</msg>
   <msg key="Related_Users">Related Users</msg>
   <msg key="review_application">Review your application</msg>
   <msg key="Role">Role</msg>
@@ -233,7 +233,7 @@
   <msg key="Scholarships">Scholarships</msg>
   <msg key="Section">Section</msg>
   <msg key="Section_1">Name</msg>
-  <msg key="Section_Information">Section Information</msg>
+  <msg key="Section_Information">Advanced Options</msg>
   <msg key="Section_Name">Section Name</msg>
   <msg key="Section_Quick_Jump">Section Quick Jump</msg>
   <msg key="Select">a payment method</msg>
@@ -261,6 +261,7 @@
   <msg key="view_applications">view applications</msg>
   <msg key="view_bio">view bio</msg>
   <msg key="view_bios">view bios</msg>
+  <msg key="View_Calendar">View Calendar</msg>
   <msg key="View_Orders">View Orders</msg>
   <msg key="View_Pending">View Pending</msg>
   <msg key="View_User_Requests">View User Requests</msg>
