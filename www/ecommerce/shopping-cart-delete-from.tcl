@@ -36,13 +36,29 @@ if { [empty_string_p $order_id] } {
 }
 
 if { [exists_and_not_null patron_id] && [exists_and_not_null participant_id] } {
-    set process_purchase_clause [db_map delete_item_from_cart_purchase_process]
+    if { [acs_object_type $participant_id] == "group" } {
+	set process_purchase_clause [db_map delete_item_from_cart_purchase_process_group]
+    } else {
+	set process_purchase_clause [db_map delete_item_from_cart_purchase_process]
+    }
 } else {
     set process_purchase_clause ""
 }
 
 db_dml delete_item_from_cart "delete from ec_items where order_id=:order_id and product_id=:product_id and color_choice [ec_decode $color_choice "" "is null" "= :color_choice"] and size_choice [ec_decode $size_choice "" "is null" "= :size_choice"] and style_choice [ec_decode $style_choice "" "is null" "= :style_choice"]"
 db_release_unused_handles
+
+if { [acs_object_type $participant_id] == "group" } {
+    # we also remove the last member from the group
+    set user_id_to_remove [db_string get_uid_to_remove {
+	select max(member_id)
+	from group_member_map
+	where group_id = :participant_id
+    } -default 0]
+    if {$user_id_to_remove} {
+	group::remove_member -group_id $participant_id -user_id $user_id_to_remove
+    }
+}
 
 # DEDS
 # at this point if user is deleting

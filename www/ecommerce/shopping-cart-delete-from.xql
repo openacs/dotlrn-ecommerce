@@ -34,4 +34,15 @@
       and participant_id = :participant_id)
     </querytext>
   </partialquery>
+
+  <partialquery name="delete_item_from_cart_purchase_process_group">
+    <querytext>
+      and item_id = (select max(item_id)
+      from dotlrn_ecommerce_orders
+      where order_id = :order_id
+      and product_id = :product_id
+      and patron_id = :patron_id
+      and participant_id = :participant_id)
+    </querytext>
+  </partialquery>
 </queryset>
