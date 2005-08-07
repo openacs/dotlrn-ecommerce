@@ -90,7 +90,7 @@ if { [acs_object_type $participant_id] != "group" } {
 		if { $admin_p && $user_id != [ad_conn user_id] } {
 		    set cancel_url [set return_url [export_vars -base ../admin/process-purchase-course { user_id }]]
 		} else {
-		    set return_url [apm_package_url_from_key dotlrn-ecommerce]application-confirm
+		    set return_url [export_vars -base "[apm_package_url_from_key dotlrn-ecommerce]application-confirm" { product_id }]
 		    set cancel_url ..
 		}
 		ad_returnredirect [export_vars -base waiting-list-confirm { product_id user_id participant_id return_url cancel_url }]
@@ -141,7 +141,7 @@ if { [acs_object_type $participant_id] != "group" } {
 		if { $admin_p && $user_id != [ad_conn user_id] } {
 		    set cancel_url [set return_url [export_vars -base ../admin/process-purchase-course { user_id }]]
 		} else {
-		    set return_url [apm_package_url_from_key dotlrn-ecommerce]application-confirm
+		    set return_url [export_vars -base "[apm_package_url_from_key dotlrn-ecommerce]application-confirm" { product_id }]
 		    set cancel_url ..
 		}
 		ad_returnredirect [export_vars -base prerequisite-confirm { product_id user_id participant_id return_url cancel_url }]
@@ -164,7 +164,7 @@ if { [acs_object_type $participant_id] != "group" } {
 		limit 1
 	    }] } {
 		if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
-		    set return_url [ad_conn package_url]application-confirm
+		    set return_url [export_vars -base "[apm_package_url_from_key dotlrn-ecommerce]application-confirm" { product_id }]
 		    ad_returnredirect [export_vars -base application-request { participant_id community_id {next_url $return_url} { type payment } }]
 		    ad_script_abort
 		    
