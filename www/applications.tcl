@@ -50,6 +50,7 @@ template::list::create \
     -name "applications" \
     -multirow "applications" \
     -no_data "[_ dotlrn-ecommerce.No_applications]" \
+    -pass_properties { return_url } \
     -page_flush_p 1 \
     -pass_properties { admin_p return_url _type } \
     -elements {
@@ -99,6 +100,12 @@ template::list::create \
 		</if>
                 <elseif @applications.member_state@ eq "payment received">
 		[_ dotlrn-ecommerce.lt_User_application_appr]
+                </elseif>
+                <elseif @applications.member_state@ eq "waitinglist approved">
+		[_ dotlrn-ecommerce.lt_User_approved_waiting]
+                </elseif>
+                <elseif @applications.member_state@ eq "request approved">
+		[_ dotlrn-ecommerce.lt_User_has_approved_pre]
                 </elseif>
 		<else>
 		[_ dotlrn-ecommerce.lt_User_has_submitted_an]
@@ -217,8 +224,8 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 }] {
     set list_type [ad_decode $member_state "needs approval" full "request approval" prereq "awaiting payment" payment full]
 
-    set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} {type $list_type} }]
-    set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} {type $list_type} }]
+    set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
+    set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
     
     if { $member_state == "needs approval" || 
 	 $member_state == "awaiting payment" ||
