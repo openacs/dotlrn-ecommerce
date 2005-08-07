@@ -357,7 +357,11 @@ ad_proc -callback dotlrn::member_email_var_list -impl dotlrn-ecommerce {} {
     if {![string equal "" $community_id]} {
 	set community_url [dotlrn_community::get_community_url $community_id]
 	set var_list(community_url) "[ad_url]$community_url"
-	set var_list(community_name) [dotlrn_community::get_community_name $community_id]
+	set course_name [db_string get_course_name "select dc.course_name from dotlrn_catalog dc, dotlrn_ecommerce_section ds, cr_items ci where ds.course_id=ci.item_id and ci.live_revision=dc.course_id and ds.community_id=:community_id" -default ""]
+	if {$course_name ne ""} {
+	    append course_name ":"
+	}
+	set var_list(community_name) "${course_name} [dotlrn_community::get_community_name $community_id]"
 	set var_list(community_link) "<a href=\"${var_list(community_url)}\">${var_list(community_name)}</a>"
 	set var_list(course_name) $var_list(community_name)
 	set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id $community_id]
