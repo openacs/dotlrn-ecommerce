@@ -304,21 +304,104 @@ ad_proc -callback dotlrn::default_member_email -impl dotlrn-ecommerce {
     Check course community_id and template community_id in section or
     course specific template does not exist
 } {
+    #fixme another callback or proc per type?
+    set body_extra ""
+    array set vars $var_list
+    if {[string match "prereq*" $type]} {
+	if {[info exists vars(reason)] && $vars(reason) ne ""} {
+	    set body_extra "
+	    [_ dotlrn-ecommerce.Reason]:
+	    [string trim $vars(reason)]"
+	}
+    }
     set course_community_id [db_string get_ccid "select dc.community_id
     from dotlrn_catalog dc,
+    cr_items cr,
     dotlrn_ecommerce_section ds
     where ds.community_id=:community_id
-    and ds.course_id=dc.course_id" -default ""]
-    set template_community_id ""
-    #    set template_community_id [parameter::get -package_id [apm_package_id_from_key dotlrn-ecommerce] -parameter TemplateCommunityId -default ""]
-    if {[db_0or1row get_email "select * from dotlrn_member_emails where type=:type and community_id=coalesce(:course_community_id,:template_community_id,:community_id)"]} {
-        return -code return [list $from_addr $subject $email]
+    and ds.course_id=cr.item_id
+    and cr.live_revision=dc.course_id" -default ""]
+#ad_return_complaint 1 " 1 - $course_community_id 2 - $community_id"
+    if {[db_0or1row get_email "select from_addr,subject,email, community_id as email_community_id from dotlrn_member_emails where type=:type and community_id=coalesce(:course_community_id,:community_id)"]} {
+	if {$course_community_id eq $email_community_id} {
+	    set email_from "course"
+	} else {
+	    set email_from ""
+	}
+        return -code return [list $from_addr $subject "$email $body_extra" $email_from]
     } else {
-        set subject [lang::message::lookup "" [dotlrn_ecommerce::email_type_message_key -type $type -key subject]]
-        set email [lang::message::lookup "" [dotlrn_ecommerce::email_type_message_key -type $type -key body]]
+	set subject_key_trim [lindex [split [dotlrn_ecommerce::email_type_message_key -type $type -key subject] "."] 1]
+	set email_key_trim [lindex [split [dotlrn_ecommerce::email_type_message_key -type $type -key body] "."] 1]
+	set subject [lang::message::get_element -package_key dotlrn-ecommerce -message_key $subject_key_trim -locale [ad_conn locale] -element message]
+	set email [lang::message::get_element -package_key dotlrn-ecommerce -message_key $email_key_trim -locale [ad_conn locale] -element message]
         set from_addr [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
         # check to see if message keys exist
-        return -code return [list $from_addr $subject $email]
+        return -code return [list $from_addr $subject "$email $body_extra" "dotlrn-ecommerce"]
     }
     else return -code continue
 }
+
+ad_proc -callback dotlrn::member_email_var_list -impl dotlrn-ecommerce {} {
+    return list of variables for email templates
+} {
+    #FIXME depend on email type??
+    array set var_list [list first_name "" last_name "" full_name "" community_link "" community_name "" community_url "" course_name "" sessions "" instructor_names ""]
+    # get user info
+    if {![string equal "" $to_user]} {
+	acs_user::get -user_id $to_user -array user
+	set var_list(first_name) $user(first_names)
+	set var_list(last_name) $user(last_name)
+	set var_list(full_name) $user(name)
+		      
+    }
+    if {![string equal "" $community_id]} {
+	set community_url [dotlrn_community::get_community_url $community_id]
+	set var_list(community_url) "[ad_url]$community_url"
+	set var_list(community_name) [dotlrn_community::get_community_name $community_id]
+	set var_list(community_link) "<a href=\"${var_list(community_url)}\">${var_list(community_name)}</a>"
+	set var_list(course_name) $var_list(community_name)
+	set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id $community_id]
+	lappend calendar_id_list $calendar_id
+	set var_list(sessions) [util_memoize [list dotlrn_ecommerce::section::sessions $calendar_id]]
+	set instructor_community_id [parameter::get -package_id [ad_conn package_id] -parameter InstructorCommunityId -default 0 ]
+	set _instructors [dotlrn_community::list_users $instructor_community_id]
+
+set __instructors [list]
+if { [llength $_instructors] == 0 } {
+    set _instructors 0
+    set instructors_filter ""
+} else {
+    foreach _instructor $_instructors {
+	lappend __instructors [ns_set get $_instructor user_id]
+	lappend instructors_filter [list "[ns_set get $_instructor first_names] [ns_set get $_instructor last_name]" [ns_set get $_instructor user_id]]
+    }
+}
+	set instructors [util_memoize [list dotlrn_ecommerce::section::instructors $community_id $__instructors]]
+	
+	set instructor_names [list]
+	set instructor_ids [list]
+	foreach instructor $instructors {
+	    lappend instructor_names [lindex $instructor 1]
+	    lappend instructor_ids [lindex $instructor 0]
+	}
+
+	if { [llength $instructor_names] == 1 } {
+	    set instructor_names "Instructor: [join $instructor_names ", "]"
+	} elseif { [llength $instructor_names] > 1 } {
+	    set instructor_names "Instructors: [join $instructor_names ", "]"
+	} else {
+	    set instructor_names ""
+	}
+      set var_list(instructor_names) $instructor_names
+    }
+    return [array get var_list]
+}
+
+ad_proc -callback dotlrn::member_email_available_vars -impl dotlrn-ecommerce {} {
+    List variables avaiable for this template
+} {
+    #FIXME depend on email type??
+    return [list "%first_name%" "Participant's First Name" "%last_name%" "Participant's Last Name" "%full_name%" "Participant's Full Name" "%sessions%" "Dates and times of sessions" "%community_name%" "Name of section" "%community_url%" "URL of the section page in the form http://example.com/" "%community_link%" "HTML link to section, ie: &lt;a href=\"http://example.com\"&gt;%community_name%&lt;/a&gt;" "%instructor_names%" "List of instructors names"]
+
+}
+
