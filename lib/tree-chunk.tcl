@@ -513,7 +513,8 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
 	} else {
 	    set instructor_names ""
 	}
-	if { ! [empty_string_p $instructor_names] && $member_p } {
+	# if { ! [empty_string_p $instructor_names] && $member_p } { }
+	if { ! [empty_string_p $instructor_names] } {
 	    append instructor_names " <a href=\"${community_url}facilitator-bio\" class=\"button\">[_ dotlrn-ecommerce.view_bios]</a>"
 	}
 
