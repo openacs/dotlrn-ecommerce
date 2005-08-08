@@ -47,7 +47,7 @@ template::list::create \
     -name "orders" \
     -multirow "orders" \
     -page_flush_p 1 \
-    -no_data "[_ dotlrn-ecommerce.lt_No_orders_for_this_se]" \
+    -no_data "[_ dotlrn-ecommerce.No_orders]" \
     -elements {
 	order_id {
 	    label "[_ dotlrn-ecommerce.Order_ID]"

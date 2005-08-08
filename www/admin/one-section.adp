@@ -29,13 +29,15 @@
 <a href="ecommerce/index?section_id=@section_id@">#dotlrn-ecommerce.Order_Summary#</a>
 
 
+<if @show_public_pages_p@>
 <h2>#dotlrn-ecommerce.Public_Pages#</h2>
 <include src="/packages/file-storage/lib/folder-admin" folder_id="@section_folder_id@" base_url="@public_pages_url@">
+</if>
 
 <if @attendance_show_p@>
 <h2>#dotlrn-ecommerce.lt_Sessions_and_Attendan#</h2>
 
-<include src=/packages/attendance/lib/cp-attendance community_id=@community_id@ package_id=@community_package_id@>
+<include src=/packages/attendance/lib/cp-attendance community_id=@community_id@ package_id=@community_package_id@ show_non_session_calendar_links=@show_non_session_calendar_links@>
 </if>
 
 
@@ -45,10 +47,8 @@
 <include src=/packages/expense-tracking/lib/cp-expense-tracking community_id=@community_id@ package_id=@community_package_id@>
 </if>
 
-<h2>#dotlrn-ecommerce.Email_templates#</h2>
-<a href="email-template?action=submit_app&section_id=@section_id@">#dotlrn-ecommerce.Email_t_submit_application#</a><br />
-<a href="email-template?action=approve_app&section_id=@section_id@">#dotlrn-ecommerce.Email_t_approve_application#</a><br />
-<a href="email-template?action=on+join&section_id=@section_id@">Welcome Message</a>
+<include src="/packages/dotlrn-ecommerce/lib/email-templates" community_id="@community_id@" course_name="@section_name@" scope="section">
+
 <h2>#dotlrn-ecommerce.Related_Items#</h2>
 
 <a href="/ecommerce/admin/products/one?product_id=@product_id@">#dotlrn-ecommerce.Product#</a><br>

@@ -29,12 +29,7 @@ switch -exact $action {
     "approve_app" {
 	set type "on approval"
     }
-    "on join" -
-    "awaiting payment" -
-    "on approval" -
-    "waitinglist approved" -
-    "prereq approval" -
-    "prereq reject" {
+    "on join" {
         set type $action
     }
     default {

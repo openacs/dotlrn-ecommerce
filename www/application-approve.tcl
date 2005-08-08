@@ -24,15 +24,17 @@ switch $type {
     full {
 	set new_member_state "waitinglist approved"
 	set old_member_state "needs approval"
+	set email_type "waitinglist approved"
     }
     prereq {
 	set new_member_state "request approved"
 	set old_member_state "request approval"
-
+	set email_type "prereq approved"
     }
     payment {
 	set new_member_state "payment received"
 	set old_member_state "awaiting payment"
+	set email_type "on approval"
     }
 }
 
@@ -115,18 +117,8 @@ if { $user_id == $actor_id } {
                 set applicant_email [cc_email_from_party $user_id]
                 set actor_email [cc_email_from_party $actor_id]
                 set community_name [dotlrn_community::get_community_name $community_id]
-                set subject "[_ dotlrn-ecommerce.Application_prereq_approved]"
-                set body "[_ dotlrn-ecommerce.lt_Your_prereq_approved]"
-                if {![empty_string_p [string trim $reason]]} {
-                    append body "
-[_ dotlrn-ecommerce.Reason]:
-[string trim $reason]"
-                }
-                acs_mail_lite::send \
-                    -to_addr $applicant_email \
-                    -from_addr $actor_email \
-                    -subject $subject \
-                    -body $body
+		dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type $email_type -var_list [list course_name $community_name reason $reason]
+
             } \
             -after_submit {
                 ad_returnredirect $return_url
@@ -163,23 +155,7 @@ set applicant_email [cc_email_from_party $user_id]
 set actor_email [cc_email_from_party $actor_id]
 set community_name [dotlrn_community::get_community_name $community_id]
 
-# could be from waiting list 
-if {$new_member_state eq "waitinglist approved"} {
-    # site wide template
-    acs_mail_lite::send \
-        -to_addr $applicant_email \
-        -from_addr $actor_email \
-        -subject [subst "[_ dotlrn-ecommerce.lt_A_space_has_opened_up]"] \
-        -body [subst "[_ dotlrn-ecommerce.lt_A_space_has_opened_up_1]"]
-} else {
-    if {![dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type "on approval"]} {
-        acs_mail_lite::send \
-            -to_addr $applicant_email \
-            -from_addr $actor_email \
-            -subject [subst "[_ dotlrn-ecommerce.Application_approved]"] \
-            -body [subst "[_ dotlrn-ecommerce.lt_Your_application_to_j]"]
-    }
-}
+dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type $email_type
 ad_returnredirect $return_url
 }
 }

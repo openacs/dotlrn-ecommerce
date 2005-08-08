@@ -344,6 +344,13 @@ ad_proc -callback dotlrn::default_member_email -impl dotlrn-ecommerce {
 ad_proc -callback dotlrn::member_email_var_list -impl dotlrn-ecommerce {} {
     return list of variables for email templates
 } {
+    # check if this is a dotlrn-ecommerce community, if not, bail
+    if {![db_string is_section "select 1 from dotlrn_ecommerce_section where community_id=:community_id" -default 0]} {
+	# this return code tells the caller to ignore the results of this callback implementation
+	ns_log notice  "DAVEB: Skipping default email for dotlrn-ecommerce, not in a section community"
+	return -code continue
+	DIE
+    }
     #FIXME depend on email type??
     array set var_list [list first_name "" last_name "" full_name "" community_link "" community_name "" community_url "" course_name "" sessions "" instructor_names ""]
     # get user info

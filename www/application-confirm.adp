@@ -6,5 +6,7 @@
   </div>
   
   <p />
+<!--
   <a href="home" class="button">#dotlrn-ecommerce.Go_to_My_Account#</a> &nbsp;&nbsp;&nbsp;
+-->
   <a href="index" class="button">#dotlrn-ecommerce.lt_Register_for_Another_#</a>

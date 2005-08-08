@@ -269,6 +269,7 @@ if { [db_0or1row scholarship {
 }
 
 set total_price [db_string total_price {select ec_total_price(:order_id)} -default 0]
+set total_refunds [db_string total_refunds {select ec_total_refund(:order_id)} -default 0]
 
 switch $method {
 
@@ -300,7 +301,7 @@ switch $method {
 	    
 	    TOTAL: [ec_pretty_price $total_price]
 	    <br />
-	    Balance: [ec_pretty_price [expr $total_price - $invoice_payment_sum]]
+	    Balance: [ec_pretty_price [expr $total_price - $invoice_payment_sum + $total_refunds]]
 	    </blockquote>}]
     }
     "scholarship" {

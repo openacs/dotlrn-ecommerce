@@ -213,7 +213,9 @@ foreach item_id $item_id_list {
 	and i.item_id = o.item_id
 	and i.item_id = :item_id
     }] } {
-	dotlrn_community::remove_user $community_id $participant_id
+	if { [dotlrn_community::member_p $community_id $participant_id] } {
+	    dotlrn_community::remove_user $community_id $participant_id
+	}
     }
 }
 

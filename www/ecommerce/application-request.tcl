@@ -65,6 +65,7 @@ if {[catch {set rel_id [relation_add \
         "request approval" {
             set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
 	    set community_name [dotlrn_community::get_community_name $community_id]
+	    #FIXME add email templates for these??
             if {$member_state eq "needs approval"} {
                 set subject [_ dotlrn-ecommerce.lt_Added_to_waiting_list]
                 set body [_ dotlrn-ecommerce.lt_Added_to_waiting_list_1]

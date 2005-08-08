@@ -95,7 +95,10 @@ ad_proc -private dotlrn_ecommerce::email_type_message_key {
                      "on approval" dotlrn-ecommerce.Application_approved \
                      submit_app dotlrn-ecommerce.Application_submitted \
                      approve_app dotlrn-ecommerce.Application_approved \
-                     "on join" dotlrn-ecommerce.Welcome_to_section] \
+                     "on join" dotlrn-ecommerce.Welcome_to_section \
+		     "prereq approval" dotlrn-ecommerce.Application_prereq_approved \
+		    "waitinglist approved" dotlrn-ecommerce.lt_A_space_has_opened_up \
+		     "prereq reject" dotlrn-ecommerce.Application_prereq_rejected] \
                    $type]
     } elseif {[string equal "body" $key]} {
         return [string map \
@@ -104,10 +107,30 @@ ad_proc -private dotlrn_ecommerce::email_type_message_key {
                      "on approval" dotlrn-ecommerce.lt_Your_application_to_j \
                      submit_app dotlrn-ecommerce.lt_Your_application_has_been_submitted \
                      approve_app dotlrn-ecommerce.lt_Your_application_to_j \
-                     "on join" dotlrn-ecommerce.lt_Welcome_to_section_1] \
+                     "on join" dotlrn-ecommerce.lt_Welcome_to_section_1 \
+                     "waitinglist approved" dotlrn-ecommerce.lt_A_space_has_opened_up_1 \
+		     "prereq approval" dotlrn-ecommercel.lt_Your_prereq_approved \
+		     "prereq reject" dotlrn-ecommerce.lt_Your_prereq_rejected] \
                    $type]
     } else {
         error "Key must be 'subject' or 'body'"
     }
      
+}
+
+ad_proc -private dotlrn_ecommerce::email_type_pretty {
+    -type
+} {
+    Pretty email type for display
+} {
+    return [string map \
+		[list \
+		     "awaiting_payment" "Application Approved (awaiting payment)" \
+		     "on approval" "Application Approved" \
+		     "submit_app" "Application Submitted" \
+		     "approve_app" "Application Approved" \
+		     "on join" "Welcome message" \
+		     "waitinglist approved" "Grant spot from waiting list" \
+		     "prereq approval" "Approve waiver of prerequisites" \
+		     "prereq reject" "Reject waiver of prerequitsites"] $type]
 }

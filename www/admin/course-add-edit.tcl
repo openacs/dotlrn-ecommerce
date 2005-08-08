@@ -173,7 +173,7 @@ ad_form -extend -name add_course -on_submit {
     }
 
     # add email template defaults
-    dotlrn_ecommerce::copy_course_default_email -community_id $community_id
+    # we will fall back to the site wide defaults instead
     
 } -edit_data {
     # New revision in the CR

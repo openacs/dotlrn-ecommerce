@@ -38,6 +38,8 @@ set num_attendees [db_string num_attendees { }]
 
 set attendance_show_p [apm_package_installed_p "attendance"]
 set expensetracking_show_p [apm_package_installed_p "expenses"]
+set show_public_pages_p [parameter::get -parameter SupportPublicPagesP -default 0]
+set show_non_session_calendar_links [parameter::get -parameter ShowNonSessionCalendarLinks -default 0]
 
 # Flush cache for this section
 # Shouldn't have much effect on performance and will keep the data
