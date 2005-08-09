@@ -250,6 +250,7 @@ ad_proc -public dotlrn_ecommerce::section::available_slots {
 }
 
 ad_proc -public dotlrn_ecommerce::section::attendees {
+    -excluse_my_basket:boolean
     section_id
 } {
     Return number of attendees
@@ -263,15 +264,25 @@ ad_proc -public dotlrn_ecommerce::section::attendees {
     
     @error 
 } {
-    set registered_attendees [db_string attendees {
-	select count(*) as attendees
+    # Count items in shopping cart
+    set registered_attendees [db_string attendees [subst {
+	select (select count(*)
 	from dotlrn_member_rels_full
 	where community_id = (select community_id
 			      from dotlrn_ecommerce_section
 			      where section_id = :section_id)
 	and (rel_type = 'dotlrn_member_rel' or rel_type = 'dc_student_rel')
-	and member_state in ('approved', 'request approval', 'request approved', 'waitinglist approved', 'payment received')
-    }]
+	and member_state in ('approved', 'request approval', 'request approved', 'waitinglist approved', 'payment received')) 
+
+	+ 
+
+	(select count(*)
+	 from ec_orders o, ec_items i, dotlrn_ecommerce_section s
+	 where o.order_id = i.order_id
+	 and i.product_id = s.product_id
+	 and s.section_id = :section_id
+	 and o.order_state = 'in_basket')
+    }]]
 
     set maxparticipants [dotlrn_ecommerce::section::maxparticipants $section_id]
     if { ! [empty_string_p $maxparticipants] } {
