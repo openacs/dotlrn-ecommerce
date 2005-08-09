@@ -709,13 +709,13 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	# Add new instructors and assistants 
 	foreach instructor $instructors {
 	    if { [lsearch $original_instructors $instructor] == -1 } {
-		catch {dotlrn_community::add_user -rel_type dotlrn_admin_rel $community_id $instructor}
+		catch {dotlrn_community::add_user -rel_type "dotlrn_ecom_instructor_rel" $community_id $instructor}
 	    }
 	}
 	
 	foreach assistant $assistants {
 	    if { [lsearch $original_assistants $assistant] == -1 } {
-		catch {dotlrn_community::add_user -rel_type dc_instructor_rel $community_id $assistant}
+		catch {dotlrn_community::add_user -rel_type "dotlrn_ecom_ta_rel" $community_id $assistant}
 	    }
 	}
 
