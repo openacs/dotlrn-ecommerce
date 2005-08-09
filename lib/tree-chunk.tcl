@@ -392,7 +392,7 @@ template::list::create \
 	label "Group by"
 	type multivar
 	values {
-	    { { <a name="@course_list.course_key@"></a><if @admin_p@ eq 1><a href="admin/course-info?course_id=@course_list.course_id@" class="button">[_ dotlrn-ecommerce.info]</a> <a href="@course_list.course_edit_url;noquote@" class="button">[_ dotlrn-ecommerce.edit]</a> <a href="@course_list.section_add_url;noquote@" class="button">[_ dotlrn-ecommerce.add_section]</a></if>
+	    { { <a name="@course_list.course_key@"></a><if @admin_p@ eq 1><a href="@course_list.course_edit_url;noquote@" class="button">[_ dotlrn-ecommerce.edit]</a> <a href="@course_list.section_add_url;noquote@" class="button">[_ dotlrn-ecommerce.add_section]</a></if>
 		<br />@course_list.course_grades@
 		<p>
 		@course_list.course_info;noquote@
