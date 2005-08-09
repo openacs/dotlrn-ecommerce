@@ -604,7 +604,7 @@ ad_proc -public dotlrn_ecommerce::section::section_zones {
     if { [db_0or1row zone {
 	select tree_id as zone_tree_id
 	from category_tree_translations
-	where name = 'Zone'
+	where name = 'Location'
 	and locale = :locale
 	limit 1
     }] } {
