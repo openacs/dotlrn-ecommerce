@@ -452,10 +452,12 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	# HAM : Let's add chosen instructors in the role of instructors 
 	# and assistants in the role of assistants
 	foreach instructor $instructors {
-		dotlrn_club::add_user -rel_type "dc_instructor_rel" -community_id $community_id -user_id $instructor -member_state "approved"
+		# dotlrn_club::add_user -rel_type "dc_instructor_rel" -community_id $community_id -user_id $instructor -member_state "approved"
+		dotlrn_club::add_user -rel_type "dotlrn_ecom_instructor_rel" -community_id $community_id -user_id $instructor -member_state "approved"
 	}
 	foreach assistant $assistants {
-		dotlrn_club::add_user -rel_type "dc_instructor_rel" -community_id $community_id -user_id $assistant -member_state "approved"
+		# dotlrn_club::add_user -rel_type "dc_instructor_rel" -community_id $community_id -user_id $assistant -member_state "approved"
+		dotlrn_club::add_user -rel_type "dotlrn_ecom_ta_rel" -community_id $community_id -user_id $assistant -member_state "approved"
 	}
 	
        
