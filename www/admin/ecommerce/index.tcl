@@ -14,6 +14,7 @@ ad_page_contract {
     start:optional
     type:optional
     payment_method:optional
+    orderby:optional
 } -properties {
 } -validate {
 } -errors {
@@ -58,7 +59,7 @@ template::list::create \
 	    label "[_ dotlrn-ecommerce.Section_Name]"
 	    link_url_col section_url
 	}
-	person__name {
+	purchaser {
 	    label "[_ dotlrn-ecommerce.Purchaser]"
 	    link_url_col person_url
 	}
@@ -141,6 +142,39 @@ template::list::create \
 	    values { $method_filters }
 	    where_clause { t.method = :payment_method }
 	}
+    } -orderby {
+	order_id {
+	    label "[_ dotlrn-ecommerce.Order_ID]"
+	    orderby o.order_id
+	}
+	section_name {
+	    label "[_ dotlrn-ecommerce.Section_Name]"
+	    orderby lower(s.section_name)
+	}
+	purchaser {
+	    label "[_ dotlrn-ecommerce.Purchaser]"
+	    orderby "lower(u.first_names||' '||u.last_name)"
+	}
+	method {
+	    label "[_ dotlrn-ecommerce.Payment_Method]"
+	    orderby t.method
+	}
+	total_price {
+	    label "[_ dotlrn-ecommerce.Total_Amount]"
+	    orderby total_price
+	}
+	refund_price {
+	    label "[_ dotlrn-ecommerce.Total_Refunds]"
+	    orderby refund_price
+	}
+	price_to_display {
+	    label "[_ dotlrn-ecommerce.lt_Total_Amount_Received]"
+	    orderby price_to_display
+	}
+	balance {
+	    label "[_ dotlrn-ecommerce.Balance]"
+	    orderby balance
+	}
     }
 
 db_multirow -extend { order_url section_url pretty_total pretty_balance person_url pretty_refund pretty_actual_total } orders orders [subst {
@@ -153,7 +187,11 @@ db_multirow -extend { order_url section_url pretty_total pretty_balance person_u
 				   where order_id = o.order_id) + ec_total_refund(o.order_id)
 				  else 0 end) as price_to_display,
 
-    o.user_id as purchasing_user_id, u.first_names, u.last_name, count(*) as n_items, person__name(o.user_id), t.method, s.section_id as _section_id, s.section_name, s.course_id, 
+    o.user_id as purchasing_user_id, u.first_names, u.last_name, count(*) as n_items, t.method, s.section_id as _section_id, 
+
+    (select course_name
+     from dlec_view_sections
+     where section_id = s.section_id)||': '||s.section_name as section_name, s.course_id, 
 
     case when t.method = 'invoice' then
     ec_total_price(o.order_id) - ec_order_gift_cert_amount(o.order_id) - 
@@ -165,7 +203,7 @@ db_multirow -extend { order_url section_url pretty_total pretty_balance person_u
      from ec_refunds
      where order_id = o.order_id
      order by refund_date desc
-     limit 1) as refund_date
+     limit 1) as refund_date, u.first_names||' '||u.last_name as purchaser
 
     from ec_orders o
     join ec_items i using (order_id)
@@ -177,9 +215,9 @@ db_multirow -extend { order_url section_url pretty_total pretty_balance person_u
     
     [template::list::filter_where_clauses -and -name orders]
     
-    group by o.order_id, o.confirmed_date, o.order_state, ec_total_price(o.order_id), o.user_id, u.first_names, u.last_name, o.in_basket_date, t.method, s.section_name, s.section_id, s.course_id, o.authorized_date, balance, refund_price, refund_date
-
-    order by o.in_basket_date desc
+    group by o.order_id, o.confirmed_date, o.order_state, ec_total_price(o.order_id), o.user_id, u.first_names, u.last_name, o.in_basket_date, t.method, section_name, s.section_id, s.course_id, o.authorized_date, balance, refund_price, refund_date, purchaser
+     
+    [template::list::orderby_clause -name orders -orderby]         
 }] {
     set order_url [export_vars -base one { order_id }]
     set pretty_total [ec_pretty_price $price_to_display]
@@ -198,6 +236,12 @@ db_multirow -extend { order_url section_url pretty_total pretty_balance person_u
     set person_url [export_vars -base ../one-user { {user_id $purchasing_user_id} }]
     set pretty_refund [ec_pretty_price $refund_price]
     set pretty_actual_total [ec_pretty_price $total_price]
+
+    set section_name "[db_string course_name {
+	select course_name
+	from dlec_view_sections
+	where section_id = :_section_id
+    }]: $section_name"
 }
 
 if { [info exists section_id] } {
