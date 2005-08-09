@@ -48,16 +48,16 @@ if { $participant_id == 0 } {
     set participant_id $user_id
 }
 
+db_0or1row section_info {
+    select section_id, community_id
+    from dotlrn_ecommerce_section
+    where product_id = :product_id
+}
+
 if { [acs_object_type $participant_id] != "group" } {
     ns_log notice "DEBUG:: checking if this should go to the waiting list"
 
     set admin_p [permission::permission_p -object_id [ad_conn package_id] -privilege admin]
-
-    db_0or1row section_info {
-	select section_id, community_id
-	from dotlrn_ecommerce_section
-	where product_id = :product_id
-    }
 
     if { [exists_and_not_null community_id] } {
 	ns_log notice "DEBUG:: checking available slots"
@@ -370,6 +370,11 @@ for {set i 0} {$i < $item_count} {incr i} {
 	    }
 	}
     }
+}
+
+# The order goes to the shopping cart, flush the cache
+if { [info exists section_id] } {
+    dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
 }
 
 db_release_unused_handles
