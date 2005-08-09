@@ -149,7 +149,7 @@ template::list::create \
 	}
 	section_name {
 	    label "[_ dotlrn-ecommerce.Section_Name]"
-	    orderby lower(s.section_name)
+	    orderby lower(section_name)
 	}
 	purchaser {
 	    label "[_ dotlrn-ecommerce.Purchaser]"
