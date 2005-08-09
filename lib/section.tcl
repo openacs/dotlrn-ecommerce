@@ -397,7 +397,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	select user_id
 	from dotlrn_member_rels_approved
 	where community_id = :community_id
-	and rel_type = 'dotlrn_admin_rel'
+	and rel_type = 'dotlrn_ecom_instructor_rel'
 	and user_id in (select user_id
 			from dotlrn_member_rels_approved
 			where community_id = :instructor_community_id)
@@ -407,7 +407,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	select user_id
 	from dotlrn_member_rels_approved
 	where community_id = :community_id
-	and rel_type = 'dc_instructor_rel'
+	and rel_type = 'dotlrn_ecom_ta_rel'
 	and user_id in (select user_id
 			from dotlrn_member_rels_approved
 			where community_id = :assistant_community_id)
@@ -677,7 +677,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	    select user_id
 	    from dotlrn_member_rels_approved
 	    where community_id = :community_id
-	    and rel_type = 'dotlrn_admin_rel'
+	    and rel_type = 'dotlrn_ecom_instructor_rel'
 	    and user_id in (select user_id
 			    from dotlrn_member_rels_approved
 			    where community_id = :instructor_community_id)
@@ -687,7 +687,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	    select user_id
 	    from dotlrn_member_rels_approved
 	    where community_id = :community_id
-	    and rel_type = 'dc_instructor_rel'
+	    and rel_type = 'dotlrn_ecom_ta_rel'
 	    and user_id in (select user_id
 			    from dotlrn_member_rels_approved
 			    where community_id = :assistant_community_id)
