@@ -225,7 +225,7 @@ lappend filters instructor \
      from dotlrn_users u, dotlrn_member_rels_approved r
      where u.user_id = r.user_id
      and r.community_id = dec.community_id
-     and r.rel_type = 'dotlrn_admin_rel'
+     and r.rel_type = 'dotlrn_ecom_instructor_rel'
      and r.user_id in ([join $instructor ,]))}}]
 # Section categories
 #foreach section_tree [category_tree::get_mapped_trees $package_id] {
