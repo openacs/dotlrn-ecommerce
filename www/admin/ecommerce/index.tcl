@@ -55,7 +55,7 @@ template::list::create \
 	    link_url_col order_url
 	    html { align center }
 	}
-	section_name {
+	_section_name {
 	    label "[_ dotlrn-ecommerce.Section_Name]"
 	    link_url_col section_url
 	}
@@ -147,9 +147,9 @@ template::list::create \
 	    label "[_ dotlrn-ecommerce.Order_ID]"
 	    orderby o.order_id
 	}
-	section_name {
+	_section_name {
 	    label "[_ dotlrn-ecommerce.Section_Name]"
-	    orderby lower(section_name)
+	    orderby _section_name
 	}
 	purchaser {
 	    label "[_ dotlrn-ecommerce.Purchaser]"
@@ -191,7 +191,7 @@ db_multirow -extend { order_url section_url pretty_total pretty_balance person_u
 
     (select course_name
      from dlec_view_sections
-     where section_id = s.section_id)||': '||s.section_name as section_name, s.course_id, 
+     where section_id = s.section_id)||': '||s.section_name as _section_name, s.course_id, 
 
     case when t.method = 'invoice' then
     ec_total_price(o.order_id) - ec_order_gift_cert_amount(o.order_id) - 
@@ -215,7 +215,7 @@ db_multirow -extend { order_url section_url pretty_total pretty_balance person_u
     
     [template::list::filter_where_clauses -and -name orders]
     
-    group by o.order_id, o.confirmed_date, o.order_state, ec_total_price(o.order_id), o.user_id, u.first_names, u.last_name, o.in_basket_date, t.method, section_name, s.section_id, s.course_id, o.authorized_date, balance, refund_price, refund_date, purchaser
+    group by o.order_id, o.confirmed_date, o.order_state, ec_total_price(o.order_id), o.user_id, u.first_names, u.last_name, o.in_basket_date, t.method, _section_name, s.section_id, s.course_id, o.authorized_date, balance, refund_price, refund_date, purchaser
      
     [template::list::orderby_clause -name orders -orderby]         
 }] {
@@ -236,12 +236,6 @@ db_multirow -extend { order_url section_url pretty_total pretty_balance person_u
     set person_url [export_vars -base ../one-user { {user_id $purchasing_user_id} }]
     set pretty_refund [ec_pretty_price $refund_price]
     set pretty_actual_total [ec_pretty_price $total_price]
-
-    set section_name "[db_string course_name {
-	select course_name
-	from dlec_view_sections
-	where section_id = :_section_id
-    }]: $section_name"
 }
 
 if { [info exists section_id] } {
