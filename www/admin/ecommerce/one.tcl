@@ -285,7 +285,7 @@ switch $method {
 	    where order_id = :order_id
 	    order by payment_date
 	} {
-	    doc_body_append "<li>Date: $pretty_payment_date, Amount: $amount, Via: [ad_decode $invoice_method cc "Credit Card" internal_account "Internal Account" check "Check" cash "Cash" "Credit Card"]</li>"
+	    doc_body_append "<li>Date: $pretty_payment_date, Amount: [ec_pretty_price $amount], Via: [ad_decode $invoice_method cc "Credit Card" internal_account "Internal Account" check "Check" cash "Cash" lockbox "Lock Box" "Credit Card"]</li>"
 	    set invoice_payment_sum [expr $invoice_payment_sum + $amount]
 	}
 
