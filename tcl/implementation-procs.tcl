@@ -330,10 +330,13 @@ ad_proc -callback dotlrn::default_member_email -impl dotlrn-ecommerce {
 	}
         return -code return [list $from_addr $subject "$email $body_extra" $email_from]
     } else {
+	
 	set subject_key_trim [lindex [split [dotlrn_ecommerce::email_type_message_key -type $type -key subject] "."] 1]
 	set email_key_trim [lindex [split [dotlrn_ecommerce::email_type_message_key -type $type -key body] "."] 1]
-	set subject [lang::message::get_element -package_key dotlrn-ecommerce -message_key $subject_key_trim -locale [ad_conn locale] -element message]
-	set email [lang::message::get_element -package_key dotlrn-ecommerce -message_key $email_key_trim -locale [ad_conn locale] -element message]
+	set subject ""
+	set email ""
+	catch {set subject [lang::message::get_element -package_key dotlrn-ecommerce -message_key $subject_key_trim -locale [ad_conn locale] -element message]} errmsg
+	catch {set email [lang::message::get_element -package_key dotlrn-ecommerce -message_key $email_key_trim -locale [ad_conn locale] -element message]}
         set from_addr [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
         # check to see if message keys exist
         return -code return [list $from_addr $subject "$email $body_extra" "dotlrn-ecommerce"]
