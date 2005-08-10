@@ -15,9 +15,10 @@ if {[parameter::get -package_id [ad_conn package_id] -parameter EnableCourseAppl
     lappend email_types "on approval" "awaiting payment" 
 }
 
-db_multirow -extend {type_pretty action_url action from} email_templates get_email_templates "select subject,type from dotlrn_member_emails where community_id=:community_id" {
+db_multirow -extend {type_pretty action_url action from revert revert_url} email_templates get_email_templates "select subject,type from dotlrn_member_emails where community_id=:community_id" {
     set action_url [export_vars -base email-template-delete {{community_id $community_id} {action $type} return_url}]
     set action "Revert to default"
+
     if {[set index [lsearch $email_types $type]] > -1} {
 	set email_types [lreplace $email_types $index $index]
     }
@@ -55,4 +56,5 @@ template::list::create \
 	from {label "Template Used"}
         type_pretty {label "Type"}
 	action {label "" link_url_col action_url}
+	revert {label "" link_url_col revert_url}
     }
