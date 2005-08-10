@@ -11,6 +11,7 @@ ad_page_contract {
 
 set page_title "[_ dotlrn-catalog.confirm_delete] $course_key"
 set context [list [list course-list "[_ dotlrn-catalog.course_list]"] "[_ dotlrn-catalog.delete_course]"]
+set course_id [db_string "live_rev" "select latest_revision from cr_items where item_id=:object_id"]
 
 # Check for create permissions over dotlrn-catalog
 set user_id [ad_conn user_id]
@@ -30,7 +31,7 @@ db_1row sections {
 
 if { ! $sections } {
 
-    ad_form -name delete_course -export {course_key $course_key creation_user $creation_user } -cancel_url "course-list" -form {
+    ad_form -name delete_course -export {course_key $course_key creation_user $creation_user } -cancel_url "course-info?course_id=$course_id" -form {
 	{object_id:text(hidden) 
 	    { value $object_id }
 	}
