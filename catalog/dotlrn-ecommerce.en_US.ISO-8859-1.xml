@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d3" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d5" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Action">Action</msg>
   <msg key="Add_Course">Add Course</msg>
@@ -42,6 +42,7 @@
   <msg key="Credit_Card">Credit Card</msg>
   <msg key="Credit_card_number">Credit card number</msg>
   <msg key="Currently_Selected">Currently Selected</msg>
+  <msg key="Date">Date</msg>
   <msg key="delete">delete</msg>
   <msg key="Display_All_Orders">Display All Orders</msg>
   <msg key="Display_Course">Display Course</msg>
@@ -77,6 +78,7 @@
   <msg key="List">List</msg>
   <msg key="List_Registrants">List Registrants</msg>
   <msg key="List_Users">List Users</msg>
+  <msg key="Lock_Box">Lock Box</msg>
   <msg key="lt_1_Please_review_your_">1. Please review your order list for accuracy.</msg>
   <msg key="lt_2_Complete_this_infor">2. Complete this information.</msg>
   <msg key="lt_A_full_credit_card_ex">A full credit card expiration date (month and year) is required</msg>

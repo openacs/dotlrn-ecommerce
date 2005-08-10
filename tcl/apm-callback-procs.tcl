@@ -87,11 +87,33 @@ ad_proc -private dotlrn_ecommerce::after_upgrade {
     @error 
 } {
 
-    #apm_upgrade_logic \
-    #    -from_version_name $from_version_name \
-    #    -to_version_name $to_version_name \
-    #    -spec {
-    #	}
+    apm_upgrade_logic \
+	-from_version_name $from_version_name \
+	-to_version_name $to_version_name \
+	-spec {
+	    0.1d4 0.1d5 {
+		apm_parameter_register \
+		    MultipleItemDiscountP \
+		    "Enable multiple item discounts, i.e. the first item has the full price and the next items get the discount." \
+		    dotlrn-ecommerce \
+		    0 \
+		    number
+
+		apm_parameter_register \
+		    MultipleItemDiscountAmount \
+		    "The amount discounted to multiple item purchases. This needs the parameter MultipleItemDiscountP to be set to 1." \
+		    dotlrn-ecommerce \
+		    5 \
+		    number
+
+		apm_parameter_register \
+		    AdminCanOverrideWaitingListP \
+		    "Allow the admin to override the waiting list if the section is full." \
+		    dotlrn-ecommerce \
+		    1 \
+		    number
+	    }
+    	}
 }
 
 ad_proc -private dotlrn-catalog::package_mount {
