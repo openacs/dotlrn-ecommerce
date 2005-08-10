@@ -321,6 +321,9 @@ ad_proc -callback dotlrn::default_member_email -impl dotlrn-ecommerce {
     where ds.community_id=:community_id
     and ds.course_id=cr.item_id
     and cr.live_revision=dc.course_id" -default ""]
+    if {[string equal "" $course_community_id]} {
+	return -code continue	
+    }
 #ad_return_complaint 1 " 1 - $course_community_id 2 - $community_id"
     if {[db_0or1row get_email "select from_addr,subject,email, community_id as email_community_id from dotlrn_member_emails where type=:type and community_id=coalesce(:course_community_id,:community_id)"]} {
 	if {$course_community_id eq $email_community_id} {
@@ -341,7 +344,6 @@ ad_proc -callback dotlrn::default_member_email -impl dotlrn-ecommerce {
         # check to see if message keys exist
         return -code return [list $from_addr $subject "$email $body_extra" "dotlrn-ecommerce"]
     }
-    else return -code continue
 }
 
 ad_proc -callback dotlrn::member_email_var_list -impl dotlrn-ecommerce {} {
