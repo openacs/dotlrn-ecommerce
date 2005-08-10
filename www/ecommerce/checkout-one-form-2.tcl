@@ -852,7 +852,8 @@ if { [string equal $gift_certificate_covers_cost_p "f"] } {
 	} elseif { $method == "check" ||
 		   $method == "cash" ||
 		   $method == "invoice" ||
-		   $method == "scholarship"
+		   $method == "scholarship" ||
+		   $method == "lockbox"
 	       } {
 	    if { [db_0or1row check_transaction {
 		select 1

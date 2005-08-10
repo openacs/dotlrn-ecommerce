@@ -172,6 +172,11 @@ db_multirow -extend { line_subtotal patron_name participant_name participant_typ
 	  set edit_url [export_vars -base ../admin/process-purchase-course { section_id participant_id {user_id $patron_id} }]
       }
 
+# MoS Specific: Give a discounts if user has more than one item in cart
+set multi_item_discount_p [parameter::get -parameter MultipleItemDiscountP -default 0]
+set start_applying_discount_p 0
+set multi_item_discount [parameter::get -parameter MultipleItemDiscountAmount -default 5]
+
 for {set i 1} {$i <= [template::multirow size in_cart]} {incr i} {
 
     set product_name [template::multirow get in_cart $i product_name]
@@ -190,6 +195,9 @@ for {set i 1} {$i <= [template::multirow size in_cart]} {incr i} {
     set patron_id [template::multirow get in_cart $i patron_id]
     set participant_id [template::multirow get in_cart $i participant_id]
 
+    set item_id [template::multirow get in_cart $i item_id]
+    set section_id [template::multirow get in_cart $i section_id]
+
     set max_quantity_length [max $max_add_quantity_length [string length $quantity]]
     # Deletions are done by product_id, color_choice, size_choice,
     # style_choice, not by item_id because we want to delete the
@@ -206,7 +214,26 @@ for {set i 1} {$i <= [template::multirow size in_cart]} {incr i} {
     set lowest_price_and_price_name [ec_lowest_price_and_price_name_for_an_item $product_id $user_id $offer_code]
     set lowest_price [lindex $lowest_price_and_price_name 0]
 
+    # MoS Specific: Give a discounts if user has more than one item in cart
+    if { $multi_item_discount_p && ! [empty_string_p $section_id] } {
+	if { $start_applying_discount_p } {
+	    set discounted_price_name "[ec_pretty_price $multi_item_discount] Off"
+	    set lowest_price_and_price_name [list $lowest_price $discounted_price_name]
+	    set lowest_price [expr $lowest_price - $multi_item_discount]
 
+	    # Set the discounted price now so it'll be recognized by the
+	    # ecommerce procs, if the product is a section
+	    db_dml set_price_charged {
+		update ec_items
+		set price_name = :discounted_price_name,
+		price_charged = :lowest_price
+		where item_id = :item_id
+	    }
+	} else {
+	    set start_applying_discount_p 1
+	}
+    }
+    
     # Calculate line subtotal for end users
     set line_subtotal [ec_pretty_price [expr $quantity * $lowest_price] $currency]
     template::multirow set in_cart $i line_subtotal $line_subtotal

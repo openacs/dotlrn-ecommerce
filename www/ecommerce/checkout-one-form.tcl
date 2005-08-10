@@ -150,7 +150,11 @@ db_foreach order_details_select "
 	and i.product_id = p.product_id
 	group by p.product_name, p.one_line_description, p.product_id, i.price_name, i.price_charged, i.color_choice, i.size_choice, i.style_choice, c.offer_code" {
 	    if {$product_id != $last_product_id} {
-	        set lowest_price [lindex [ec_lowest_price_and_price_name_for_an_item $product_id $user_id $offer_code] 0]
+		if { ! [empty_string_p $price_charged] } {
+		    set lowest_price $price_charged
+		} else {
+		    set lowest_price [lindex [ec_lowest_price_and_price_name_for_an_item $product_id $user_id $offer_code] 0]
+		}
 	    }
             set option_list [list]
 	    if { ![empty_string_p $color_choice] } {
@@ -586,6 +590,9 @@ foreach payment_method [split $payment_methods] {
 	    # admins by logic, but this can be set in the param
 	    lappend method_options [list "[_ dotlrn-ecommerce.Scholarship]" scholarship]
 	}
+	lockbox {
+	    lappend method_options [list "[_ dotlrn-ecommerce.Lock_Box]" lockbox]
+	}
     }
     incr method_count
 }
@@ -676,11 +683,13 @@ ad_form -extend -name checkout -form {
     } elseif { [lsearch $payment_methods internal_account] != -1 } {
 	set method internal_account
     } elseif { [lsearch $payment_methods cash] != -1 } {
-	set method internal_account
+	set method cash
     } elseif { [lsearch $payment_methods invoice] != -1 } {
-	set method internal_account
+	set method invoice
     } elseif { [lsearch $payment_methods scholarship] != -1 } {
-	set method internal_account
+	set method scholarship
+    } elseif { [lsearch $payment_methods lockbox] != -1 } {
+	set method lockbox
     }
 
 } -on_submit {

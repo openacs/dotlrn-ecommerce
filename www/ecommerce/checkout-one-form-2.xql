@@ -96,7 +96,7 @@
   <fullquery name="update_ec_items">      
     <querytext>
       update ec_items 
-      set price_charged=round(:price_charged,2), price_name=:price_name, shipping_charged=round(:shipping_charged,2), price_tax_charged=round(:tax_charged,2), shipping_tax_charged=round(:shipping_tax,2) 
+      set price_charged=coalesce(price_charged, round(:price_charged,2)), price_name=coalesce(price_name, :price_name), shipping_charged=round(:shipping_charged,2), price_tax_charged=round(:tax_charged,2), shipping_tax_charged=round(:shipping_tax,2) 
       where item_id=:item_id
     </querytext>
   </fullquery>
