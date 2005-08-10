@@ -39,6 +39,7 @@ foreach available_payment_method [split $available_payment_methods] {
 				      cash "[_ dotlrn-ecommerce.Cash]" \
 				      invoice "[_ dotlrn-ecommerce.Invoice]" \
 				      scholarship "[_ dotlrn-ecommerce.Scholarship]" \
+				      lockbox "[_ dotlrn-ecommerce.Lock_Box]" \
 				      "[_ dotlrn-ecommerce.Credit_Card]"
 				 ] \
 				$_payment_method]
@@ -54,6 +55,9 @@ template::list::create \
 	    label "[_ dotlrn-ecommerce.Order_ID]"
 	    link_url_col order_url
 	    html { align center }
+	}
+	confirmed_date {
+	    label "[_ dotlrn-ecommerce.Date]"
 	}
 	_section_name {
 	    label "[_ dotlrn-ecommerce.Section_Name]"
@@ -147,6 +151,10 @@ template::list::create \
 	    label "[_ dotlrn-ecommerce.Order_ID]"
 	    orderby o.order_id
 	}
+	confirmed_date {
+	    label "[_ dotlrn-ecommerce.Date]"
+	    orderby o.confirmed_date
+	}
 	_section_name {
 	    label "[_ dotlrn-ecommerce.Section_Name]"
 	    orderby _section_name
@@ -178,7 +186,7 @@ template::list::create \
     }
 
 db_multirow -extend { order_url section_url pretty_total pretty_balance person_url pretty_refund pretty_actual_total } orders orders [subst {
-    select o.order_id, o.confirmed_date, o.order_state, 
+    select o.order_id, to_char(o.confirmed_date, 'Mon dd, yyyy hh:miam') as confirmed_date, o.order_state, 
 
     ec_total_price(o.order_id) - (case when t.method = 'invoice' 
 				  then ec_total_price(o.order_id) - 
@@ -211,11 +219,11 @@ db_multirow -extend { order_url section_url pretty_total pretty_balance person_u
     join dotlrn_ecommerce_section s on (i.product_id = s.product_id)
     left join cc_users u on (o.user_id=u.user_id)
     
-    where true
+    where o.order_state in ('confirmed', 'authorized', 'fulfilled', 'returned')
     
     [template::list::filter_where_clauses -and -name orders]
     
-    group by o.order_id, o.confirmed_date, o.order_state, ec_total_price(o.order_id), o.user_id, u.first_names, u.last_name, o.in_basket_date, t.method, _section_name, s.section_id, s.course_id, o.authorized_date, balance, refund_price, refund_date, purchaser
+    group by o.order_id, o.confirmed_date, o.order_state, ec_total_price(o.order_id), o.user_id, u.first_names, u.last_name, o.in_basket_date, t.method, section_name, s.section_id, s.course_id, o.authorized_date, balance, refund_price, refund_date, purchaser
      
     [template::list::orderby_clause -name orders -orderby]         
 }] {
@@ -229,6 +237,7 @@ db_multirow -extend { order_url section_url pretty_total pretty_balance person_u
 		    cash "[_ dotlrn-ecommerce.Cash]" \
 		    invoice "[_ dotlrn-ecommerce.Invoice]" \
 		    scholarship "[_ dotlrn-ecommerce.Scholarship]" \
+		    lockbox "[_ dotlrn-ecommerce.Lock_Box]" \
 		    "[_ dotlrn-ecommerce.Credit_Card]"
 	       ]
     set order_state [string totitle $order_state]

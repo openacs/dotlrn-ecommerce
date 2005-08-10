@@ -100,6 +100,9 @@ foreach payment_method [split $payment_methods] {
 	cash {
 	    lappend method_options [list "[_ dotlrn-ecommerce.Cash]" cash]
 	}
+	lockbox {
+	    lappend method_options [list "[_ dotlrn-ecommerce.Lock_Box]" lockbox]
+	}
     }
     incr method_count
 }

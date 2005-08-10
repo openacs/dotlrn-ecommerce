@@ -365,6 +365,7 @@ if { $transaction_counter != 0 } {
     # Check if this was payed via another method
     switch $method {
 	cash -
+	lockbox -
 	check {
 	    doc_body_append "<blockquote>This order was <b>fully</b> paid by <b>${method}</b>.</blockquote>"
 	}
