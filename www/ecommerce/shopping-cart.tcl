@@ -411,4 +411,6 @@ if {[parameter::get -parameter MemberPriceP -default 0]} {
     set suppress_membership_p 1
 }
 
+set donation_category_id [parameter::get -parameter DonationECCategoryId -default ""]
+
 ad_return_template

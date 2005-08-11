@@ -152,7 +152,9 @@
     </else>
 
     <ul>
-      <li> <a
-	  href="<if @admin_p@ and @user_id@ ne @viewing_user_id@>../admin/process-purchase-course?user_id=@user_id@</if><else>../</else>">#dotlrn-ecommerce.lt_Purchase__another_Cou#</a> </li>
+<if @donation_category_id@ not nil>
+      <li> <a href="donations?user_id=@user_id@">#dotlrn-ecommerce.Make_a_donation#</a> </li>
+</if>
+      <li> <a href="<if @admin_p@ and @user_id@ ne @viewing_user_id@>../admin/process-purchase-course?user_id=@user_id@</if><else>../</else>">#dotlrn-ecommerce.lt_Purchase__another_Cou#</a> </li>
     </ul>
   </blockquote>
