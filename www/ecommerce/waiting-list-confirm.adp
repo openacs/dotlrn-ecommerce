@@ -6,7 +6,9 @@
     <p />
     <ul>
       <if @admin_p@>
-	<li>#dotlrn-ecommerce.lt_You_may_continue_with# <a href="@shopping_cart_add_url;noquote@" class="button">#dotlrn-ecommerce.Continue#</a></li>
+	<if @allow_override_p@>
+	  <li>#dotlrn-ecommerce.lt_You_may_continue_with# <a href="@shopping_cart_add_url;noquote@" class="button">#dotlrn-ecommerce.Continue#</a></li>
+	</if>
 	<li>#dotlrn-ecommerce.lt_Or_put_this_purchase_# <a href="@request_url;noquote@" class="button">#dotlrn-ecommerce.lt_Go_on_the_waiting_lis#</a></li>
       </if>
       <else>

@@ -15,7 +15,7 @@ ad_page_contract {
     size_choice:optional
     style_choice:optional
 
-    user_id:integer,notnull,optional
+    user_id:integer,notnull
     patron_id:integer,notnull,optional
     participant_id:integer,notnull,optional
 }
@@ -76,6 +76,15 @@ if {[parameter::get -parameter MemberPriceP -default 0]} {
 	    dotlrn_ecommerce::ec::toggle_offer_codes -order_id $order_id
 	}
     }
+}
+
+# Flush cache
+if { [db_0or1row section_from_product {
+    select section_id
+    from dlec_view_sections
+    where product_id = :product_id
+}] } {
+    dotlrn_ecommerce::section::flush_cache $section_id
 }
 
 rp_internal_redirect shopping-cart

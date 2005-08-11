@@ -35,6 +35,11 @@ if { $participant_id == 0 } {
 }
 
 # See if we need to check for prerequisites
-set shopping_cart_add_url [export_vars -base shopping-cart-add { user_id participant_id product_id item_count {override_p 1} }]
-
 set request_url [export_vars -base application-request { participant_id community_id {next_url $return_url} }]
+
+set allow_override_p [parameter::get -parameter AdminCanOverrideWaitingListP -default 1]
+
+if { $allow_override_p } {
+    set shopping_cart_add_url [export_vars -base shopping-cart-add { user_id participant_id product_id item_count {override_p 1} }]
+
+}
