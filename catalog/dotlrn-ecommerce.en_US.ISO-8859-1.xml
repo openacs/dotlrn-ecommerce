@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d5" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d6" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Action">Action</msg>
   <msg key="Add_Course">Add Course</msg>
@@ -190,6 +190,7 @@
   <msg key="lt_Your_request_has_been">Your request has been submitted. You may purchase for someone else.</msg>
   <msg key="lt_Your_Shopping_Cart_is">Your Shopping Cart is empty.</msg>
   <msg key="lt_Youve_already_purchas">You've already purchased this course. You may purchase for someone else.</msg>
+  <msg key="Make_a_donation">Make a donation</msg>
   <msg key="Manage_Course_List">Manage Course List</msg>
   <msg key="Medical_Issues">Medical Issues</msg>
   <msg key="Member_Request">Member Request</msg>
@@ -221,6 +222,7 @@
   <msg key="Process_Registration">Process Registration</msg>
   <msg key="Product">Product</msg>
   <msg key="Public_Pages">Public Pages</msg>
+  <msg key="Purchase_membership">Purchase membership</msg>
   <msg key="Purchaser">Purchaser</msg>
   <msg key="Push">Push</msg>
   <msg key="Quantity">Quantity</msg>
