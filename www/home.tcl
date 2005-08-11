@@ -96,7 +96,7 @@ db_multirow -extend { order_url } orders get_orders {
     group by o.order_id, confirmed_date
     order by o.order_id
 } {
-    set order_url [export_vars -base [apm_package_url_from_key ecommerce]order { order_id }]
+    set order_url [export_vars -base order { user_id order_id }]
     set confirmed_date [util_AnsiDatetoPrettyDate $confirmed_date]
 }
 

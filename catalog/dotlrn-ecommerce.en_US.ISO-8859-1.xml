@@ -204,8 +204,9 @@
   <msg key="Order_list">Order list</msg>
   <msg key="Order_Summary">Order Summary</msg>
   <msg key="Orders_with">Orders with</msg>
-  <msg key="Outstanding_blance">Outstanding blance</msg>
+  <msg key="Outstanding_blance">Outstanding balance</msg>
   <msg key="Paid_By">Paid By</msg>
+  <msg key="Paid_Via">Paid Via:</msg>
   <msg key="Participant">Participant</msg>
   <msg key="Participants">Participants</msg>
   <msg key="Payment_Information">Payment Information</msg>
@@ -277,6 +278,7 @@
   <msg key="Welcome_to_section">Welcome to %course_name%</msg>
   <msg key="You_have_no_orders">You have no orders</msg>
   <msg key="Your_Applications">Your Applications</msg>
+  <msg key="Your_Order">Your Order</msg>
   <msg key="Your_Order_History">Your Order History</msg>
   <msg key="Your_Relationship">Your Relationship</msg>
   <msg key="Zone">Zone</msg>

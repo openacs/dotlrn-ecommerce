@@ -44,3 +44,6 @@
       </tr>
     </else>
   </table>
+
+<p />
+#dotlrn-ecommerce.Paid_Via# @payment_method@

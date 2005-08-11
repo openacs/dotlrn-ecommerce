@@ -75,7 +75,7 @@ db_foreach order_details_select "
 		set options "$options; "
 	    }
 
-	    template::multirow append items $quantity $product_name $options $price_name [ec_pretty_price $price_charged [ad_parameter -package_id [ec_id] Currency ecommerce]]
+	    template::multirow append items $quantity $section_name $options $price_name [ec_pretty_price $price_charged [ad_parameter -package_id [ec_id] Currency ecommerce]]
 	}
 
 if { ![empty_string_p $confirmed_date] } {
@@ -98,3 +98,20 @@ set balance [expr $price + $shipping + $tax - $gift_certificate]
 #foreach i {price shipping gift_certificate tax subtotal total balance} {
 #    set $i [ec_pretty_price [set $i] $currency]
 #}
+
+set payment_method [db_string payment_method {
+    select method
+    from dotlrn_ecommerce_transactions
+    where order_id = :order_id
+} -default cc]
+
+set payment_method [ad_decode $payment_method \
+			cc "[_ dotlrn-ecommerce.Credit_Card]" \
+			check "[_ dotlrn-ecommerce.Check]" \
+			internal_account "[_ dotlrn-ecommerce.Internal_Account]" \
+			cash "[_ dotlrn-ecommerce.Cash]" \
+			invoice "[_ dotlrn-ecommerce.Invoice]" \
+			scholarship "[_ dotlrn-ecommerce.Scholarship]" \
+			lockbox "[_ dotlrn-ecommerce.Lock_Box]" \
+			"[_ dotlrn-ecommerce.Credit_Card]"
+		   ]
