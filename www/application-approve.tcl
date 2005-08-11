@@ -87,6 +87,16 @@ if { $user_id == $actor_id } {
                 {reason:text(textarea),optional {label "[_ dotlrn-ecommerce.Reason]"} {html {rows 10 cols 60}}}
             } \
             -on_request {
+		set reason [lindex [lindex [callback dotlrn::default_member_email -community_id $community_id -to_user $user_id -type "prereq approval"] 0] 2]
+		set var_list [lindex [callback dotlrn::member_email_var_list -community_id $community_id -to_user $user_id -type $type] 0]
+	    set email_vars [lang::message::get_embedded_vars $reason]
+	    foreach var [concat $email_vars] {
+		if {![info exists vars($var)]} {
+		    set vars($var) ""
+		}
+	    }
+		set var_list [array get vars]
+		set reason "[lang::message::format $reason $var_list]"
             } \
             -on_submit {
 		db_transaction {
@@ -116,8 +126,8 @@ if { $user_id == $actor_id } {
 
                 set applicant_email [cc_email_from_party $user_id]
                 set actor_email [cc_email_from_party $actor_id]
-                set community_name [dotlrn_community::get_community_name $community_id]
-		dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type $email_type -var_list [list course_name $community_name reason $reason]
+
+		dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type $email_type -override_email $reason
 
             } \
             -after_submit {
@@ -154,8 +164,12 @@ db_transaction {
 set applicant_email [cc_email_from_party $user_id]
 set actor_email [cc_email_from_party $actor_id]
 set community_name [dotlrn_community::get_community_name $community_id]
-
-dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type $email_type
+if {[exists_and_not_null reason]} {
+    set override_email $reason
+} else {
+    set override_email ""
+}
+dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type $email_type -override_email $override_email
 ad_returnredirect $return_url
 }
 }

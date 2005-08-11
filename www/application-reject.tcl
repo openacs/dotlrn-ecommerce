@@ -44,6 +44,16 @@ if { !$send_email_p || $user_id == $actor_id } {
             {reason:text(textarea),optional {label "[_ dotlrn-ecommerce.Reason]"} {html {rows 10 cols 60}}}
         } \
         -on_request {
+	    set reason [lindex [lindex [callback dotlrn::default_member_email -community_id $community_id -to_user $user_id -type "prereq reject"] 0] 2]
+	    set var_list [lindex [callback dotlrn::member_email_var_list -community_id $community_id -to_user $user_id -type $type] 0]
+	    set email_vars [lang::message::get_embedded_vars $reason]
+	    foreach var [concat $email_vars] {
+		if {![info exists vars($var)]} {
+		    set vars($var) ""
+		}
+	    }
+	    set var_list [array get vars]
+	    set reason "[lang::message::format $reason $var_list]"
         } \
         -on_submit {
             dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
@@ -53,19 +63,20 @@ if { !$send_email_p || $user_id == $actor_id } {
             switch $type {
                 prereq {
                     set subject "[_ dotlrn-ecommerce.Application_prereq_rejected]"
-                    set body "[_ dotlrn-ecommerce.lt_Your_prereq_rejected]"
+		    if {[string equal "" $reason]} {
+			set body "[_ dotlrn-ecommerce.lt_Your_prereq_rejected]"
+		    } else {
+			set body $reason
+		    }
                 }
                 default {
                     set subject "[_ dotlrn-ecommerce.Application_rejected]"
                     set body "[_ dotlrn-ecommerce.lt_Your_application_to_j_1]"
                 }
             }
-            if {![empty_string_p [string trim $reason]]} {
-                append body "
-[_ dotlrn-ecommerce.Reason]:
-[string trim $reason]"
 
-            }
+
+	
             acs_mail_lite::send \
                 -to_addr $applicant_email \
                 -from_addr $actor_email \
