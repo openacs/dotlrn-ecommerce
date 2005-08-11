@@ -49,11 +49,12 @@ if {[empty_string_p $type]} {
 
 set title "Add/edit email template"
 if {![exists_and_not_null community_id]} {
+    #if section_id is empty community_id will be empty too
     set community_id [db_string get_community_id {
         select community_id
             from dotlrn_ecommerce_section
             where section_id = :section_id
-        }]
+        } -default ""]
 }
 
 set extra_vars [list [list action $action] [list section_id $section_id]]

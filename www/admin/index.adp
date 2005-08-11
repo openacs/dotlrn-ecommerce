@@ -53,3 +53,8 @@
 <ul>
 <li><a href=course-attributes>#dotlrn-ecommerce.lt_Manage_Course_Attribu#</a>
 </ul>
+
+
+<h1>test</h1>
+
+<include src="/packages/dotlrn-ecommerce/lib/email-templates" community_id="" course_name="">

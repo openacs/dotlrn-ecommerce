@@ -321,19 +321,24 @@ ad_proc -callback dotlrn::default_member_email -impl dotlrn-ecommerce {
     where ds.community_id=:community_id
     and ds.course_id=cr.item_id
     and cr.live_revision=dc.course_id" -default ""]
-    if {[string equal "" $course_community_id]} {
+
+    if {[string equal "" $course_community_id] && $community_id ne ""} {
 	return -code continue	
-    }
-#ad_return_complaint 1 " 1 - $course_community_id 2 - $community_id"
-    if {[db_0or1row get_email "select from_addr,subject,email, community_id as email_community_id from dotlrn_member_emails where type=:type and community_id=coalesce(:course_community_id,:community_id)"]} {
+    } elseif {[db_0or1row get_email "select from_addr,subject,email, community_id as email_community_id from dotlrn_member_emails where type=:type and community_id=coalesce(:course_community_id,:community_id)"]} {
+	# course or section specific templat exists
 	if {$course_community_id eq $email_community_id} {
 	    set email_from "course"
 	} else {
 	    set email_from ""
 	}
         return -code return [list $from_addr $subject "$email $body_extra" $email_from]
+    } elseif {[db_0or1row get_email "select from_addr,subject,email, community_id as email_community_id from dotlrn_member_emails where type=:type and community_id is null"]} {
+	# community_id is null is a customized site wide default exists
+	set email_from ""
+        return -code return [list $from_addr $subject "$email $body_extra" $email_from]
+			    
     } else {
-	
+	# site wide default has not been edited
 	set subject_key_trim [lindex [split [dotlrn_ecommerce::email_type_message_key -type $type -key subject] "."] 1]
 	set email_key_trim [lindex [split [dotlrn_ecommerce::email_type_message_key -type $type -key body] "."] 1]
 	set subject ""
