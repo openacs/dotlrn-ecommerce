@@ -19,7 +19,7 @@ if {![exists_and_not_null user_id]} {
     set user_id [auth::require_login]
 }
 
-set title "Purchase membership"
+set title "[_ dotlrn-ecommerce.Purchase_membership ]"
 set context {}
 
 set suppress_membership_p 0
