@@ -17,6 +17,12 @@
 <li><a href="@registration_assessment_url;noquote@">#dotlrn-ecommerce.lt_Manage_Registration_A#</a>
 </if>
 <li><a href="../applications">#dotlrn-ecommerce.lt_Waiting_List_and_Prer#</a>
+	<ul>
+		<li><a href="../applications?type=needs+approval">Users in Waiting List</a>
+		<li><a href="../applications?type=waitinglist+approved">Approved Users in Wiating List</a>
+		<li><a href="../applications?type=request+approval">Users for Prerequisite Approval</a>
+		<li><a href="../applications?type=request+approved">Approved Users for Prerequisite Approval</a>
+	</ul>
 <li>#dotlrn-ecommerce.View_Orders#
 <ul>
 <li><a href="users">#dotlrn-ecommerce.Per_User#</a>
