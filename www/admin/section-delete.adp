@@ -3,4 +3,12 @@
 <property name="context">@context@</property>
 
 @content;noquote@
-<formtemplate id="delete_section"></formtemplate>
+
+<p />
+
+<if @attendees@ le 0>
+    <formtemplate id="delete_section"></formtemplate>
+</if>
+<else>
+    <a href="@return_url;noquote@" class="button">Back</a>
+</else>

@@ -250,7 +250,6 @@ ad_proc -public dotlrn_ecommerce::section::available_slots {
 }
 
 ad_proc -public dotlrn_ecommerce::section::attendees {
-    -excluse_my_basket:boolean
     section_id
 } {
     Return number of attendees
