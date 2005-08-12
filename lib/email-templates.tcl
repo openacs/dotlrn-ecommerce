@@ -23,7 +23,7 @@ db_multirow -extend {type_pretty action_url action from revert revert_url} email
 	set email_types [lreplace $email_types $index $index]
     }
     set type_pretty [dotlrn_ecommerce::email_type_pretty -type $type]
-    set from "using $scope specific template"
+
 }
 
 foreach type $email_types {
@@ -41,7 +41,7 @@ foreach type $email_types {
 	        set from  "using course default template"
 	    }
 	    default {
-
+		set from ""
 	    }
 	}
 	template::multirow append email_templates $subject $type [dotlrn_ecommerce::email_type_pretty -type $type] $action_url $action $from
