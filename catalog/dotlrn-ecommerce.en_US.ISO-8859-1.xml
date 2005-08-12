@@ -172,8 +172,14 @@
   <msg key="lt_Users_in_waiting_list">Users in waiting list</msg>
   <msg key="lt_Users_related_to_the_">Users related to the %patron_name%</msg>
   <msg key="lt_Waiting_List_and_Prer">Waiting List and Prerequisite Applications</msg>
-  <msg key="lt_Welcome_to_section_1">Welcome to %course_name%.  We look forward to a great course.
-</msg>
+  <msg key="lt_Welcome_to_section_1">%full_name%, welcome to %course_name%. We look forward to a great course.
+
+This course willl be held on:
+
+%sessions%
+
+Instructors:
+%instructor_names%</msg>
   <msg key="lt_Who_is_taking_the_cou">Who is taking the course?</msg>
   <msg key="lt_Whos_participating_in">Who's participating in this course?</msg>
   <msg key="lt_You_are_number_course">(You are number @course_list.waiting_list_number@ on the wait list)</msg>
