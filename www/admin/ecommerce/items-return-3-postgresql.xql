@@ -41,7 +41,7 @@
 
   <fullquery name="get_cash_refunded">
     <querytext>
-      select coalesce(ec_cash_amount_to_refund(:total_amount_to_refund, :order_id),0) 
+      select coalesce(ec_cash_amount_to_refund((:total_amount_to_refund::float + :total_amount_to_refund_manually::float)::numeric, :order_id::integer),0) 
     </querytext>
   </fullquery>
 

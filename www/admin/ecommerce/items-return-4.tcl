@@ -32,16 +32,25 @@ ad_page_contract {
     received_back_datetime
     reason_for_return
     item_id_list:notnull
-    price_to_refund:array
+    price_to_refund:array,optional
+    price_to_refund_manually:array
     shipping_to_refund:array
     base_shipping_to_refund
     cash_amount_to_refund:optional
+    cash_amount_to_refund_cc:optional
+    cash_amount_to_refund_manually:optional
     certificate_amount_to_reinstate
 
     creditcard_id:optional
     creditcard_type:optional
     creditcard_number:optional
     creditcard_last_four:optional
+}
+
+if { ! [array exists price_to_refund] } {
+    foreach _item [array names price_to_refund_manually] {
+	set price_to_refund($_item) 0
+    }
 }
 
 set method [db_string method {
@@ -95,7 +104,7 @@ if { [db_string get_refund_id_check "
 # Check if money needs to be refunded and if the credit card number is
 # still on file.
 
-if { [expr $cash_amount_to_refund] > 0 && $method == "cc" } {
+if { $cash_amount_to_refund > 0 && $method == "cc" } {
 
     # Make sure that all the credit card information is there.
 
@@ -174,7 +183,7 @@ db_dml insert_new_ec_refund "
     insert into ec_refunds
     (refund_id, order_id, refund_amount, refund_date, refunded_by, refund_reasons)
     values
-    (:refund_id, :order_id, :cash_amount_to_refund, sysdate, :customer_service_rep,:reason_for_return)"
+    (:refund_id, :order_id, :cash_amount_to_refund_cc, sysdate, :customer_service_rep,:reason_for_return)"
 
 foreach item_id $item_id_list {
 
@@ -238,7 +247,7 @@ db_dml update_ec_order_set_shipping_refunds "
 # amount can exceed the charge amount when the order was shipped
 # in parts and the customer returned items from various shipments.
 
-set refund_amount $cash_amount_to_refund 
+set refund_amount $cash_amount_to_refund_cc
 while { $refund_amount > 0 && $method == "cc" } {
     
     # See if the refund matches a single charge transaction. The
@@ -512,6 +521,9 @@ if {$cash_amount_to_refund > 0 && $method == "cc" } {
 		    set refunded_date=sysdate 
 		    where transaction_id=:pgw_transaction_id"
 		append results_explanation "<p>Refund transaction $pgw_transaction_id for [ec_pretty_price $transaction_amount] is complete!</p>";# 
+		if { $cash_amount_to_refund_manually > 0 } {
+		    append results_explanation "<p>The amount [ec_pretty_price $cash_amount_to_refund_manually] is to be refunded manually</p>";# 
+		}
 	    }
 	} else {
 
@@ -528,6 +540,9 @@ if {$cash_amount_to_refund > 0 && $method == "cc" } {
 	set page_title "No credit card refund needed."
 	set results_explanation "No credit card refund was necessary because the entire amount was refunded to the gift certificates the customer used when purchasing the order."
     }
+} elseif { $cash_amount_to_refund_manually > 0 } {
+    set page_title "Refund results"
+    append results_explanation "<p>The amount [ec_pretty_price $cash_amount_to_refund_manually] is to be refunded manually</p>";# 
 } else {
 	set page_title "No credit card refund needed."
 	set results_explanation "No credit card refund was necessary because the entire amount was refunded to the gift certificates the customer used when purchasing the order."

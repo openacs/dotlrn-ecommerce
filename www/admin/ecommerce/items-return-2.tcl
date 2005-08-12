@@ -93,18 +93,47 @@ if { [info exists all_items_p] } {
     set item_id_list [list]
 }
 
+# See if a credit card was used for this purchase
+set method [db_string method {
+    select method
+    from dotlrn_ecommerce_transactions
+    where order_id = :order_id
+} -default cc]
+
+if { $method == "invoice" } {
+    if { [db_0or1row cc_transaction_in_invoice {
+	select 1
+	where exists (select *
+		      from dotlrn_ecommerce_transaction_invoice_payments
+		      where order_id = :order_id
+		      and method = 'cc')
+    }] } {
+	set method cc
+    }
+}
+
 set items_to_print ""
 db_foreach get_return_item_list $sql {
     
     if { [info exists all_items_p] } {
 	lappend item_id_list $item_id
     }
+
+    if { $method == "cc" } {
     append items_to_print "
 	<tr>
 	  <td>$product_name</td>
-	   <td><input type=text name=\"price_to_refund.${item_id}\" value=\"[format "%0.2f" $price_charged]\" size=\"5\"> (out of [ec_pretty_price $price_charged])</td>
+	   <td><input type=text name=\"price_to_refund.${item_id}\" value=\"[format "%0.2f" $price_charged]\" size=\"5\"> (<b>by credit card</b> out of [ec_pretty_price $price_charged]); <input type=text name=\"price_to_refund_manually.${item_id}\" value=\"0\" size=\"5\"> (<b>manually</b> out of [ec_pretty_price $price_charged])</td>
 	</tr>
  	   <input type=hidden name=\"shipping_to_refund.${item_id}\" value=\"[format "%0.2f" [expr $shipping_charged * $shipping_refund_percent]]\" size=\"5\">"
+    } else {
+    append items_to_print "
+	<tr>
+	  <td>$product_name</td>
+	   <td><input type=text name=\"price_to_refund_manually.${item_id}\" value=\"[format "%0.2f" $price_charged]\" size=\"5\"> (<b>manually</b> out of [ec_pretty_price $price_charged])</td>
+	</tr>
+ 	   <input type=hidden name=\"shipping_to_refund.${item_id}\" value=\"[format "%0.2f" [expr $shipping_charged * $shipping_refund_percent]]\" size=\"5\">"
+    }
 }
 
 append doc_body "

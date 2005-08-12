@@ -21,7 +21,8 @@ ad_page_contract {
     received_back_datetime
     reason_for_return
     item_id_list
-    price_to_refund:array
+    price_to_refund:array,optional
+    price_to_refund_manually:array
     shipping_to_refund:array
     base_shipping_to_refund
 }
@@ -51,6 +52,7 @@ set exception_text ""
 # Add up the items' price/shipping/tax to refund as we go
 
 set total_price_to_refund 0
+set total_price_to_refund_manually 0
 set total_shipping_to_refund 0
 set total_price_tax_to_refund 0
 set total_shipping_tax_to_refund 0
@@ -62,17 +64,24 @@ db_foreach get_items_for_return "
     where i.product_id=p.product_id
     and i.item_id in ([join $item_id_list ", "])" {
     
-    if { [empty_string_p $price_to_refund($item_id)] } {
+ 	if { ! [array exists price_to_refund] } {
+	    foreach _item [array names price_to_refund_manually] {
+		set price_to_refund($_item) 0
+	    }
+	}
+
+    if { [empty_string_p price_to_refund($item_id)] || [empty_string_p price_to_refund_manually($item_id)] } {
 	incr exception_count
 	append exception_text "<li>Please enter a price to refund for $product_name."
-    } elseif {[regexp {[^0-9\.]} $price_to_refund($item_id)]} {
+    } elseif {[regexp {[^0-9\.]} $price_to_refund($item_id)] || [regexp {[^0-9\.]} $price_to_refund_manually($item_id)]} {
 	incr exception_count
 	append exception_text "<li>Please enter a purely numeric price to refund for $product_name (no letters or special characters)."
-    } elseif { $price_to_refund($item_id) > $price_charged } {
+    } elseif { ($price_to_refund($item_id) + $price_to_refund_manually($item_id)) > $price_charged } {
 	incr exception_count
 	append exception_text "<li>Please enter a price to refund for $product_name that is less than or equal to [ec_pretty_price $price_charged]."
     } else {
 	set total_price_to_refund [expr $total_price_to_refund + $price_to_refund($item_id)]
+	set total_price_to_refund_manually [expr $total_price_to_refund_manually + $price_to_refund_manually($item_id)]
 
 	# Tax will be the minimum of the tax actually charged and the
 	# tax that would have been charged on the price to refund (tax
@@ -135,6 +144,7 @@ if { $exception_count > 0 } {
 
 set total_tax_to_refund [expr $total_price_tax_to_refund + $total_shipping_tax_to_refund]
 set total_amount_to_refund [expr $total_price_to_refund + $total_shipping_to_refund + $total_tax_to_refund]
+set total_amount_to_refund_manually [expr $total_price_to_refund_manually + $total_shipping_to_refund + $total_tax_to_refund]
 
 # Determine how much of this will be refunded in cash
 
@@ -142,10 +152,25 @@ set cash_amount_to_refund [db_string get_cash_refunded "
     select nvl(ec_cash_amount_to_refund(:total_amount_to_refund,:order_id),0) 
     from dual"]
 
+# Calculate how much to refund to the credit card and how much to
+# refund manually
+if { $total_amount_to_refund >= $cash_amount_to_refund } {
+    # Requested amount to refund to credit card is greater than what
+    # is available for refund (the rest probably paid via gift
+    # certs/scholarship), give priority to credit card refunds than
+    # manual refunds
+    set cash_amount_to_refund_cc $cash_amount_to_refund
+    set cash_amount_to_refund_manually 0
+} else {
+    # Give priority to credit card refunds, the rest refund manually
+    set cash_amount_to_refund_cc $total_amount_to_refund
+    set cash_amount_to_refund_manually [expr $cash_amount_to_refund - $total_amount_to_refund]
+}
+
 # Calculate gift certificate amount and tax to refund
 
-set certificate_amount_to_reinstate [expr $total_amount_to_refund - $cash_amount_to_refund]
-if { $certificate_amount_to_reinstate < 0 } {
+set certificate_amount_to_reinstate [expr ($total_amount_to_refund + $total_amount_to_refund_manually) - $cash_amount_to_refund]
+if { $certificate_amount_to_reinstate < 0.01 } {
 
     # Because of rounding
 
@@ -179,29 +204,6 @@ if {![db_0or1row get_billing_info "
     set billing_city ""
 }
 
-append doc_body "
-    [ad_admin_header "Refund Totals"]
-
-    <h2>Refund Totals</h2>
-
-    [ad_context_bar [list "../" "Ecommerce([ec_system_name])"] [list "index" "Orders"] [list "one?[export_url_vars order_id]" "One"] "Refund Totals"]
-
-    <hr>
-    <form method=post action=items-return-4>
-     [export_entire_form]
-     [export_form_vars cash_amount_to_refund certificate_amount_to_reinstate]
-     <blockquote>
-       <p>Total refund amount: [ec_pretty_price $total_amount_to_refund] (price: [ec_pretty_price $total_price_to_refund], shipping: [ec_pretty_price $total_shipping_to_refund], tax: [ec_pretty_price $total_tax_to_refund])</p>
-       <ul>
-        <li>[ec_pretty_price $certificate_amount_to_reinstate] will be reinstated in gift certificates.<br>
-        <li>[ec_pretty_price $cash_amount_to_refund] will be refunded to the customer's credit card.<br>
-      </ul>"
-
-# Request the credit card number to be re-entered if it is no longer
-# on file, yet there is money to refund.
-
-# Only ask for credit card info if credit card was used in purchase
-
 set method [db_string method {
     select method
     from dotlrn_ecommerce_transactions
@@ -219,6 +221,45 @@ if { $method == "invoice" } {
 	set method cc
     }
 }
+
+append doc_body "
+    [ad_admin_header "Refund Totals"]
+$total_amount_to_refund, $total_amount_to_refund_manually, $cash_amount_to_refund, $certificate_amount_to_reinstate, [expr ($total_amount_to_refund + $total_amount_to_refund_manually) - $cash_amount_to_refund]
+    <h2>Refund Totals</h2>
+
+    [ad_context_bar [list "../" "Ecommerce([ec_system_name])"] [list "index" "Orders"] [list "one?[export_url_vars order_id]" "One"] "Refund Totals"]
+
+    <hr>
+    <form method=post action=items-return-4>
+     [export_entire_form]
+     [export_form_vars cash_amount_to_refund certificate_amount_to_reinstate cash_amount_to_refund_cc cash_amount_to_refund_manually]
+     <blockquote>
+       <p>Total refund amount: [ec_pretty_price [expr $total_amount_to_refund + $total_amount_to_refund_manually]] (price: [ec_pretty_price [expr $total_price_to_refund + $total_price_to_refund_manually]], shipping: [ec_pretty_price $total_shipping_to_refund], tax: [ec_pretty_price $total_tax_to_refund])</p>
+       <ul>"
+
+if { $certificate_amount_to_reinstate > 0 } {
+    if { $method == "scholarship" } {
+	append doc_body "<li>[ec_pretty_price $certificate_amount_to_reinstate] will be reinstated in the scholarship fund.<br>"
+    } else {
+	append doc_body "<li>[ec_pretty_price $certificate_amount_to_reinstate] will be reinstated in gift certificates.<br>"
+    }
+}
+
+if { $method == "cc" } {
+    append doc_body "        
+        <li>[ec_pretty_price $cash_amount_to_refund_cc] will be refunded to the customer's credit card.<br>"
+}
+
+append doc_body "        
+        <li>[ec_pretty_price $cash_amount_to_refund_manually] will be refunded to the customer manually.<br>"
+
+append doc_body "
+      </ul>"
+
+# Request the credit card number to be re-entered if it is no longer
+# on file, yet there is money to refund.
+
+# Only ask for credit card info if credit card was used in purchase
 
 if { [empty_string_p $creditcard_number] && $cash_amount_to_refund > 0 && $method == "cc" } {
     append doc_body "
