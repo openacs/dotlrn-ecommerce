@@ -224,7 +224,7 @@ if { $method == "invoice" } {
 
 append doc_body "
     [ad_admin_header "Refund Totals"]
-$total_amount_to_refund, $total_amount_to_refund_manually, $cash_amount_to_refund, $certificate_amount_to_reinstate, [expr ($total_amount_to_refund + $total_amount_to_refund_manually) - $cash_amount_to_refund]
+
     <h2>Refund Totals</h2>
 
     [ad_context_bar [list "../" "Ecommerce([ec_system_name])"] [list "index" "Orders"] [list "one?[export_url_vars order_id]" "One"] "Refund Totals"]
