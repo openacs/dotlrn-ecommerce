@@ -105,7 +105,7 @@ ad_page_contract {
     {method cc}
     internal_account:optional
 
-    {scholarship_p 0}
+    {scholarship_covers_order_p 0}
 }
 
 # We need them to be logged in
@@ -291,6 +291,12 @@ if { [string equal $new_address "t"] } {
         (:address_id, :user_id, :address_type, :attn,:line1,:line2,:city,:usps_abbrev,:full_state_name,:zip_code,:country_code,:phone,:phone_time)"
     }
     # ec_orders does not track billing address directly, so won't insert an address_id to it.
+}
+
+if { $method == "scholarship" && $scholarship_covers_order_p == 0 } {
+    # Go to page where one can select scholarships to purchase from
+    ad_returnredirect [export_vars -base checkout-scholarships { user_id {return_url [ad_return_url]} }]
+    ad_script_abort
 }
 
 set billing_address_id $address_id
@@ -876,6 +882,30 @@ if { [string equal $gift_certificate_covers_cost_p "f"] } {
 	    }
 	}
     }
+} else {
+    # If gift certificates cover the cost, assume the user has been
+    # given a scholarship, in the future we may need to differentiate
+    # between scholarship grants and normal gift certificates that can
+    # be purchased separately
+    if { [db_0or1row check_transaction {
+	select 1
+	from dotlrn_ecommerce_transactions
+	where order_id = :order_id
+    }] } {
+	db_dml update_transaction_check {
+	    update dotlrn_ecommerce_transactions
+	    set method = 'scholarship',
+	    internal_account = null
+	    where order_id = :order_id
+	}
+    } else {
+	db_dml save_transaction_check {
+	    insert into dotlrn_ecommerce_transactions
+	    (order_id, method)
+	    values
+	    (:order_id, 'scholarship')
+	}
+    }    
 }
 
 # Everything is ok now; the user has a non-empty in_basket order and

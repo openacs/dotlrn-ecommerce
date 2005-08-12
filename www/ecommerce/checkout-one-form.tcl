@@ -699,11 +699,11 @@ ad_form -extend -name checkout -form {
 
     regsub -nocase checkout-one-form $submit_url checkout-one-form-2 submit_url
 
-    if { $method == "scholarship" } {
-	# Go to page where one can select scholarships to purchase from
-	ad_returnredirect [export_vars -base checkout-scholarships { user_id {return_url $submit_url} }]
-	ad_script_abort
-    }
+#     if { $method == "scholarship" } {
+# 	# Go to page where one can select scholarships to purchase from
+# 	ad_returnredirect [export_vars -base checkout-scholarships { user_id {return_url $submit_url} }]
+# 	ad_script_abort
+#     }
 
     ad_returnredirect $submit_url
     ad_script_abort

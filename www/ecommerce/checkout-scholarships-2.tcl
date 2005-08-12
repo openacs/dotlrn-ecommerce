@@ -120,7 +120,7 @@ template::list::create \
 
 if { $total_amount >= $order_total_price_pre_gift_certificate } {
     # Scholarship covers order
-    set next_url $return_url
+    set next_url [export_vars -base $return_url { {scholarship_covers_order_p 1} }]
 } else {
     set next_url [export_vars -base checkout-one-form { user_id }]
 }
