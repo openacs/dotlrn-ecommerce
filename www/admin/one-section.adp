@@ -26,6 +26,12 @@
 <a href="@community_url;noquote@members">#dotlrn-ecommerce.List_Registrants#</a><br />
 <a href="patrons?section_id=@section_id@">#dotlrn-ecommerce.Related_Users#</a><br />
 <a href="../applications?section_id=@section_id@">#dotlrn-ecommerce.lt_Waiting_List_and_Prer#</a><br />
+	<ul>
+		<li><a href="../applications?section_id=@section_id@&type=needs+approval">Users in Waiting List</a>
+		<li><a href="../applications?section_id=@section_id@&type=waitinglist+approved">Approved Users in Wiating List</a>
+		<li><a href="../applications?section_id=@section_id@&type=request+approval">Users for Prerequisite Approval</a>
+		<li><a href="../applications?section_id=@section_id@&type=request+approved">Approved Users for Prerequisite Approval</a>
+	</ul>
 <a href="ecommerce/index?section_id=@section_id@">#dotlrn-ecommerce.Order_Summary#</a>
 
 
