@@ -228,156 +228,15 @@ doc_body_append "
         <td align=right><b>Base shipping charged</b></td>
         <td>[ec_pretty_price $shipping_charged] [ec_decode $shipping_method "pickup" "(Pickup)" "no shipping" "(No Shipping)" ""]</td>
       </tr>
-    </table>
-    
-    <h3>Financial Transactions</h3>"
+    </table>"
 
-set table_header "
-    <table border>
-      <tr>
-        <th>ID</th>
-        <th>Date</th>
-        <th>Creditcard Last 4</th>
-        <th>Amount</th>
-        <th>Type</th>
-        <th>To Be Captured</th> 
-        <th>Auth Date</th>
-        <th>Mark Date</th>
-        <th>Refund Date</th>
-        <th>Failed</th>
-     </tr>"
-
-set transaction_counter 0
-
-# Check for payment methods
-set method [db_string method {
-    select method, internal_account
-    from dotlrn_ecommerce_transactions
-    where order_id = :order_id
-} -default cc]
-
-if { [db_0or1row scholarship {
-    select 1
-    where exists (select *
-		  from ec_gift_certificate_usage
-		  where order_id = :order_id
-		  and exists (select *
-			      from scholarship_fund_grants
-			      where ec_gift_certificate_usage.gift_certificate_id = gift_certificate_id))
-}] } {
-    set method scholarship
-}
-
-set total_price [db_string total_price {select ec_total_price(:order_id)} -default 0]
-set total_refunds [db_string total_refunds {select ec_total_refund(:order_id)} -default 0]
-
-switch $method {
-
-    "invoice" {
-	# List invoice payments
-	doc_body_append "<blockquote>This order was paid by <b>invoice</b>."
-	
-	set invoice_payment_sum 0
-	doc_body_append "<ul><b>Payments</b>"
-	db_foreach invoice_payments {
-	    select amount, to_char(payment_date, 'Month dd, yyyy hh:miam') as pretty_payment_date, method as invoice_method
-	    from dotlrn_ecommerce_transaction_invoice_payments
-	    where order_id = :order_id
-	    order by payment_date
-	} {
-	    doc_body_append "<li>Date: $pretty_payment_date, Amount: [ec_pretty_price $amount], Via: [ad_decode $invoice_method cc "Credit Card" internal_account "Internal Account" check "Check" cash "Cash" lockbox "Lock Box" "Credit Card"]</li>"
-	    set invoice_payment_sum [expr $invoice_payment_sum + $amount]
-	}
-
-	if { $invoice_payment_sum == 0 } {
-	    doc_body_append "<li>No payments have been made</li>"
-	}
-
-	if { $invoice_payment_sum < $total_price } {
-	    doc_body_append "<li><a href=\"invoice-payment?order_id=$order_id\">Add Payment</a></li>"
-	}
-
-	doc_body_append [subst {</ul>
-	    
-	    TOTAL: [ec_pretty_price $total_price]
-	    <br />
-	    Balance: [ec_pretty_price [expr $total_price - $invoice_payment_sum + $total_refunds]]
-	    </blockquote>}]
-    }
-    "scholarship" {
-	set gc_amount [db_string gc_amount {select ec_order_gift_cert_amount(:order_id)} -default 0]
-
-	if { $gc_amount == $total_price } {
-	    doc_body_append "<blockquote>This order was <b>fully</b> paid by <b>scholarship</b>."
-	} else {
-	    doc_body_append "<blockquote>This order was <b>partially</b> paid by <b>scholarship</b>."
-	}
-
-	doc_body_append "<ul>"
-	db_foreach funds {
-	    select f.title, u.amount_used, g.grant_amount, to_char(g.grant_date, 'Month dd, yyyy hh:miam') as grant_date
-	    from ec_gift_certificate_usage u, scholarship_fund_grants g, scholarship_fundi f
-	    where u.gift_certificate_id = g.gift_certificate_id
-	    and g.fund_id = f.fund_id
-	    and u.order_id = :order_id
-
-	    order by g.grant_date
-	} {
-	    doc_body_append "<li>Date: $grant_date, Fund: $title, Amount Granted: [ec_pretty_price $grant_amount], Amount Used: [ec_pretty_price $amount_used]</li>"
-	}
-	doc_body_append "</ul>"
-
-	doc_body_append "</blockquote>"
-    }
-}
-
-db_foreach financial_transactions_select "
-    select t.transaction_id, t.inserted_date, t.transaction_amount, t.transaction_type, t.to_be_captured_p, t.authorized_date, 
-        t.marked_date, t.refunded_date, t.failed_p, c.creditcard_last_four
-    from ec_financial_transactions t, ec_creditcards c
-    where t.creditcard_id=c.creditcard_id
-    and t.order_id=:order_id
-    order by transaction_id" {
- 
-    if { $transaction_counter == 0 } {
-	doc_body_append $table_header
-    }
-    doc_body_append "
-	<tr>
-	  <td>$transaction_id</td>
-	  <td>[ec_nbsp_if_null [ec_formatted_full_date $inserted_date]]</td>
-	  <td>$creditcard_last_four</td>
-	  <td>[ec_pretty_price $transaction_amount]</td>
-	  <td>[ec_decode $transaction_type "charge" "authorization to charge" "intent to refund"]</td>
-	  <td>[ec_nbsp_if_null [ec_decode $transaction_type "refund" "Yes" [ec_decode $to_be_captured_p "t" "Yes" "f" "No" ""]]]</td>
-	  <td>[ec_nbsp_if_null [ec_formatted_full_date $authorized_date]]</td>
-	  <td>[ec_nbsp_if_null [ec_formatted_full_date $marked_date]]</td>
-	  <td>[ec_nbsp_if_null [ec_formatted_full_date $refunded_date]]</td>
-	  <td>[ec_nbsp_if_null [ec_decode $failed_p "t" "Yes" "f" "No" ""]]</td>
-	</tr>"
-    incr transaction_counter
-}	  
-	  
-if { $transaction_counter != 0 } {
-    doc_body_append "</table>"
-} else {
-
-    # Check if this was payed via another method
-    switch $method {
-	cash -
-	lockbox -
-	check {
-	    doc_body_append "<blockquote>This order was <b>fully</b> paid by <b>${method}</b>.</blockquote>"
-	}
-	cc {
-	    doc_body_append "<blockquote>No credit card transactions</blockquote>"
-	}
-	invoice -
-	scholarship {}
-    }
-}
+set financial_transactions [template::adp_compile -string {<include src="/packages/dotlrn-ecommerce/lib/financial-transactions" order_id="@order_id@" />}]
+# Hack to not display ds stuff even if it's enabled, demo purposes
+regsub -all {\[::ds_show_p\]} $financial_transactions 0 financial_transactions
 
 doc_body_append "
+[eval $financial_transactions]
+
     <h3>Shipments</h3>
     <blockquote>"
 
@@ -428,45 +287,13 @@ if { $old_shipment_id == 0 } {
 }
 
 doc_body_append "
-      </blockquote>
+      </blockquote>"
 
-    <h3>Returns</h3>
+set refunds [template::adp_compile -string {<include src="/packages/dotlrn-ecommerce/lib/refunds" order_id="@order_id@" />}]
+# Hack to not display ds stuff even if it's enabled, demo purposes
+regsub -all {\[::ds_show_p\]} $refunds 0 refunds
 
-    <blockquote>"
-
-set old_refund_id 0
-
-db_foreach refunds_select "
-    select r.refund_id, r.refund_date, r.refunded_by, r.refund_reasons, r.refund_amount, u.first_names, u.last_name, p.product_name, p.product_id, i.price_name, i.price_charged, count(*) as quantity
-    from ec_refunds r, cc_users u, ec_items i, ec_products p
-    where r.order_id=:order_id
-    and r.refunded_by=u.user_id
-    and i.refund_id=r.refund_id
-    and p.product_id=i.product_id
-    group by r.refund_id, r.refund_date, r.refunded_by, r.refund_reasons, r.refund_amount, u.first_names, u.last_name, p.product_name, p.product_id, i.price_name, i.price_charged" {
-    if { $refund_id != $old_refund_id } {
-	if { $old_refund_id != 0 } {
-	    doc_body_append "</ul>"
-	}
-	doc_body_append "
-	    Refund ID: $refund_id<br>
-	    Date: [ec_formatted_full_date $refund_date]<br>
-	    Amount: [ec_pretty_price $refund_amount]<br>
-	    Refunded by: <a href=\"[ec_acs_admin_url]users/one?user_id=$refunded_by\">$first_names $last_name</a><br>
-	    Reason: $refund_reasons
-	    <ul>"
-    }
-    doc_body_append "<li>Quantity $quantity: $product_name</li>"
-    set old_refund_id $refund_id
-}
-
-if { $old_refund_id == 0 } {
-    doc_body_append "No Returns Have Been Made"
-} else {
-    doc_body_append "</ul>"
-}
-
-doc_body_append "</blockquote>"
+doc_body_append "[eval $refunds]"
 
 if { $order_state != "void" } {
     doc_body_append "

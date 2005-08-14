@@ -44,7 +44,7 @@
   </if>
 
   <if @financial_transactions:rowcount@ gt 0>
-    <table>
+    <table border>
       <tr>
 	<th>ID</th>
 	<th>Date</th>
@@ -70,7 +70,7 @@
 	  <td>@financial_transactions.marked_date@</td>
 	  <td>@financial_transactions.refunded_date@</td>
 	  <td>@financial_transactions.failed_p@</td>
-	</tr>"
+	</tr>
       </multiple>
     </table>
   </if>
