@@ -87,19 +87,36 @@
 	    <li>#dotlrn-ecommerce.You_have_no_orders#</li>
 	</else>
 	</ul>
-
+<if @applications_p@>
 	<h2>#dotlrn-ecommerce.Your_Applications#</h2>
+</if>
+<else>
+	<h2>#dotlrn-ecommerce.Your_Prereq_Waiver_Requests#</h2>
+</else>
 	<ul class="action-links">
 	  <if @sessions_with_applications@ gt 0>
 	    <multiple name="sessions">
-	      <li><a href="@sessions.asm_url;noquote@">@sessions.pretty_name@</a> [<a href="@sessions.edit_asm_url;noquote@">#dotlrn-ecommerce.Edit_My_Application#</a>]</li>
+	      <li><a href="@sessions.asm_url;noquote@">@sessions.pretty_name@</a> <if @user_id@ ne @sessions.participant@>(@sessions.name@)</if> [<a href="@sessions.edit_asm_url;noquote@">#acs-kernel.common_Edit#</a>]</li>
 	    </multiple>
 	  </if>
 	  <else>
 	    <li>#dotlrn-ecommerce.lt_You_have_no_applicati#</li>
 	  </else>
 	</ul>
-
+</if>
+	<h2>#dotlrn-ecommerce.Your_Waiting_Lists#</h2>
+	
+<if @waiting_lists:rowcount@ gt 0>
+	<ul class="action-links">
+	<multiple name="waiting_lists">
+	<li>@waiting_lists.pretty_name@ <if @user_id@ ne @waiting_lists.participant@>(@waiting_lists.name@)</if></li>
+	</li>
+        </multiple>
+	</ul>
+</if>
+<else>
+No waiting lists
+</else>
       </td>
     </tr>
   </table>

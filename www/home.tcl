@@ -100,42 +100,66 @@ db_multirow -extend { order_url } orders get_orders {
     set confirmed_date [util_AnsiDatetoPrettyDate $confirmed_date]
 }
 
-set sessions_with_applications 0
-db_multirow -extend { asm_url edit_asm_url } sessions sessions {
-    select c.community_id, c.pretty_name
-    from dotlrn_member_rels_full r, dotlrn_communities c
-    where r.community_id = c.community_id
-    and r.member_state = 'awaiting payment'
-    and r.user_id = :user_id
-} {
-    if { [db_0or1row assessment {
-	select ss.session_id, c.assessment_id
-	
-	from dotlrn_ecommerce_section s,
-	(select c.*
-	 from dotlrn_catalogi c,
-	 cr_items i
-	 where c.course_id = i.live_revision) c,
-	(select a.*
-	 from as_assessmentsi a,
-	 cr_items i
-	 where a.assessment_id = i.latest_revision) a,
-	as_sessions ss
-	
-	where s.community_id = :community_id
-	and s.course_id = c.item_id
-	and c.assessment_id = a.item_id
-	and a.assessment_id = ss.assessment_id
-	and ss.subject_id = :user_id
-	
-	order by creation_datetime desc
-	
-	limit 1
-    }] } {
-	set asm_url [export_vars -base /assessment/session { session_id }]
-	set edit_asm_url [export_vars -base /assessment/assessment { assessment_id }]
-	incr sessions_with_applications
-    }
-}
+set applications_p [parameter::get -parameter EnableCourseApplicationsP -default 0]
 
+set sessions_with_applications 0
+# check for patron rels as well
+    db_multirow -extend { asm_url edit_asm_url } sessions sessions {
+	select c.community_id, c.pretty_name,r.user_id as participant,
+	acs_object__name(r.user_id) as name
+	from 
+	dotlrn_communities c,
+	dotlrn_member_rels_full r
+	left join acs_rels ar on r.user_id=ar.object_id_two
+	where r.community_id = c.community_id
+--	and r.member_state = 'awaiting payment'
+	and ar.rel_type='patron_rel'
+	and (r.user_id = :user_id or ar.object_id_one=:user_id)
+    } {
+	append notice "community_id '${community_id}' participant = '${participant}' <br />"
+	if { [db_0or1row assessment {
+	    select ss.session_id, c.assessment_id
+	    
+	    from dotlrn_ecommerce_section s,
+	    (select c.*
+	     from dotlrn_catalogi c,
+	     cr_items i
+	     where c.course_id = i.live_revision) c,
+	    (select a.*
+	     from as_assessmentsi a,
+	     cr_items i
+	     where a.assessment_id = i.latest_revision) a,
+	    as_sessions ss
+	    
+	    where s.community_id = :community_id
+	    and s.course_id = c.item_id
+	    and a.item_id = coalesce(case when c.assessment_id=-1 then null else c.item_id end,57657)
+	    and a.assessment_id = ss.assessment_id
+	    and ss.subject_id = :user_id
+	    
+	    order by creation_datetime desc
+	    
+	    limit 1
+	}] } {
+	    set asm_url [export_vars -base /assessment/session { session_id }]
+	    set edit_asm_url [export_vars -base /assessment/assessment { assessment_id }]
+	    incr sessions_with_applications
+	}
+    }
+
+# get waiting list requests
+    db_multirow waiting_lists waiting_lists {
+	select c.community_id, c.pretty_name,r.user_id as participant,
+	acs_object__name(r.user_id) as name
+	from 
+	dotlrn_communities c,
+	dotlrn_member_rels_full r
+	left join acs_rels ar on r.user_id=ar.object_id_two
+	where r.community_id = c.community_id
+	and r.member_state = 'needs approval'
+	and ar.rel_type='patron_rel'
+	and (r.user_id = :user_id or ar.object_id_one=:user_id)
+    }
+
+#ad_return_complaint 1 $notice
 set catalog_url [ad_conn package_url]
