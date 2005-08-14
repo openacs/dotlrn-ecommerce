@@ -19,7 +19,7 @@
 <li><a href="../applications">#dotlrn-ecommerce.lt_Waiting_List_and_Prer#</a>
 	<ul>
 		<li><a href="../applications?type=needs+approval">Users in Waiting List</a>
-		<li><a href="../applications?type=waitinglist+approved">Approved Users in Wiating List</a>
+		<li><a href="../applications?type=waitinglist+approved">Approved Users in Waiting List</a>
 		<li><a href="../applications?type=request+approval">Users for Prerequisite Approval</a>
 		<li><a href="../applications?type=request+approved">Approved Users for Prerequisite Approval</a>
 	</ul>
