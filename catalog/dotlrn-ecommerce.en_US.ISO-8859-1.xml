@@ -288,7 +288,9 @@ Instructors:
   <msg key="Your_Applications">Your Applications</msg>
   <msg key="Your_Order">Your Order</msg>
   <msg key="Your_Order_History">Your Order History</msg>
+  <msg key="Your_Prereq_Waiver_Requests">Your Requests to Override Prerequisites</msg>
   <msg key="Your_Relationship">Your Relationship</msg>
+  <msg key="Your_Waiting_Lists">Your Waiting Lists</msg>
   <msg key="Zone">Zone</msg>
   <msg key="Zones">Zones</msg>
 </message_catalog>
