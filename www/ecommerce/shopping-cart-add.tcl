@@ -73,11 +73,35 @@ if { [acs_object_type $participant_id] != "group" } {
 
 	if { $member_state != "approved" &&
 	     $member_state != "waitinglist approved" &&
+	     $member_state != "request approved" &&
 	     $member_state != "payment received" &&
 	     ($override_p == 0 || $admin_p == 0)
 	 } {
 
-	    # FIRST check if the section is full
+	    # Check application assessment
+	    if { [db_0or1row get_assessment {
+		select c.assessment_id
+
+		from dotlrn_ecommerce_section s,
+		dotlrn_catalogi c,
+		cr_items i
+
+		where s.course_id = c.item_id
+		and c.item_id = i.item_id
+		and i.live_revision = c.course_id
+		and s.product_id = :product_id
+
+		limit 1
+	    }] } {
+		if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
+		    set return_url [export_vars -base "[apm_package_url_from_key dotlrn-ecommerce]application-confirm" { product_id }]
+		    ad_returnredirect [export_vars -base application-request { participant_id community_id {next_url $return_url} { type payment } }]
+		    ad_script_abort
+		    
+		}
+	    }
+
+	    # Check if the section is full
 	    # and if prerequisites are met
 	    
 	    # Is section full?
@@ -146,29 +170,6 @@ if { [acs_object_type $participant_id] != "group" } {
 		}
 		ad_returnredirect [export_vars -base prerequisite-confirm { product_id user_id participant_id return_url cancel_url }]
 		ad_script_abort
-	    }
-
-	    # Check application assessment
-	    if { [db_0or1row get_assessment {
-		select c.assessment_id
-
-		from dotlrn_ecommerce_section s,
-		dotlrn_catalogi c,
-		cr_items i
-
-		where s.course_id = c.item_id
-		and c.item_id = i.item_id
-		and i.live_revision = c.course_id
-		and s.product_id = :product_id
-
-		limit 1
-	    }] } {
-		if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
-		    set return_url [export_vars -base "[apm_package_url_from_key dotlrn-ecommerce]application-confirm" { product_id }]
-		    ad_returnredirect [export_vars -base application-request { participant_id community_id {next_url $return_url} { type payment } }]
-		    ad_script_abort
-		    
-		}
 	    }
 	}
     }
