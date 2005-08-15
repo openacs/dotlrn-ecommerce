@@ -77,22 +77,24 @@ if { [ad_form_new_p -key section_id] } {
 	"The section '$section_key' key already exists"
     }
 
-    # Try to default to Adult, this may not exist
-    # Roel: Right now I'm doing this using javascript, doesn't seem to
-    # be a way to set the value of a category widget
-    set grade_tree_id [parameter::get -parameter GradeCategoryTree -default 0]
-    
-    if { $grade_tree_id } {
-	set locale [ad_conn locale]
-	db_0or1row default_grade {
-		select c.category_id as adult_category_id
-		from category_translations t, categories c
-		where t.category_id = c.category_id 
-		and t.name = 'Adult'
-		and t.locale = :locale
-		and c.tree_id = :grade_tree_id
+    if { [parameter::get -package_id [ad_conn package_id] -parameter ShowSectionCategoryFields -default 1 ] } {
+	# Try to default to Adult, this may not exist
+	# Roel: Right now I'm doing this using javascript, doesn't seem to
+	# be a way to set the value of a category widget
+	set grade_tree_id [parameter::get -parameter GradeCategoryTree -default 0]
+	
+	if { $grade_tree_id } {
+		set locale [ad_conn locale]
+		db_0or1row default_grade {
+			select c.category_id as adult_category_id
+			from category_translations t, categories c
+			where t.category_id = c.category_id 
+			and t.name = 'Adult'
+			and t.locale = :locale
+			and c.tree_id = :grade_tree_id
+		}
 	}
-    }
+     }
 
 } else {
     ad_form -extend -name add_section -form {
@@ -176,42 +178,51 @@ if { $assistant_community_id == 0 && ![db_0or1row "checkassistantcommunity" "sel
 
 
 if { ! [ad_form_new_p -key section_id] } {
-    db_1row community {
-	select community_id
-	from dotlrn_ecommerce_section
-	where section_id = :section_id
-    }
 
-    ad_form -extend -name add_section -form {
-	{categories:text(category),multiple,optional
-	    {label "Categories"}
-	    {html {size 4}}
-	    {value "$community_id $package_id"}
+	db_1row community {
+		select community_id
+		from dotlrn_ecommerce_section
+		where section_id = :section_id
 	}
-    }
+
+	if { [parameter::get -package_id [ad_conn package_id] -parameter ShowSectionCategoryFields -default 1 ] } {	
+		ad_form -extend -name add_section -form {
+			{categories:text(category),multiple,optional
+			{label "Categories"}
+			{html {size 4}}
+			{value "$community_id $package_id"}
+			}
+		}
+	}
+
 } else {
-    ad_form -extend -name add_section -form {
-	{categories:text(category),multiple,optional
-	    {label "Categories"}
-	    {html {size 4}}
+	if { [parameter::get -package_id [ad_conn package_id] -parameter ShowSectionCategoryFields -default 1 ] } {
+		ad_form -extend -name add_section -form {
+			{categories:text(category),multiple,optional
+			{label "Categories"}
+			{html {size 4}}
+			}
+		}
 	}
-    }
 }
+
 
 set tree_options [list]
-db_foreach prerequisites {
-    select tree_id
-    from dotlrn_ecommerce_prereq_map
-} {
-    lappend tree_options [list [category_tree::get_name $tree_id] $tree_id]
-}
-
-if { [llength $tree_options] > 0 } {
-    ad_form -extend -name add_section -form {
-	{prerequisites:integer(checkbox),multiple,optional {label "Check Prerequisites"}
-	    {options {$tree_options}}
+if { [parameter::get -package_id [ad_conn package_id] -parameter GradePrerequisitesP -default 1 ] } {
+	db_foreach prerequisites {
+	select tree_id
+	from dotlrn_ecommerce_prereq_map
+	} {
+	lappend tree_options [list [category_tree::get_name $tree_id] $tree_id]
 	}
-    }
+	
+	if { [llength $tree_options] > 0 } {
+	ad_form -extend -name add_section -form {
+		{prerequisites:integer(checkbox),multiple,optional {label "Check Prerequisites"}
+		{options {$tree_options}}
+		}
+	}
+	}
 }
 
 # TICKET #159 section_description
@@ -348,9 +359,11 @@ if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -d
     }
 }
 
-lappend validate {categories
-    { [dotlrn_ecommerce_check_grade $section_id $categories] }
-    "Please select one or more grades"
+if { [parameter::get -package_id [ad_conn package_id] -parameter ShowSectionCategoryFields -default 1 ] } {
+	lappend validate {categories
+	{ [dotlrn_ecommerce_check_grade $section_id $categories] }
+	"Please select one or more grades"
+	}
 }
 
 ad_form -extend -name add_section -validate $validate -on_request {
@@ -559,7 +572,9 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	# just use community_id DAVEB
 	# where do the terms options come from?! DAVEB
 	
-	category::map_object -object_id $community_id $categories
+	if { [parameter::get -package_id [ad_conn package_id] -parameter ShowSectionCategoryFields -default 1 ] } {
+		category::map_object -object_id $community_id $categories
+	}
 
 	# Map patron relationships
 	set tree_id [parameter::get -package_id [ad_conn package_id] -parameter PatronRelationshipCategoryTree -default 0]
@@ -618,8 +633,10 @@ ad_form -extend -name add_section -validate $validate -on_request {
 
 } -edit_data {
 
-    if { $categories == [list [list $community_id $package_id]] } {
-	set categories ""
+    if { [parameter::get -package_id [ad_conn package_id] -parameter ShowSectionCategoryFields -default 1 ] } {
+	if { $categories == [list [list $community_id $package_id]] } {
+		set categories ""
+	}
     }
 
     db_transaction {
@@ -670,7 +687,9 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	}
 	db_dml custom_fields_update { } -bind $bind_set
 
-	category::map_object -remove_old -object_id $community_id $categories
+	if { [parameter::get -package_id [ad_conn package_id] -parameter ShowSectionCategoryFields -default 1 ] } {
+			category::map_object -remove_old -object_id $community_id $categories
+	}	
 	
 	# Set instructors
 	set original_instructors [db_list instructors {

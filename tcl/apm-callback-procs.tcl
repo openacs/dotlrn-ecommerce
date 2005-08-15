@@ -113,6 +113,22 @@ ad_proc -private dotlrn_ecommerce::after_upgrade {
 		    1 \
 		    number
 	    }
+	  0.1d6 0.1d7 {
+		apm_parameter_register \
+		    GradePrerequisitesP \
+		    "Set this to 1 if you want participants to be verified against the Grade requirement for a section." \
+		    dotlrn-ecommerce \
+		    0 \
+		    number
+
+		apm_parameter_register \
+		    ShowSectionCategoryFields \
+		    "Display the category field in the section add/edit form." \
+		    dotlrn-ecommerce \
+		    0 \
+		    number
+
+	    }
     	}
 }
 
