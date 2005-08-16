@@ -298,13 +298,12 @@ template::list::create \
 	    label ""
 	    
 	    display_template {
-		<if @course_list.section_id@ not nil> 
-		<if @admin_p@ eq 1 or @course_list.member_p@ eq 1>
-		<b>Section: @course_list.section_name@</b>
-		</if>
-		<else>
+		<if @course_list.section_id@ not nil>
 		<b>Section @course_list.section_name@</b>
-		</else>
+		<if @course_list.description@ not nil>
+		<br />
+		@course_list.description;noquote@
+		</if>
 		<if @course_list.section_grades@ not nil> (@course_list.section_grades@)</if>
 		<if @course_list.sessions@ not nil and @course_list.show_sessions_p@ eq "t"><br />@course_list.sessions;noquote@</if>
 		<if @course_list.section_zones@ not nil><br />@course_list.section_zones;noquote@</if>
@@ -317,7 +316,10 @@ template::list::create \
 		<br />[_ dotlrn-ecommerce.lt_This_section_is_curre]
 		</if>
 		</if>
+		<if @course_list.fs_chunk@ not nil>
+		<br />
 		@course_list.fs_chunk;noquote@
+		</if>
 		</if>
 	    }
 	    html { width 40% }
@@ -626,4 +628,5 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
     }
 
     set fs_chunk [util_memoize [list dotlrn_ecommerce::section::fs_chunk $section_id]]
+    set description [ad_text_to_html $description]
 }
