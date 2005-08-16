@@ -175,6 +175,14 @@ ad_form -extend -name add_course -on_submit {
     # add email template defaults
     # we will fall back to the site wide defaults instead
     
+    if { [exists_and_not_null assessment_id] } {
+	# Make sure assessment permissions are properly set
+	set registered_users [acs_magic_object registered_users]
+	permission::grant -party_id $registered_users -object_id $assessment_id -privilege "read"
+	permission::grant -party_id $registered_users -object_id $assessment_id -privilege "write"
+	permission::grant -party_id $registered_users -object_id $assessment_id -privilege "create"
+    }
+
 } -edit_data {
     # New revision in the CR
     catch {
@@ -202,6 +210,14 @@ ad_form -extend -name add_course -on_submit {
     dotlrn_catalog::set_live -revision_id $revision_id
     if { ![string equal $category_ids "-1"] } {
 	category::map_object -object_id $revision_id $category_ids
+    }
+
+    if { [exists_and_not_null assessment_id] } {
+	# Make sure assessment permissions are properly set
+	set registered_users [acs_magic_object registered_users]
+	permission::grant -party_id $registered_users -object_id $assessment_id -privilege "read"
+	permission::grant -party_id $registered_users -object_id $assessment_id -privilege "write"
+	permission::grant -party_id $registered_users -object_id $assessment_id -privilege "create"
     }
 
 } -new_request {
