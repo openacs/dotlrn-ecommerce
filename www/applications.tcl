@@ -141,12 +141,10 @@ template::list::create \
 	comments {
 	    label "[_ dotlrn-ecommerce.Notes]"
 	    display_template {
-            <if @applications.add_comment_url@ not nil>
+		@applications.comments_truncate;noquote@
+		<if @applications.add_comment_url@ not nil>
 		<a href="@applications.add_comment_url@" title="[_ dotlrn-ecommerce.Add_note]">[_ dotlrn-ecommerce.Add_note]</a>
-            </if>
-            <else>
-		<a href="javascript:void(0);" onmouseover="return overlib('@applications.comments;noquote@');" onmouseout="return nd();">[_ dotlrn-ecommerce.View]</a>
-            </else>
+		</if>
 	    }
 	}
 	comments_text_plain {
@@ -224,7 +222,7 @@ if { $enable_applications_p } {
 
 set general_comments_url [apm_package_url_from_key "general-comments"]
 
-db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain add_comment_url } applications applications [subst {
+db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url } applications applications [subst {
     select person__name(r.user_id) as person_name, member_state, r.community_id, r.user_id as applicant_user_id, s.section_name, t.course_name, s.section_id, r.rel_id, e.phone, o.creation_user as patron_id,
     (select count(*)
      from (select *
@@ -341,12 +339,13 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	    } else {
 		set html_comment $gc_content
 	    }
-            append comments "<b>$gc_title</b><br />${html_comment}<br /><i>- $gc_author on $gc_creation_date_ansi</i><br /><br />"
+	    set edit_comment_url [export_vars -base "${general_comments_url}comment-edit" {return_url comment_id}]
+            set comments "<b>$gc_title</b><br />${html_comment}<br /><i>- $gc_author on $gc_creation_date_ansi</i><br /><br />"
+	    set comments_text [ad_html_text_convert -from "text/html" -to "text/plain" $html_comment]
+	    append comments_text_plain "${comments_text}\n"
+	    append comments_truncate "<a href=\"javascript:void(0);\" onmouseover=\"return overlib('$comments');\" onmouseout=\"return nd();\" style=\"text-decoration: none;\">[ad_html_text_convert -from "text/plain" -to "text/html" -truncate_len 100 $comments_text]</a> \[<a href=\"$edit_comment_url\">edit</a>\]<br /><br />"
         }
-        if {[empty_string_p $comments]} {
-            set add_comment_url [export_vars -base "${general_comments_url}comment-add" {{object_id $session_id} {object_name "Application"} return_url}]
-        }
-	set comments_text_plain [ad_html_text_convert -from "text/html" -to "text/plain" $html_comment]
+	set add_comment_url [export_vars -base "${general_comments_url}comment-add" {{object_id $session_id} {object_name "Application"} return_url}]
     }
 
 }
