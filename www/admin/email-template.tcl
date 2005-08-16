@@ -47,14 +47,18 @@ if {[empty_string_p $type]} {
 }
 
 
-set title "Add/edit email template"
-if {![exists_and_not_null community_id]} {
-    #if section_id is empty community_id will be empty too
-    set community_id [db_string get_community_id {
-        select community_id
-            from dotlrn_ecommerce_section
-            where section_id = :section_id
-        } -default ""]
+set title "Add/edit default email template"
+set section_id [db_string get_section_id {
+    select section_id
+    from dotlrn_ecommerce_section
+    where community_id=:community_id
+} -default ""]
+
+if {$community_id ne ""} {
+    set title "Add/edit Course default email template"
+}
+if {$section_id ne ""} {
+    set title "Add/edit Section email template"
 }
 
 set extra_vars [list [list action $action] [list section_id $section_id]]
