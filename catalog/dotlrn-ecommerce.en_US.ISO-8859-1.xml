@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d6" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d7" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Action">Action</msg>
   <msg key="Add_Course">Add Course</msg>
+  <msg key="Add_note">Add note</msg>
   <msg key="Add_Participant">Add Participant</msg>
   <msg key="Add_Purchaser">Add Purchaser</msg>
   <msg key="add_section">add section</msg>
@@ -41,6 +42,7 @@
   <msg key="Courses">Courses:</msg>
   <msg key="Credit_Card">Credit Card</msg>
   <msg key="Credit_card_number">Credit card number</msg>
+  <msg key="CSV">CSV file</msg>
   <msg key="Currently_Selected">Currently Selected</msg>
   <msg key="Date">Date</msg>
   <msg key="delete">delete</msg>
@@ -50,6 +52,7 @@
   <msg key="edit">edit</msg>
   <msg key="Edit_My_Application">Edit My Application</msg>
   <msg key="Email">Email</msg>
+  <msg key="Email_applicants">Email selected applicants</msg>
   <msg key="Email_is_required">Email is required</msg>
   <msg key="Email_t_approve_application">Approve application</msg>
   <msg key="Email_t_submit_application">Submit application</msg>
@@ -58,6 +61,7 @@
   <msg key="Expense_Tracking">Expense Tracking</msg>
   <msg key="Expenses">Expenses</msg>
   <msg key="Expires">Expires</msg>
+  <msg key="Export">Export</msg>
   <msg key="For_PreReq_Approval">For PreReq Approval</msg>
   <msg key="Gift_Certificate">Gift Certificate:</msg>
   <msg key="Go_to_My_Account">Go to My Account</msg>
@@ -205,6 +209,7 @@ Instructors:
   <msg key="No_applications">No applications</msg>
   <msg key="No_orders">No orders</msg>
   <msg key="No_related_users">No related users</msg>
+  <msg key="Notes">Notes</msg>
   <msg key="Order_Details">Order Details</msg>
   <msg key="Order_History">Order History</msg>
   <msg key="Order_ID">Order ID</msg>
@@ -234,6 +239,7 @@ Instructors:
   <msg key="Quantity">Quantity</msg>
   <msg key="Quick_Links">Quick Links</msg>
   <msg key="Reason">Reason</msg>
+  <msg key="Recipients">Recipients</msg>
   <msg key="Register">Register</msg>
   <msg key="register">Register for this Course</msg>
   <msg key="Registration">Registration</msg>
@@ -280,6 +286,7 @@ Instructors:
   <msg key="View_Calendar">View Calendar</msg>
   <msg key="View_Orders">View Orders</msg>
   <msg key="View_Pending">View Pending</msg>
+  <msg key="View_previously_email">View sent emails</msg>
   <msg key="View_User_Requests">View User Requests</msg>
   <msg key="Waiting_List">Waiting List</msg>
   <msg key="Welcome_message">Welcome message</msg>
