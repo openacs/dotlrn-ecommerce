@@ -41,7 +41,7 @@ foreach type $email_types {
 	        set from  "using course default template"
 	    }
 	    default {
-		set from ""
+		set from "using section specific template"
 	    }
 	}
 	template::multirow append email_templates $subject $type [dotlrn_ecommerce::email_type_pretty -type $type] $action_url $action $from
