@@ -343,7 +343,7 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
             set comments "<b>$gc_title</b><br />${html_comment}<br /><i>- $gc_author on $gc_creation_date_ansi</i><br /><br />"
 	    set comments_text [ad_html_text_convert -from "text/html" -to "text/plain" $html_comment]
 	    append comments_text_plain "${comments_text}\n"
-	    append comments_truncate "<a href=\"javascript:void(0);\" onmouseover=\"return overlib('$comments');\" onmouseout=\"return nd();\" style=\"text-decoration: none;\">[ad_html_text_convert -from "text/plain" -to "text/html" -truncate_len 100 $comments_text]</a> \[<a href=\"$edit_comment_url\">edit</a>\]<br /><br />"
+	    append comments_truncate "<a href=\"javascript:void(0);\" onmouseover=\"return overlib('$comments');\" onmouseout=\"return nd();\" style=\"text-decoration: none;\">$gc_title</a> \[<a href=\"$edit_comment_url\">edit</a>\]<br /><br />"
         }
 	set add_comment_url [export_vars -base "${general_comments_url}comment-add" {{object_id $session_id} {object_name "Application"} return_url}]
     }
