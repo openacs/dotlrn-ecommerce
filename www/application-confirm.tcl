@@ -1,6 +1,7 @@
 ad_page_contract {
 } {
     {product_id:notnull}
+    member_state:notnull
 }
 
 if { [db_0or1row get_name {
@@ -32,7 +33,7 @@ if { [db_0or1row get_name {
 	    }] } {
 		db_dml set_member_state {
 		    update membership_rels
-		    set member_state = 'awaiting payment'
+		    set member_state = :member_state
 		    where rel_id = :rel_id
 		}
 	    }
