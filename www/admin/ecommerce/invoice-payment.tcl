@@ -175,7 +175,7 @@ if { [info exists cc_p] } {
 }
 
 set price [ec_price_shipping_gift_certificate_and_tax_in_an_order $order_id]
-set total_price [expr [lindex $price 0]-[lindex $price 1]-[lindex $price 2][lindex $price 3]]
+set total_price [expr [lindex $price 0]-[lindex $price 1]-[lindex $price 2]-[lindex $price 3]]
 
 set invoice_payments_sum [db_string invoice_payments_sum {
     select coalesce(sum(amount), 0)
@@ -332,7 +332,7 @@ ad_form -extend -name checkout -validate $validate  -form {} -on_request {
 	    }
 	}
 #    }
-	ad_returnredirect [export_vars -base one { order_id }]
+	ad_returnredirect [export_vars -base financial-transactions { order_id }]
     ad_script_abort
 }
 
