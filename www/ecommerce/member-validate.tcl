@@ -39,6 +39,14 @@ ad_form \
     -after_submit {
         set validate_result [mos_integration::member_validate -user_id $user_id -group_id $group_id -memberid $memberid -zipcode $zipcode -lastname $lastname]
 	if {[string equal $validate_result 1]} {
+	    set user_session_id [ec_get_user_session_id]
+	    set order_id [db_string get_order_id {
+		select order_id
+		from ec_orders
+		where user_session_id = :user_session_id
+		and order_state = 'in_basket'
+	    }  -default ""]
+	    dotlrn_ecommerce::ec::toggle_offer_codes -order_id $order_id -insert
 	    ad_returnredirect [export_vars -base "shopping-cart" {user_id}]
 	} elseif {[string equal $validate_result "EXPIRED"]} {
 	    append result_stub "Your membership has expired. <a href=\"memberships?user_id=$user_id\">You can buy one now</a>"
