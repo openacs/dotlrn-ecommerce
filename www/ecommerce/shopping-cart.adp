@@ -45,7 +45,8 @@
 	      @in_cart.patron_name@
 	    </td>
 	    <td>
-	      #dotlrn-ecommerce.lt_Participant_pays_for_#
+	      <if @in_cart.section_id@ not nil>#dotlrn-ecommerce.lt_Participant_pays_for_#</if>
+	      <else>&nbsp;</else>
 	    </td>
 	  </if>
 	  <else>

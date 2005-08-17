@@ -46,7 +46,7 @@ if { $related_user > 0 } {
 
 acs_user::get -user_id $user_id -array user_info
 
-set title "Purchase courses/sections for [person::name -person_id $user_id]"
+set title "Choose Participant"
 
 set next_url [export_vars -base process-purchase-course { {purchaser_id $user_id} participant participant_id section section_id related_user {new_user_p 1} }]
 
@@ -297,30 +297,12 @@ if { ! $participant_id } {
 	where not ruser is null
     }] 0 [list "$user_info(first_names) $user_info(last_name) is both purchasing and attending the course" "0"]]
     lappend related_user_options [list "Purchase for GROUP of participants" -1]
+    lappend related_user_options [list "Another Participant" -2]
 
     ad_form -extend -name "participant" -export { {participant_id 0} } -form {
-	{-section "Individual Purchase"}
+	{-section "Choose Participant"}
 	{related_user:integer(radio),optional {label "Related Users"} {options {$related_user_options}}}
-	{participant:text,optional {label "Search Participant"} {html {onchange "if (this.value != '') { this.form.__refreshing_p.value = 1; } else { this.form.__refreshing_p.value = 0 ; }" size 30}}
-	    {help_text "Enter a string to search names and email addresses. <br />Or <a href=\"[export_vars -base participant-create { next_url }]\">Create an account</a> and return to this form"}
-	}
-	{relationship:text(select),optional {label "Relationship"}
-	    {help_text "How is the purchaser related to the participant?"}
-	    {options {$tree_options}}
-	}
 	{isubmit:text(submit) {label "[_ dotlrn-ecommerce.Continue]"}}
-	{-section "Group Purchase"}
-	{name:text,optional {label "Group Name"} {html {size 30}}}
-	{num_members:integer(text),optional {label "Number of attendees"} {html {size 30}}}
-	{gsubmit:text(submit) {label "[_ dotlrn-ecommerce.Continue]"}}
-    }
-
-    lappend validate {name
-	{ ! [empty_string_p $name] || [template::element::get_value participant related_user] != -1 }
-	"[_ dotlrn-ecommerce.lt_Please_enter_a_name_f]"
-    } {num_members
-	{ ! [empty_string_p $num_members] || [template::element::get_value participant related_user] != -1 }
-	"[_ dotlrn-ecommerce.lt_Please_enter_the_numb]"
     }
 
 #     lappend validate {participant
@@ -335,28 +317,25 @@ if { ! $participant_id } {
 # 	     ![empty_string_p [template::element::get_value participant num_members]]) }
 # 	"No users found. Please try again"
 #     }
-} elseif { $participant_id } {
-    acs_user::get -user_id $participant_id -array participant_user
+} 
+# elseif { $participant_id } {
+#     acs_user::get -user_id $participant_id -array participant_user
 
-    set search_url [export_vars -base process-purchase-course { user_id {participant ""} {participant_id 0} section section_id { related_user 0 } new_user_p }]
-#	{participant_pays_p:boolean(checkbox),optional {label ""} {options {{"Check here if $user_info(first_names) $user_info(last_name) is both purchasing and attending the course" t}}}}
-    ad_form -extend -name "participant" -export { participant participant_id { related_user $participant_id } } -form {
-	{-section "Individual Purchase"}
-	{participant_name:text(inform) {label "Participant"} {value "$participant_user(first_names) $participant_user(last_name) ($participant_user(email))"}
-	    {after_html {<a href="$search_url" class="button">Search Participant</a>}}
-	}
-	{relationship:text(select),optional {label "Relationship"}
-	    {help_text "How is the purchaser related to the participant?"}
-	    {options {$tree_options}}
-	}
-	{isubmit:text(submit) {label "[_ dotlrn-ecommerce.Continue]"}}
-	{-section "Group Purchase"}
-	{name:text,optional {label "Group Name"} {html {size 30}}}
-	{num_members:integer(text),optional {label "Number of attendees"} {html {size 30}}}
-	{gsubmit:text(submit) {label "[_ dotlrn-ecommerce.Continue]"}}
-    }
+#     set search_url [export_vars -base process-purchase-course { user_id {participant ""} {participant_id 0} section section_id { related_user 0 } new_user_p }]
+# #	{participant_pays_p:boolean(checkbox),optional {label ""} {options {{"Check here if $user_info(first_names) $user_info(last_name) is both purchasing and attending the course" t}}}}
+#     ad_form -extend -name "participant" -export { participant participant_id { related_user $participant_id } } -form {
+# 	{-section "Individual Purchase"}
+# 	{participant_name:text(inform) {label "Participant"} {value "$participant_user(first_names) $participant_user(last_name) ($participant_user(email))"}
+# 	    {after_html {<a href="$search_url" class="button">Search Participant</a>}}
+# 	}
+# 	{relationship:text(select),optional {label "Relationship"}
+# 	    {help_text "How is the purchaser related to the participant?"}
+# 	    {options {$tree_options}}
+# 	}
+# 	{isubmit:text(submit) {label "[_ dotlrn-ecommerce.Continue]"}}
+#     }
 
-}
+# }
 #  else {
 #     set search_url [export_vars -base process-purchase-course { user_id {participant ""} {participant_id 0} section section_id }]
 #     ad_form -extend -name "participant" -export { participant } -form {
@@ -381,40 +360,34 @@ if { ! $participant_id } {
 #     }
 # }
 
-set maxparticipants [dotlrn_ecommerce::section::maxparticipants $section_id]
-set available_slots [dotlrn_ecommerce::section::available_slots $section_id]
+#set maxparticipants [dotlrn_ecommerce::section::maxparticipants $section_id]
+#set available_slots [dotlrn_ecommerce::section::available_slots $section_id]
 
-if { [empty_string_p $maxparticipants] } {
-    lappend validate \
-	{num_members
-	    {$num_members > 1 || [empty_string_p $num_members] || [template::element::get_value participant related_user] != -1}
-	    "[_ dotlrn-ecommerce.lt_Please_enter_a_value_]"
-	}
-} else {
-    # it is now allowed to register users even if the course is full,
-    # they just go to the waiting list
+# if { ! [empty_string_p $maxparticipants] } {
+#     # it is now allowed to register users even if the course is full,
+#     # they just go to the waiting list
 
-    # for groups, just inform the user that the group members will go
-    # to the waiting list
-    # DISABLED FOR NOW - groups can't go to the waiting list
-#    if { ! $waiting_list_p } {
-	lappend validate \
-	    {num_members
-		{ $num_members > 1 || [template::element::get_value participant related_user] != -1 }
-		"[_ dotlrn-ecommerce.lt_Please_enter_a_value_]"
-	    } {num_members
-		{ $num_members <= $available_slots || [empty_string_p $num_members] || [template::element::get_value participant related_user] != -1}
-		"[subst [_ dotlrn-ecommerce.lt_The_course_only_has_a]]"
-	    }
-#	if { [template::element::get_value participant related_user] == -1 && [string is integer [template::element::get_value participant num_members]] && [template::element::get_value participant num_members] > 1 && [template::element::get_value participant num_members] > $available_slots } {
-#	    template::element::set_value participant waiting_list_p 1
-#	} else {
-#	    template::element::set_value participant waiting_list_p 0
-#	}
-#    } elseif { [template::element::get_value participant related_user] != -1 } {
-#	template::element::set_value participant waiting_list_p 0
-#    }
-}
+#     # for groups, just inform the user that the group members will go
+#     # to the waiting list
+#     # DISABLED FOR NOW - groups can't go to the waiting list
+# #    if { ! $waiting_list_p } {
+# 	lappend validate \
+# 	    {num_members
+# 		{ $num_members > 1 || [template::element::get_value participant related_user] != -1 }
+# 		"[_ dotlrn-ecommerce.lt_Please_enter_a_value_]"
+# 	    } {num_members
+# 		{ $num_members <= $available_slots || [empty_string_p $num_members] || [template::element::get_value participant related_user] != -1}
+# 		"[subst [_ dotlrn-ecommerce.lt_The_course_only_has_a]]"
+# 	    }
+# #	if { [template::element::get_value participant related_user] == -1 && [string is integer [template::element::get_value participant num_members]] && [template::element::get_value participant num_members] > 1 && [template::element::get_value participant num_members] > $available_slots } {
+# #	    template::element::set_value participant waiting_list_p 1
+# #	} else {
+# #	    template::element::set_value participant waiting_list_p 0
+# #	}
+# #    } elseif { [template::element::get_value participant related_user] != -1 } {
+# #	template::element::set_value participant waiting_list_p 0
+# #    }
+# }
 
 set return_url [ad_return_url]
 ad_form -extend -name "participant" -export { user_id return_url new_user_p } -validate $validate -form {
@@ -425,26 +398,26 @@ ad_form -extend -name "participant" -export { user_id return_url new_user_p } -v
 	set participant_id $related_user
     }
 
-    if { ! [empty_string_p $relationship] && $related_user != 0 && ([empty_string_p $name] || [empty_string_p $num_members]) } {
-	set rel_id [relation::get_id -object_id_one $user_id -object_id_two $participant_id -rel_type "patron_rel"]
+#     if { ! [empty_string_p $relationship] && $related_user != 0 } {
+# 	set rel_id [relation::get_id -object_id_one $user_id -object_id_two $participant_id -rel_type "patron_rel"]
 	
-	if { [empty_string_p $rel_id] } {
-	    # Create patron relationship
-	    # Roel 06/15: Reversed users since we select purchasers
-	    # first now
-	    set rel_id [db_exec_plsql relate_patron {
-		select acs_rel__new (null,
-				     'patron_rel',
-				     :user_id,
-				     :participant_id,
-				     null,
-				     null,
-				     null)
-	    }]
-	}
+# 	if { [empty_string_p $rel_id] } {
+# 	    # Create patron relationship
+# 	    # Roel 06/15: Reversed users since we select purchasers
+# 	    # first now
+# 	    set rel_id [db_exec_plsql relate_patron {
+# 		select acs_rel__new (null,
+# 				     'patron_rel',
+# 				     :user_id,
+# 				     :participant_id,
+# 				     null,
+# 				     null,
+# 				     null)
+# 	    }]
+# 	}
 
-	category::map_object -remove_old -object_id $rel_id [list $relationship]
-    }
+# 	category::map_object -remove_old -object_id $rel_id [list $relationship]
+#     }
 
     db_1row product {
 	select product_id
@@ -453,43 +426,12 @@ ad_form -extend -name "participant" -export { user_id return_url new_user_p } -v
     }
 
     set item_count 1
-    if { $related_user == -1 && ! [empty_string_p $name] && ! [empty_string_p $num_members] } {
-	set group_id [db_nextval acs_object_id_seq]
-	set unique_group_name "${name}_${group_id}"
-
-	# Test once then give up
-	if { [db_string group {select 1 from groups where group_name = :unique_group_name} -default 0] } {
-	    set group_id [db_nextval acs_object_id_seq]
-	    set unique_group_name "${name}_${group_id}"
-	}
-
-	group::new -group_id $group_id -group_name $unique_group_name
-	set section_community_id [db_string get_community_id "select community_id from dotlrn_ecommerce_section where section_id=:section_id" -default ""]
-	if {[string equal "" $section_community_id]} {
-	    # FIXME error, do something clever here
-	}
-	for { set i 1 } { $i <= $num_members } { incr i } {
-	    array set new_user [auth::create_user \
-				    -username "${name} ${group_id} Attendee $i" \
-				    -email "[util_text_to_url -text ${name}-${group_id}-attendee-${i}]@mos.zill.net" \
-				    -first_names "$name" \
-				    -last_name "Attendee $i" \
-				    -nologin]
-	    
-	    if { [info exists new_user(user_id)] } {
-		relation_add -member_state approved membership_rel $group_id $new_user(user_id)
-	    } else {
-		ad_return_complaint 1 "There was a problem creating the account \"$name $group_id Attendee $i\"."
-		ad_script_abort
-	    }
-	}
-	relation_add relationship $group_id $section_community_id
-
-	set participant_id $group_id
-	set item_count $num_members
-
-	ad_returnredirect [export_vars -base "../ecommerce/shopping-cart-add" { product_id user_id participant_id item_count return_url }]
+    if { $related_user == -1 } {
+	ad_returnredirect [export_vars -base "process-purchase-group" { section_id user_id return_url return_url }]
 	ad_script_abort
+    } elseif { $related_user == -2 } {
+	ad_returnredirect [export_vars -base "process-purchase" { section_id user_id return_url return_url }]
+	ad_script_abort	
     }
     
     set add_url [export_vars -base "../ecommerce/shopping-cart-add" { product_id user_id participant_id item_count return_url }]
