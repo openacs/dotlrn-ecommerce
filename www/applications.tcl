@@ -356,12 +356,16 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 # instead of template::list::write_csv
 
 if {$csv_p == 1} {
-    set csv_cols [list "section_name" "number" "person_name" "member_state" "phone" "comments_text_plain"]
+    set csv_cols {}
+    set all_cols [list "section_name" "number" "person_name" "member_state" "phone" "comments_text_plain"]
     template::list::get_reference -name applications
     set __list_name applications
-    foreach __element_name $csv_cols {
+    foreach __element_name $all_cols {
         template::list::element::get_reference  -list_name $__list_name  -element_name $__element_name  -local_name __element_properties
-        set csv_cols_labels($__element_name) $__element_properties(label)
+	if {!$__element_properties(hide_p)} {
+	    lappend csv_cols $__element_name
+	    set csv_cols_labels($__element_name) $__element_properties(label)
+	}
     }
     
     set csv_as_item_list [list]
