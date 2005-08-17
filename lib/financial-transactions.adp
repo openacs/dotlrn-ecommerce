@@ -1,5 +1,3 @@
-  <h3>Financial Transactions</h3>
-
   <if @method@ eq "invoice">
     <blockquote>
 
@@ -41,6 +39,16 @@
       </multiple>
     </ul>
   </blockquote>
+  </if>
+
+  <if @method@ eq "cc">
+    <if @scholarship_p@>
+      <blockquote>This order was <b>partially</b> paid by <b>credit card</b>.
+    </if>
+    <else>
+      <blockquote>This order was <b>fully</b> paid by <b>credit card</b>.
+    </else>
+    <p />
   </if>
 
   <if @financial_transactions:rowcount@ gt 0>
