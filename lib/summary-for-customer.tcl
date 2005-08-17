@@ -115,3 +115,8 @@ set payment_method [ad_decode $payment_method \
 			lockbox "[_ dotlrn-ecommerce.Lock_Box]" \
 			"[_ dotlrn-ecommerce.Credit_Card]"
 		   ]
+
+# Set pretty price formats
+foreach amount {subtotal tax total gift_certificate balance total} {
+    set pretty_$amount [ec_pretty_price [set $amount]]
+}

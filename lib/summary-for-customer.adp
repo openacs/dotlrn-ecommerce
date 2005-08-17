@@ -16,31 +16,31 @@
 
   <table width="250 100">
     <tr>
-      <td>#dotlrn-ecommerce.Subtotal#</td><td>$@subtotal@</td>
+      <td>#dotlrn-ecommerce.Subtotal#</td><td>@pretty_subtotal@</td>
     </tr>
     <tr>
-      <td>#dotlrn-ecommerce.Tax#</td><td>$@tax@</td>
+      <td>#dotlrn-ecommerce.Tax#</td><td>@pretty_tax@</td>
     </tr>
     <tr>
       <td></td><td>------------</td>
     </tr>
     <if @gift_certificate@ gt 0>
       <tr>
-	<td>#dotlrn-ecommerce.TOTAL#</td><td>$@total@</td>
+	<td>#dotlrn-ecommerce.TOTAL#</td><td>@pretty_total@</td>
       </tr>
       <tr>
-	<td>#dotlrn-ecommerce.Gift_Certificate#</td><td>-$@gift_certificate@</td>
+	<td>#dotlrn-ecommerce.Gift_Certificate#</td><td>-@pretty_gift_certificate@</td>
       </tr>
       <tr>
 	<td></td><td>------------</td>
       </tr>
       <tr>
-	<td>#dotlrn-ecommerce.Balance_due#</td><td>$@balance@</td>
+	<td>#dotlrn-ecommerce.Balance_due#</td><td>@pretty_balance@</td>
       </tr>
     </if>
     <else>
       <tr>
-	<td>#dotlrn-ecommerce.TOTAL#</td><td>$@total@</td>
+	<td>#dotlrn-ecommerce.TOTAL#</td><td>@pretty_total@</td>
       </tr>
     </else>
   </table>
