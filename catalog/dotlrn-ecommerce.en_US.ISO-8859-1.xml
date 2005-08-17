@@ -63,6 +63,7 @@
   <msg key="Expires">Expires</msg>
   <msg key="Export">Export</msg>
   <msg key="For_PreReq_Approval">For PreReq Approval</msg>
+  <msg key="Fully_Paid">Fully Paid</msg>
   <msg key="Gift_Certificate">Gift Certificate:</msg>
   <msg key="Go_to_My_Account">Go to My Account</msg>
   <msg key="Grade">Grade</msg>
@@ -110,6 +111,7 @@
   <msg key="lt_Credit_card_informati">Credit card information</msg>
   <msg key="lt_eCommerce_Administrat">eCommerce Administration</msg>
   <msg key="lt_Edit_Section_Informat">Edit Section Information</msg>
+  <msg key="lt_Financial_Transaction">Financial Transactions</msg>
   <msg key="lt_for_first_names_last_">for %first_names% %last_name% (if you're not %first_names% %last_name%</msg>
   <msg key="lt_for_the_current_purch">for the current purchases</msg>
   <msg key="lt_Go_on_the_waiting_lis">Waiting list</msg>
@@ -131,6 +133,7 @@
   <msg key="lt_One_or_more_prerequis">One or more prerequisites for this section have not been met:</msg>
   <msg key="lt_Or_create_an_account_">Or create an account for the participant</msg>
   <msg key="lt_Or_put_this_purchase_">Put this purchase in the waiting list</msg>
+  <msg key="lt_Order_Details_for_ord">Order Details for %order_id%</msg>
   <msg key="lt_Orders_in_the_Last_7_">Orders in the Last 7 Days</msg>
   <msg key="lt_Participant_pays_for_">Participant pays for course</msg>
   <msg key="lt_patron_name_also_pays">%patron_name% also pays for the course</msg>
@@ -207,6 +210,7 @@ Instructors:
   <msg key="Member_Request">Member Request</msg>
   <msg key="More_Information">More Information:</msg>
   <msg key="My_Shopping_Cart">My Shopping Cart</msg>
+  <msg key="No">No</msg>
   <msg key="No_applications">No applications</msg>
   <msg key="No_orders">No orders</msg>
   <msg key="No_related_users">No related users</msg>
@@ -295,6 +299,7 @@ Instructors:
   <msg key="Waiting_List">Waiting List</msg>
   <msg key="Welcome_message">Welcome message</msg>
   <msg key="Welcome_to_section">Welcome to %course_name%</msg>
+  <msg key="Yes">Yes</msg>
   <msg key="You_have_no_orders">You have no orders</msg>
   <msg key="Your_Applications">Your Applications</msg>
   <msg key="Your_Order">Your Order</msg>

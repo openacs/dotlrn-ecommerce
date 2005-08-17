@@ -27,7 +27,7 @@ set method [db_string method {
     where order_id = :order_id
 } -default cc]
 
-if { [db_0or1row scholarship {
+set scholarship_p [db_0or1row scholarship {
     select 1
     where exists (select *
 		  from ec_gift_certificate_usage
@@ -35,47 +35,43 @@ if { [db_0or1row scholarship {
 		  and exists (select *
 			      from scholarship_fund_grants
 			      where ec_gift_certificate_usage.gift_certificate_id = gift_certificate_id))
-}] } {
-    set method scholarship
-}
+}]
 
 set total_price [db_string total_price {select ec_total_price(:order_id)} -default 0]
 set total_refunds [db_string total_refunds {select ec_total_refund(:order_id)} -default 0]
 
-switch $method {
-
-    "invoice" {
-	# List invoice payments
-	set invoice_payment_sum 0
-	db_multirow invoice_payments invoice_payments {
-	    select amount, to_char(payment_date, 'Month dd, yyyy hh:miam') as pretty_payment_date, method as invoice_method
-	    from dotlrn_ecommerce_transaction_invoice_payments
-	    where order_id = :order_id
-	    order by payment_date
-	} {
-	    set amount [ec_pretty_price $amount]
-	    set invoice_method [ad_decode $invoice_method cc "Credit Card" internal_account "Internal Account" check "Check" cash "Cash" lockbox "Lock Box" "Credit Card"]
-	    set invoice_payment_sum [expr $invoice_payment_sum + $amount]
-	}
-
+if { $method == "invoice" } {
+    # List invoice payments
+    set invoice_payment_sum 0
+    db_multirow invoice_payments invoice_payments {
+	select amount, to_char(payment_date, 'Month dd, yyyy hh:miam') as pretty_payment_date, method as invoice_method
+	from dotlrn_ecommerce_transaction_invoice_payments
+	where order_id = :order_id
+	order by payment_date
+    } {
+	set invoice_payment_sum [expr $invoice_payment_sum + $amount]
+	set amount [ec_pretty_price $amount]
+	set invoice_method [ad_decode $invoice_method cc "Credit Card" internal_account "Internal Account" check "Check" cash "Cash" lockbox "Lock Box" "Credit Card"]
     }
-    "scholarship" {
-	set gc_amount [db_string gc_amount {select ec_order_gift_cert_amount(:order_id)} -default 0]
 
-	db_multirow funds funds {
-	    select f.title, u.amount_used, g.grant_amount, to_char(g.grant_date, 'Month dd, yyyy hh:miam') as grant_date
-	    from ec_gift_certificate_usage u, scholarship_fund_grants g, scholarship_fundi f
-	    where u.gift_certificate_id = g.gift_certificate_id
-	    and g.fund_id = f.fund_id
-	    and u.order_id = :order_id
-	    and not u.amount_used is null
+}
 
-	    order by g.grant_date
-	} {
-	    set grant_amount [ec_pretty_price $grant_amount]
-	    set amount_used [ec_pretty_price $amount_used]
-
-	}
+if { $scholarship_p } {
+    set gc_amount [db_string gc_amount {select ec_order_gift_cert_amount(:order_id)} -default 0]
+    
+    db_multirow funds funds {
+	select f.title, u.amount_used, g.grant_amount, to_char(g.grant_date, 'Month dd, yyyy hh:miam') as grant_date
+	from ec_gift_certificate_usage u, scholarship_fund_grants g, scholarship_fundi f
+	where u.gift_certificate_id = g.gift_certificate_id
+	and g.fund_id = f.fund_id
+	and u.order_id = :order_id
+	and not u.amount_used is null
+	
+	order by g.grant_date
+    } {
+	set grant_amount [ec_pretty_price $grant_amount]
+	set amount_used [ec_pretty_price $amount_used]
+	
     }
 }
 

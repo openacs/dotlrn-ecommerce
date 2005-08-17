@@ -230,12 +230,15 @@ doc_body_append "
       </tr>
     </table>"
 
-set financial_transactions [template::adp_compile -string {<include src="/packages/dotlrn-ecommerce/lib/financial-transactions" order_id="@order_id@" />}]
+#set financial_transactions [template::adp_compile -string {<include src="/packages/dotlrn-ecommerce/lib/financial-transactions" order_id="@order_id@" />}]
 # Hack to not display ds stuff even if it's enabled, demo purposes
-regsub -all {\[::ds_show_p\]} $financial_transactions 0 financial_transactions
+#regsub -all {\[::ds_show_p\]} $financial_transactions 0 financial_transactions
+#[eval $financial_transactions]
 
 doc_body_append "
-[eval $financial_transactions]
+    <ul>
+    <li><a href=\"financial-transactions?order_id=$order_id\">Financial Transactions</a>
+    </ul>
 
     <h3>Shipments</h3>
     <blockquote>"

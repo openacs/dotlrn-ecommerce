@@ -3,7 +3,7 @@
   <if @method@ eq "invoice">
     <blockquote>
 
-      This order was paid by <b>invoice</b>.
+      This order was <if @scholarship_p@><b>partially</b> </if>paid by <b>invoice</b>.
       
       <ul>
 	<b>Payments</b>
@@ -27,7 +27,7 @@
     </blockquote>
   </if>
   
-  <if @method@ eq "scholarship">
+  <if @method@ eq "scholarship" or @scholarship_p@>
     <if @gc_amount@ eq @total_price@>
       <blockquote>This order was <b>fully</b> paid by <b>scholarship</b>.
     </if>
@@ -76,7 +76,7 @@
   </if>
   <else>
     <if @method@ in "cash" "lockbox" "check">
-      <blockquote>This order was <b>fully</b> paid by <b>check</b>.</blockquote>
+      <blockquote>This order was <b><if @scholarship_p@>partially</if><else>fully</else></b> paid by <b>check</b>.</blockquote>
     </if>
     <if @method@ eq "cc">
       <blockquote>No credit card transactions</blockquote>

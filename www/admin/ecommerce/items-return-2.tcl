@@ -7,22 +7,30 @@ ad_page_contract {
 
 } {
 
-    refund_id:notnull
+    refund_id:notnull,optional
     order_id:notnull,naturalnum
-    reason_for_return
+    {reason_for_return ""}
     all_items_p:optional
     item_id:optional,multiple
-    received_back_date:date,array
-    received_back_time:time,array
+    received_back_date:date,array,optional
+    received_back_time:time,array,optional
 }
 
 ad_require_permission [ad_conn package_id] admin
 
-set received_back_datetime $received_back_date(date)
-if { [exists_and_not_null received_back_time(time)] } {
-    append received_back_datetime " [ec_timeentrywidget_time_check \"$received_back_time(time)\"]$received_back_time(ampm)"
+if { ! [info exists refund_id] } {
+    set refund_id [db_nextval refund_id_sequence]
+}
+
+if { [array exists received_back_date] && [array exists received_back_time] } {
+    set received_back_datetime $received_back_date(date)
+    if { [exists_and_not_null received_back_time(time)] } {
+	append received_back_datetime " [ec_timeentrywidget_time_check \"$received_back_time(time)\"]$received_back_time(ampm)"
+    } else {
+	append received_back_datetime " 12:00:00AM"
+    }
 } else {
-    append received_back_datetime " 12:00:00AM"
+    set received_back_datetime [clock format [clock seconds] -format "%Y-%m-%d %H:%M:%S"]
 }
 
 # The customer service rep must be logged on

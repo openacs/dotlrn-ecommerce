@@ -69,6 +69,14 @@ template::list::create \
 	}
 	method {
 	    label "[_ dotlrn-ecommerce.Payment_Method]"
+	    display_template {
+		<if @orders.has_scholarship_p@ eq "t" and @orders.method@ ne "#dotlrn-ecommerce.Scholarship#">
+		@orders.method@, #dotlrn-ecommerce.Scholarship#
+		</if>
+		<else>
+		@orders.method@
+		</else>
+	    }
 	}
 	total_price {
 	    label "[_ dotlrn-ecommerce.Total_Amount]"
@@ -84,6 +92,9 @@ template::list::create \
 	    html { align right }
 	    display_template {
 		@orders.pretty_refund@
+		<if @orders.refund_price@ lt 0.01>
+		<a href="@orders.refund_url;noquote@">&raquo;</a>
+		</if>
 	    }
 	    aggregate sum
 	    aggregate_label "[_ dotlrn-ecommerce.Total_1]:"
@@ -98,15 +109,16 @@ template::list::create \
 	    aggregate_label "[_ dotlrn-ecommerce.Total_1]:"
 	}
 	balance {
-	    label "[_ dotlrn-ecommerce.Balance]"
+	    label "[_ dotlrn-ecommerce.Fully_Paid]"
 	    html { align right }
 	    display_template {
-		<if @orders.balance@ eq 0>
-		Fully Paid
+		<if @orders.balance@ gt 0>
+		[_ dotlrn-ecommerce.No]
 		</if>
 		<else>
-		@orders.pretty_balance@
+		[_ dotlrn-ecommerce.Yes]
 		</else>
+		<a href="financial-transactions?order_id=@orders.order_id@">&raquo;</a>
 	    }
 	    aggregate sum
 	    aggregate_label "[_ dotlrn-ecommerce.Total_1]:"
@@ -144,7 +156,17 @@ template::list::create \
 	payment_method {
 	    label "[_ dotlrn-ecommerce.Payment_method]"
 	    values { $method_filters }
-	    where_clause { t.method = :payment_method }
+	    where_clause { 
+		(t.method = :payment_method or
+		 (:payment_method = 'scholarship' and
+		  coalesce((select true
+			    where exists (select *
+					  from ec_gift_certificate_usage
+					  where order_id = o.order_id
+					  and exists (select *
+						      from scholarship_fund_grants
+						      where ec_gift_certificate_usage.gift_certificate_id = gift_certificate_id))), false)))
+	    }
 	}
     } -orderby {
 	order_id {
@@ -185,45 +207,61 @@ template::list::create \
 	}
     }
 
-db_multirow -extend { order_url section_url pretty_total pretty_balance person_url pretty_refund pretty_actual_total } orders orders [subst {
+db_multirow -extend { order_url section_url pretty_total pretty_balance person_url pretty_refund pretty_actual_total refund_url } orders orders [subst {
     select o.order_id, to_char(o.confirmed_date, 'Mon dd, yyyy hh:miam') as confirmed_date, o.order_state, 
 
-    ec_total_price(o.order_id) - (case when t.method = 'invoice' 
-				  then ec_total_price(o.order_id) - 
-				  (select coalesce(sum(amount), 0)
-				   from dotlrn_ecommerce_transaction_invoice_payments
-				   where order_id = o.order_id) + ec_total_refund(o.order_id)
-				  else 0 end) as price_to_display,
+    (i.price_charged + coalesce(i.shipping_charged, 0) + coalesce(i.price_tax_charged, 0)
+    - coalesce(i.price_refunded, 0) - coalesce(i.shipping_refunded, 0) - coalesce(i.price_tax_refunded, 0)) as price_to_display,
 
-    o.user_id as purchasing_user_id, u.first_names, u.last_name, count(*) as n_items, t.method, s.section_id as _section_id, 
+    o.user_id as purchasing_user_id, u.first_names, u.last_name, 
 
-    (select course_name
-     from dlec_view_sections
-     where section_id = s.section_id)||': '||s.section_name as _section_name, s.course_id, 
-
+    t.method, coalesce((select true
+			where exists (select *
+				      from ec_gift_certificate_usage
+				      where order_id = o.order_id
+				      and exists (select *
+						  from scholarship_fund_grants
+						  where ec_gift_certificate_usage.gift_certificate_id = gift_certificate_id))), false) as has_scholarship_p, 
+    
+    s.section_id as _section_id, 
+    
+    coalesce((select course_name
+	      from dlec_view_sections
+	      where section_id = s.section_id)||': '||s.section_name, p.product_name) as _section_name, s.course_id, 
+    
     case when t.method = 'invoice' then
     ec_total_price(o.order_id) - ec_order_gift_cert_amount(o.order_id) - 
     (select coalesce(sum(amount), 0)
      from dotlrn_ecommerce_transaction_invoice_payments
      where order_id = o.order_id) + ec_total_refund(o.order_id)
-    else 0 end as balance, ec_total_refund(o.order_id) as refund_price, ec_total_price(o.order_id) + ec_total_refund(o.order_id) as total_price, 
+    else 0 end as balance, 
+
+	(coalesce(i.price_refunded, 0) + coalesce(i.shipping_refunded, 0) - coalesce(i.price_tax_refunded, 0)) as refund_price,
+
+	(i.price_charged + coalesce(i.shipping_charged, 0) + coalesce(i.price_tax_charged, 0)) as total_price, 
+
     (select to_char(refund_date, 'Mon dd, yyyy')
      from ec_refunds
      where order_id = o.order_id
      order by refund_date desc
-     limit 1) as refund_date, u.first_names||' '||u.last_name as purchaser
+     limit 1) as refund_date, 
+
+	u.first_names||' '||u.last_name as purchaser,
+
+    i.item_id
 
     from ec_orders o
     join ec_items i using (order_id)
+    join ec_products p using (product_id)
     join dotlrn_ecommerce_transactions t using (order_id)
-    join dotlrn_ecommerce_section s on (i.product_id = s.product_id)
+    left join dotlrn_ecommerce_section s on (i.product_id = s.product_id)
     left join cc_users u on (o.user_id=u.user_id)
     
     where o.order_state in ('confirmed', 'authorized', 'fulfilled', 'returned')
     
     [template::list::filter_where_clauses -and -name orders]
     
-    group by o.order_id, o.confirmed_date, o.order_state, ec_total_price(o.order_id), o.user_id, u.first_names, u.last_name, o.in_basket_date, t.method, section_name, s.section_id, s.course_id, o.authorized_date, balance, refund_price, refund_date, purchaser
+--    group by o.order_id, o.confirmed_date, o.order_state, ec_total_price(o.order_id), o.user_id, u.first_names, u.last_name, o.in_basket_date, t.method, section_name, s.section_id, s.course_id, o.authorized_date, balance, refund_price, refund_date, purchaser
      
     [template::list::orderby_clause -name orders -orderby]         
 }] {
@@ -245,6 +283,8 @@ db_multirow -extend { order_url section_url pretty_total pretty_balance person_u
     set person_url [export_vars -base ../one-user { {user_id $purchasing_user_id} }]
     set pretty_refund [ec_pretty_price $refund_price]
     set pretty_actual_total [ec_pretty_price $total_price]
+
+    set refund_url [export_vars -base "items-return-2" { order_id item_id }]
 }
 
 if { [info exists section_id] } {
