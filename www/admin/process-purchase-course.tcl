@@ -390,6 +390,7 @@ if { ! $participant_id } {
 # }
 
 set return_url [ad_return_url]
+
 ad_form -extend -name "participant" -export { user_id return_url new_user_p } -validate $validate -form {
 } -on_request {
     set related_user 0
@@ -425,7 +426,6 @@ ad_form -extend -name "participant" -export { user_id return_url new_user_p } -v
 	where section_id = :section_id
     }
 
-    set item_count 1
     if { $related_user == -1 } {
 	ad_returnredirect [export_vars -base "process-purchase-group" { section_id user_id return_url return_url }]
 	ad_script_abort
@@ -434,7 +434,7 @@ ad_form -extend -name "participant" -export { user_id return_url new_user_p } -v
 	ad_script_abort	
     }
     
-    set add_url [export_vars -base "../ecommerce/shopping-cart-add" { product_id user_id participant_id item_count return_url }]
+    set add_url [export_vars -base "../ecommerce/shopping-cart-add" { product_id user_id participant_id return_url }]
     set participant_id [ad_decode $participant_id 0 $user_id $participant_id]
 
     if { $new_user_p } {

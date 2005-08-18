@@ -232,7 +232,7 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	   and rr.rel_id <= r.rel_id
 	   and rr.community_id = r.community_id
 	   and rr.member_state = r.member_state
-	   order by o.creation_date) r) as number
+	   order by o.creation_date) r) as number, s.product_id
     from dotlrn_member_rels_full r
     left join (select *
 	       from ec_addresses
@@ -313,7 +313,9 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 
     set section_edit_url [export_vars -base admin/one-section { section_id return_url }]
     set person_url [export_vars -base /acs-admin/users/one { {user_id $applicant_user_id} }]
-    set register_url [export_vars -base admin/process-purchase-course { section_id {user_id $patron_id} {participant_id $applicant_user_id} }]
+
+    set add_url [export_vars -base "../ecommerce/shopping-cart-add" { product_id {user_id $patron_id} {participant_id $applicant_user_id} return_url }]
+    set register_url [export_vars -base admin/participant-add { section_id {user_id $applicant_user_id} return_url add_url }]
 
     # get associated comment
     if {![empty_string_p $asm_url]} {
