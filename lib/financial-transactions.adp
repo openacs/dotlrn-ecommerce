@@ -68,16 +68,16 @@
       
       <multiple name="financial_transactions">
 	<tr>
-	  <td>@financial_transactions.transaction_id@</td>
-	  <td>@financial_transactions.inserted_date@</td>
-	  <td>@financial_transactions.creditcard_last_four@</td>
-	  <td>@financial_transactions.transaction_amount@</td>
-	  <td>@financial_transactions.transaction_type@</td>
-	  <td>@financial_transactions.to_be_captured_p@</td>
-	  <td>@financial_transactions.authorized_date@</td>
-	  <td>@financial_transactions.marked_date@</td>
-	  <td>@financial_transactions.refunded_date@</td>
-	  <td>@financial_transactions.failed_p@</td>
+	  <td>@financial_transactions.transaction_id;noquote@</td>
+	  <td>@financial_transactions.inserted_date;noquote@</td>
+	  <td>@financial_transactions.creditcard_last_four;noquote@</td>
+	  <td>@financial_transactions.transaction_amount;noquote@</td>
+	  <td>@financial_transactions.transaction_type;noquote@</td>
+	  <td>@financial_transactions.to_be_captured_p;noquote@</td>
+	  <td>@financial_transactions.authorized_date;noquote@</td>
+	  <td>@financial_transactions.marked_date;noquote@</td>
+	  <td>@financial_transactions.refunded_date;noquote@</td>
+	  <td>@financial_transactions.failed_p;noquote@</td>
 	</tr>
       </multiple>
     </table>

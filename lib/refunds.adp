@@ -1,4 +1,4 @@
-  <h3>Returns</h3>
+  <h3>Refunds</h3>
   
   <blockquote>
     
@@ -21,7 +21,7 @@
     </ul>
     </if>
     <else>
-      No Returns Have Been Made
+      No Refunds Have Been Made
     </else>
     
   </blockquote>

@@ -8,7 +8,7 @@
       insert into ec_refunds
       (refund_id, order_id, refund_amount, refund_date, refunded_by, refund_reasons)
       values
-      (:refund_id, :order_id, :cash_amount_to_refund_cc, current_timestamp, :customer_service_rep,:reason_for_return)
+      (:refund_id, :order_id, :cash_amount_to_refund, current_timestamp, :customer_service_rep,:reason_for_return)
     </querytext>
   </fullquery>
 
