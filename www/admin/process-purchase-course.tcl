@@ -15,7 +15,7 @@ ad_page_contract {
     {participant_id 0}
 
     {section ""}
-    {section_id 0}
+    {section_id "-1"}
 
     purchaser_id:integer,optional,notnull
 
@@ -150,7 +150,7 @@ if { ( [empty_string_p $section] || [llength $section_list] == 1 ) && ! $section
     set search_url [export_vars -base process-purchase-course { user_id participant participant_id {section ""} {section_id 0} related_user new_user_p }]
     ad_form -extend -name "participant" -export { section } -form {
 	{section_id:integer(select),optional {label "Select Section"} {options {$section_list}}
-	    {after_html {<a href="$search_url" class="button">Search Section</a>}}
+	    {after_html {<!-- <a href="$search_url" class="button">Search Section</a> -->}}
 	    {help_text {Select a section. Or, hit search again to change to a search box.}}
 	}
 
