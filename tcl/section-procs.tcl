@@ -623,3 +623,50 @@ ad_proc -public dotlrn_ecommerce::section::section_zones {
 
     return [list]
 }
+
+ad_proc -public dotlrn_ecommerce::section::check_expired_orders {
+} {
+    Check recently expired orders in shopping cart and flush the cache
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-08-18
+    
+    @return 
+    
+    @error 
+} {
+    # Loop thru recently expired orders
+    db_foreach expired_orders {
+	select order_id
+	from ec_orders
+	where order_state = 'expired'
+	and expired_date > (current_timestamp - '10 minutes'::interval)
+    } {
+	# Loop thru recently expired items, and flush the cached section
+	db_foreach expired_items {
+	    select s.section_id
+	    from ec_items i, dotlrn_ecommerce_section s
+	    where i.product_id = s.product_id
+	    and order_state = 'expired'
+	    and expired_date > (current_timestamp - '10 minutes'::interval)
+	} {
+	    util_memoize_flush [list dotlrn_ecommerce::section::attendees $section_id]	    
+	}
+    }
+}
+
+ad_proc -public dotlrn_ecommerce::section::check_expired_orders_once {
+} {
+    Reschedule checking of expired orders
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-08-18
+    
+    @return 
+    
+    @error 
+} {
+    dotlrn_ecommerce::section::check_expired_orders
+
+    ad_schedule_proc -thread t 600 dotlrn_ecommerce::section::check_expired_orders
+}
