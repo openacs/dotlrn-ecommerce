@@ -58,6 +58,11 @@
 <h2 class="page-title">#dotlrn-ecommerce.System_Setup#</h2>
 <ul>
 <li><a href=course-attributes>#dotlrn-ecommerce.lt_Manage_Course_Attribu#</a>
+<li><a href="@portal_url@/portal-config?portal_id=@usermaster_portal_id@&referer=@return_url@">Edit Default User Portal</a>
+<li><a href="@portal_url@/portal-config?portal_id=@sectionmaster_portal_id@&referer=@return_url@">Edit Default Section Portal</a>
+<li><a href="/dotlrn/admin/users">User Administration</a>
+<li><a href="/dotlrn/admin/toolbar-actions?action=@action@&return_url=@return_url@">@dotlrn_toolbar_action@</a></li>
+<li>@ds_toggle;noquote@
 </ul>
 
 

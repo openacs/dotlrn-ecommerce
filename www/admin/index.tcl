@@ -34,6 +34,31 @@ set scholarship_installed_p [apm_package_installed_p "scholarship-fund"]
 # HAM : check if expenses is installed
 set expenses_installed_p [apm_package_installed_p "expenses"]
 
+# HAM : check if we have ds installed
+set ds_toggle ""
+if { [apm_package_installed_p "acs-developer-support"] } {
+	# let's show link to toggle dev support toolbar
+	set enabled_p [nsv_get ds_properties enabled_p]
+	set ds_url [apm_package_url_from_key "acs-developer-support"]
+	append ds_toggle "Developer Support Toolbar is [ad_decode $enabled_p 1 \
+     		"on (<a href=\"$ds_url/set?field=ds&amp;enabled_p=0&return_url=$return_url\">turn it off</a>)" \
+     		"off (<a href=\"$ds_url/set?field=ds&amp;enabled_p=1&return_url=$return_url\">turn it on</a>)"] 
+	"
+}
+
+if { ![parameter::get -localize -package_id [dotlrn::get_package_id] -parameter dotlrn_toolbar_enabled_p -default 1] } {
+    set dotlrn_toolbar_action [_ dotlrn.show_lrn_toolbar]
+    set action "show"
+} else {
+    set dotlrn_toolbar_action [_ dotlrn.hide_lrn_toolbar]
+    set action "hide"
+}
+
+# HAM : links to edit user and community portal masters
+set portal_url "[portal::mount_point]admin"
+set sectionmaster_portal_id [db_string "sec_port_id" "select dptm.portal_id, p.name from portals p, dotlrn_portal_types_map dptm where p.portal_id = dptm.portal_id and name = '\#dotlrn.clubs_pretty_plural\# Portal'"]
+set usermaster_portal_id [db_string "user_port_id" "select dptm.portal_id, p.name from portals p, dotlrn_portal_types_map dptm where p.portal_id = dptm.portal_id and name = '\#dotlrn.user_portal_pretty_name\# Portal'"]
+
 # HAM : count number of pending applications and user requests
 set pending_count [db_string "count_pending" "select count(user_id)
 	from dotlrn_member_rels_full r, dotlrn_communities_all c
