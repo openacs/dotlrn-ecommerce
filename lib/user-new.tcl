@@ -58,7 +58,8 @@ set formlen [llength $form]
 set allow_no_email_p [parameter::get -parameter AllowNoEmailForPurchaser]
 set validate [list]
 
-if { $user_type == "purchaser" && $allow_no_email_p } {
+# if { $user_type == "purchaser" && $allow_no_email_p } { }
+if { $allow_no_email_p } {
     for { set i 0 } { $i < $formlen } { incr i } {
 	set field [lindex $form $i]
 	if { [lindex $field 0] == "email:text(text)" } {
