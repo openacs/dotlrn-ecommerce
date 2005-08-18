@@ -336,18 +336,20 @@ ad_form -extend -name checkout -validate $validate  -form {} -on_request {
     ad_script_abort
 }
 
-doc_body_append "
-[ad_admin_header "Invoice Payment"]
+# doc_body_append "
+# [ad_admin_header "Invoice Payment"]
 
-<h2>Invoice Payment</h2>
+# <h2>Invoice Payment</h2>
 
-[ad_context_bar [list "../" "Ecommerce([ec_system_name])"] [list "index" "Orders"] "One Order"]
+# [ad_context_bar [list "../" "Ecommerce([ec_system_name])"] [list "index" "Orders"] "One Order"]
 
-<hr>
+# <hr>
 
-<h3>Invoice Payment</h3>
+# <h3>Invoice Payment</h3>
 
-[eval [template::adp_compile -string [subst {
-    <formtemplate id=\"checkout\"></formtemplate>
-}]]]
-[ad_admin_footer]"
+# [eval [template::adp_compile -string [subst {
+#     <formtemplate id=\"checkout\"></formtemplate>
+# }]]]
+# [ad_admin_footer]"
+
+set context [list [list index Orders] [list one?order_id=$order_id "One Order"] "Invoice Payment"]

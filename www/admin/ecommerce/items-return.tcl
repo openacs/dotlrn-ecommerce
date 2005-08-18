@@ -26,19 +26,13 @@ if { [db_string doubleclick_select "
     return
 }
 
-doc_body_append "
-    [ad_admin_header "Mark Items Returned"]
-
-    <h2>Mark Items Returned</h2>
-
-    [ad_context_bar [list "../" "Ecommerce([ec_system_name])"] [list "index" "Orders"] [list "one?order_id=$order_id" "One Order"] "Mark Items Returned"]
-    <hr>"
+set doc_body ""
 
 # Generate the new refund_id to prevent reusing this form.
 
 set refund_id [db_nextval refund_id_sequence]
 
-doc_body_append "
+append doc_body "
     <form method=post action=items-return-2>
       [export_form_vars order_id refund_id]
 
@@ -57,6 +51,6 @@ doc_body_append "
       </blockquote>
 
       <center><input type=submit value=\"Continue\"></center>
-    </form>
+    </form>"
 
-    [ad_admin_footer]"
+set context [list [list index Orders] [list one?order_id=$order_id "One Order"] "Refund"]

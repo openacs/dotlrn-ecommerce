@@ -74,14 +74,6 @@ if { $exception_count > 0 } {
     ad_script_abort
 }
 
-append doc_body "
-    [ad_admin_header "Specify refund amount"]
-
-    <h2>Specify refund amount</h2>
-
-    [ad_context_bar [list "../" "Ecommerce([ec_system_name])"] [list "index" "Orders"] [list "one?[export_url_vars order_id]" "One"] "Mark Items Returned"]
-    <hr>"
-
 set shipping_refund_percent [ad_parameter -package_id [ec_id] ShippingRefundPercent ecommerce]
 
 if { ![info exists all_items_p] } {
@@ -168,8 +160,7 @@ append doc_body "
       <input type=hidden name=base_shipping_to_refund value=\"[format "%0.2f" [expr $base_shipping * $shipping_refund_percent]]\" size=\"5\"> 
     </blockquote>
 
-    <center><input type=submit value=\"Continue\"></center>
+    <center><input type=submit value=\"Continue\"></center>"
 
-    [ad_admin_footer]"
-
-doc_return  200 text/html $doc_body
+#doc_return  200 text/html $doc_body
+set context [list [list index Orders] [list one?order_id=$order_id "One Order"] "Refund"]

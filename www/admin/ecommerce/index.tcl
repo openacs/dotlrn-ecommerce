@@ -92,9 +92,6 @@ template::list::create \
 	    html { align right }
 	    display_template {
 		@orders.pretty_refund@
-		<if @orders.refund_price@ lt 0.01>
-		<a href="@orders.refund_url;noquote@">&raquo;</a>
-		</if>
 	    }
 	    aggregate sum
 	    aggregate_label "[_ dotlrn-ecommerce.Total_1]:"
@@ -118,10 +115,19 @@ template::list::create \
 		<else>
 		[_ dotlrn-ecommerce.Yes]
 		</else>
-		<a href="financial-transactions?order_id=@orders.order_id@">&raquo;</a>
 	    }
-	    aggregate sum
-	    aggregate_label "[_ dotlrn-ecommerce.Total_1]:"
+	}
+	refund {
+	    display_template {
+		<if @orders.refund_price@ lt 0.01>
+		<a href="@orders.refund_url;noquote@" class="button">Refund</a>
+		</if>
+	    }
+	}
+	transactions {
+	    display_template {
+		<a href="financial-transactions?order_id=@orders.order_id@" class="button">Transactions</a>
+	    }
 	}
     } -filters {
 	section_id {

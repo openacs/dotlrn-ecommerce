@@ -183,7 +183,7 @@ db_dml insert_new_ec_refund "
     insert into ec_refunds
     (refund_id, order_id, refund_amount, refund_date, refunded_by, refund_reasons)
     values
-    (:refund_id, :order_id, :cash_amount_to_refund_cc, sysdate, :customer_service_rep,:reason_for_return)"
+    (:refund_id, :order_id, :cash_amount_to_refund_cc::float + :cash_amount_to_refund_manually::float, sysdate, :customer_service_rep,:reason_for_return)"
 
 foreach item_id $item_id_list {
 
@@ -191,7 +191,7 @@ foreach item_id $item_id_list {
     # but that's how it goes because we don't want to refund more
     # tax than was actually paid even if the tax rates changed
     
-    set price_bind_variable $price_to_refund($item_id)
+    set price_bind_variable [expr $price_to_refund($item_id) + $price_to_refund_manually($item_id)]
     set shipping_bind_variable $shipping_to_refund($item_id)
 
     db_1row get_tax_charged_on_item "
@@ -549,16 +549,10 @@ if {$cash_amount_to_refund > 0 && $method == "cc" } {
 }
 
 append doc_body "
-    [ad_admin_header $page_title]
-
-    <h2>$page_title</h2>
-
-    [ad_context_bar [list "../" "Ecommerce([ec_system_name])"] [list "index" "Orders"] [list "one?[export_url_vars order_id]" "One"] "Refund Complete"]
-    <hr>
     <blockquote>
       $results_explanation
-      <a href=\"one?[export_url_vars order_id]\">Back to Order $order_id</a>
-    </blockquote>
-    [ad_admin_footer]"
+      <a href=\"one?[export_url_vars order_id]\" class=\"button\">Back to Order $order_id</a>
+    </blockquote>"
 
-doc_return  200 text/html $doc_body
+#doc_return  200 text/html $doc_body
+set context [list [list index Orders] [list one?order_id=$order_id "One Order"] "Refund"]

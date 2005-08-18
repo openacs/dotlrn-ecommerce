@@ -24,17 +24,9 @@ db_1row order_select "
     and o.user_id = u.user_id(+)
     and o.creditcard_id = c.creditcard_id(+)"
 
-doc_body_append "
-    [ad_admin_header "One Order"]
+set doc_body ""
 
-    <h2>One Order</h2>
-
-    [ad_context_bar [list "../" "Ecommerce([ec_system_name])"] [list "index" "Orders"] "One Order"]
-
-    <hr>
-
-    <h3>Overview</h3>
-
+append doc_body "
     [ec_decode $order_state "void" "<table>" "<table width=90%>"]
       <tr>
         <td align=right><b>Order ID</td>
@@ -56,7 +48,7 @@ doc_body_append "
     </table>"
 
 if { $order_state == "void" } {
-    doc_body_append "
+    append doc_body "
 	<h3>Details of Void</h3>
 
 	<blockquote>
@@ -67,7 +59,7 @@ if { $order_state == "void" } {
 	</blockquote>"
 }
 
-doc_body_append "
+append doc_body "
     [ec_decode $cs_comments "" "" "<h3>Comments</h3>\n<blockquote>[ec_display_as_html $cs_comments]</blockquote>"]
 
     <ul>
@@ -168,141 +160,28 @@ if { [llength $old_product_color_size_style_price_price_name] != 0 } {
 	</li>"
 }
 
-doc_body_append "$items_ul"
+append doc_body "$items_ul"
 
 if { $order_state == "authorized" || $order_state == "partially_fulfilled" } {
-    doc_body_append "
+    append doc_body "
 	<li><a href=\"fulfill?[export_url_vars order_id]\">Record a Shipment</a></li>
 	<li><a href=\"items-add?[export_url_vars order_id]\">Add Items</a></li>"
 }
 if { $order_state == "fulfilled" || $order_state == "partially_fulfilled" } {
-    doc_body_append "
-	<li><a href=\"items-return?[export_url_vars order_id]\">Mark Items Returned</a></li>"
+    append doc_body "
+	<li><a href=\"items-return?[export_url_vars order_id]\">Refund</a></li>"
 }
 
-doc_body_append "
+append doc_body "
     </ul>
-
-    <h3>Details</h3>
-    
-    <table>
-      <tr>
-        <td align=right valign=top><b>[ec_decode $shipping_method "pickup" "Address" "no shipping" "Address" "Ship to"]</b></td>
-        <td>[ec_display_as_html [ec_pretty_mailing_address_from_ec_addresses $shipping_address]]<br>"
-
-if { $order_state == "confirmed" || $order_state == "authorized" || $order_state == "partially_fulfilled" } {
-    doc_body_append "
-	(<a href=\"address-add?[export_url_vars order_id]\">modify</a>)"
-}
-
-doc_body_append "
-      </td>
-    </tr>"
-
-if { ![empty_string_p $creditcard_id] } {
-    doc_body_append "
-	<tr>
-	  <td align=right valign=top><b>Bill to</b></td>
-	  <td>[ec_display_as_html [ec_pretty_mailing_address_from_ec_addresses $billing_address]]<br>
-	    (<a href=\"address-add?[export_url_vars order_id creditcard_id]\">modify</a>)</td>
-	  <td align=right valign=top><b>Credit card</b></td>
-	  <td valign=top>[ec_display_as_html [ec_creditcard_summary $creditcard_id] ]<br>
-	    (<a href=\"creditcard-add?[export_url_vars order_id]\">modify</a>)</td>
-	</tr>"
-}
-
-doc_body_append "
-      <tr>
-        <td align=right><b>In basket date</b></td>
-        <td>[ec_formatted_full_date $in_basket_date]</td>
-      </tr>
-      <tr>
-        <td align=right><b>Confirmed date</b></td>
-        <td>[ec_formatted_full_date $confirmed_date]</td>
-      </tr>
-      <tr>
-        <td align=right><b>Authorized date</b></td>
-        <td>[ec_formatted_full_date $authorized_date]</td>
-      </tr>
-      <tr>
-        <td align=right><b>Base shipping charged</b></td>
-        <td>[ec_pretty_price $shipping_charged] [ec_decode $shipping_method "pickup" "(Pickup)" "no shipping" "(No Shipping)" ""]</td>
-      </tr>
-    </table>"
-
-#set financial_transactions [template::adp_compile -string {<include src="/packages/dotlrn-ecommerce/lib/financial-transactions" order_id="@order_id@" />}]
-# Hack to not display ds stuff even if it's enabled, demo purposes
-#regsub -all {\[::ds_show_p\]} $financial_transactions 0 financial_transactions
-#[eval $financial_transactions]
-
-doc_body_append "
     <ul>
     <li><a href=\"financial-transactions?order_id=$order_id\">Financial Transactions</a>
-    </ul>
-
-    <h3>Shipments</h3>
-    <blockquote>"
-
-set old_shipment_id 0
-
-db_foreach shipments_items_products_select "
-    select s.shipment_id, s.address_id, s.shipment_date, s.expected_arrival_date, s.carrier, s.tracking_number, s.actual_arrival_date, s.actual_arrival_detail, 
-        p.product_name, p.product_id, i.price_name, i.price_charged, count(*) as quantity
-    from ec_shipments s, ec_items i, ec_products p
-    where i.shipment_id=s.shipment_id
-    and i.product_id=p.product_id
-    and s.order_id=:order_id
-    group by s.shipment_id, s.address_id, s.shipment_date, s.expected_arrival_date, s.carrier, s.tracking_number, s.actual_arrival_date, s.actual_arrival_detail, 
-        p.product_name, p.product_id, i.price_name, i.price_charged
-    order by s.shipment_id" {
-    if { $shipment_id != $old_shipment_id } {
-	if { $old_shipment_id != 0 } {
-	    doc_body_append "</ul>"
-	}
-	doc_body_append " 
-	    <table width=90%>
-	      <tr>
-	        <td width=50% valign=top>
-	          Shipment ID: $shipment_id<br>
-	          Date: [util_AnsiDatetoPrettyDate $shipment_date]<br>
-	          [ec_decode $expected_arrival_date "" "" "Expected Arrival: [util_AnsiDatetoPrettyDate $expected_arrival_date]<br>"]
-	          [ec_decode $carrier "" "" "Carrier: $carrier<br>"]
-	          [ec_decode $tracking_number "" "" "Tracking #: $tracking_number<br>"]
-	          [ec_decode $actual_arrival_date "" "" "Actual Arrival Date: [util_AnsiDatetoPrettyDate $actual_arrival_date]<br>"]
-	          [ec_decode $actual_arrival_detail "" "" "Actual Arrival Detail: $actual_arrival_detail<br>"]
-	          (<a href=\"track?shipment_id=$shipment_id\">track</a>)
-	        </td>
-	        <td valign=top width=50%>
-	          [ec_display_as_html [ec_pretty_mailing_address_from_ec_addresses $address_id]]
-	        </td>
-	      </tr>
-	    </table>
-	    <ul>"
-    }
-    doc_body_append "<li>Quantity $quantity: $product_name</li>"
-    set old_shipment_id $shipment_id
-}
-
-if { $old_shipment_id == 0 } {
-    doc_body_append "No Shipments Have Been Made"
-} else {
-    doc_body_append "</ul>"
-}
-
-doc_body_append "
-      </blockquote>"
+    </ul>"
 
 set refunds [template::adp_compile -string {<include src="/packages/dotlrn-ecommerce/lib/refunds" order_id="@order_id@" />}]
 # Hack to not display ds stuff even if it's enabled, demo purposes
 regsub -all {\[::ds_show_p\]} $refunds 0 refunds
 
-doc_body_append "[eval $refunds]"
+append doc_body "[eval $refunds]"
 
-if { $order_state != "void" } {
-    doc_body_append "
-	<h3>Actions</h3>
-	<ul>
-	  <li><a href=\"void?[export_url_vars order_id]\">Void Order</a></li>"
-}
-doc_body_append "</ul>
-[ad_admin_footer]"
+set context [list [list index Orders] [list one?order_id=$order_id "One Order"] "One Order"]

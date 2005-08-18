@@ -223,13 +223,6 @@ if { $method == "invoice" } {
 }
 
 append doc_body "
-    [ad_admin_header "Refund Totals"]
-
-    <h2>Refund Totals</h2>
-
-    [ad_context_bar [list "../" "Ecommerce([ec_system_name])"] [list "index" "Orders"] [list "one?[export_url_vars order_id]" "One"] "Refund Totals"]
-
-    <hr>
     <form method=post action=items-return-4>
      [export_entire_form]
      [export_form_vars cash_amount_to_refund certificate_amount_to_reinstate cash_amount_to_refund_cc cash_amount_to_refund_manually]
@@ -303,7 +296,7 @@ append doc_body "
   <center>
     <input type=submit value=\"Complete the Refund\">
   </center>
-</form>
-[ad_admin_footer]"
+</form>"
 
-doc_return 200 text/html $doc_body
+#doc_return 200 text/html $doc_body
+set context [list [list index Orders] [list one?order_id=$order_id "One Order"] "Refund"]
