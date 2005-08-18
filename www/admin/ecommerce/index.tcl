@@ -60,7 +60,7 @@ template::list::create \
 	    label "[_ dotlrn-ecommerce.Date]"
 	}
 	_section_name {
-	    label "[_ dotlrn-ecommerce.Section_Name]"
+	    label "[_ dotlrn-ecommerce.Item]"
 	    link_url_col section_url
 	}
 	purchaser {

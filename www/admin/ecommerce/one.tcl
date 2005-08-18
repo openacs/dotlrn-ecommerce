@@ -35,7 +35,7 @@ append doc_body "
       </tr>
       <tr>
         <td align=right><b>Ordered by</td>
-        <td><a href=\"[ec_acs_admin_url]users/one?user_id=$user_id\">$first_names $last_name</a></td>
+        <td><a href=\"../one-user?user_id=$user_id\">$first_names $last_name</a></td>
       </tr>
       <tr>
         <td align=right><b>Confirmed date</td>

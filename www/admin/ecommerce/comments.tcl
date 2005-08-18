@@ -12,15 +12,9 @@ ad_page_contract {
 
 ad_require_permission [ad_conn package_id] admin
 
-doc_body_append "[ad_admin_header "Comments"]
+set doc_body ""
 
-<h2>Comments</h2>
-
-[ad_context_bar [list "../" "Ecommerce([ec_system_name])"] [list "index" "Orders"] [list "one?[export_url_vars order_id]" "One Order"] "Comments"]
-
-<hr>
-
-<form method=post action=comments-edit>
+append doc_body "<form method=post action=comments-edit>
 [export_form_vars order_id]
 
 Please add or edit comments below:
@@ -36,7 +30,6 @@ Please add or edit comments below:
 <input type=submit value=\"Submit\">
 </center>
 
-</form>
+</form>"
 
-[ad_admin_footer]
-"
+set context [list [list index Orders] [list one?order_id=$order_id "One Order"] "Comments"]
