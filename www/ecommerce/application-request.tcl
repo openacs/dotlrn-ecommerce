@@ -4,11 +4,12 @@ ad_page_contract {
     
     Hold slot and request for approval
     
-    @author  (mgh@localhost.localdomain)
+    @author Roel Canicula (roelmc@pldtdsl.net)
     @creation-date 2005-07-08
     @arch-tag: 5e4b382d-9d71-4e7a-90e2-47948170d6a7
     @cvs-id $Id$
 } {
+    user_id:integer,notnull,optional
     participant_id:integer,notnull
     community_id:integer,notnull
     {type full}
@@ -120,6 +121,15 @@ Total persons in the waiting list for ${section_name}: $current_waitlisted"
 	    } else {
 		ns_log notice "application-request: wait list notify: community $community_id NOT sending email"
 	    }
+	}
+    }
+
+    # Set the rel_id's creation user to the purchaser
+    if { [info exists user_id] && $user_id != [ad_conn user_id] } {
+	db_dml set_purchaser {
+	    update acs_objects
+	    set creation_user = :user_id
+	    where object_id = :rel_id
 	}
     }
 }

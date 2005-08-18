@@ -95,7 +95,7 @@ if { [acs_object_type $participant_id] != "group" } {
 	    }] } {
 		if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
 		    set return_url [export_vars -base "[ad_conn package_url]application-confirm" { product_id {member_state "awaiting payment"} }]
-		    ad_returnredirect [export_vars -base application-request { participant_id community_id {next_url $return_url} { type payment } }]
+		    ad_returnredirect [export_vars -base application-request { user_id participant_id community_id {next_url $return_url} { type payment } }]
 		    ad_script_abort
 		    
 		}

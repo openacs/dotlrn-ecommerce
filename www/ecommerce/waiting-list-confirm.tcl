@@ -35,7 +35,7 @@ if { $participant_id == 0 } {
 }
 
 # See if we need to check for prerequisites
-set request_url [export_vars -base application-request { participant_id community_id {next_url $return_url} }]
+set request_url [export_vars -base application-request { user_id participant_id community_id {next_url $return_url} }]
 
 set allow_override_p [parameter::get -parameter AdminCanOverrideWaitingListP -default 1]
 

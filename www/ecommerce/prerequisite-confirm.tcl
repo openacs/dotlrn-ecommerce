@@ -94,4 +94,4 @@ if { [template::multirow size prereqs] == 0 } {
     ad_script_abort
 }
 
-set request_url [export_vars -base application-request { participant_id community_id {type prereq} {next_url $return_url} }]
+set request_url [export_vars -base application-request { user_id participant_id community_id {type prereq} {next_url $return_url} }]
