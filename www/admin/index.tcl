@@ -129,3 +129,18 @@ set relationships_category_url [export_vars -base ../Administration/categories/c
 
 set package_locale [lang::system::locale]
 set enable_applications_p [parameter::get -package_id [ad_conn package_id] -parameter EnableCourseApplicationsP -default 1]
+
+# Determine if we should show the shopping cart link
+set user_session_id [ec_get_user_session_id]
+if { [llength [set purchaser [db_list transactions {
+    select deo.patron_id
+    from ec_orders o, ec_items i, dotlrn_ecommerce_orders deo
+    where o.order_id = i.order_id
+    and i.item_id = deo.item_id
+    and o.order_state = 'in_basket'
+    and o.user_session_id = :user_session_id
+    group by deo.patron_id
+}]]] == 1 } {
+    set user_id [lindex $purchaser 0]
+    set shopping_cart_url [export_vars -base ../ecommerce/shopping-cart { user_id }]
+}

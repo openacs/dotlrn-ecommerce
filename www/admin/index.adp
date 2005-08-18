@@ -5,7 +5,9 @@
 
 <h4>Course Registration</h4>
 <ul>
-<li><a href="../ecommerce/shopping-cart">#dotlrn-ecommerce.Shopping_Cart#</a>
+<if @shopping_cart_url@ defined>
+      <li><a href="@shopping_cart_url;noquote@">#dotlrn-ecommerce.Shopping_Cart#</a>
+</if>
 <li><a href="process-purchase-all">#dotlrn-ecommerce.Process_Registration#</a>
 <li><formtemplate id="courses">#dotlrn-ecommerce.Course_Quick_Jump# <br><formwidget
 	    id="course_id" /><formwidget id="view" /></formtemplate>
