@@ -149,7 +149,7 @@ template::list::create \
 	}
 	comments_text_plain {
 	    label "[_ dotlrn-ecommerce.Notes]"
-	    hide_p 1
+	    hide_p {[ad_decode $csv_p 1 0 1]}
 	}
 	actions {
 	    label ""
@@ -330,9 +330,14 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
                  cr_revisions r,
                  cr_items ci,
                  acs_objects o
-            where g.object_id = :session_id
+            where g.object_id in (select session_id
+                                  from as_sessions
+                                  where assessment_id = (select assessment_id 
+							 from as_sessions 
+							 where session_id =  :session_id)
+				        and subject_id = :applicant_user_id)
                   and r.revision_id = ci.live_revision
-	                  and ci.item_id = g.comment_id 
+                  and ci.item_id = g.comment_id 
                   and o.object_id = g.comment_id
             order by o.creation_date
         } {
@@ -344,7 +349,7 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	    set edit_comment_url [export_vars -base "${general_comments_url}comment-edit" {return_url comment_id}]
             set comments "<b>$gc_title</b><br />${html_comment}<br /><i>- $gc_author on $gc_creation_date_ansi</i><br /><br />"
 	    set comments_text [ad_html_text_convert -from "text/html" -to "text/plain" $html_comment]
-	    append comments_text_plain "${comments_text}\n"
+	    append comments_text_plain "${gc_title} - ${comments_text}\n"
 	    append comments_truncate "<a href=\"javascript:void(0);\" onmouseover=\"return overlib('$comments');\" onmouseout=\"return nd();\" style=\"text-decoration: none;\">$gc_title</a> \[<a href=\"$edit_comment_url\">edit</a>\]<br /><br />"
         }
 	set add_comment_url [export_vars -base "${general_comments_url}comment-add" {{object_id $session_id} {object_name "Application"} return_url}]
