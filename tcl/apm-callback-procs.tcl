@@ -149,6 +149,13 @@ ad_proc -private dotlrn_ecommerce::after_upgrade {
 		    dotlrn-ecommerce \
 		    0 \
 		    number
+
+		apm_parameter_register \
+		    AllowAheadAccess \
+		    "Allow access to community after being accepted, even before registration." \
+		    dotlrn-ecommerce \
+		    0 \
+		    number
 	    }
     	}
 }
