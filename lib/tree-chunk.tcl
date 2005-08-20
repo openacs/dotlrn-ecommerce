@@ -45,7 +45,7 @@ foreach tree [category_tree::get_mapped_trees $cc_package_id] {
     regsub -all { } $tree_name _ f
     set f [string tolower $f]_f
 
-    ns_log notice "DEBUG:: CATEGORY:: $tree_name"
+    ns_log notice "DEBUG:: CATEGORY:: $tree_name | [lindex $tree 0]"
 
     lappend filter_list $f
     set ff [ns_set get $form $f]
@@ -364,7 +364,7 @@ template::list::create \
 		<font color="red">[_ dotlrn-ecommerce.application_pending]</font>
 		</if>
 		<if @course_list.waiting_p@ eq 1>
-		<font color="red">[_ dotlrn-ecommerce.lt_You_are_number_course]</font>
+		<!-- <font color="red">[_ dotlrn-ecommerce.lt_You_are_number_course]</font> -->
 		</if>
 		<if @course_list.asm_url@ not nil>
 		<a href="@course_list.asm_url;noquote@" class="button">[_ dotlrn-ecommerce.review_application]</a>

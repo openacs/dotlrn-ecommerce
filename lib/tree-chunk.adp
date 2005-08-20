@@ -6,11 +6,12 @@ table.list {
 }
 </STYLE>
 
-<table cellpadding="3" cellspacing="3">
+<table cellpadding="3" cellspacing="3" border="0">
   <tr>
+
     <td class="list-filter-pane-big" valign="top" width="20%">
-        <listfilters name="course_list" style="course-filters"></listfilters>
-    </td>
+      <listfilters name="course_list" style="course-filters"></listfilters> 
+    </td> 
     <td valign="top">
 	<listtemplate name=course_list style="courses"></listtemplate>
     </td>
