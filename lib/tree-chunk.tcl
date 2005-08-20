@@ -448,7 +448,7 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
 	    if { $user_id == 0 } {
 		set shopping_cart_add_url [export_vars -base ecommerce/login { return_url }]
 	    } else {
-		set shopping_cart_add_url ecommerce/$return_url
+		set shopping_cart_add_url $return_url
 	    }
 	}
     }
