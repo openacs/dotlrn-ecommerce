@@ -20,8 +20,6 @@
   <blockquote>
     <multiple name="in_cart">
       <if @in_cart.rownum@ eq 1>
-	<form method=post action=shopping-cart-quantities-change>
-
 	  <table border="0" cellspacing="0" cellpadding="5" align="center">
 	    <tr bgcolor="#cccccc">
 	      <td>#dotlrn-ecommerce.Item_Description#</td>
@@ -32,6 +30,9 @@
 	      <td>#dotlrn-ecommerce.Quantity#</td>
 	      <td>#dotlrn-ecommerce.PriceItem#</td>
 	      <if @product_counter@ gt 1> <td>#dotlrn-ecommerce.Subtotal_1#</td> </if>
+	      <if @offer_code_p@ gt 1>
+		<td>#dotlrn-ecommerce.Discount#</td>
+	      </if>
 	      <td>#dotlrn-ecommerce.Action#</td>
 	    </tr>
       </if>
@@ -69,6 +70,19 @@
 	<td>@in_cart.price;noquote@</td>
 	<if @product_counter@ gt 1><td align="right">@in_cart.line_subtotal@</td>
 	</if>
+	<if @in_cart.has_discount_p@>
+	  <td nowrap>
+	    <form method=post action=offer-code-set>
+	      <input type="hidden" name="user_id" value="@user_id@" />
+	      <input type="hidden" name="product_id" value="@in_cart.product_id@" />
+	      <input type="hidden" name="return_url" value="shopping-cart?user_id=@user_id@" />
+	      <input name="offer_code" size="10" /><input type="submit" value="#dotlrn-ecommerce.Enter_Offer_Code#" />
+	    </form>
+	  </td>
+	</if>
+	<else>
+	  <if @offer_code_p@ gt 1><td></td></if>
+	</else>
 	<td>
 	  <a href="shopping-cart-delete-from?@in_cart.delete_export_vars@">#dotlrn-ecommerce.delete#</a>
 	</td>
@@ -83,6 +97,9 @@
 	</if>
 	<td align="right">@pretty_total_price@</td>
 	<td></td>
+	<if @offer_code_p@ gt 1>
+	  <td></td>
+	</if>
       </tr>
       <if @shipping_gateway_in_use@ false>
 	<if @no_shipping_options@ false>
@@ -139,7 +156,6 @@
       <if @shipping_gateway_in_use@ true>
 	@shipping_options;noquote@
       </if>
-    </form>
 
       <center>
 	<form method=post action="checkout-one-form">

@@ -25,17 +25,49 @@ ad_page_contract {
     @revision-date April 2002
 
 } { 
-    product_id:integer
+    product_id:integer,optional
     {item_count 1}
     {size_choice ""}
     {color_choice ""}
     {style_choice ""}
     usca_p:optional
 
-    user_id:integer,notnull
+    user_id:integer,notnull,optional
     {participant_id:integer 0}
     
     {override_p 0}
+
+    offer_code:optional
+    return_url:notnull,optional
+}
+
+set user_session_id [ec_get_user_session_id]
+ec_create_new_session_if_necessary [export_url_vars product_id user_id participant_id item_count offer_code return_url]
+
+if { [info exists offer_code] } {
+    if { ! [exists_and_not_null product_id] && ! [exists_and_not_null user_id] } {
+	ad_returnredirect [export_vars -base $return_url { offer_code }]
+	ad_script_abort
+    }
+
+    if { [db_string get_offer_code_p "
+	select count(*) 
+	from ec_user_session_offer_codes 
+	where user_session_id=:user_session_id
+	and product_id=:product_id"] == 0 } {
+	db_dml inert_uc_offer_code "
+	    insert into ec_user_session_offer_codes
+	    (user_session_id, product_id, offer_code) 
+	    values 
+	    (:user_session_id, :product_id, :offer_code)"
+    } else {
+	db_dml update_ec_us_offers "
+	    update ec_user_session_offer_codes 
+	    set offer_code = :offer_code
+	    where user_session_id = :user_session_id
+	    and product_id = :product_id"
+    }
+
 }
 
 # avoid anonymous participants
@@ -115,7 +147,7 @@ if { [acs_object_type $participant_id] != "group" } {
 		    set cancel_url [set return_url [export_vars -base [ad_conn package_url]admin/process-purchase-course { user_id }]]
 		} else {
 		    set return_url [export_vars -base [ad_conn package_url]application-confirm { product_id {member_state "needs approval"} }]
-		    set cancel_url ..
+		    set cancel_url [ad_conn package_url]
 		}
 		ad_returnredirect [export_vars -base waiting-list-confirm { product_id user_id participant_id return_url cancel_url }]
 		ad_script_abort
@@ -189,8 +221,6 @@ if { [acs_object_type $participant_id] != "group" } {
 #    the shopping cart page (shopping-cart.tcl)
 # 5. ad_returnredirect them to their shopping cart
 
-set user_session_id [ec_get_user_session_id]
-ec_create_new_session_if_necessary [export_url_vars product_id user_id participant_id item_count]
 set n_confirmed_orders [db_string get_n_confirmed_orders "
     select count(*) 
     from ec_orders 

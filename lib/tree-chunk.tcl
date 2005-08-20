@@ -257,12 +257,13 @@ if { $admin_p } {
 lappend actions "[_ dotlrn-ecommerce.My_Shopping_Cart]" [export_vars -base ecommerce/shopping-cart] "[_ dotlrn-ecommerce.My_Shopping_Cart]"
 
 set allow_other_registration_p [parameter::get -parameter AllowRegistrationForOtherUsers -default 1]
+set offer_code_p [parameter::get -parameter OfferCodesP -default 0]
 
 template::list::create \
     -name course_list \
     -multirow course_list \
     -key course_id \
-    -pass_properties { admin_p allow_other_registration_p } \
+    -pass_properties { admin_p allow_other_registration_p offer_code_p } \
     -actions $actions \
     -filters $filters \
     -bulk_action_method post \
@@ -300,7 +301,7 @@ template::list::create \
 	    display_template {
 		<if @course_list.section_id@ not nil>
 		<b>Section @course_list.section_name@</b>
-		<if @course_list.description@ not nil>
+		<if @course_list.show_description_p@ eq "t" and @course_list.description@ not nil>
 		<br />
 		@course_list.description;noquote@
 		</if>
@@ -345,11 +346,49 @@ template::list::create \
 		<div style="float: left">
 		<if @course_list.prices@ ne "">
 		<if @allow_other_registration_p@>
+		<if @offer_code_p@ and @course_list.has_discount_p@ and @course_list.available_slots@ gt 0>
+
+		<if @course_list.assessment_id@ eq "" or @course_list.assessment_id@ eq -1>
+
+		<form action="ecommerce/offer-code-set">
+		<input type="hidden" name="product_id" value="@course_list.product_id@" />
+		<input type="hidden" name="return_url" value="@course_list.shopping_cart_add_url@" />
+		[_ dotlrn-ecommerce.Offer_Code] <input name="offer_code" size="10" /><br />
+		<input type="submit" value="@course_list.button@" />
+		</form>		
+
+		</if>
+		<else>
 		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">@course_list.button@</a>
+		</else>
+		</if>
+		<else>
+		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">@course_list.button@</a>
+		</else>
 		</if>
 		<else>
                 <if @course_list.member_p@ ne 1 and @course_list.pending_p@ ne 1 and @course_list.waiting_p@ ne 1 and @course_list.waiting_p@ ne 2 and @course_list.approved_p@ ne 1>
+
+		<if @offer_code_p@ and @course_list.has_discount_p@ and @course_list.available_slots@ gt 0>
+
+		<if @course_list.assessment_id@ eq "" or @course_list.assessment_id@ eq -1>
+
+		<form action="ecommerce/offer-code-set">
+		<input type="hidden" name="product_id" value="@course_list.product_id@" />
+		<input type="hidden" name="return_url" value="@course_list.shopping_cart_add_url@" />
+		[_ dotlrn-ecommerce.Offer_Code] <input name="offer_code" size="10" /><br />
+		<input type="submit" value="@course_list.button@" />
+		</form>		
+
+		</if>
+		<else>
 		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">@course_list.button@</a>
+		</else>
+		</if>
+		<else>
+		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">@course_list.button@</a>
+		</else>
+
 		</if>
 		</else>
 		</if>
@@ -379,12 +418,23 @@ template::list::create \
 		<if @course_list.approved_p@ eq 1>
 		<div align="center" style="float: right">
 		[_ dotlrn-ecommerce.lt_Your_application_was_]<p />
+		<if @offer_code_p@ and @course_list.has_discount_p@>
+		<p />
+		<form action="ecommerce/offer-code-set">
+		<input type="hidden" name="product_id" value="@course_list.product_id@" />
+		<input type="hidden" name="return_url" value="@course_list.shopping_cart_add_url@" />
+		[_ dotlrn-ecommerce.Offer_Code] <input name="offer_code" size="10" /><br />
+		<input type="submit" value="[_ dotlrn-ecommerce.lt_Continue_Registration]" />
+		</form>
+		</if>
+		<else>
 		<a href="@course_list.registration_approved_url;noquote@" class="button">[_ dotlrn-ecommerce.lt_Continue_Registration]</a>
+		</else>
 		</div>
 		</if>
 		</if>
 	    }
-	    html { width 40% nowrap }
+	    html { width 40% valign middle nowrap }
 	}
     } -orderby {
 	course_name {
@@ -408,7 +458,13 @@ template::list::create \
 
 set grade_tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
 
-db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades section_zones sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url } course_list get_courses { } {
+if { $offer_code_p } {
+    set discount_clause [db_map discount]
+} else {
+    set discount_clause ""
+}
+
+db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades section_zones sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url assessment_id } course_list get_courses { } {
 
     # Since dotlrn-ecommerce is based on dotlrn-catalog,
     # it's possible to have a dotlrn_catalog object without an
@@ -442,11 +498,11 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
 	set shopping_cart_add_url [export_vars -base register/ { community_id product_id }]
     } else {
 	if { $allow_other_registration_p } {
-	    set shopping_cart_add_url [export_vars -base ecommerce/participant-change { user_id product_id return_url }]
+	    set shopping_cart_add_url [export_vars -base [ad_conn package_url]ecommerce/participant-change { user_id product_id return_url }]
 	} else {
 	    set return_url [export_vars -base [ad_conn package_url]ecommerce/shopping-cart-add { user_id product_id }]
 	    if { $user_id == 0 } {
-		set shopping_cart_add_url [export_vars -base ecommerce/login { return_url }]
+		set shopping_cart_add_url [export_vars -base login { return_url }]
 	    } else {
 		set shopping_cart_add_url $return_url
 	    }
@@ -531,6 +587,8 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
 	    if { $available_slots <= 0 } {
 		set button "[_ dotlrn-ecommerce.join_waiting_list]"
 	    }
+	} else {
+	    set available_slots 99999
 	}
 	
 	set section_zones [util_memoize [list dotlrn_ecommerce::section::section_zones $community_id]]

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d6" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d8" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Action">Action</msg>
   <msg key="Add_Course">Add Course</msg>
@@ -46,6 +46,7 @@
   <msg key="Currently_Selected">Currently Selected</msg>
   <msg key="Date">Date</msg>
   <msg key="delete">delete</msg>
+  <msg key="Discount">Discount</msg>
   <msg key="Display_All_Orders">Display All Orders</msg>
   <msg key="Display_Course">Display Course</msg>
   <msg key="E-mail_address">E-mail address:</msg>
@@ -58,6 +59,7 @@
   <msg key="Email_t_submit_application">Submit application</msg>
   <msg key="Email_templates">Email Templates</msg>
   <msg key="Email_templates_1">Email templates</msg>
+  <msg key="Enter_Offer_Code">Enter Offer Code</msg>
   <msg key="Expense_Tracking">Expense Tracking</msg>
   <msg key="Expenses">Expenses</msg>
   <msg key="Expires">Expires</msg>
@@ -164,10 +166,12 @@
   <msg key="lt_Select_a_payment_meth">Select a payment method</msg>
   <msg key="lt_Select_another_purcha">Select another purchaser</msg>
   <msg key="lt_Sessions_and_Attendan">Sessions and Attendance</msg>
+  <msg key="lt_Sorry_the_offer_code_">Sorry, the offer code was not accepted.</msg>
   <msg key="lt_Thank_you_for_your_ap">Thank you for your application to %section_name%.</msg>
   <msg key="lt_Thank_You_For_Your_Or">Thank You For Your Order</msg>
   <msg key="lt_The_course_only_has_a">The course only has $available_slots slot(s) left</msg>
   <msg key="lt_The_following_has_bee">The following has been sent to the purchaser</msg>
+  <msg key="lt_The_offer_code_was_ac">The offer code was accepted. You save $savings!</msg>
   <msg key="lt_This_section_is_curre">This section is currently full, but we are taking registrations for the waiting list.</msg>
   <msg key="lt_To_complete_your_orde">To complete your order, submit this form, and confirm the information on the following page.</msg>
   <msg key="lt_to_send_us_your_order">to send us your order!</msg>
@@ -216,6 +220,7 @@ Instructors:
   <msg key="No_orders">No orders</msg>
   <msg key="No_related_users">No related users</msg>
   <msg key="Notes">Notes</msg>
+  <msg key="Offer_Code">Offer Code:</msg>
   <msg key="Order_Details">Order Details</msg>
   <msg key="Order_History">Order History</msg>
   <msg key="Order_ID">Order ID</msg>

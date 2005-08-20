@@ -151,7 +151,7 @@ ad_proc -public dotlrn_ecommerce::section::flush_cache {
     @error 
 } {
     db_1row section_info {
-	select community_id, course_id as item_id
+	select community_id, course_id as item_id, product_id
 	from dotlrn_ecommerce_section
 	where section_id = :section_id
     }
@@ -178,7 +178,7 @@ ad_proc -public dotlrn_ecommerce::section::flush_cache {
     util_memoize_flush [list dotlrn_ecommerce::section::member_price $section_id]
     util_memoize_flush [list dotlrn_ecommerce::section::application_assessment $section_id]
     util_memoize_flush [list dotlrn_ecommerce::section::section_zones $community_id]
-
+    util_memoize_flush [list dotlrn_ecommerce::section::has_discount_p $product_id]
     if { [exists_and_not_null user_id] } {
 	util_memoize_flush [list dotlrn_ecommerce::section::member_state $user_id $community_id]
 	util_memoize_flush [list dotlrn_ecommerce::section::waiting_list_number $user_id $community_id]
@@ -669,4 +669,23 @@ ad_proc -public dotlrn_ecommerce::section::check_expired_orders_once {
     dotlrn_ecommerce::section::check_expired_orders
 
     ad_schedule_proc -thread t 600 dotlrn_ecommerce::section::check_expired_orders
+}
+
+ad_proc -public dotlrn_ecommerce::section::has_discount_p {
+    product_id
+} {
+    Check if there's a current promotion for the product
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-08-20
+    
+    @return 
+    
+    @error 
+} {
+    return [db_string discount_codes {
+	select count(*)
+	from ec_sale_prices_current
+	where product_id=:product_id
+    } -default 0]
 }

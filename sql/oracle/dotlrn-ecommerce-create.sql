@@ -70,5 +70,9 @@ insert into ec_custom_product_fields (field_identifier, field_name, default_valu
 alter table ec_custom_product_field_values add maxparticipants integer;
 alter table ec_custom_p_field_values_audit add maxparticipants integer;
 
+insert into ec_custom_product_fields (field_identifier, field_name, default_value, column_type, last_modified,last_modifying_user, modified_ip_address) values ('show_description_p', 'Show Section Description', '', 'char(1)', now(), '0', '0.0.0.0');
+alter table ec_custom_product_field_values add show_description_p char(1) constraint show_description_p_constraint check (show_description_p in ('t', 'f'));
+alter table ec_custom_p_field_values_audit add show_description_p char(1);
+
 @@ dotlrn-ecommerce-memberships-create.sql
 @@ dotlrn-ecommerce-admin-portlet-create.sql

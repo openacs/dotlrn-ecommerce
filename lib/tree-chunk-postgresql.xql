@@ -20,7 +20,10 @@
 		select dc.course_id, dc.course_key, dc.course_name,
 			dc.assessment_id, dec.section_id, dec.section_name,
 			dec.product_id, dec.community_id, dc.course_info,
-			ci.item_id, v.maxparticipants, dec.show_participants_p, dec.show_sessions_p, dec.description
+			ci.item_id, v.maxparticipants, dec.show_participants_p, dec.show_sessions_p, dec.description, v.show_description_p
+
+		$discount_clause
+
 		from dotlrn_catalog dc,
 		cr_items ci
 		left join dotlrn_ecommerce_section dec
@@ -61,5 +64,13 @@
 	    where product_id = :product_id
 	</querytext>
 	</fullquery>
+
+	<partialquery name="discount">
+	<querytext>
+            , (select count(*)
+	    from ec_sale_prices_current
+	    where product_id = dec.product_id) as has_discount_p
+	</querytext>
+	</partialquery>
 
 </queryset>

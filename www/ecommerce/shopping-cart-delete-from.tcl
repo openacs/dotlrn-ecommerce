@@ -81,7 +81,7 @@ if {[parameter::get -parameter MemberPriceP -default 0]} {
 # Flush cache
 if { [db_0or1row section_from_product {
     select section_id
-    from dlec_view_sections
+    from dotlrn_ecommerce_section
     where product_id = :product_id
 }] } {
     dotlrn_ecommerce::section::flush_cache $section_id

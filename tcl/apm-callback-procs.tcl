@@ -113,7 +113,7 @@ ad_proc -private dotlrn_ecommerce::after_upgrade {
 		    1 \
 		    number
 	    }
-	  0.1d6 0.1d7 {
+	    0.1d6 0.1d7 {
 		apm_parameter_register \
 		    GradePrerequisitesP \
 		    "Set this to 1 if you want participants to be verified against the Grade requirement for a section." \
@@ -127,7 +127,28 @@ ad_proc -private dotlrn_ecommerce::after_upgrade {
 		    dotlrn-ecommerce \
 		    0 \
 		    number
+	    }
+	    0.1d7 0.1d8 {
+		apm_parameter_register \
+		    GroupPurchaseP \
+		    "Allow purchasing for groups." \
+		    dotlrn-ecommerce \
+		    1 \
+		    number
 
+		apm_parameter_register \
+		    AllowSettingRelationshipsP \
+		    "Support setting of related users." \
+		    dotlrn-ecommerce \
+		    1 \
+		    number
+
+		apm_parameter_register \
+		    OfferCodesP \
+		    "Support asking for offer codes for discount prices." \
+		    dotlrn-ecommerce \
+		    0 \
+		    number
 	    }
     	}
 }

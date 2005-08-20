@@ -144,7 +144,7 @@ if { $shipping_gateway_in_use} {
 # p.no_shipping_avail_p, p.shipping, p.shipping_additional, p.weight
 # basically collect shipping information for any items where ec_products.no_shipping_avail_p = 't'
 
-db_multirow -extend { line_subtotal patron_name participant_name participant_type edit_url } in_cart get_products_in_cart "
+db_multirow -extend { line_subtotal patron_name participant_name participant_type edit_url has_discount_p } in_cart get_products_in_cart "
       select p.product_name, p.one_line_description, p.no_shipping_avail_p, p.shipping, p.shipping_additonal, p.weight, p.product_id, count(*) as quantity, u.offer_code, i.color_choice, i.size_choice, i.style_choice, '' as price 
       from ec_orders o
       join ec_items i on (o.order_id=i.order_id)
@@ -176,6 +176,9 @@ db_multirow -extend { line_subtotal patron_name participant_name participant_typ
 set multi_item_discount_p [parameter::get -parameter MultipleItemDiscountP -default 0]
 set start_applying_discount_p 0
 set multi_item_discount [parameter::get -parameter MultipleItemDiscountAmount -default 5]
+
+# Check if we allow offer codes
+set offer_code_p [parameter::get -parameter OfferCodesP -default 0]
 
 for {set i 1} {$i <= [template::multirow size in_cart]} {incr i} {
 
@@ -267,6 +270,12 @@ for {set i 1} {$i <= [template::multirow size in_cart]} {incr i} {
     template::multirow set in_cart $i delete_export_vars $delete_export_vars
     template::multirow set in_cart $i price "[lindex $lowest_price_and_price_name 1]:&nbsp;&nbsp;[ec_pretty_price [lindex $lowest_price_and_price_name 0] $currency]"
 
+    # See if we have an offer code for this product
+    if { $offer_code_p && ([empty_string_p $offer_code] || ([lindex [ec_lowest_price_and_price_name_for_an_item $product_id $user_id] 0] - $lowest_price) == 0) } {
+	set has_discount_p [dotlrn_ecommerce::section::has_discount_p $product_id]
+	incr offer_code_p $has_discount_p
+	template::multirow set in_cart $i has_discount_p $has_discount_p
+    }
 }
 
 # Add adjust quantities line if there are products in the cart.
