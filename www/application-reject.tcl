@@ -21,6 +21,14 @@ ad_page_contract {
 
 set actor_id [ad_conn user_id]
 
+set section_id [db_string section {
+    select section_id
+    from dotlrn_ecommerce_section
+    where community_id = :community_id
+}]
+
+dotlrn_ecommerce::section::flush_cache $section_id
+
 if { !$send_email_p || $user_id == $actor_id } {
     dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
     ad_returnredirect $return_url
