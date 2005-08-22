@@ -98,8 +98,8 @@ template::list::create \
 	    display_template {
 	    <div align=center>
        	    <a href=course-add-edit?course_id=@course_list.course_id@&mode=1
-	    title="[_ dotlrn-catalog.edit_ver]"><img border=0 src=/resources/Edit16.gif></a>
-            <a href="course-delete?object_id=@course_list.item_id@&creation_user=@course_list.creation_user@&course_key=@course_list.course_key@" title="\#dotlrn-catalog.delete\#"><img border=0 src=/resources/Delete16.gif></a>
+	    title="[_ dotlrn-catalog.edit_ver]"><img border=0 src=/resources/acs-subsite/Edit16.gif></a>
+            <a href="course-delete?object_id=@course_list.item_id@&creation_user=@course_list.creation_user@&course_key=@course_list.course_key@" title="\#dotlrn-catalog.delete\#"><img border=0 src=/resources/acs-subsite/Delete16.gif></a>
 		</div>
 	    }
 	}

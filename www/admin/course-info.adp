@@ -15,7 +15,7 @@
    <td>
    <if @edit@ eq yes>
    <div align="right">
-	<a href=course-add-edit?course_id=@course_id@&mode=1&index=@to_index@ title="#dotlrn-catalog.new_ver#"><img border=0 src=/resources/Edit16.gif></a>
+	<a href=course-add-edit?course_id=@course_id@&mode=1&index=@to_index@ title="#dotlrn-catalog.new_ver#"><img border=0 src=/resources/acs-subsite/Edit16.gif></a>
    </div>
    </if>
    </td>
