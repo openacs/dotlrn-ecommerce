@@ -40,11 +40,40 @@ append doc_body "
         <p>Date received back: [ad_dateentrywidget received_back_date]&nbsp;[ec_timeentrywidget received_back_time]</p>
 
 	<p>Please check off the items that were received back:</p>
- 	<blockquote>
-          [ec_items_for_fulfillment_or_return $order_id "f"]
+ 	<blockquote>"
+
+db_foreach refund_items {
+    select i.item_id, i.price_charged, i.price_name,
+    case when not c.course_name is null then c.course_name||': '||s.section_name else p.product_name end as product_name, person__name(o.participant_id) as participant_name
+
+    from ec_items_refundable i left join dotlrn_ecommerce_orders o
+    on (i.item_id = o.item_id),
+
+    ec_products p left join dotlrn_ecommerce_section s
+    on (p.product_id = s.product_id)
+    left join (select c.course_id, c.item_id, c.course_name
+	       from dotlrn_catalogi c, cr_items i
+	       where c.course_id = i.live_revision) c
+    on (s.course_id = c.item_id)
+
+    where i.order_id = :order_id
+    and i.product_id = p.product_id
+} {
+    if { [empty_string_p $participant_name] } {
+	append doc_body [subst {
+	    <input type=checkbox name=item_id value="$item_id" value="$item_id" checked /> $product_name ; $price_name: [ec_pretty_price $price_charged] <br />
+	}]
+    } else {
+	append doc_body [subst {
+	    <input type=checkbox name=item_id value="$item_id" value="$item_id" checked />Participant: $participant_name ; $product_name ; $price_name: [ec_pretty_price $price_charged] <br />
+	}]
+    }
+}
+
+append doc_body "
         </blockquote>
 
-	<p>Reason for return (if known):</p>
+	<p>Reason for refund (if known):</p>
 	<blockquote>
 	  <textarea name=reason_for_return rows=5 cols=50 wrap></textarea>
 	</blockquote>
