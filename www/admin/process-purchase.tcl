@@ -130,15 +130,15 @@ if { [exists_and_not_null section_id] } {
 	    $page_query
 	    [template::list::page_where_clause -name users -key u.user_id -and]
 	}] {
-	    set add_url [export_vars -base "[ad_conn package_url]ecommerce/shopping-cart-add" { product_id user_id participant_id return_url }]
-
 	    set rel_id [relation::get_id -object_id_one $user_id -object_id_two $participant_id -rel_type "patron_rel"]
 	    
 	    if { ! [empty_string_p $rel_id] } {
-		set add_member_url [export_vars -base "[ad_conn package_url]ecommerce/participant-add" { {user_id $participant_id} section_id return_url add_url }]
+		set add_url [export_vars -base "[ad_conn package_url]ecommerce/shopping-cart-add" { product_id user_id participant_id return_url }]
 	    } else {
-		set add_member_url [export_vars -base [ad_conn package_url]admin/process-purchase-2 { {user_id $participant_id} {patron_id $user_id} section_id community_id return_url }]
+		set add_url [export_vars -base [ad_conn package_url]admin/process-purchase-2 { {user_id $participant_id} {patron_id $user_id} section_id community_id return_url }]
 	    }
+
+	    set add_member_url [export_vars -base "[ad_conn package_url]ecommerce/participant-add" { {user_id $participant_id} section_id return_url add_url }]
 
 	}
     }
