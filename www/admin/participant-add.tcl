@@ -36,6 +36,6 @@ set title "Partipant Info for $course_name: $section_name"
 set context [list [list [export_vars -base course-info { course_id }] $section_name] "Participants and Patrons"]
 
 if { [empty_string_p $add_url] } {
-    set add_url [export_vars -base "ecommerce/shopping-cart-add" { product_id user_id }]
+    set add_url [export_vars -base "[ad_conn package_url]ecommerce/shopping-cart-add" { product_id user_id }]
 }
 #set addpatron_url [export_vars -base "[apm_package_url_from_key dotlrn-ecommerce]admin/membership-add" { user_id section_id community_id {referer $return_url} }]
