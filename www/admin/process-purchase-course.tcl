@@ -17,8 +17,6 @@ ad_page_contract {
     {section ""}
     {section_id "-1"}
 
-    purchaser_id:integer,optional,notnull
-
     {page 1}
 
     {__refreshing_p 0}
@@ -32,9 +30,29 @@ ad_page_contract {
 } -errors {
 }
 
-if { [info exists purchaser_id] } {
-    set participant_id $user_id
-    set user_id $purchaser_id
+# Proc to be used in form validation
+proc already_registered_p { section_id purchaser_id participant_id } {
+    if { [empty_string_p $section_id] } {
+	return 0
+    }
+    
+    if { [db_0or1row community {
+	select community_id
+	from dotlrn_ecommerce_section
+	where section_id = :section_id
+    }] } {
+
+	set user_id [ad_decode $participant_id 0 $purchaser_id $participant_id]
+	
+	return [db_string registered {
+	    select count(*)
+	    from dotlrn_member_rels_full
+	    where community_id = :community_id
+	    and user_id = :user_id
+	}]
+    }
+
+    return 0
 }
 
 if { $related_user > 0 } {
@@ -261,135 +279,56 @@ foreach tree [category_tree::get_tree $tree_id] {
     lappend tree_options [list [lindex $tree 1] [lindex $tree 0]]
 }
 
-if { ! $participant_id } {
-    set locale [ad_conn locale]
-    set related_user_options [linsert [db_list_of_lists related_users {
-	select *
-	from (
-	select u.first_names||' '||u.last_name||' (participant is '||(select c.name
-						      from category_object_map m, category_translations c
-						      where m.category_id = c.category_id
-						      and m.object_id = r.rel_id
-						      and c.locale = :locale
-						      limit 1)||')' as ruser, u.user_id
-	from acs_rels r, dotlrn_users u
-	where r.object_id_two = u.user_id
-	and r.rel_type = 'patron_rel'
-	and r.object_id_one = :user_id
+set locale [ad_conn locale]
+set related_user_options [linsert [db_list_of_lists related_users {
+    select *
+    from (
+	  select u.first_names||' '||u.last_name||' (participant is '||(select c.name
+									from category_object_map m, category_translations c
+									where m.category_id = c.category_id
+									and m.object_id = r.rel_id
+									and c.locale = :locale
+									limit 1)||')' as ruser, u.user_id
+	  from acs_rels r, dotlrn_users u
+	  where r.object_id_two = u.user_id
+	  and r.rel_type = 'patron_rel'
+	  and r.object_id_one = :user_id
 
-	union
+	  union
 
-	select u.first_names||' '||u.last_name||' (purchaser is '||(select c.name
-						      from category_object_map m, category_translations c
-						      where m.category_id = c.category_id
-						      and m.object_id = r.rel_id
-						      and c.locale = :locale
-						      limit 1)||')' as ruser, u.user_id
-	from acs_rels r, dotlrn_users u
-	where r.object_id_one = u.user_id
-	and r.rel_type = 'patron_rel'
-	and r.object_id_two = :user_id
-	and not r.object_id_one in (select object_id_two
-				    from acs_rels r
-				    where rel_type = 'patron_rel'
-				    and object_id_one = :user_id)
-	) r
-	where not ruser is null
-    }] 0 [list "$user_info(first_names) $user_info(last_name) is both purchasing and attending the course" "0"]]
-    lappend related_user_options [list "Purchase for GROUP of participants" -1]
-    lappend related_user_options [list "Another Participant" -2]
+	  select u.first_names||' '||u.last_name||' (purchaser is '||(select c.name
+								      from category_object_map m, category_translations c
+								      where m.category_id = c.category_id
+								      and m.object_id = r.rel_id
+								      and c.locale = :locale
+								      limit 1)||')' as ruser, u.user_id
+	  from acs_rels r, dotlrn_users u
+	  where r.object_id_one = u.user_id
+	  and r.rel_type = 'patron_rel'
+	  and r.object_id_two = :user_id
+	  and not r.object_id_one in (select object_id_two
+				      from acs_rels r
+				      where rel_type = 'patron_rel'
+				      and object_id_one = :user_id)
+	  ) r
+    where not ruser is null
+}] 0 [list "$user_info(first_names) $user_info(last_name) is both purchasing and attending the course" "0"]]
+lappend related_user_options [list "Purchase for GROUP of participants" -1]
+lappend related_user_options [list "Another Participant" -2]
 
-    ad_form -extend -name "participant" -export { {participant_id 0} } -form {
-	{-section "Choose Participant"}
-	{related_user:integer(radio),optional {label "Related Users"} {options {$related_user_options}}}
-	{isubmit:text(submit) {label "[_ dotlrn-ecommerce.Continue]"}}
-    }
-
-#     lappend validate {participant
-# 	{ ! [empty_string_p $participant] || [template::element::get_value participant related_user] != -1 ||
-# 	    (![empty_string_p [template::element::get_value participant name]] && 
-# 	     ![empty_string_p [template::element::get_value participant num_members]]) }
-# 	"Please enter a search string"
-#     }
-#     lappend validate {participant
-# 	{ [llength $participant_list] > 1 || [template::element::get_value participant participant_pays_p] == "t" ||
-# 	    (![empty_string_p [template::element::get_value participant name]] && 
-# 	     ![empty_string_p [template::element::get_value participant num_members]]) }
-# 	"No users found. Please try again"
-#     }
-} 
-# elseif { $participant_id } {
-#     acs_user::get -user_id $participant_id -array participant_user
-
-#     set search_url [export_vars -base process-purchase-course { user_id {participant ""} {participant_id 0} section section_id { related_user 0 } new_user_p }]
-# #	{participant_pays_p:boolean(checkbox),optional {label ""} {options {{"Check here if $user_info(first_names) $user_info(last_name) is both purchasing and attending the course" t}}}}
-#     ad_form -extend -name "participant" -export { participant participant_id { related_user $participant_id } } -form {
-# 	{-section "Individual Purchase"}
-# 	{participant_name:text(inform) {label "Participant"} {value "$participant_user(first_names) $participant_user(last_name) ($participant_user(email))"}
-# 	    {after_html {<a href="$search_url" class="button">Search Participant</a>}}
-# 	}
-# 	{relationship:text(select),optional {label "Relationship"}
-# 	    {help_text "How is the purchaser related to the participant?"}
-# 	    {options {$tree_options}}
-# 	}
-# 	{isubmit:text(submit) {label "[_ dotlrn-ecommerce.Continue]"}}
-#     }
-
-# }
-#  else {
-#     set search_url [export_vars -base process-purchase-course { user_id {participant ""} {participant_id 0} section section_id }]
-#     ad_form -extend -name "participant" -export { participant } -form {
-# 	{-section "Individual Purchase"}
-# 	{participant_pays_p:boolean(checkbox),optional {label ""} {options {{"Check here if $user_info(first_names) $user_info(last_name) is both purchasing and attending the course" t}}}}
-# 	{participant_id:integer(select),optional {label "Select Participant"} {options {$participant_list}}
-# 	    {help_text "Select a participant from the list. Can't find the participant?<br /><a href=\"[export_vars -base participant-create { next_url }]\">Create an account</a> and return to this form"}
-# 	    {after_html {<a href="$search_url" class="button">Search Participant</a>}}
-# 	}
-# 	{relationship:text(select),optional {label "Relationship"}
-# 	    {help_text "How is the purchaser related to the participant?"}
-# 	    {options {$tree_options}}
-# 	}
-# 	{-section "Group Purchase"}
-# 	{name:text,optional {label "Group Name"} {html {size 30}}}
-# 	{num_members:integer(text),optional {label "Number of attendees"} {html {size 30}}}
-#     }
-
-#     lappend validate {participant_id
-# 	{ $participant_id || [template::element::get_value participant participant_pays_p] == "t" }
-# 	"Please select a participant from the list"
-#     }
-# }
-
-#set maxparticipants [dotlrn_ecommerce::section::maxparticipants $section_id]
-#set available_slots [dotlrn_ecommerce::section::available_slots $section_id]
-
-# if { ! [empty_string_p $maxparticipants] } {
-#     # it is now allowed to register users even if the course is full,
-#     # they just go to the waiting list
-
-#     # for groups, just inform the user that the group members will go
-#     # to the waiting list
-#     # DISABLED FOR NOW - groups can't go to the waiting list
-# #    if { ! $waiting_list_p } {
-# 	lappend validate \
-# 	    {num_members
-# 		{ $num_members > 1 || [template::element::get_value participant related_user] != -1 }
-# 		"[_ dotlrn-ecommerce.lt_Please_enter_a_value_]"
-# 	    } {num_members
-# 		{ $num_members <= $available_slots || [empty_string_p $num_members] || [template::element::get_value participant related_user] != -1}
-# 		"[subst [_ dotlrn-ecommerce.lt_The_course_only_has_a]]"
-# 	    }
-# #	if { [template::element::get_value participant related_user] == -1 && [string is integer [template::element::get_value participant num_members]] && [template::element::get_value participant num_members] > 1 && [template::element::get_value participant num_members] > $available_slots } {
-# #	    template::element::set_value participant waiting_list_p 1
-# #	} else {
-# #	    template::element::set_value participant waiting_list_p 0
-# #	}
-# #    } elseif { [template::element::get_value participant related_user] != -1 } {
-# #	template::element::set_value participant waiting_list_p 0
-# #    }
-# }
+ad_form -extend -name "participant" -export { {participant_id 0} } -form {
+    {-section "Choose Participant"}
+    {related_user:integer(radio),optional {label "Related Users"} {options {$related_user_options}}}
+    {isubmit:text(submit) {label "[_ dotlrn-ecommerce.Continue]"}}
+}
 
 set return_url [ad_return_url]
+
+# Don't allow duplicate registration
+lappend validate {related_user
+    { ! [already_registered_p [template::element::get_value participant section_id] $user_id $related_user] || $related_user < 0 }
+    "<#_ User is already registered to this section or has a pending application.#>"
+}
 
 ad_form -extend -name "participant" -export { user_id return_url new_user_p } -validate $validate -form {
 } -on_request {
@@ -398,27 +337,6 @@ ad_form -extend -name "participant" -export { user_id return_url new_user_p } -v
     if { $related_user > 0 } {
 	set participant_id $related_user
     }
-
-#     if { ! [empty_string_p $relationship] && $related_user != 0 } {
-# 	set rel_id [relation::get_id -object_id_one $user_id -object_id_two $participant_id -rel_type "patron_rel"]
-	
-# 	if { [empty_string_p $rel_id] } {
-# 	    # Create patron relationship
-# 	    # Roel 06/15: Reversed users since we select purchasers
-# 	    # first now
-# 	    set rel_id [db_exec_plsql relate_patron {
-# 		select acs_rel__new (null,
-# 				     'patron_rel',
-# 				     :user_id,
-# 				     :participant_id,
-# 				     null,
-# 				     null,
-# 				     null)
-# 	    }]
-# 	}
-
-# 	category::map_object -remove_old -object_id $rel_id [list $relationship]
-#     }
 
     db_1row product {
 	select product_id
@@ -444,25 +362,4 @@ ad_form -extend -name "participant" -export { user_id return_url new_user_p } -v
     }
 
     ad_script_abort
-}
-
-if { ! [empty_string_p $participant] } {
-    template::element::set_value participant related_user -1
-}
-
-# Set relationship if appropriate
-if { [exists_and_not_null rel_id] } {
-    # This can be a bit tricky since we handle reverse relationships
-    # poorly, for now, assume that the admin chooses the proper
-    # relationships for both participant and purchaser, e.g. When A is
-    # purchaser and B is participant, admin chooses 'Mother'; when B
-    # is purchaser and A is participant, admin chooses 'Daughter'
-    set relationship [db_string relationship {
-	select category_id
-	from category_object_map
-	where object_id = :rel_id
-	limit 1
-    } -default 0]
-
-    template::element::set_value participant relationship $relationship
 }
