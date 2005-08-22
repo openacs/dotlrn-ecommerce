@@ -138,7 +138,7 @@ set elements {section_name {
 	}
 }
 
-if {[parameter::get -parameter AllowApplicationNotes -default 0]} {
+if {[parameter::get -parameter AllowApplicationNotes -default 1]} {
     lappend elements comments {
 	    label "[_ dotlrn-ecommerce.Notes]"
 	    display_template {
