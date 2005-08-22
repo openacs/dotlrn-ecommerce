@@ -216,7 +216,7 @@ foreach item_id $item_id_list {
 
     # Remove the participant from the community
     if { [db_0or1row community {
-	select s.community_id, o.participant_id
+	select s.community_id, o.participant_id, s.section_id
 	from dotlrn_ecommerce_section s, ec_items i, dotlrn_ecommerce_orders o
 	where s.product_id = i.product_id
 	and i.item_id = o.item_id
