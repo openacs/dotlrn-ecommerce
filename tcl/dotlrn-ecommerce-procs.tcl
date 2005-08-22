@@ -39,7 +39,8 @@ ad_proc -public dotlrn_ecommerce::notify_admins_of_waitlist {
                                acs_rels ar 
                           where ar.rel_id = mr.rel_id 
                                 and ar.object_id_one = des.community_id 
-                                and mr.member_state = 'needs approval') as waitlist_n 
+                                and mr.member_state = 'needs approval') as waitlist_n,
+			 des.community_id
                   from dotlrn_catalog dc, 
                        cr_items i, 
                        dotlrn_ecommerce_section des 
@@ -47,7 +48,35 @@ ad_proc -public dotlrn_ecommerce::notify_admins_of_waitlist {
                         and i.item_id = des.course_id 
                         and des.notify_waiting_number is not null) t 
             where waitlist_n >= notify_waiting_number
-        } {
+	
+	    and community_id in (select (select d.community_id
+					 from site_nodes c, site_nodes p, dotlrn_communities_all d
+					 where c.parent_id = p.node_id
+					 and p.object_id = d.package_id
+					 and c.package_id = cal.package_id) as community_id
+				 from cal_items i
+				 join calendars cal on (i.on_which_calendar = cal.calendar_id)
+				 where i.item_type_id in (select item_type_id
+							  from cal_item_types
+							  where type = 'Session'))
+
+	    and community_id in (select (select d.community_id
+					 from site_nodes c, site_nodes p, dotlrn_communities_all d
+					 where c.parent_id = p.node_id
+					 and p.object_id = d.package_id
+					 and c.object_id = cal.package_id) as community_id
+				 
+				 from cal_items i, acs_events e, acs_activities a, timespans s, time_intervals t, calendars cal
+				 where i.item_type_id in (select item_type_id
+							  from cal_item_types
+							  where type = 'Session')
+				 and i.on_which_calendar = cal.calendar_id
+				 and e.timespan_id = s.timespan_id
+				 and s.interval_id = t.interval_id
+				 and e.activity_id = a.activity_id
+				 and e.event_id = i.cal_item_id
+				 and start_date >= current_date)
+	} {
             append message "Section: $course_name - $section_name
 Applicants in notify list: $waitlist_n
 "
