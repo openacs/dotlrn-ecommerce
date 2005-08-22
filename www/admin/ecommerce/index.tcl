@@ -67,6 +67,17 @@ template::list::create \
 	    label "[_ dotlrn-ecommerce.Purchaser]"
 	    link_url_col person_url
 	}
+	participant_name {
+	    label "[_ dotlrn-ecommerce.Participant]"
+	    display_template {
+		<if @orders.participant_type@ eq "group">
+		@orders.participant_name@
+		</if>
+		<else>
+		<a href="@orders.participant_url;noquote@">@orders.participant_name@</a>
+		</else>
+	    }
+	}
 	method {
 	    label "[_ dotlrn-ecommerce.Payment_Method]"
 	    display_template {
@@ -191,6 +202,10 @@ template::list::create \
 	    label "[_ dotlrn-ecommerce.Purchaser]"
 	    orderby "lower(u.first_names||' '||u.last_name)"
 	}
+	participant_name {
+	    label "[_ dotlrn-ecommerce.Participant]"
+	    orderby "lower(case when ao.object_type = 'group' then acs_group__name(deo.participant_id) else person__name(deo.participant_id) end)"
+	}
 	method {
 	    label "[_ dotlrn-ecommerce.Payment_Method]"
 	    orderby t.method
@@ -213,7 +228,7 @@ template::list::create \
 	}
     }
 
-db_multirow -extend { order_url section_url pretty_total pretty_balance person_url pretty_refund pretty_actual_total refund_url } orders orders [subst {
+db_multirow -extend { order_url section_url pretty_total pretty_balance person_url pretty_refund pretty_actual_total refund_url participant_url participant_type } orders orders [subst {
     select o.order_id, to_char(o.confirmed_date, 'Mon dd, yyyy hh:miam') as confirmed_date, o.order_state, 
 
     (i.price_charged + coalesce(i.shipping_charged, 0) + coalesce(i.price_tax_charged, 0)
@@ -254,11 +269,13 @@ db_multirow -extend { order_url section_url pretty_total pretty_balance person_u
 
 	u.first_names||' '||u.last_name as purchaser,
 
-    i.item_id
+    i.item_id, deo.participant_id, case when ao.object_type = 'group' then acs_group__name(deo.participant_id) else person__name(deo.participant_id) end as participant_name
 
     from ec_orders o
     join ec_items i using (order_id)
     join ec_products p using (product_id)
+    join dotlrn_ecommerce_orders deo using (item_id)
+    join acs_objects ao on (deo.participant_id = ao.object_id)
     join dotlrn_ecommerce_transactions t using (order_id)
     left join dotlrn_ecommerce_section s on (i.product_id = s.product_id)
     left join cc_users u on (o.user_id=u.user_id)
@@ -287,10 +304,13 @@ db_multirow -extend { order_url section_url pretty_total pretty_balance person_u
     set order_state [string totitle $order_state]
     set section_url [export_vars -base ../one-section { {section_id $_section_id} }]
     set person_url [export_vars -base ../one-user { {user_id $purchasing_user_id} }]
+    set participant_url [export_vars -base ../one-user { {user_id $participant_id} }]
     set pretty_refund [ec_pretty_price $refund_price]
     set pretty_actual_total [ec_pretty_price $total_price]
 
     set refund_url [export_vars -base "items-return-2" { order_id item_id }]
+
+    set participant_type [acs_object_type $participant_id]
 }
 
 if { [info exists section_id] } {
