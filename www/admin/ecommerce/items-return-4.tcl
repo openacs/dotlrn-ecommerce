@@ -224,6 +224,8 @@ foreach item_id $item_id_list {
     }] } {
 	if { [dotlrn_community::member_p $community_id $participant_id] } {
 	    dotlrn_community::remove_user $community_id $participant_id
+	    dotlrn_ecommerce::section::approve_next_in_waiting_list $community_id
+	    dotlrn_ecommerce::section::flush_cache -user_id $participant_id $section_id
 	}
     }
 }
