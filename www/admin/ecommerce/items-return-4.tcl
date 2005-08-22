@@ -551,7 +551,7 @@ if {$cash_amount_to_refund > 0 && $method == "cc" } {
 append doc_body "
     <blockquote>
       $results_explanation
-      <a href=\"one?[export_url_vars order_id]\" class=\"button\">Back to Order $order_id</a>
+      <a href=\"index\" class=\"button\">Back to Order Summary</a>&nbsp;&nbsp;<a href=\"one?[export_url_vars order_id]\" class=\"button\">Back to Order $order_id</a>
     </blockquote>"
 
 #doc_return  200 text/html $doc_body
