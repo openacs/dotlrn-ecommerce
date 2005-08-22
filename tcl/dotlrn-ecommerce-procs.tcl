@@ -26,7 +26,7 @@ ad_proc -public dotlrn_ecommerce::notify_admins_of_waitlist {
 } {
     if {[parameter::get -parameter NotifyAdminsOfWaitlistDaily -default 0]} {
         set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
-        set subject "Notification for waitlist"
+        set subject "Notification of waiting list size"
         set message ""
         
         db_foreach get_sections_with_waitlist {
@@ -53,7 +53,7 @@ ad_proc -public dotlrn_ecommerce::notify_admins_of_waitlist {
 					 from site_nodes c, site_nodes p, dotlrn_communities_all d
 					 where c.parent_id = p.node_id
 					 and p.object_id = d.package_id
-					 and c.package_id = cal.package_id) as community_id
+					 and c.object_id = cal.package_id) as community_id
 				 from cal_items i
 				 join calendars cal on (i.on_which_calendar = cal.calendar_id)
 				 where i.item_type_id in (select item_type_id
@@ -78,8 +78,9 @@ ad_proc -public dotlrn_ecommerce::notify_admins_of_waitlist {
 				 and start_date >= current_date)
 	} {
             append message "Section: $course_name - $section_name
-Applicants in notify list: $waitlist_n
+Applicants in notify list: $waitlist_n 
 "
+ns_write $message
         }
 
         if {![empty_string_p $message]} {
@@ -95,6 +96,7 @@ Applicants in notify list: $waitlist_n
                       and ap.object_id = :object_id
                       and ap.privilege = :privilege
             } {
+	      
                 acs_mail_lite::send \
                     -to_addr $email_to \
                     -from_addr $mail_from \

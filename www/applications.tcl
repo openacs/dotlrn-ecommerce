@@ -26,6 +26,8 @@ set package_id [ad_conn package_id]
 set admin_p [permission::permission_p -object_id $package_id -privilege "admin"]
 set return_url [ad_return_url]
 
+set use_embedded_application_view_p [parameter::get -parameter UseEmbeddedApplicationViewP -default 0]
+
 set header_stuff {
     <script type="text/javascript" src="/resources/dotlrn-ecommerce/overlib/overlib.js">
     <!-- overLIB (c) Erik Bosrup (http://www.bosrup.com/web/overlib) -->
@@ -124,7 +126,7 @@ set elements {section_name {
 	    label "[_ dotlrn-ecommerce.Application]"
 	    display_template {
 		<if @applications.asm_url@ not nil>
-		<a href="@applications.asm_url;noquote@" class="button" target="_blank">[_ dotlrn-ecommerce.View]</a>
+		<a href="@applications.asm_url;noquote@" class="button" target="@applications.target@">[_ dotlrn-ecommerce.View]</a>
 		</if>
 		<else>
 		N/A
@@ -298,7 +300,18 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	    order by ss.creation_datetime desc
 	    limit 1
 	}] } {
-	    set asm_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/results-session" { session_id }]
+	    
+
+	    if {$use_embedded_application_view_p ==1} {
+		set asm_url "admin/application-view?session_id=$session_id"
+		set target ""
+	    } else {
+		
+		set asm_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/results-session" { session_id }]
+		set target "_blank"
+	    }
+	    
+
 	}
 
     } elseif { $member_state == "request approval" ||
@@ -324,7 +337,16 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	    
 	    limit 1
 	}] } {
-	    set asm_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/results-session" { session_id }]
+
+	    if {$use_embedded_application_view_p ==1} {
+		set asm_url "admin/application-view?session_id=$session_id"
+		set target ""
+	    } else {
+		
+		set asm_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/results-session" { session_id }]
+		set target "_blank"
+	    }
+
 	}
     }
 

@@ -25,7 +25,8 @@
     </blockquote>
   </if>
   
-  <if @method@ eq "scholarship" or @scholarship_p@>
+  <if @method@ eq "scholarship">
+    <if @scholarship_p@>
     <if @gc_amount@ eq @total_price@>
       <blockquote>This order was <b>fully</b> paid by <b>scholarship</b>.
     </if>
@@ -39,6 +40,7 @@
       </multiple>
     </ul>
   </blockquote>
+    </if>
   </if>
 
   <if @method@ eq "cc">

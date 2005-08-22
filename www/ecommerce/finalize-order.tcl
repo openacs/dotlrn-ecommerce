@@ -268,7 +268,9 @@ if {$hard_goods_cost > 0} {
 		# goods as well as the hard goods. No financial
 		# transactions required. Mail the confirmation e-mail
 		# to the user.
-
+		
+		# FIXME DAVEB this sends email not controlled directly by dotlrn-ecommerce
+		# this sends the ecommerce email template 1
 		ec_email_new_order $order_id
 
 		# Change the order state from 'confirmed' to
