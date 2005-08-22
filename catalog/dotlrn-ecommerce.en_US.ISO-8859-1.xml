@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d8" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d10" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Action">Action</msg>
   <msg key="Add_Course">Add Course</msg>
@@ -180,6 +180,7 @@
   <msg key="lt_User_approved_waiting">Slot available to come off waiting list - waiting for purchase</msg>
   <msg key="lt_User_has_approved_pre">Prequisite has been approved - waiting for purchase</msg>
   <msg key="lt_User_has_submitted_an">User has submitted an application and is waiting for approval</msg>
+  <msg key="lt_User_is_already_regis">User is already registered to this section or has a pending application.</msg>
   <msg key="lt_User_is_in_waiting_li">User is in waiting list</msg>
   <msg key="lt_User_requests_for_app">User requests for approval</msg>
   <msg key="lt_Users_in_waiting_list">Users in waiting list</msg>

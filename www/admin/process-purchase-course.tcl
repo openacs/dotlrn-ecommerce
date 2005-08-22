@@ -327,7 +327,7 @@ set return_url [ad_return_url]
 # Don't allow duplicate registration
 lappend validate {related_user
     { ! [already_registered_p [template::element::get_value participant section_id] $user_id $related_user] || $related_user < 0 }
-    "<#_ User is already registered to this section or has a pending application.#>"
+    "[_ dotlrn-ecommerce.lt_User_is_already_regis]"
 }
 
 ad_form -extend -name "participant" -export { user_id return_url new_user_p } -validate $validate -form {
