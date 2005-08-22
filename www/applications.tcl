@@ -53,18 +53,16 @@ if { $enable_applications_p } {
 	{"[_ dotlrn-ecommerce.lt_Approved_Applications]" "payment received"}
 }
 
-template::list::create \
-    -name "applications" \
-    -key rel_id \
-    -multirow "applications" \
-    -no_data "[_ dotlrn-ecommerce.No_applications]" \
-    -pass_properties { return_url } \
-    -page_flush_p 1 \
-    -pass_properties { admin_p return_url _type } \
-    -actions [list "[_ dotlrn-ecommerce.View_previously_email]" "sent-emails" "[_ dotlrn-ecommerce.View_previously_email]"] \
-    -bulk_actions [list "[_ dotlrn-ecommerce.Email_applicants]" "email-applicants" "[_ dotlrn-ecommerce.Email_applicants]"] \
-    -elements {
-	section_name {
+
+set actions ""
+set bulk_actions ""
+
+if {[parameter::get -parameter AllowApplicationBulkEmail -default 0]} {
+    set actions [list "[_ dotlrn-ecommerce.View_previously_email]" "sent-emails" "[_ dotlrn-ecommerce.View_previously_email]"]
+    set bulk_actions [list "[_ dotlrn-ecommerce.Email_applicants]" "email-applicants" "[_ dotlrn-ecommerce.Email_applicants]"]
+} 
+
+set elements {section_name {
 	    label "[_ dotlrn-ecommerce.Section]"
 	    display_template {
 		<if @admin_p@>
@@ -138,7 +136,10 @@ template::list::create \
 	    label "[_ dotlrn-ecommerce.Phone_Number]"
 	    hide_p {[ad_decode $_type "waitinglist approved" 0 "request approved" 0 "payment received" 0 "all" 0 1]}
 	}
-	comments {
+}
+
+if {[parameter::get -parameter AllowApplicationNotes -default 0]} {
+    lappend elements comments {
 	    label "[_ dotlrn-ecommerce.Notes]"
 	    display_template {
 		@applications.comments_truncate;noquote@
@@ -146,11 +147,14 @@ template::list::create \
 		<a href="@applications.add_comment_url@" title="[_ dotlrn-ecommerce.Add_note]">[_ dotlrn-ecommerce.Add_note]</a>
 		</if>
 	    }
-	}
+	} \
 	comments_text_plain {
 	    label "[_ dotlrn-ecommerce.Notes]"
 	    hide_p {[ad_decode $csv_p 1 0 1]}
 	}
+}
+
+lappend elements \
 	actions {
 	    label ""
 	    display_template {
@@ -167,7 +171,20 @@ template::list::create \
 	    }
 	    html { width 125 align center nowrap }
 	}
-    } -filters [subst {
+
+
+template::list::create \
+    -name "applications" \
+    -key rel_id \
+    -multirow "applications" \
+    -no_data "[_ dotlrn-ecommerce.No_applications]" \
+    -pass_properties { return_url } \
+    -page_flush_p 1 \
+    -pass_properties { admin_p return_url _type } \
+    -actions $actions \
+    -bulk_actions $bulk_actions \
+    -elements $elements \
+    -filters [subst {
 	type {
 	    label "[_ dotlrn-ecommerce.Type_of_Request]"
 	    values { $filters }
