@@ -17,6 +17,7 @@
 	    on (ci.item_id = dec.course_id)
 		 
             where dc.course_id = ci.live_revision
+            and dc.display_p
             [template::list::filter_where_clauses -and -name course_list]
 
 	    order by lower(dc.course_name), lower(dec.section_name)
