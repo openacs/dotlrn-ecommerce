@@ -207,6 +207,7 @@ set method [db_string payment_method {
 
 if { ! [empty_string_p $method] && $method != "cc" } {
     # Authorize this transaction without credit card
+    ec_email_new_order $order_id
     ec_update_state_to_authorized $order_id 
     ad_returnredirect $return_url
     ad_script_abort
@@ -814,7 +815,7 @@ if {$hard_goods_cost > 0} {
 	    } else {
 		# Gift cert covers cost, no cc transaction needed,
 		# authorize immediately
-		ec_update_state_to_authorized $order_id 
+		ec_update_state_to_authorized $order_id
 		ad_returnredirect $return_url
 		ad_script_abort
 	    }
