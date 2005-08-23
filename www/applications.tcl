@@ -421,12 +421,13 @@ if {$csv_p == 1} {
         if {![empty_string_p $session_id]} {
             db_foreach get_session_data {
                 select a.as_item_id, 
+                       cr4.item_id as main_item_id,
                        case 
                           when o.object_type = 'as_item_type_mc' then cr.title 
                        else 
                           d.text_answer 
                        end as answer, 
-                       cr2.title as question 
+                       (select title from cr_revisions cr3, cr_items i where i.item_id = cr2.item_id and cr3.revision_id = i.latest_revision) as question 
                 from as_item_data d 
                          left join as_item_data_choices c on (d.item_data_id = c.item_data_id) 
                          left join cr_revisions cr on (c.choice_id = cr.revision_id), 
@@ -434,7 +435,8 @@ if {$csv_p == 1} {
                      acs_objects o, 
                      as_item_rels r, 
                      cr_revisions cr2,
-                     as_session_item_map m 
+                     as_session_item_map m,
+                     cr_revisions cr4
                 where d.as_item_id = a.as_item_id 
                       and a.as_item_id = r.item_rev_id 
                       and r.target_rev_id = o.object_id 
@@ -442,14 +444,15 @@ if {$csv_p == 1} {
                       and cr2.revision_id = a.as_item_id 
                       and m.session_id = :session_id
                       and d.item_data_id = m.item_data_id
+                      and a.as_item_id = cr4.revision_id
             } {
-                if {[lsearch $csv_as_item_list $as_item_id] == -1} {
-                    lappend csv_as_item_list $as_item_id
-                    template::multirow extend applications $as_item_id
-                    set csv_cols_labels($as_item_id) $question
-                    lappend csv_cols $as_item_id
+                if {[lsearch $csv_as_item_list $main_item_id] == -1} {
+                    lappend csv_as_item_list $main_item_id
+                    template::multirow extend applications $main_item_id
+                    set csv_cols_labels($main_item_id) $question
+                    lappend csv_cols $main_item_id
                 }
-                set $as_item_id $answer
+                set $main_item_id $answer
             }
         }
     }
