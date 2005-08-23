@@ -222,11 +222,31 @@ foreach item_id $item_id_list {
 	and i.item_id = o.item_id
 	and i.item_id = :item_id
     }] } {
-	if { [dotlrn_community::member_p $community_id $participant_id] } {
-	    dotlrn_community::remove_user $community_id $participant_id
-	    dotlrn_ecommerce::section::approve_next_in_waiting_list $community_id
-	    dotlrn_ecommerce::section::flush_cache -user_id $participant_id $section_id
+	if { [acs_object_type $participant_id] == "group" } {
+	    ns_log notice "DEBUG:: Removing one member of group $participant_id"
+	    # Remove one enrolled user from the group		
+	    if { [db_0or1row one_user {
+		select user_id as one_participant_id
+		from dotlrn_member_rels_approved
+		where community_id = :community_id
+		and user_id in (select member_id
+				from group_member_map
+				where group_id = :participant_id)
+		
+		limit 1
+	    }] } {
+		ns_log notice "DEBUG:: Removing group member $one_participant_id"
+		dotlrn_community::remove_user $community_id $one_participant_id
+	    }
+	} else {
+	    ns_log notice "DEBUG:: Removing user $participant_id"
+	    if { [dotlrn_community::member_p $community_id $participant_id] } {
+		dotlrn_community::remove_user $community_id $participant_id
+	    }
 	}
+	
+	dotlrn_ecommerce::section::approve_next_in_waiting_list $community_id
+	dotlrn_ecommerce::section::flush_cache -user_id $participant_id $section_id
     }
 }
 
