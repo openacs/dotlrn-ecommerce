@@ -312,6 +312,7 @@ if {[parameter::get -parameter MemberPriceP -default 0]} {
 		and o.order_id = i.order_id
 		and i.product_id = m.product_id
 		and m.category_id = :ec_category_id
+		and order_state = 'in_basket'
 	    }]
 	}
     }
