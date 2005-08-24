@@ -210,6 +210,7 @@ ad_proc -public dotlrn_ecommerce::section::maxparticipants {
 }
 
 ad_proc -public dotlrn_ecommerce::section::available_slots {
+    -actual:boolean
     section_id
 } {
     Return available slots
@@ -237,7 +238,11 @@ ad_proc -public dotlrn_ecommerce::section::available_slots {
     }
 
     if { ![empty_string_p $maxparticipants] } {
-	set attendees [dotlrn_ecommerce::section::attendees $section_id]
+	if { $actual_p } {
+	    set attendees [dotlrn_ecommerce::section::attendees -actual $section_id]
+	} else {
+	    set attendees [dotlrn_ecommerce::section::attendees $section_id]
+	}
 	set available_slots [expr $maxparticipants - $attendees]
 	if { $available_slots < 0 } {
 	    return 0
@@ -250,6 +255,7 @@ ad_proc -public dotlrn_ecommerce::section::available_slots {
 }
 
 ad_proc -public dotlrn_ecommerce::section::attendees {
+    -actual:boolean
     section_id
 } {
     Return number of attendees
@@ -282,6 +288,10 @@ ad_proc -public dotlrn_ecommerce::section::attendees {
 	 and s.section_id = :section_id
 	 and o.order_state = 'in_basket')
     }]]
+
+    if { $actual_p } {
+	return $registered_attendees
+    }
 
     set maxparticipants [dotlrn_ecommerce::section::maxparticipants $section_id]
     if { ! [empty_string_p $maxparticipants] } {
@@ -348,7 +358,7 @@ ad_proc -public dotlrn_ecommerce::section::approve_next_in_waiting_list {
 	from dotlrn_ecommerce_section
 	where community_id = :community_id
     }]
-    set available_slots [dotlrn_ecommerce::section::available_slots $section_id]
+    set available_slots [dotlrn_ecommerce::section::available_slots -actual $section_id]
 
     if { $available_slots > 0 } {
 	db_foreach next_in_waiting_list [subst {
