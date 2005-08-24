@@ -415,45 +415,72 @@ if {$csv_p == 1} {
     }
     
     set csv_as_item_list [list]
+    set assessment_rev_id_list [list]
+    set item_list [list]
 
     # first pass -- extend the multirow
     template::multirow foreach applications {
         if {![empty_string_p $session_id]} {
-            db_foreach get_session_data {
-                select a.as_item_id, 
-                       cr4.item_id as main_item_id,
-                       case 
-                          when o.object_type = 'as_item_type_mc' then cr.title 
-                       else 
-                          d.text_answer 
-                       end as answer, 
-                       (select title from cr_revisions cr3, cr_items i where i.item_id = cr2.item_id and cr3.revision_id = i.latest_revision) as question 
-                from as_item_data d 
-                         left join as_item_data_choices c on (d.item_data_id = c.item_data_id) 
-                         left join cr_revisions cr on (c.choice_id = cr.revision_id), 
-                     as_items a, 
-                     acs_objects o, 
-                     as_item_rels r, 
-                     cr_revisions cr2,
-                     as_session_item_map m,
-                     cr_revisions cr4
-                where d.as_item_id = a.as_item_id 
-                      and a.as_item_id = r.item_rev_id 
-                      and r.target_rev_id = o.object_id 
-                      and r.rel_type = 'as_item_type_rel' 
-                      and cr2.revision_id = a.as_item_id 
-                      and m.session_id = :session_id
-                      and d.item_data_id = m.item_data_id
-                      and a.as_item_id = cr4.revision_id
-            } {
-                if {[lsearch $csv_as_item_list $main_item_id] == -1} {
-                    lappend csv_as_item_list $main_item_id
-                    template::multirow extend applications $main_item_id
-                    set csv_cols_labels($main_item_id) $question
-                    lappend csv_cols $main_item_id
-                }
-                set $main_item_id $answer
-            }
+	    set assessment_rev_id [db_string get_latest_rev {
+		select i.latest_revision
+		from cr_revisions r,
+		     cr_items i,
+		     as_sessions s
+		where s.session_id = :session_id
+		      and r.revision_id = s.assessment_id
+		      and i.item_id = r.item_id
+	    }]
+	    
+	    if {[lsearch $assessment_rev_id_list $assessment_rev_id] == -1} {
+		# get the questions for this assessment
+		db_foreach get_items {
+		    select cr.title, 
+		           cr.description, 
+		           o.object_type, 
+		           i.data_type, 
+		           i.field_name,
+		           cr.item_id as as_item_item_id, 
+		           rs.item_id as section_item_id
+		    from as_assessment_section_map asm, 
+		         as_item_section_map ism, 
+		         cr_revisions cr,
+		         as_items i, 
+		         as_item_rels ir, 
+		         acs_objects o, 
+		         cr_revisions rs
+		    where asm.assessment_id = :assessment_rev_id
+		          and ism.section_id = asm.section_id
+		          and cr.revision_id = ism.as_item_id
+		          and i.as_item_id = ism.as_item_id
+		          and ir.item_rev_id = i.as_item_id
+		          and ir.rel_type = 'as_item_type_rel'
+		          and o.object_id = ir.target_rev_id
+		          and rs.revision_id = ism.section_id
+		    order by asm.sort_order, 
+		          ism.sort_order
+		} {
+                    set csv_cols_labels($as_item_item_id) $title
+                    template::multirow extend applications $as_item_item_id
+                    lappend csv_cols $as_item_item_id
+		    lappend item_list [list $as_item_item_id $section_item_id [string range $object_type end-1 end] $data_type]
+		}
+		# add his assessment revision to the list 
+		# so that we dont query it again
+		lappend assessment_rev_id_list $assessment_rev_id
+	    }
+
+	    foreach one_item $item_list {
+		util_unlist $one_item as_item_item_id section_item_id item_type data_type
+		array set results [as::item_type_$item_type\::results -as_item_item_id $as_item_item_id -section_item_id $section_item_id -data_type $data_type -sessions [list $session_id]]
+	    
+		if {[info exists results($session_id)]} {
+		    set $as_item_item_id $results($session_id)
+		} else {
+		    set $as_item_item_id ""
+		}
+		
+		array unset results
+	    }
         }
     }
     
