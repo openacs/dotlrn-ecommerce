@@ -16,19 +16,22 @@ if {[parameter::get -package_id [ad_conn package_id] -parameter EnableCourseAppl
 }
 
 db_multirow -extend {type_pretty action_url action from revert revert_url} email_templates get_email_templates "select subject,type from dotlrn_member_emails where community_id=:community_id" {
-    set action_url [export_vars -base email-template-delete {{community_id $community_id} {action $type} return_url}]
-    set action "Revert to default"
+    set revert_url [export_vars -base email-template-delete {{community_id $community_id} {action $type} return_url}]
+    set revert "Revert to default"
+
+    set action_url [export_vars -base email-template {{community_id $community_id} {action $type} return_url}]
+    set action "Edit"
 
     if {[set index [lsearch $email_types $type]] > -1} {
 	set email_types [lreplace $email_types $index $index]
     }
     set type_pretty [dotlrn_ecommerce::email_type_pretty -type $type]
-
+    set from "using section specific template"
 }
 
 foreach type $email_types {
-    set action_url [export_vars -base email-template {{community_id $community_id} {action $type} return_url}]
-    set action "Edit"
+#    set action_url [export_vars -base email-template {{community_id $community_id} {action $type} return_url}]
+#    set action "Edit"
     
     set email [lindex [callback dotlrn::default_member_email -community_id $community_id -type $type -var_list [list course_name $course_name]] 0]
     if {[llength $email]} {
