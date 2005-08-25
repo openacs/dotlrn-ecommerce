@@ -223,7 +223,6 @@ foreach item_id $item_id_list {
 	and i.item_id = :item_id
     }] } {
 	if { [acs_object_type $participant_id] == "group" } {
-	    ns_log notice "DEBUG:: Removing one member of group $participant_id"
 	    # Remove one enrolled user from the group		
 	    if { [db_0or1row one_user {
 		select user_id as one_participant_id
@@ -235,11 +234,9 @@ foreach item_id $item_id_list {
 		
 		limit 1
 	    }] } {
-		ns_log notice "DEBUG:: Removing group member $one_participant_id"
 		dotlrn_community::remove_user $community_id $one_participant_id
 	    }
 	} else {
-	    ns_log notice "DEBUG:: Removing user $participant_id"
 	    if { [dotlrn_community::member_p $community_id $participant_id] } {
 		dotlrn_community::remove_user $community_id $participant_id
 	    }
@@ -486,13 +483,24 @@ if { $certificate_amount_to_reinstate > 0 } {
 	order by expires desc, gift_certificate_id desc" {
 
 	if {$certificate_amount_to_reinstate > 0} {
-	    db_dml reinstate_gift_certificate "
+	    # Return the amount to the scholarship fund
+	    if { [db_0or1row scholarship_fund {
+		select grant_id
+		from scholarship_fund_grants
+		where gift_certificate_id = :gift_certificate_id
+	    }] } {
+		db_dml return_to_scholarship_fund { }
+	    } else {
+		# Don't reinstate gift certificate given via scholarship
+		db_dml reinstate_gift_certificate "
 		insert into ec_gift_certificate_usage
 		(gift_certificate_id, order_id, amount_reinstated, reinstated_date)
 		values
 		(:gift_certificate_id, :order_id, least(to_number(:certificate_amount_to_reinstate), to_number(:reinstateable_amount)) , sysdate)"
-	    set $certificate_amount_to_reinstate [expr $certificate_amount_to_reinstate - \
-						      [expr ($certificate_amount_to_reinstate > $reinstateable_amount) ? $reinstateable_amount : $certificate_amount_to_reinstate]]
+	    }
+
+	    set certificate_amount_to_reinstate [expr $certificate_amount_to_reinstate - \
+						     [expr ($certificate_amount_to_reinstate > $reinstateable_amount) ? $reinstateable_amount : $certificate_amount_to_reinstate]]
 	}
     }
 }
@@ -560,14 +568,14 @@ if {$cash_amount_to_refund > 0 && $method == "cc" } {
 	}
     } if_no_rows {
 	set page_title "No credit card refund needed."
-	set results_explanation "No credit card refund was necessary because the entire amount was refunded to the gift certificates the customer used when purchasing the order."
+	set results_explanation "<p>No credit card refund was necessary because the entire amount was refunded to the gift certificates the customer used when purchasing the order.</p>"
     }
 } elseif { $cash_amount_to_refund_manually > 0 } {
     set page_title "Refund results"
     append results_explanation "<p>The amount [ec_pretty_price $cash_amount_to_refund_manually] is to be refunded manually</p>";# 
 } else {
 	set page_title "No credit card refund needed."
-	set results_explanation "No credit card refund was necessary because the entire amount was refunded to the gift certificates the customer used when purchasing the order."
+	set results_explanation "<p>No credit card refund was necessary because the entire amount was refunded to the gift certificates the customer used when purchasing the order.</p>"
 }
 
 append doc_body "

@@ -190,4 +190,12 @@
     </querytext>
   </fullquery>
 
+  <fullquery name="return_to_scholarship_fund">
+    <querytext>
+      update scholarship_fund_grants
+      set grant_amount = grant_amount - least(to_number(grant_amount), least(to_number(:certificate_amount_to_reinstate), to_number(:reinstateable_amount)))
+      where grant_id = :grant_id
+    </querytext>
+  </fullquery>
+
 </queryset>

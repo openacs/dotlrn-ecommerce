@@ -235,4 +235,12 @@
     </querytext>
   </fullquery>
 
+  <fullquery name="return_to_scholarship_fund">
+    <querytext>
+      update scholarship_fund_grants
+      set grant_amount = grant_amount - least(grant_amount::numeric, least(:certificate_amount_to_reinstate, :reinstateable_amount))
+      where grant_id = :grant_id
+    </querytext>
+  </fullquery>
+
 </queryset>
