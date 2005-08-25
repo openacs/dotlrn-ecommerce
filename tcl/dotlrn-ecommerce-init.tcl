@@ -13,4 +13,4 @@ ad_library {
 ad_schedule_proc -thread t 300 dotlrn_ecommerce::section::check_elapsed_registrations
 ad_schedule_proc -thread t 600 dotlrn_ecommerce::section::check_and_approve_sections_for_slots
 ad_schedule_proc -thread t -schedule_proc ns_schedule_daily [list 23 50] dotlrn_ecommerce::notify_admins_of_waitlist
-ad_schedule_proc -thread t -once t 660 dotlrn_ecommerce::section::check_expired_orders_once
+ad_schedule_proc -thread t -once t 660 dotlrn_ecommerce::check_expired_orders_once
