@@ -221,11 +221,11 @@ db_foreach dbqd.calendar.www.views.select_items {} {
     }
 
     if { [lc_time_fmt $ansi_start_date "%H"]  >= 12  && [lc_time_fmt $ansi_start_date "%H"]  <= 17 } {
-        set fontcolor "#E7911E"
+        set fontcolor "#d98a19"
     }
 
     if { [lc_time_fmt $ansi_start_date "%H"]  > 17 } {
-        set fontcolor "#A7C3FE"
+        set fontcolor "#639908"
     }
 
     multirow append items \

@@ -41,7 +41,7 @@
                     <if @items.event_name@ true>
                       <div class="cal-month-event">
                         <if @items.time_p@ true>
-				<if @items.fontcolor@ not nil><font color="@items.fontcolor@">@items.ansi_start_time@</font></if><else>@items.ansi_start_time@</else>				
+				<if @items.fontcolor@ not nil><font color="@items.fontcolor@"><b>@items.ansi_start_time@</b></font></if><else>@items.ansi_start_time@</else>				
 			</if>
                         <a href=@items.event_url@>** @items.calendar_name@ **</a>
                         </if>
@@ -64,8 +64,8 @@
 <table cellpaddin=2 cellspacing=2 border=0>
 	<tr>
 		<td bgcolor="#1958B7">&nbsp;&nbsp;</td><td>Before 12pm</td>
-		<td bgcolor="#E7911E">&nbsp;&nbsp;</td><td>Between 12pm and 5pm</td>
-		<td bgcolor="#A7C3FE">&nbsp;&nbsp;</td><td>After 5pm</td>
+		<td bgcolor="#d98a19">&nbsp;&nbsp;</td><td>Between 12pm and 5pm</td>
+		<td bgcolor="#639908">&nbsp;&nbsp;</td><td>After 5pm</td>
 	</tr>
 </table> 
 
