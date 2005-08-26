@@ -30,8 +30,8 @@ db_multirow -extend {type_pretty action_url action from revert revert_url} email
 }
 
 foreach type $email_types {
-#    set action_url [export_vars -base email-template {{community_id $community_id} {action $type} return_url}]
-#    set action "Edit"
+    set action_url [export_vars -base email-template {{community_id $community_id} {action $type} return_url}]
+    set action "Edit"
     
     set email [lindex [callback dotlrn::default_member_email -community_id $community_id -type $type -var_list [list course_name $course_name]] 0]
     if {[llength $email]} {
