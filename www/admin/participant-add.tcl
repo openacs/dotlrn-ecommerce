@@ -32,7 +32,7 @@ db_1row get_section_info "select c.course_id, c.course_name, s.section_name, s.p
     and ci.live_revision=c.revision_id
     and s.section_id = :section_id"
 
-set title "Partipant Info for $course_name: $section_name"
+set title "Participant Info for $course_name: $section_name"
 set context [list [list [export_vars -base course-info { course_id }] $section_name] "Participants and Patrons"]
 
 if { [empty_string_p $add_url] } {
