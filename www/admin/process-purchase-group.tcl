@@ -57,10 +57,11 @@ ad_form -name group_purchase -export { user_id section_id return_url } -validate
     if {[string equal "" $section_community_id]} {
 	# FIXME error, do something clever here
     }
+    set email_domain [parameter::get -parameter DefaultEmailDomain -default "localhost"]
     for { set i 1 } { $i <= $num_members } { incr i } {
 	array set new_user [auth::create_user \
 				-username "${name} ${group_id} Attendee $i" \
-				-email "[util_text_to_url -text ${name}-${group_id}-attendee-${i}]@mos.zill.net" \
+				-email "[util_text_to_url -text ${name}-${group_id}-attendee-${i}]@${email_domain}" \
 				-first_names "$name" \
 				-last_name "Attendee $i" \
 				-nologin]
