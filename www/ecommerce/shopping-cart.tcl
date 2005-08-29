@@ -384,12 +384,16 @@ if { $user_id == 0 } {
 	    and saved_p='t')" -default ""]
 }
 
+set admin_p [permission::permission_p -object_id [ad_conn package_id] -privilege "admin"]
 set context_bar [template::adp_parse [acs_root_dir]/packages/[ad_conn package_key]/www/contextbar [list context_addition [list "Shopping Cart"]]]
-set context [list [list [export_vars -base ../admin/process-purchase-course { user_id }] "Process Purchase"] "Shopping Cart"]
+if {$admin_p} {
+    set context [list [list [export_vars -base ../admin/process-purchase-course { user_id }] "Process Purchase"] "Shopping Cart"]
+} else {
+    set context [list "Shopping Cart"]
+}
 set ec_system_owner [ec_system_owner]
 db_release_unused_handles
 
-set admin_p [permission::permission_p -object_id [ad_conn package_id] -privilege "admin"]
 set suppress_membership_p 0
 if {[parameter::get -parameter MemberPriceP -default 0]} {
     set category_id [parameter::get -parameter "MembershipECCategoryId" -default ""]
