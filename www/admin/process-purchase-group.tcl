@@ -67,6 +67,36 @@ ad_form -name group_purchase -export { user_id section_id return_url } -validate
 				-nologin]
 	
 	if { [info exists new_user(user_id)] } {
+	    # make a dotlrn user
+	    if { ![dotlrn::user_p -user_id $new_user(user_id)] } {
+		set type [parameter::get \
+			      -parameter AutoUserType \
+			      -package_id [dotlrn::get_package_id] \
+			      -default "student"]
+		
+		set can_browse_p [parameter::get \
+				      -parameter AutoUserAccessLevel \
+				      -package_id [dotlrn::get_package_id] \
+				      -default 1]
+		
+		set read_private_data_p [parameter::get \
+					     -parameter AutoUserReadPrivateDataP \
+					     -package_id [dotlrn::get_package_id] \
+					     -default 1]
+		
+		db_transaction {
+		    dotlrn::user_add \
+			-type $type \
+			-can_browse=$can_browse_p \
+			-user_id $new_user(user_id)
+        
+		    dotlrn_privacy::set_user_is_non_guest \
+			-user_id $new_user(user_id) \
+			-value $read_private_data_p
+		}
+
+	    }
+
 	    relation_add -member_state approved membership_rel $group_id $new_user(user_id)
 	} else {
 	    ad_return_complaint 1 "There was a problem creating the account \"$name $group_id Attendee $i\"."
