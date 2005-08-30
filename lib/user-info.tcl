@@ -129,24 +129,50 @@ ad_form -extend -name user_info  -export { section_id add_url } -form {
 
 if { $user_type == "participant" } {
     set tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
-    set grade_options [list {}]
-    foreach tree [category_tree::get_tree $tree_id] {
-	lappend grade_options [list [lindex $tree 1] [lindex $tree 0]]
-    }
+    set custom_fields [parameter::get -package_id [ad_conn package_id] -parameter CustomParticipantFields -default ""]
 
-    ad_form -extend -name user_info -form {
-	{grade:text(select)
-	    {label "[_ dotlrn-ecommerce.Grade]"}
-	    {options {$grade_options} }
-	} 
-	{allergies:text,optional
-	    {label "[_ dotlrn-ecommerce.Medical_Issues]"}
-	    {html {size 60}}
+    foreach field $custom_fields {
+
+	switch [string tolower $field] {
+	    grade {
+		set grade_options [list {"--" ""}]
+		foreach tree [category_tree::get_tree $tree_id] {
+		    lappend grade_options [list [lindex $tree 1] [lindex $tree 0]]
+		}
+		
+		ad_form -extend -name user_info -form {
+		    {grade:text(select),optional
+			{label "[_ dotlrn-ecommerce.Grade]"}
+			{options {$grade_options} }
+		    }
+		}
+	    }
+
+	    allergies {
+		ad_form -extend -name user_info -form {
+		    {allergies:text,optional
+			{label "[_ dotlrn-ecommerce.Medical_Issues]"}
+			{html {size 60}}
+		    }
+		}
+	    }
+
+	    special_needs {
+		ad_form -extend -name user_info -form {
+		    {special_needs:text,optional
+			{label "[_ dotlrn-ecommerce.Special_Needs]"}
+			{html {size 60}}
+		    }
+		}
+	    }
 	}
-
-	{special_needs:text,optional
-	    {label "[_ dotlrn-ecommerce.Special_Needs]"}
-	    {html {size 60}}
+    }
+    
+    foreach field {grade allergies special_needs} {
+	if { [lsearch $custom_fields $field] == -1 } {
+	    ad_form -extend -name register -form [subst {
+		{$field:text(hidden) {value ""}}
+	    }]
 	}
     }
 

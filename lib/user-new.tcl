@@ -107,35 +107,50 @@ if { [exists_and_not_null rel_group_id] } {
 if { $user_type == "participant" } {
 
     set tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
-    set grade_options [list {"--" ""}]
-    foreach tree [category_tree::get_tree $tree_id] {
-	lappend grade_options [list [lindex $tree 1] [lindex $tree 0]]
-    }
+    set custom_fields [parameter::get -package_id [ad_conn package_id] -parameter CustomParticipantFields -default ""]
 
-    if { [llength $grade_options] > 0 } {
-	ad_form -extend -name register -form {
-	    {grade:text(select),optional
-		{label "[_ dotlrn-ecommerce.Grade]"}
-		{options {$grade_options}}
+    foreach field $custom_fields {
+
+	switch [string tolower $field] {
+	    grade {
+		set grade_options [list {"--" ""}]
+		foreach tree [category_tree::get_tree $tree_id] {
+		    lappend grade_options [list [lindex $tree 1] [lindex $tree 0]]
+		}
+		
+		ad_form -extend -name register -form {
+		    {grade:text(select),optional
+			{label "[_ dotlrn-ecommerce.Grade]"}
+			{options {$grade_options} }
+		    }
+		}
+	    }
+
+	    allergies {
+		ad_form -extend -name register -form {
+		    {allergies:text,optional
+			{label "[_ dotlrn-ecommerce.Medical_Issues]"}
+			{html {size 60}}
+		    }
+		}
+	    }
+
+	    special_needs {
+		ad_form -extend -name register -form {
+		    {special_needs:text,optional
+			{label "[_ dotlrn-ecommerce.Special_Needs]"}
+			{html {size 60}}
+		    }
+		}
 	    }
 	}
-    } else {
-	ad_form -extend -name register -form {
-	    {grade:text(select),optional
-		{label "[_ dotlrn-ecommerce.Grade]"}
-		{options {$grade_options}}
-	    }
-	}
     }
-    ad_form -extend -name register -form {
-	{allergies:text,optional
-	    {label "[_ dotlrn-ecommerce.Medical_Issues]"}
-	    {html {size 60}}
-	}
-
-	{special_needs:text,optional
-	    {label "[_ dotlrn-ecommerce.Special_Needs]"}
-	    {html {size 60}}
+    
+    foreach field {grade allergies special_needs} {
+	if { [lsearch $custom_fields $field] == -1 } {
+	    ad_form -extend -name register -form [subst {
+		{$field:text(hidden) {value ""}}
+	    }]
 	}
     }
 
