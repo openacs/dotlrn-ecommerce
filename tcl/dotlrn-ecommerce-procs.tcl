@@ -11,6 +11,7 @@ ad_library {
 }
 
 namespace eval dotlrn_ecommerce {}
+namespace eval dotlrn_ecommerce::util {}
 
 ad_proc -public dotlrn_ecommerce::notify_admins_of_waitlist {
 } {
@@ -152,4 +153,18 @@ ad_proc -public dotlrn_ecommerce::check_expired_orders_once {
     dotlrn_ecommerce::check_expired_orders
 
     ad_schedule_proc -thread t 600 dotlrn_ecommerce::check_expired_orders
+}
+
+ad_proc -public dotlrn_ecommerce::util::text_to_html {
+    {-text:required}
+} {
+    @author Deds Castillo (deds@i-manila.com.ph)
+    @creation-date 2005-08-11
+} {
+    set html_comment [ad_text_to_html -no_lines $text]
+    regsub -all {\r\n} $html_comment "\n" html_comment
+    regsub -all {\r} $html_comment "\n" html_comment
+    regsub -all {([^\n\s])\n\n([^\n\s])} $html_comment {\1</p><p>\2} html_comment
+    regsub -all {\n} $html_comment "<br />\n" html_comment
+    return $html_comment
 }
