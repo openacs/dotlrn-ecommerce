@@ -170,14 +170,14 @@ if { $user_type == "participant" } {
     
     foreach field {grade allergies special_needs} {
 	if { [lsearch $custom_fields $field] == -1 } {
-	    ad_form -extend -name register -form [subst {
+	    ad_form -extend -name user_info -form [subst {
 		{$field:text(hidden) {value ""}}
 	    }]
 	}
     }
 
 } else {
-    ad_form -extend -name register -form {
+    ad_form -extend -name user_info -form {
 	{grade:text(hidden) {value ""}}
 	{allergies:text(hidden) {value ""}}
 	{special_needs:text(hidden) {value ""}}
