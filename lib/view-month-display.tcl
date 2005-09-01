@@ -141,6 +141,14 @@ set additional_limitations_clause ""
 set additional_select_clause ""
 set interval_limitation_clause [db_map dbqd.calendar.www.views.month_interval_limitation]
 
+# DEDS
+# always use course_name: section name as the name of the calendar
+db_foreach get_adjusted_cal_names {
+    select distinct pep.value as adjusted_calendar_id, dc.course_name||': '||des.section_name as adjusted_calendar_name from dotlrn_catalog dc, dotlrn_ecommerce_section des, cr_items i, dotlrn_communities c, portal_pages pp, portal_element_map pem, portal_element_parameters pep where dc.course_id = i.live_revision and des.course_id = i.item_id and des.community_id = c.community_id and pp.portal_id = c.portal_id and pp.page_id = pem.page_id and pem.element_id = pep.element_id and pep.key = 'calendar_id'
+} {
+    set calendar_names($adjusted_calendar_id) $adjusted_calendar_name
+}
+
 db_foreach dbqd.calendar.www.views.select_items {} {
     # Convert from system timezone to user timezone
     set ansi_start_date [lc_time_system_to_conn $ansi_start_date]
@@ -228,6 +236,9 @@ db_foreach dbqd.calendar.www.views.select_items {} {
         set fontcolor "#639908"
     }
 
+    if {[info exists calendar_names($calendar_id)]} {
+	set calendar_name $calendar_names($calendar_id)
+    }
     multirow append items \
 	$name \
 	[subst $item_template] \
