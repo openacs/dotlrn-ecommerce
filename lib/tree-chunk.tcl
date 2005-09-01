@@ -14,6 +14,8 @@ ad_page_contract {
     { groupby course_name }
 }
 
+set memoize_max_age [parameter::get -parameter CatalogMemoizeAge -default 10800]
+
 set package_id [ad_conn package_id]
 set user_id [ad_conn user_id]
 
@@ -525,7 +527,7 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
 
 	# List grades
 	set locale [ad_conn locale]
-	set section_grades [util_memoize [list dotlrn_ecommerce::section::section_grades $community_id $grade_tree_id]]
+	set section_grades [util_memoize [list dotlrn_ecommerce::section::section_grades $community_id $grade_tree_id] $memoize_max_age]
 
 	if { [llength $section_grades] == 1 } {
 	    set section_grades "Grade [join $section_grades ", "]"
@@ -535,7 +537,7 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
 	    set section_grades ""
 	}
 
-	set course_grades [util_memoize [list dotlrn_ecommerce::section::course_grades $item_id $grade_tree_id]]
+	set course_grades [util_memoize [list dotlrn_ecommerce::section::course_grades $item_id $grade_tree_id] $memoize_max_age]
 
 	set letters [lsearch -all -inline -regexp $course_grades {[[:alpha:]]+}]
 	set numbers [lsearch -all -inline -regexp $course_grades {\d+}]
@@ -553,9 +555,9 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
 	# Build sessions
 	set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id $community_id]
 	lappend calendar_id_list $calendar_id
-	set sessions [util_memoize [list dotlrn_ecommerce::section::sessions $calendar_id]]
+	set sessions [util_memoize [list dotlrn_ecommerce::section::sessions $calendar_id] $memoize_max_age]
 
-	set instructors [util_memoize [list dotlrn_ecommerce::section::instructors $community_id $__instructors]]
+	set instructors [util_memoize [list dotlrn_ecommerce::section::instructors $community_id $__instructors] $memoize_max_age]
 	
 	set instructor_names [list]
 	set instructor_ids [list]
@@ -576,7 +578,7 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
 	    append instructor_names " <a href=\"${community_url}facilitator-bio?rel_type=dotlrn_ecom_instructor_rel\" class=\"button\">[_ dotlrn-ecommerce.view_bios]</a>"
 	}
 
-	set attendees [util_memoize [list dotlrn_ecommerce::section::attendees $section_id]]
+	set attendees [util_memoize [list dotlrn_ecommerce::section::attendees $section_id] $memoize_max_age]
 
 	if { ! [empty_string_p $maxparticipants] } {
 	    set available_slots [expr $maxparticipants - $attendees]
@@ -591,7 +593,7 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
 	    set available_slots 99999
 	}
 	
-	set section_zones [util_memoize [list dotlrn_ecommerce::section::section_zones $community_id]]
+	set section_zones [util_memoize [list dotlrn_ecommerce::section::section_zones $community_id] $memoize_max_age]
 
 	if { [llength $section_zones] == 1 } {
 	    set section_zones "[_ dotlrn-ecommerce.Zone]: [join $section_zones]"
@@ -603,9 +605,9 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
     }
 
     if { ! [empty_string_p $product_id] } {
-	set prices [util_memoize [list dotlrn_ecommerce::section::price $section_id]]
+	set prices [util_memoize [list dotlrn_ecommerce::section::price $section_id] $memoize_max_age]
 	if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0 ] } {
-	    set member_price [util_memoize [list dotlrn_ecommerce::section::member_price $section_id]]
+	    set member_price [util_memoize [list dotlrn_ecommerce::section::member_price $section_id] $memoize_max_age]
 	    if { $member_price } {
 		if { ! [empty_string_p $member_price] } {
 		    append prices " / $member_price"
@@ -621,7 +623,7 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
 	}
     }
 
-    set member_state [util_memoize [list dotlrn_ecommerce::section::member_state $user_id $community_id]]
+    set member_state [util_memoize [list dotlrn_ecommerce::section::member_state $user_id $community_id] $memoize_max_age]
     
     set waiting_p 0
     set pending_p 0
@@ -629,7 +631,7 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
     switch $member_state {
 	"needs approval" {
 	    set waiting_p 1
-	    set waiting_list_number [util_memoize [list dotlrn_ecommerce::section::waiting_list_number $user_id $community_id]]
+	    set waiting_list_number [util_memoize [list dotlrn_ecommerce::section::waiting_list_number $user_id $community_id] $memoize_max_age]
 	}
 	"awaiting payment" {
 	    set waiting_p 2
@@ -680,11 +682,11 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
     	set instructor_p [lsearch $instructor_ids $user_id]
     } 
 
-    set assessment_id [util_memoize [list dotlrn_ecommerce::section::application_assessment $section_id]]
+    set assessment_id [util_memoize [list dotlrn_ecommerce::section::application_assessment $section_id] $memoize_max_age]
     if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
 	set button "[_ dotlrn-ecommerce.apply_for_course]"
     }
 
-    set fs_chunk [util_memoize [list dotlrn_ecommerce::section::fs_chunk $section_id]]
+    set fs_chunk [util_memoize [list dotlrn_ecommerce::section::fs_chunk $section_id] $memoize_max_age]
     set description [ad_text_to_html $description]
 }

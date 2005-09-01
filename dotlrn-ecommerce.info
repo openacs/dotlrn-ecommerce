@@ -31,6 +31,7 @@
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ApprovedRegistrationTimePeriod"  default="7776000" description="Allow this time period (in seconds) to elapse before revoking approval for user to register from waiting list."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="AssessmentPackage"  description="Assessment package to be used in waiting lists."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="AssistantCommunityId"  description="Specify the community id whose members we will use in the Assistant field in the add section form."/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="CatalogMemoizeAge"  default="10800" description="Number in seconds to memoize the data used by the main catalog page."/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="CustomParticipantFields"  description="Custom fields used in participant registration."/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="DefaultEmailDomain"  description="Default email domain to be used for group participants and purchasers with no email address."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="DonationECCategoryId"  description="The category_id in ec_categories which should be treated as donation.  If non-blank then the interface to buy a donation product is shown."/>
