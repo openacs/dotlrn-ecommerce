@@ -17,6 +17,7 @@ ad_page_contract {
 template::list::create \
     -name "patrons" \
     -multirow "patrons" \
+    -page_flush_p 1 \
     -elements {
 	participant {
 	    label Participant
@@ -82,13 +83,13 @@ db_multirow -extend { relationship } patrons patrons {
 	  and d.community_id = (select community_id
 				from dotlrn_ecommerce_section
 				where section_id = :section_id)
-	  and not r.object_id_one in (select r.object_id_two
-				      from acs_rels r, dotlrn_member_rels_full d
-				      where r.object_id_one = d.user_id
-				      and r.rel_type = 'patron_rel'
-				      and d.community_id = (select community_id
-							    from dotlrn_ecommerce_section
-							    where section_id = :section_id))
+-- 	  and not r.object_id_one in (select r.object_id_two
+-- 				      from acs_rels r, dotlrn_member_rels_full d
+-- 				      where r.object_id_one = d.user_id
+-- 				      and r.rel_type = 'patron_rel'
+-- 				      and d.community_id = (select community_id
+-- 							    from dotlrn_ecommerce_section
+-- 							    where section_id = :section_id))
 
 ) rels left join acs_rels r
 on (rels.rel_id = r.object_id_one and r.rel_type = 'membership_patron_rel' and rels.patron_id = r.object_id_two)
