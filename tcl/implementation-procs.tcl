@@ -19,6 +19,7 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 } {
     # DEDS: for notifying when wait list notify reached
     set community_notify_waitlist_list [list]
+    set checkout_user_id [ad_conn user_id]
 
     if { [exists_and_not_null patron_id] } {
 	if { ! [dotlrn::user_p -user_id $patron_id] } {
@@ -174,14 +175,6 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 		dotlrn_ecommerce::section::flush_cache $section_id
 	    }
 	}
-
-	# Set checkout for order
-	db_dml checkout_user {
-	    update dotlrn_ecommerce_orders
-	    set checked_out_by = :patron_id
-	    where item_id = :item_id
-	}
-	
     }
 
     # DEDS
@@ -225,6 +218,15 @@ Total persons in the waiting list for ${section_name}: $current_waitlisted"
 	}
     }
 
+    # Set checkout for order
+    db_dml checkout_user {
+	update dotlrn_ecommerce_orders
+	set checked_out_by = :checkout_user_id
+	where item_id in (select item_id
+			  from ec_items
+			  where order_id = :order_id)
+    }
+    
     ns_log notice "dotlrn-ecommerce callback: Run successfully"
 }
 
