@@ -27,13 +27,13 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
     }
 
     db_foreach items_in_order {
-	select i.product_id, o.patron_id as saved_patron_id, o.participant_id, t.method, v.maxparticipants
+	select i.product_id, o.patron_id as saved_patron_id, o.participant_id, t.method, v.maxparticipants, i.item_id
 	from dotlrn_ecommerce_orders o, ec_items i left join dotlrn_ecommerce_transactions t
 	on (i.order_id = t.order_id), ec_custom_product_field_values v
 	where i.item_id = o.item_id
 	and i.product_id = v.product_id
 	and i.order_id = :order_id
-	group by i.product_id, o.patron_id, o.participant_id, t.method, v.maxparticipants
+	group by i.product_id, o.patron_id, o.participant_id, t.method, v.maxparticipants, i.item_id
     } {
 	if { [empty_string_p $participant_id] } {
 	    if { [exists_and_not_null user_id] } {
@@ -174,6 +174,14 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 		dotlrn_ecommerce::section::flush_cache $section_id
 	    }
 	}
+
+	# Set checkout for order
+	db_dml checkout_user {
+	    update dotlrn_ecommerce_orders
+	    set checked_out_by = :patron_id
+	    where item_id = :item_id
+	}
+	
     }
 
     # DEDS

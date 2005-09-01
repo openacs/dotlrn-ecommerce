@@ -157,14 +157,6 @@ ad_proc -private dotlrn_ecommerce::after_upgrade {
 		    0 \
 		    number
 	    }
-	    0.1d10 0.1d11 {
-		apm_parameter_register \
-		    CustomParticipantFields \
-		    "Custom fields used in participant registration." \
-		    dotlrn-ecommerce \
-		    "" \
-		    string
-	    }
     	}
 }
 

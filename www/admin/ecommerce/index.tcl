@@ -128,6 +128,18 @@ template::list::create \
 		</else>
 	    }
 	}
+	checked_out_by {
+	    label "[_ dotlrn-ecommerce.Registered_By_Admin]"
+	    display_template {
+		<if @orders.checked_out_by@ eq @orders.purchaser_id@ or @orders.checked_out_by@ nil>
+		[_ dotlrn-ecommerce.No]
+		</if>
+		<else>
+		[_ dotlrn-ecommerce.Yes]
+		</else>
+	    }
+	    html { align center }
+	}
 	refund {
 	    display_template {
 		<if @orders.refund_price@ lt 0.01>
@@ -226,6 +238,10 @@ template::list::create \
 	    label "[_ dotlrn-ecommerce.Balance]"
 	    orderby balance
 	}
+	checked_out_by {
+	    label "[_ dotlrn-ecommerce.Regsitered_By_Admin]"
+	    orderby checked_out_by_admin_p
+	}
     }
 
 db_multirow -extend { order_url section_url pretty_total pretty_balance person_url pretty_refund pretty_actual_total refund_url participant_url participant_type } orders orders [subst {
@@ -269,7 +285,9 @@ db_multirow -extend { order_url section_url pretty_total pretty_balance person_u
 
 	u.first_names||' '||u.last_name as purchaser,
 
-    i.item_id, deo.participant_id, case when ao.object_type = 'group' then acs_group__name(deo.participant_id) else person__name(deo.participant_id) end as participant_name
+    i.item_id, deo.participant_id, case when ao.object_type = 'group' then acs_group__name(deo.participant_id) else person__name(deo.participant_id) end as participant_name,
+
+    deo.checked_out_by, u.user_id as purchaser_id, (deo.checked_out_by != u.user_id) as checked_out_by_admin_p
 
     from ec_orders o
     join ec_items i using (order_id)

@@ -59,7 +59,8 @@ create table dotlrn_ecommerce_orders (
 	item_id		integer references ec_items on delete cascade not null,
 -- Can be a user or group
 	patron_id	integer	references users(user_id) on delete cascade not null,
-	participant_id	integer	references parties(party_id) on delete cascade not null
+	participant_id	integer	references parties(party_id) on delete cascade not null,
+	checked_out_by	integer references users(user_id) on delete cascade not null
 );
 
 create table dotlrn_ecommerce_transactions (
@@ -96,7 +97,7 @@ alter table membership_rels add CONSTRAINT membership_rel_mem_ck CHECK ((((((((m
 -- Invoice payment method
 create table dotlrn_ecommerce_transaction_invoice_payments (
 	order_id	integer references ec_orders on delete cascade not null,
-	method		text check (method in ('cc', 'internal_account', 'check', 'cash', 'invoice', 'scholarship')) not null,
+	method		text check (method in ('cc', 'internal_account', 'check', 'cash', 'invoice', 'scholarship', 'lockbox')) not null,
 	internal_account text,
 	amount		float not null,
 	payment_date	timestamp default current_timestamp not null

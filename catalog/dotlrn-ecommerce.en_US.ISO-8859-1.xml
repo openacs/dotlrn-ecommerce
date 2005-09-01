@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d10" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d12" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Action">Action</msg>
   <msg key="Add_Course">Add Course</msg>
@@ -255,7 +255,9 @@ Instructors:
   <msg key="Recipients">Recipients</msg>
   <msg key="Register">Register</msg>
   <msg key="register">Register for this Course</msg>
+  <msg key="Registered_By_Admin">Registered By Admin</msg>
   <msg key="Registration">Registration</msg>
+  <msg key="Regsitered_By_Admin">Regsitered By Admin</msg>
   <msg key="Reject">Reject</msg>
   <msg key="Reject_application">Reject application</msg>
   <msg key="Reject_prereq">Reject waiver of prerequisite</msg>
