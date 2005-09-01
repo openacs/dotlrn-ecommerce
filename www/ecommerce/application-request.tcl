@@ -20,6 +20,10 @@ ad_page_contract {
 } -errors {
 }
 
+if { ! [dotlrn::user_p -user_id $participant_id] } {
+    dotlrn::user_add -user_id $participant_id
+}
+
 set extra_vars [ns_set create]
 ns_set put $extra_vars user_id $participant_id
 ns_set put $extra_vars community_id $community_id
