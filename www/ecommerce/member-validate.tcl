@@ -33,7 +33,7 @@ ad_form \
         {group_id:text(hidden) {value $group_id}}
         {user_id:text(hidden) {value $user_id}}
         {memberid:text {label "Member ID"}}
-        {zipcode:text {label "Zip code"}}
+        {zipcode:integer {label "Zip code"}}
         {lastname:text {label "Last Name"}}
     } \
     -after_submit {
@@ -54,3 +54,4 @@ ad_form \
 	    append result_stub "The information you provided did not validate.<br /><a href=\"shopping-cart?user_id=$user_id\">Continue shopping without validating your membership</a> or <br /><a href=\"memberships?user_id=$user_id\">Buy one now</a>"
 	}
     }
+
