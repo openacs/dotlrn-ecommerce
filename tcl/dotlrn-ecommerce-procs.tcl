@@ -168,3 +168,162 @@ ad_proc -public dotlrn_ecommerce::util::text_to_html {
     regsub -all {\n} $html_comment "<br />\n" html_comment
     return $html_comment
 }
+
+ad_proc -public dotlrn_ecommerce::allow_access_to_approved_users {
+} {
+    Allow approved users who haven't completed the registration to access the dotLRN community
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-09-02
+    
+    @return 
+    
+    @error 
+} {
+    db_transaction {
+	db_dml allow_access_to_approved_users {
+	    create or replace view dotlrn_member_rels_approved
+	    as select *
+	    from dotlrn_member_rels_full
+	    where member_state in ('approved', 'waitinglist approved', 'request approved', 'payment received');
+
+	    drop trigger membership_rels_up_tr on membership_rels;
+	    drop function membership_rels_up_tr ();
+
+	    create function membership_rels_up_tr () returns opaque as '
+	    declare
+	    map             record;
+	    begin
+	    
+	    if new.member_state = old.member_state then
+	    return new;
+	    end if;
+	    
+	    for map in select group_id, element_id, rel_type
+	    from group_element_index
+	    where rel_id = new.rel_id
+	    loop
+	    if new.member_state in (''approved'', ''waitinglist approved'', ''request approved'', ''payment received'') then
+	    perform party_approved_member__add(map.group_id, map.element_id, new.rel_id, map.rel_type);
+	    else
+	    perform party_approved_member__remove(map.group_id, map.element_id, new.rel_id, map.rel_type);
+	    end if;
+	    end loop;
+	    
+	    return new;
+	    
+	    end;' language 'plpgsql';
+
+	    create trigger membership_rels_up_tr before update on membership_rels
+	    for each row execute procedure membership_rels_up_tr ();
+	}
+
+	# Grant permission to current approved users
+	db_foreach current_users {
+	    select rel_id, community_id, user_id
+	    from dotlrn_member_rels_full
+	    where member_state in ('waitinglist approved', 'request approved', 'payment received')
+	} {
+	    db_exec_plsql approve_current_users {
+		declare
+		map             record;
+		begin
+		for map in select group_id, element_id, rel_type
+		from group_element_index
+		where rel_id = :rel_id
+		loop
+		perform party_approved_member__add(map.group_id, map.element_id, :rel_id, map.rel_type);
+		end loop;
+
+		return 0;
+		end;
+	    }
+
+	    # Dispatch dotlrn applet callbacks
+	    dotlrn_community::applets_dispatch \
+		-community_id $community_id \
+		-op AddUserToCommunity \
+		-list_args [list $community_id $user_id]
+	}
+    }
+}
+
+ad_proc -public dotlrn_ecommerce::disallow_access_to_approved_users {
+} {
+    Don't allow approved users who haven't completed the registration to access the dotLRN community
+    This actually just returns to the default dotLRN state
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-09-02
+    
+    @return 
+    
+    @error 
+} {
+    db_transaction {
+	db_dml allow_access_to_approved_users {
+	    create or replace view dotlrn_member_rels_approved
+	    as select *
+	    from dotlrn_member_rels_full
+	    where member_state = 'approved';
+
+	    drop trigger membership_rels_up_tr on membership_rels;
+	    drop function membership_rels_up_tr ();
+
+	    create or replace function membership_rels_up_tr () returns opaque as '
+	    declare
+	    map             record;
+	    begin
+	    
+	    if new.member_state = old.member_state then
+	    return new;
+	    end if;
+	    
+	    for map in select group_id, element_id, rel_type
+	    from group_element_index
+	    where rel_id = new.rel_id
+	    loop
+	    if new.member_state = ''approved'' then
+	    perform party_approved_member__add(map.group_id, map.element_id, new.rel_id, map.rel_type);
+	    else
+	    perform party_approved_member__remove(map.group_id, map.element_id, new.rel_id, map.rel_type);
+	    end if;
+	    end loop;
+	    
+	    return new;
+	    
+	    end;' language 'plpgsql';
+
+	    create trigger membership_rels_up_tr before update on membership_rels
+	    for each row execute procedure membership_rels_up_tr ();
+	}
+
+	# Revoke permission to current approved users
+	db_foreach current_users {
+	    select rel_id, community_id, user_id
+	    from dotlrn_member_rels_full
+	    where member_state in ('waitinglist approved', 'request approved', 'payment received')
+	} {
+	    db_exec_plsql approve_current_users {
+		declare
+		map             record;
+		begin
+		for map in select group_id, element_id, rel_type
+		from group_element_index
+		where rel_id = :rel_id
+		loop
+		perform party_approved_member__remove(map.group_id, map.element_id, :rel_id, map.rel_type);
+		end loop;
+
+		return 0;
+		end;
+	    }
+
+	    # Dispatch dotlrn applet callbacks
+	    dotlrn_community::applets_dispatch \
+		-community_id $community_id \
+		-op RemoveUserFromCommunity \
+		-list_args [list $community_id $user_id]
+	}
+    }
+}
