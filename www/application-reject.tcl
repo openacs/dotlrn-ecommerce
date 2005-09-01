@@ -30,7 +30,25 @@ set section_id [db_string section {
 dotlrn_ecommerce::section::flush_cache $section_id
 
 if { !$send_email_p || $user_id == $actor_id } {
+    if { [parameter::get -parameter AllowAheadAccess -default 0] } {
+	set member_state [db_string member_state {
+	    select member_state
+	    from dotlrn_member_rels_full
+	    where user_id = :user_id
+	    and community_id = :community_id
+	}]
+
+	if { [lsearch $member_state {"waitinglist approved" "request approved" "payment received"}] != -1 } {
+	    # Dispatch dotlrn applet callbacks
+	    dotlrn_community::applets_dispatch \
+		-community_id $community_id \
+		-op RemoveUserFromCommunity \
+		-list_args [list $community_id $user_id]
+	}
+    }
+
     dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
+
     ad_returnredirect $return_url
 } else {
     # Send email to applicant
@@ -64,7 +82,25 @@ if { !$send_email_p || $user_id == $actor_id } {
 	    set reason "[lang::message::format $reason $var_list]"
         } \
         -on_submit {
+	    if { [parameter::get -parameter AllowAheadAccess -default 0] } {
+		set member_state [db_string member_state {
+		    select member_state
+		    from dotlrn_member_rels_full
+		    where user_id = :user_id
+		    and community_id = :community_id
+		}]
+
+		if { [lsearch $member_state {"waitinglist approved" "request approved" "payment received"}] != -1 } {
+		    # Dispatch dotlrn applet callbacks
+		    dotlrn_community::applets_dispatch \
+			-community_id $community_id \
+			-op RemoveUserFromCommunity \
+			-list_args [list $community_id $user_id]
+		}
+	    }
+
             dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
+
             set applicant_email [cc_email_from_party $user_id]
             set actor_email [cc_email_from_party $actor_id]
             set community_name [dotlrn_community::get_community_name $community_id]
@@ -82,8 +118,6 @@ if { !$send_email_p || $user_id == $actor_id } {
                     set body "[_ dotlrn-ecommerce.lt_Your_application_to_j_1]"
                 }
             }
-
-
 	
             acs_mail_lite::send \
                 -to_addr $applicant_email \

@@ -71,6 +71,14 @@ if { $user_id == $actor_id } {
 	    set last_modified = current_timestamp
 	    where object_id in ([join $rels ,])
 	}]
+
+	if { [parameter::get -parameter AllowAheadAccess -default 0] } {
+	    # Dispatch dotlrn applet callbacks
+	    dotlrn_community::applets_dispatch \
+		-community_id $community_id \
+		-op AddUserToCommunity \
+		-list_args [list $community_id $user_id]
+	}	
     } on_error {
     }
 
@@ -135,41 +143,49 @@ if { $user_id == $actor_id } {
             }
 
     } else {
-db_transaction {
-    set rels [db_list rels {
-	select r.rel_id
-	from acs_rels r,
-	membership_rels m
-	where r.rel_id = m.rel_id
-	and r.object_id_one = :community_id
-	and r.object_id_two = :user_id
-	and m.member_state = :old_member_state
-    }]
+	db_transaction {
+	    set rels [db_list rels {
+		select r.rel_id
+		from acs_rels r,
+		membership_rels m
+		where r.rel_id = m.rel_id
+		and r.object_id_one = :community_id
+		and r.object_id_two = :user_id
+		and m.member_state = :old_member_state
+	    }]
 
-    db_dml approve_request [subst {
-	update membership_rels
-	set member_state = :new_member_state
-	where rel_id in ([join $rels ,])
-    }]
+	    db_dml approve_request [subst {
+		update membership_rels
+		set member_state = :new_member_state
+		where rel_id in ([join $rels ,])
+	    }]
 
-    db_dml update_objects [subst {
-	update acs_objects
-	set last_modified = current_timestamp
-	where object_id in ([join $rels ,])
-    }]
-} on_error {
-}
+	    db_dml update_objects [subst {
+		update acs_objects
+		set last_modified = current_timestamp
+		where object_id in ([join $rels ,])
+	    }]
 
-# Send email to applicant
-set applicant_email [cc_email_from_party $user_id]
-set actor_email [cc_email_from_party $actor_id]
-set community_name [dotlrn_community::get_community_name $community_id]
-if {[exists_and_not_null reason]} {
-    set override_email $reason
-} else {
-    set override_email ""
-}
-dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type $email_type -override_email $override_email
-ad_returnredirect $return_url
-}
+	    if { [parameter::get -parameter AllowAheadAccess -default 0] } {
+		# Dispatch dotlrn applet callbacks
+		dotlrn_community::applets_dispatch \
+		    -community_id $community_id \
+		    -op AddUserToCommunity \
+		    -list_args [list $community_id $user_id]
+	    }	
+	} on_error {
+	}
+
+	# Send email to applicant
+	set applicant_email [cc_email_from_party $user_id]
+	set actor_email [cc_email_from_party $actor_id]
+	set community_name [dotlrn_community::get_community_name $community_id]
+	if {[exists_and_not_null reason]} {
+	    set override_email $reason
+	} else {
+	    set override_email ""
+	}
+	dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type $email_type -override_email $override_email
+	ad_returnredirect $return_url
+    }
 }

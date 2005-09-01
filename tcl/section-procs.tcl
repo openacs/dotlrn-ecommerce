@@ -328,7 +328,7 @@ ad_proc -public dotlrn_ecommerce::section::check_elapsed_registrations {
     
     @error 
 } {
-    set time_period [parameter::get -package_id [apm_package_id_from_key dotlrn-ecommerce] -parameter ApprovedRegistrationTimePeriod -default 86400]
+    set time_period [parameter::get -package_id [apm_package_id_from_key dotlrn-ecommerce] -parameter ApprovedRegistrationTimePeriod -default 7776000]
 
     db_foreach check_applications {
 	select community_id, user_id
@@ -337,6 +337,14 @@ ad_proc -public dotlrn_ecommerce::section::check_elapsed_registrations {
 	and (current_timestamp - o.last_modified)::interval >= (:time_period||' seconds')::interval
 	and r.member_state in ('request approved', 'waitinglist approved', 'payment received')
     } {
+	if { [parameter::get -parameter AllowAheadAccess -package_id [apm_package_id_from_key dotlrn-ecommerce] -default 0] } {
+	    # Dispatch dotlrn applet callbacks
+	    dotlrn_community::applets_dispatch \
+		-community_id $community_id \
+		-op RemoveUserFromCommunity \
+		-list_args [list $community_id $user_id]
+	}
+
 	dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
     }
 }
@@ -385,6 +393,14 @@ ad_proc -public dotlrn_ecommerce::section::approve_next_in_waiting_list {
 				 and r.object_id_one = :community_id
 				 and r.object_id_two = :user_id
 				 and m.member_state = 'needs approval')
+	    }
+
+	    if { [parameter::get -parameter AllowAheadAccess -package_id [apm_package_id_from_key dotlrn-ecommerce] -default 0] } {
+		# Dispatch dotlrn applet callbacks
+		dotlrn_community::applets_dispatch \
+		    -community_id $community_id \
+		    -op AddUserToCommunity \
+		    -list_args [list $community_id $user_id]
 	    }
 
 	    acs_mail_lite::send \
