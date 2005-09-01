@@ -7,7 +7,7 @@
     <initial-install-p>f</initial-install-p>
     <singleton-p>t</singleton-p>
     
-    <version name="0.1d11" url="http://openacs.org/repository/download/apm/dotlrn-ecommerce-0.1d11.apm">
+    <version name="0.1d12" url="http://openacs.org/repository/download/apm/dotlrn-ecommerce-0.1d12.apm">
         <owner url="mailto:roelmc@solutiongrove.com">Roel Canicula</owner>
         <summary>Package to tie the dotLRN, Ecommerce, Assessments and dotLRN Catalog packages together</summary>
         <release-date>2005-08-10</release-date>
@@ -15,7 +15,7 @@
         <description format="text/html">Package to tie the dotLRN, Ecommerce, Assessments and dotLRN Catalog packages together.  Initially intended for the MOS and MGH projects, the goal is to create a reusable module for similar projects.</description>
         <maturity>0</maturity>
 
-        <provides url="dotlrn-ecommerce" version="0.1d11"/>
+        <provides url="dotlrn-ecommerce" version="0.1d12"/>
 
         <callbacks>
             <callback type="after-install"  proc="dotlrn_ecommerce::install"/>
