@@ -9,23 +9,6 @@
 --- creating tables to be used for remote queries.
 -- denormalize as much as possible to make it easy for them
 
-drop view dlec_view_orders;
-drop view dlec_view_course_expenses;
-drop view dlec_view_sections_and_categories;
-drop view dlec_view_sections;
-drop view dlec_view_courses_and_categories;
-drop view dlec_view_courses;
-drop view dlec_view_users;
-drop view dlec_view_scholarship_funds;
-drop view dlec_view_grades;
-drop view dlec_view_course_types;
-drop view dlec_view_terms;
-drop view dlec_view_zones;
-drop view dlec_view_expense_codes;
-drop view dlec_view_patron_relationships;
-drop view dlec_view_category_trees;
-drop view dlec_view_categories;
-
 -- categories
 
 create view dlec_view_categories as (
