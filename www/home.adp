@@ -96,7 +96,12 @@
 	<ul class="action-links">
 	  <if @sessions_with_applications@ gt 0>
 	    <multiple name="sessions">
-	      <li><a href="@sessions.asm_url;noquote@">@sessions.pretty_name@</a> <if @user_id@ ne @sessions.participant@>(@sessions.name@)</if> [<a href="@sessions.edit_asm_url;noquote@">#acs-kernel.common_Edit#</a>]</li>
+	      <li>@sessions.community_id@ <a href="@sessions.asm_url;noquote@">@sessions.pretty_name@</a> <if @user_id@ ne @sessions.participant@>(@sessions.name@)</if>
+
+	<if @use_embedded_application_view_p@ ne 1> 
+	 [<a href="@sessions.edit_asm_url;noquote@">#acs-kernel.common_Edit#</a>]
+	</if>
+	</li>
 	    </multiple>
 	  </if>
 	  <else>

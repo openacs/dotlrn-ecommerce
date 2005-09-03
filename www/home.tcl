@@ -101,6 +101,8 @@ db_multirow -extend { order_url } orders get_orders {
 }
 
 set applications_p [parameter::get -parameter EnableCourseApplicationsP -default 0]
+set use_embedded_application_view_p [parameter::get -parameter UseEmbeddedApplicationViewP -default 0]
+
 
 set sessions_with_applications 0
 # check for patron rels as well
@@ -122,8 +124,7 @@ set default_assessment_id [parameter::get -parameter ApplicationAssessment -defa
     } {
 	append notice "community_id '${community_id}' participant = '${participant}' <br />"
 	if { [db_0or1row assessment {
-	    select ss.session_id, c.assessment_id
-	    
+	    select ss.session_id, coalesce(case when c.assessment_id=-1 then null else a.assessment_id end,:default_assessment_id) as assessment_id
 	    from dotlrn_ecommerce_section s,
 	    (select c.*
 	     from dotlrn_catalogi c,
@@ -145,8 +146,18 @@ set default_assessment_id [parameter::get -parameter ApplicationAssessment -defa
 	    
 	    limit 1
 	}] } {
-	    set asm_url [export_vars -base /assessment/session { session_id }]
+	    if {$use_embedded_application_view_p == 1} {
+		set asm_url "admin/application-view?session_id=$session_id"
+		
+	    } else {
+		
+		set asm_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/results-session" { session_id }]
+		
+	    }
+
 	    set edit_asm_url [export_vars -base /assessment/assessment { assessment_id }]
+
+
 	    incr sessions_with_applications
 	}
     }
