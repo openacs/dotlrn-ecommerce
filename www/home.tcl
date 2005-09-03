@@ -105,6 +105,8 @@ set applications_p [parameter::get -parameter EnableCourseApplicationsP -default
 set sessions_with_applications 0
 # check for patron rels as well
 
+set default_assessment_id [parameter::get -parameter ApplicationAssessment -default ""]
+
     db_multirow -extend { asm_url edit_asm_url } sessions sessions {
 	select c.community_id, c.pretty_name,r.user_id as participant,
 	acs_object__name(r.user_id) as name, r.member_state, r.rel_id
@@ -135,7 +137,7 @@ set sessions_with_applications 0
 	    
 	    where s.community_id = :community_id
 	    and s.course_id = c.item_id
-	    and a.item_id = coalesce(case when c.assessment_id=-1 then null else c.item_id end,57657)
+	    and a.item_id = coalesce(case when c.assessment_id=-1 then null else c.item_id end,:default_assessment_id)
 	    and a.assessment_id = ss.assessment_id
 	    and ss.subject_id = :user_id
 	    
