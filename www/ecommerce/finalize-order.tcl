@@ -194,11 +194,6 @@ db_transaction {
     ec_update_state_to_confirmed $order_id
 }
 
-# Call after-checkout callback
-# Roel - 0705, Removed this line from the transaction, may have been causing
-# the transaction to hang
-callback -- ecommerce::after-checkout -patron_id $user_id -order_id $order_id
-
 set method [db_string payment_method {
     select method
     from dotlrn_ecommerce_transactions
@@ -209,6 +204,10 @@ if { ! [empty_string_p $method] && $method != "cc" } {
     # Authorize this transaction without credit card
     ec_email_new_order $order_id
     ec_update_state_to_authorized $order_id 
+
+    # Call after-checkout callback
+    callback -- ecommerce::after-checkout -patron_id $user_id -order_id $order_id
+
     ad_returnredirect $return_url
     ad_script_abort
 }
@@ -278,6 +277,10 @@ if {$hard_goods_cost > 0} {
 		# 'authorized'.
 
 		ec_update_state_to_authorized $order_id 
+
+		# Call after-checkout callback
+		callback -- ecommerce::after-checkout -patron_id $user_id -order_id $order_id
+
 		ad_returnredirect $return_url
 
 	    } else {
@@ -307,6 +310,9 @@ if {$hard_goods_cost > 0} {
 		    # 'authorized'.
 
 		    ec_update_state_to_authorized $order_id 
+
+		    # Call after-checkout callback
+		    callback -- ecommerce::after-checkout -patron_id $user_id -order_id $order_id
 
 		    # Record the date & time of the authorization.
 
@@ -379,6 +385,9 @@ if {$hard_goods_cost > 0} {
 
 		    ec_update_state_to_authorized $order_id 
 		    
+		    # Call after-checkout callback
+		    callback -- ecommerce::after-checkout -patron_id $user_id -order_id $order_id
+
 		    # Record the date & time of the authorization and
 		    # schedule the transaction for settlement.
 
@@ -514,6 +523,9 @@ if {$hard_goods_cost > 0} {
 
 			ec_update_state_to_authorized $order_id 
 
+			# Call after-checkout callback
+			callback -- ecommerce::after-checkout -patron_id $user_id -order_id $order_id
+
 			# Schedule the soft goods transaction for
 			# settlement.
 
@@ -641,6 +653,10 @@ if {$hard_goods_cost > 0} {
 	    # 'authorized'.
 
 	    ec_update_state_to_authorized $order_id 
+
+	    # Call after-checkout callback
+	    callback -- ecommerce::after-checkout -patron_id $user_id -order_id $order_id
+
 	    ad_returnredirect $return_url
 
 	} else {
@@ -669,6 +685,9 @@ if {$hard_goods_cost > 0} {
 		# 'authorized'.
 
 		ec_update_state_to_authorized $order_id 
+
+		# Call after-checkout callback
+		callback -- ecommerce::after-checkout -patron_id $user_id -order_id $order_id
 
 		# Record the date & time of the authorization.
 
@@ -752,6 +771,10 @@ if {$hard_goods_cost > 0} {
 	    # 'authorized'.
 
 	    ec_update_state_to_authorized $order_id 
+
+	    # Call after-checkout callback
+	    callback -- ecommerce::after-checkout -patron_id $user_id -order_id $order_id
+	    
 	    ad_returnredirect $return_url
 	    ad_script_abort
 	} else {
@@ -780,6 +803,9 @@ if {$hard_goods_cost > 0} {
 		    # 'authorized'.
 
 		    ec_update_state_to_authorized $order_id 
+
+		    # Call after-checkout callback
+		    callback -- ecommerce::after-checkout -patron_id $user_id -order_id $order_id
 
 		    # Record the date & time of the authorization and
 		    # schedule the transaction for settlement.
@@ -816,6 +842,10 @@ if {$hard_goods_cost > 0} {
 		# Gift cert covers cost, no cc transaction needed,
 		# authorize immediately
 		ec_update_state_to_authorized $order_id
+
+		# Call after-checkout callback
+		callback -- ecommerce::after-checkout -patron_id $user_id -order_id $order_id
+
 		ad_returnredirect $return_url
 		ad_script_abort
 	    }
@@ -880,6 +910,10 @@ if {$hard_goods_cost > 0} {
 	# 'authorized'.
 
 	ec_update_state_to_authorized $order_id 
+
+	# Call after-checkout callback
+	callback -- ecommerce::after-checkout -patron_id $user_id -order_id $order_id
+
 	ad_returnredirect $return_url
     }
 }
