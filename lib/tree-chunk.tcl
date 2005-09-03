@@ -405,7 +405,7 @@ template::list::create \
 		<font color="red">[_ dotlrn-ecommerce.application_pending]</font>
 		</if>
 		<if @course_list.waiting_p@ eq 1>
-		<!-- <font color="red">[_ dotlrn-ecommerce.lt_You_are_number_course]</font> -->
+		<font color="red">[_ dotlrn-ecommerce.lt_You_are_number_course]</font>
 		</if>
 		<if @course_list.asm_url@ not nil>
 		<a href="@course_list.asm_url;noquote@" class="button">[_ dotlrn-ecommerce.review_application]</a>
@@ -419,7 +419,14 @@ template::list::create \
 		</div>
 		<if @course_list.approved_p@ eq 1>
 		<div align="center" style="float: right">
+		
+		<if @course_list.member_state@ eq "request approved">
 		[_ dotlrn-ecommerce.lt_Your_application_was_]<p />
+		</if>
+		<else>
+		A place is now available.<p />
+		</else>
+
 		<if @offer_code_p@ and @course_list.has_discount_p@>
 		<p />
 		<form action="ecommerce/offer-code-set">
@@ -466,7 +473,7 @@ if { $offer_code_p } {
     set discount_clause ""
 }
 
-db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades section_zones sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url assessment_id } course_list get_courses { } {
+db_multirow -extend {member_state fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades section_zones sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url assessment_id } course_list get_courses { } {
 
     # Since dotlrn-ecommerce is based on dotlrn-catalog,
     # it's possible to have a dotlrn_catalog object without an
@@ -624,6 +631,7 @@ db_multirow -extend { fs_chunk section_folder_id section_pages_url category_name
     }
 
     set member_state [util_memoize [list dotlrn_ecommerce::section::member_state $user_id $community_id] $memoize_max_age]
+    
     
     set waiting_p 0
     set pending_p 0
