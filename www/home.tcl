@@ -104,16 +104,18 @@ set applications_p [parameter::get -parameter EnableCourseApplicationsP -default
 
 set sessions_with_applications 0
 # check for patron rels as well
+
     db_multirow -extend { asm_url edit_asm_url } sessions sessions {
 	select c.community_id, c.pretty_name,r.user_id as participant,
-	acs_object__name(r.user_id) as name
+	acs_object__name(r.user_id) as name, r.member_state, r.rel_id
 	from 
 	dotlrn_communities c,
 	dotlrn_member_rels_full r
-	left join acs_rels ar on r.user_id=ar.object_id_two
+	left join (select object_id_two, object_id_one, rel_type from acs_rels
+		   where acs_rels.rel_type = 'patron_rel') ar 
+	on r.user_id=ar.object_id_two
 	where r.community_id = c.community_id
---	and r.member_state = 'awaiting payment'
-	and ar.rel_type='patron_rel'
+	and r.member_state in ('request approval')
 	and (r.user_id = :user_id or ar.object_id_one=:user_id)
     } {
 	append notice "community_id '${community_id}' participant = '${participant}' <br />"
@@ -154,10 +156,11 @@ set sessions_with_applications 0
 	from 
 	dotlrn_communities c,
 	dotlrn_member_rels_full r
-	left join acs_rels ar on r.user_id=ar.object_id_two
+	left join (select object_id_two, object_id_one, rel_type from acs_rels
+		   where acs_rels.rel_type = 'patron_rel') ar
+	on r.user_id=ar.object_id_two 
 	where r.community_id = c.community_id
 	and r.member_state = 'needs approval'
-	and ar.rel_type='patron_rel'
 	and (r.user_id = :user_id or ar.object_id_one=:user_id)
     }
 
