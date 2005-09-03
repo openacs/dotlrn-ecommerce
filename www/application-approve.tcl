@@ -45,7 +45,7 @@ set section_id [db_string section {
     where community_id = :community_id
 }]
 
-dotlrn_ecommerce::section::flush_cache $section_id
+dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
 
 if { $user_id == $actor_id } {
 
@@ -81,7 +81,8 @@ if { $user_id == $actor_id } {
 	}	
     } on_error {
     }
-
+    
+    dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
     ad_returnredirect $return_url
 } else {
     if { $type == "prereq" } {
@@ -139,6 +140,7 @@ if { $user_id == $actor_id } {
 
             } \
             -after_submit {
+		dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
                 ad_returnredirect $return_url
             }
 
@@ -186,6 +188,7 @@ if { $user_id == $actor_id } {
 	    set override_email ""
 	}
 	dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type $email_type -override_email $override_email
+	dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
 	ad_returnredirect $return_url
     }
 }
