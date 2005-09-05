@@ -7,7 +7,12 @@
   <property name="current_location">shopping-cart</property>
 
   <if @user_id@ ne 0>
+    <if @admin_p@>
+	You are processing an order for @first_names@ @last_name@. (To change the purchaser,  
+    </if>
+    <else>	
     #dotlrn-ecommerce.lt_for_first_names_last_#,
+    </else>
     <a href="<if @admin_p@>../admin/process-purchase-all</if><else>../</else>">#dotlrn-ecommerce.click_here#</a>)
   </if>
 
