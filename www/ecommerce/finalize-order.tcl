@@ -202,7 +202,7 @@ set method [db_string payment_method {
 
 if { ! [empty_string_p $method] && $method != "cc" } {
     # Authorize this transaction without credit card
-    ec_email_new_order $order_id
+    dotlrn_ecommerce_email_new_order $order_id
     ec_update_state_to_authorized $order_id 
 
     # Call after-checkout callback
@@ -271,7 +271,7 @@ if {$hard_goods_cost > 0} {
 		
 		# FIXME DAVEB this sends email not controlled directly by dotlrn-ecommerce
 		# this sends the ecommerce email template 1
-		ec_email_new_order $order_id
+		dotlrn_ecommerce_email_new_order $order_id
 
 		# Change the order state from 'confirmed' to
 		# 'authorized'.
@@ -304,7 +304,7 @@ if {$hard_goods_cost > 0} {
 		set result $response(response_code)
 		set transaction_id $response(transaction_id)
 		if { [string equal $result "authorized"] } {
-		    ec_email_new_order $order_id
+		    dotlrn_ecommerce_email_new_order $order_id
 
 		    # Change the order state from 'confirmed' to
 		    # 'authorized'.
@@ -378,7 +378,7 @@ if {$hard_goods_cost > 0} {
 		set result $response(response_code)
 		set transaction_id $response(transaction_id)
 		if { [string equal $result "authorized"] } {
-		    ec_email_new_order $order_id
+		    dotlrn_ecommerce_email_new_order $order_id
 
 		    # Change the order state from 'confirmed' to
 		    # 'authorized'.
@@ -487,7 +487,7 @@ if {$hard_goods_cost > 0} {
 		set result $response(response_code)
 		set soft_goods_transaction_id $response(transaction_id)
 		if { [string equal $result "authorized"] } {
-		    ec_email_new_order $order_id
+		    dotlrn_ecommerce_email_new_order $order_id
 
 		    # Record the date & time of the soft goods
 		    # authorization.
@@ -647,7 +647,7 @@ if {$hard_goods_cost > 0} {
 
 	    # Mail the confirmation e-mail to the user.
 
-	    ec_email_new_order $order_id
+	    dotlrn_ecommerce_email_new_order $order_id
 
 	    # Change the order state from 'confirmed' to
 	    # 'authorized'.
@@ -679,7 +679,7 @@ if {$hard_goods_cost > 0} {
 	    set result $response(response_code)
 	    set transaction_id $response(transaction_id)
 	    if { [string equal $result "authorized"] } {
-		ec_email_new_order $order_id
+		dotlrn_ecommerce_email_new_order $order_id
 
 		# Change the order state from 'confirmed' to
 		# 'authorized'.
@@ -765,7 +765,7 @@ if {$hard_goods_cost > 0} {
 	    # goods. No financial transaction required. Mail a
 	    # confirmation e-mail to the user.
 
-	    ec_email_new_order $order_id
+	    dotlrn_ecommerce_email_new_order $order_id
 
 	    # Change the order state from 'confirmed' to
 	    # 'authorized'.
@@ -797,7 +797,7 @@ if {$hard_goods_cost > 0} {
 		set result $response(response_code)
 		set transaction_id $response(transaction_id)
 		if { [string equal $result "authorized"] } {
-		    ec_email_new_order $order_id
+		    dotlrn_ecommerce_email_new_order $order_id
 		    
 		    # Change the order state from 'confirmed' to
 		    # 'authorized'.
@@ -904,7 +904,7 @@ if {$hard_goods_cost > 0} {
 	# a cost. No financial transactions required. Mail the
 	# confirmation e-mail to the user.
 
-	ec_email_new_order $order_id
+	dotlrn_ecommerce_email_new_order $order_id
 
 	# Change the order state from 'confirmed' to
 	# 'authorized'.
