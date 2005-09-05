@@ -41,10 +41,9 @@ if { ![empty_string_p $creditcard_id] } {
 
 if { [empty_string_p $billing_address_id] } {
     db_1row billing_address {
-	select address_id as billing_address_id
+	select max(address_id) as billing_address_id
 	from ec_addresses
 	where user_id = :user_id
-	limit 1
     }
 }
 
