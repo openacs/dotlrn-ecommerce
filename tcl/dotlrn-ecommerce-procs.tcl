@@ -327,3 +327,96 @@ ad_proc -public dotlrn_ecommerce::disallow_access_to_approved_users {
 	}
     }
 }
+
+ad_proc dotlrn_ecommerce_email_new_order { 
+    order_id 
+} {
+    Use this to send out the \"New Order\" email. Modified for dotlrn-ecommerce use.
+} {
+    if {[db_0or1row email_info_select {
+	select u.email, to_char(confirmed_date,'MM/DD/YY') as confirmed_date, shipping_address, u.user_id,
+	coalesce(c.billing_address, (select max(address_id)
+				     from ec_addresses
+				     where user_id=u.user_id
+				     and address_type = 'billing')) as billing_address
+	from ec_orders o
+	left join ec_creditcards c on (o.creditcard_id = c.creditcard_id and c.user_id = o.user_id), cc_users u
+	where o.user_id = u.user_id
+	and order_id = :order_id
+    }]} {
+
+	set item_summary [ec_item_summary_in_confirmed_order $order_id]
+	
+	if { ![empty_string_p $shipping_address] } {
+	    set address [ec_pretty_mailing_address_from_ec_addresses $shipping_address]
+	} else {
+	    set address "not deliverable"
+	}
+    
+	if { ![empty_string_p $billing_address] } {
+	    set billing_address [ec_pretty_mailing_address_from_ec_addresses $billing_address]
+	}
+
+	set price_summary [ec_formatted_price_shipping_gift_certificate_and_tax_in_an_order $order_id]
+	
+	set customer_service_signature [ec_customer_service_signature]
+	set system_url "[ec_insecure_location][ec_url]"
+
+	# Have to get rid of ampersands in above variables because
+	# they # mess up regsubs
+
+	regsub -all -- "&" $price_summary {\\&} price_summary
+	regsub -all -- "&" $item_summary {\\&} item_summary
+	regsub -all -- "&" $address {\\&} address
+	regsub -all -- "&" $customer_service_signature {\\&} customer_service_signature
+	regsub -all -- "&" $system_url {\\&} system_url
+	regsub -all -- "&" $billing_address {\\&} billing_address
+
+	# Note: template #1 is defined to be the "New Order" email
+
+	db_1row template_select_1 "
+	    select subject as email_subject, message as email_body, issue_type_list
+	    from ec_email_templates
+	    where email_template_id = 1"
+
+	# And get rid of ctrl-M's in the body
+
+	regsub -all -- "\r" $email_body "" email_body
+
+	regsub -all -- "confirmed_date_here" $email_body $confirmed_date email_body
+	regsub -all -- "item_summary_here" $email_body $item_summary email_body
+	regsub -all -- "address_here" $email_body $address email_body
+	regsub -all -- "price_summary_here" $email_body $price_summary email_body
+	regsub -all -- "customer_service_signature_here" $email_body $customer_service_signature email_body
+	regsub -all -- "system_url_here" $email_body $system_url email_body
+	regsub -all -- "billing_here" $email_body $billing_address email_body
+
+	db_transaction {
+
+	    # Create a customer service issue/interaction/action
+
+	    set user_identification_and_issue_id [ec_customer_service_simple_issue "" "automatic" "email" \
+						      "To: $email\nFrom: [ad_parameter -package_id [ec_id] CustomerServiceEmailAddress ecommerce]\nSubject: $email_subject" \
+						      $order_id $issue_type_list $email_body $user_id]
+
+	    set user_identification_id [lindex $user_identification_and_issue_id 0]
+	    set issue_id [lindex $user_identification_and_issue_id 1]
+	    if { [empty_string_p $user_identification_id] } { 
+		set user_identification_id 0
+	    }
+
+	    # Add a row to the automatic email log
+
+	    db_dml email_log_insert_1 "
+		insert into ec_automatic_email_log
+		(user_identification_id, email_template_id, order_id, date_sent)
+		values
+		(:user_identification_id, 1, :order_id, current_timestamp)"
+	}
+
+	set email_from [ec_customer_service_email_address $user_identification_id $issue_id]
+	
+	ec_sendmail_from_service "$email" "$email_from" "$email_subject" "$email_body"
+	ec_email_product_notification $order_id
+    }
+}
