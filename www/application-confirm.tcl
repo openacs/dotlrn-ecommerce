@@ -15,6 +15,7 @@ if { [db_0or1row get_name {
     set user_id [ad_conn user_id]
     
     if { ! [dotlrn::user_p -user_id $user_id] } {
+
 	db_transaction {
 	    # This is a newly created user and if this page is reached, that
 	    # means a new user answered a course application and should be put

@@ -1,7 +1,5 @@
-# packages/dotlrn-ecommerce/www/admin/participant-add.tcl
-
 ad_page_contract {
-    
+    packages/dotlrn-ecommerce/www/admin/participant-add.tcl    
     
     
     @author Roel Canicula (roelmc@pldtdsl.net)
@@ -19,6 +17,7 @@ ad_page_contract {
 } -errors {
 }
 
+
 if { ! [empty_string_p $cancel] } {
     ns_log notice "DEBUG:: CANCEL - $cancel - $return_url"
 
@@ -34,7 +33,6 @@ db_1row get_section_info "select c.course_id, c.course_name, s.section_name, s.p
 
 set title "Participant Info for $course_name: $section_name"
 set context [list [list [export_vars -base course-info { course_id }] $section_name] "Participants and Patrons"]
-
 if { [empty_string_p $add_url] } {
     set add_url [export_vars -base "[ad_conn package_url]ecommerce/shopping-cart-add" { product_id user_id }]
 }

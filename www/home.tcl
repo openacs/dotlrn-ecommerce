@@ -22,6 +22,7 @@ ad_page_contract {
     pvt_home_url:onevalue
 }
 
+set memoize_max_age [parameter::get -parameter CatalogMemoizeAge -default 10800]
 set user_id [auth::require_login -account_status closed]
 
 acs_user::get -array user -include_bio -user_id $user_id
@@ -163,7 +164,7 @@ set default_assessment_id [parameter::get -parameter ApplicationAssessment -defa
     }
 
 # get waiting list requests
-    db_multirow waiting_lists waiting_lists {
+db_multirow -extend {waiting_list_number} waiting_lists waiting_lists {
 	select c.community_id, c.pretty_name,r.user_id as participant,
 	acs_object__name(r.user_id) as name
 	from 
@@ -175,7 +176,11 @@ set default_assessment_id [parameter::get -parameter ApplicationAssessment -defa
 	where r.community_id = c.community_id
 	and r.member_state = 'needs approval'
 	and (r.user_id = :user_id or ar.object_id_one=:user_id)
+    } {
+	set waiting_list_number [util_memoize [list dotlrn_ecommerce::section::waiting_list_number $user_id $community_id] $memoize_max_age]
     }
 
 #ad_return_complaint 1 $notice
 set catalog_url [ad_conn package_url]
+set cc_package_id [apm_package_id_from_key "dotlrn-ecommerce"]
+set admin_p [permission::permission_p -object_id $cc_package_id -privilege "admin"]

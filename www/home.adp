@@ -96,7 +96,12 @@
 	<ul class="action-links">
 	  <if @sessions_with_applications@ gt 0>
 	    <multiple name="sessions">
-	      <li>@sessions.community_id@ <a href="@sessions.asm_url;noquote@">@sessions.pretty_name@</a> <if @user_id@ ne @sessions.participant@>(@sessions.name@)</if>
+		<if @admin_p@ eq 1>
+		  <li> <a href="@sessions.asm_url;noquote@">@sessions.pretty_name@</a> <if @user_id@ ne @sessions.participant@>(@sessions.name@)</if>
+		</if>
+		<else>
+		  <li> @sessions.pretty_name@ <if @user_id@ ne @sessions.participant@>(@sessions.name@)</if>
+		</else>    
 
 	<if @use_embedded_application_view_p@ ne 1> 
 	 [<a href="@sessions.edit_asm_url;noquote@">#acs-kernel.common_Edit#</a>]
@@ -114,7 +119,7 @@
 <if @waiting_lists:rowcount@ gt 0>
 	<ul class="action-links">
 	<multiple name="waiting_lists">
-	<li>@waiting_lists.pretty_name@ <if @user_id@ ne @waiting_lists.participant@>(@waiting_lists.name@)</if></li>
+	<li>@waiting_lists.pretty_name@ <if @user_id@ ne @waiting_lists.participant@>(@waiting_lists.name@) </if> - <font color=red>number @waiting_lists.waiting_list_number@ on waiting list</font></li>
 	</li>
         </multiple>
 	</ul>

@@ -275,7 +275,7 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 
     set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
     set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
-    
+    ns_log Notice "***HAM : $member_state : $applicant_user_id : $community_id ***"
     if { $member_state == "needs approval" || 
 	 $member_state == "awaiting payment" ||
 	 $member_state == "waitinglist approved" ||
@@ -301,7 +301,6 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	    limit 1
 	}] } {
 	    
-
 	    if {$use_embedded_application_view_p ==1} {
 		set asm_url "admin/application-view?session_id=$session_id"
 		set target ""
@@ -310,7 +309,7 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 		set asm_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/results-session" { session_id }]
 		set target "_blank"
 	    }
-	    
+	    ns_log Notice "A:HAM: $asm_url"
 
 	}
 
@@ -346,9 +345,10 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 		set asm_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/results-session" { session_id }]
 		set target "_blank"
 	    }
-
+               ns_log Notice "B:HAM: $asm_url"
 	}
     }
+ns_log Notice "1:HAM: $asm_url"
 
     set section_edit_url [export_vars -base admin/one-section { section_id return_url }]
     set person_url [export_vars -base /acs-admin/users/one { {user_id $applicant_user_id} }]
@@ -393,7 +393,6 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
         }
 	set add_comment_url [export_vars -base "${general_comments_url}comment-add" {{object_id $session_id} {object_name "Application"} return_url}]
     }
-
 }
 
 # if we are CSV we need to get the assessment items
