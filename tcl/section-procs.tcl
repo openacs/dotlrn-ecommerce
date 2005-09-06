@@ -355,12 +355,11 @@ ad_proc -public dotlrn_ecommerce::section::check_elapsed_registrations {
 	}
 
 	dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
+   
+	    # Let the next users in
+
+	dotlrn_ecommerce::section::approve_next_in_waiting_list $community_id
     }
-
-    # Let the next users in
-
-    dotlrn_ecommerce::section::approve_next_in_waiting_list $community_id
-
 }
 
 ad_proc -public dotlrn_ecommerce::section::approve_next_in_waiting_list {
