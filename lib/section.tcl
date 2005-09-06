@@ -799,6 +799,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	}
 
 	dotlrn_ecommerce::section::flush_cache $section_id
+	dotlrn_ecommerce::section::approve_next_in_waiting_list $community_id
     }
 } -after_submit {
     if {![info exists return_url] || [empty_string_p $return_url]} {

@@ -27,7 +27,6 @@ set section_id [db_string section {
     where community_id = :community_id
 }]
 
-dotlrn_ecommerce::section::flush_cache $section_id
 
 
 # get the patron info
@@ -147,6 +146,8 @@ if { !$send_email_p || $user_id == $actor_id } {
                 -body $body
         } \
         -after_submit {
+	    dotlrn_ecommerce::section::flush_cache $section_id
+	    dotlrn_ecommerce::section::approve_next_in_waiting_list $community_id
             ad_returnredirect $return_url
         }
 }
