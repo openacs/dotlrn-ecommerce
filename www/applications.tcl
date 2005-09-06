@@ -241,7 +241,7 @@ if { $enable_applications_p } {
 
 set general_comments_url [apm_package_url_from_key "general-comments"]
 
-db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url s session_id target} applications applications [subst {
+db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target} applications applications [subst {
     select person__name(r.user_id) as person_name, member_state, r.community_id, r.user_id as applicant_user_id, s.section_name, t.course_name, s.section_id, r.rel_id, e.phone, o.creation_user as patron_id,
     (select count(*)
      from (select *
@@ -251,14 +251,18 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	   and rr.rel_id <= r.rel_id
 	   and rr.community_id = r.community_id
 	   and rr.member_state = r.member_state
-	   order by o.creation_date) r) as number, s.product_id
+	   order by o.creation_date) r) as number, s.product_id, m.session_id
+
     from dotlrn_member_rels_full r
     left join (select *
 	       from ec_addresses
 	       where address_id in (select max(address_id)
 				    from ec_addresses
 				    group by user_id)) e
-    on (r.user_id = e.user_id), dotlrn_ecommerce_section s, dotlrn_catalogi t, cr_items i, acs_objects o
+    on (r.user_id = e.user_id)
+    left join dotlrn_ecommerce_application_assessment_map m
+    on (r.rel_id = m.rel_id), dotlrn_ecommerce_section s, dotlrn_catalogi t, cr_items i, acs_objects o
+
     where r.community_id = s.community_id
     and s.course_id = t.item_id
     and t.course_id = i.live_revision
@@ -282,25 +286,27 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	 $member_state == "payment received"
      } {
 	# Get associated assessment
-	if { [db_0or1row assessment {
-	    select ss.session_id 
-	    from dotlrn_ecommerce_section des, 
-	         dotlrn_catalog dc, 
-	         cr_items i1, 
-	         cr_items i2, 
-	         cr_revisions r, 
-	         as_sessions ss 
-	    where des.community_id = :community_id 
-	          and i1.item_id = des.course_id 
-	          and i1.live_revision = dc.course_id 
-	          and dc.assessment_id = i2.item_id 
-	          and r.item_id = i2.item_id 
-	          and r.revision_id = ss.assessment_id 
-	          and ss.subject_id = :applicant_user_id
-	    order by ss.creation_datetime desc
-	    limit 1
-	}] } {
+# 	if { [db_0or1row assessment {
+# 	    select ss.session_id
+# 	    from dotlrn_ecommerce_section des, 
+# 	         dotlrn_catalog dc, 
+# 	         cr_items i1, 
+# 	         cr_items i2, 
+# 	         cr_revisions r, 
+# 	    as_sessions ss
+	      
+# 	    where des.community_id = :community_id 
+# 	          and i1.item_id = des.course_id 
+# 	          and i1.live_revision = dc.course_id 
+# 	          and dc.assessment_id = i2.item_id 
+# 	          and r.item_id = i2.item_id 
+# 	          and r.revision_id = ss.assessment_id 
+# 	          and ss.subject_id = :applicant_user_id
+# 	    order by ss.creation_datetime desc
+# 	    limit 1
+# 	}] } {
 	    
+	if { ! [empty_string_p $session_id] } {
 	    if {$use_embedded_application_view_p ==1} {
 		set asm_url "admin/application-view?session_id=$session_id"
 		set target ""
@@ -309,9 +315,11 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 		set asm_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/results-session" { session_id }]
 		set target "_blank"
 	    }
-	    ns_log Notice "A:HAM: $asm_url"
-
 	}
+	    
+	ns_log Notice "A:HAM: $asm_url"
+
+#	}
 
     } elseif { $member_state == "request approval" ||
 	       $member_state == "request approved" } {
@@ -319,24 +327,25 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	# Get associated assessment
 	set assessment_id [parameter::get -parameter ApplicationAssessment -default ""]
 
-	if { [db_0or1row assessment {
-	    select ss.session_id
+# 	if { [db_0or1row assessment {
+# 	    select ss.session_id
 
-	    from (select a.*
-		  from as_assessmentsi a,
-		  cr_items i
-		  where a.assessment_id = i.latest_revision) a,
-	    as_sessions ss
+# 	    from (select a.*
+# 		  from as_assessmentsi a,
+# 		  cr_items i
+# 		  where a.assessment_id = i.latest_revision) a,
+# 	    as_sessions ss
 	    
-	    where a.assessment_id = ss.assessment_id
-	    and a.item_id = :assessment_id
-	    and ss.subject_id = (select creation_user from acs_objects where object_id = :rel_id)
+# 	    where a.assessment_id = ss.assessment_id
+# 	    and a.item_id = :assessment_id
+# 	    and ss.subject_id = (select creation_user from acs_objects where object_id = :rel_id)
 	    
-	    order by creation_datetime desc
+# 	    order by creation_datetime desc
 	    
-	    limit 1
-	}] } {
+# 	    limit 1
+# 	}] } {
 
+	if { ! [empty_string_p $session_id] } {
 	    if {$use_embedded_application_view_p ==1} {
 		set asm_url "admin/application-view?session_id=$session_id"
 		set target ""
@@ -345,10 +354,12 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 		set asm_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/results-session" { session_id }]
 		set target "_blank"
 	    }
-               ns_log Notice "B:HAM: $asm_url"
 	}
+	
+#	}
+	ns_log Notice "B:HAM: $asm_url"
     }
-ns_log Notice "1:HAM: $asm_url"
+    ns_log Notice "1:HAM: $asm_url"
 
     set section_edit_url [export_vars -base admin/one-section { section_id return_url }]
     set person_url [export_vars -base /acs-admin/users/one { {user_id $applicant_user_id} }]

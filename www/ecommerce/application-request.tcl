@@ -155,6 +155,23 @@ set assessment_id [parameter::get -parameter ApplicationAssessment -default ""]
 if { [empty_string_p $assessment_id] || $type == "full" } {
     ad_returnredirect $next_url
 } else {
-    set return_url [export_vars -base "[ad_conn package_url]ecommerce/application-request-2" { user_id {return_url $next_url} }]
-    ad_returnredirect [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]assessment" { assessment_id return_url }]
+    # Start a new session
+    as::assessment::data -assessment_id $assessment_id
+
+    # This shouldn't fail and the assessment must exist, if for some
+    # reason it doesn't, the redirects bellow shall not include the
+    # session_id and not error out, a new session will be created by
+    # the assessment code
+    if { [info exists assessment_data(assessment_id)] } {
+	set assessment_rev_id $assessment_data(assessment_rev_id)
+
+	set package_id [parameter::get -parameter AssessmentPackage]
+	set folder_id [db_string get_folder_id "select folder_id from cr_folders where package_id=:package_id"]
+	
+	set session_item_id [content::item::new -parent_id $folder_id -content_type {as_sessions} -name "$user_id-$assessment_rev_id-[as::item::generate_unique_name]" -title "$user_id-$assessment_rev_id-[as::item::generate_unique_name]" ]
+	set session_id [content::revision::new  -item_id $session_item_id  -content_type {as_sessions}  -title "$user_id-$assessment_rev_id-[as::item::generate_unique_name]"  -attributes [list [list assessment_rev_id $assessment_rev_id]  [list subject_id $user_id]  [list staff_id ""]  [list target_datetime ""]  [list creation_datetime ""]  [list first_mod_datetime ""]  [list last_mod_datetime ""]  [list completed_datetime ""]  [list percent_score ""]  [list consent_timestamp ""] ] ]
+    }
+
+    set return_url [export_vars -base "[ad_conn package_url]ecommerce/application-request-2" { user_id {return_url $next_url} rel_id session_id }]
+    ad_returnredirect [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]assessment" { assessment_id return_url session_id }]
 }
