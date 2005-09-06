@@ -110,7 +110,7 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 		    # purchaser
 		    if { [lsearch [parameter::get -parameter WelcomeEmailRecipients] purchaser] != -1 } {
 			ns_log Notice "sending email to patron_id $patron_id for user_id $user_id"
-			if {$patron_id != $user_id} {
+			if {$patron_id != $participant_id} {
 			    # if they are the participant, then
 			    # they will get the welcome email for the community
 			    dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type "on join" -email_send_to $patron_id   -override_enabled		
