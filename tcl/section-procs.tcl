@@ -178,7 +178,10 @@ ad_proc -public dotlrn_ecommerce::section::flush_cache {
     util_memoize_flush [list dotlrn_ecommerce::section::member_price $section_id]
     util_memoize_flush [list dotlrn_ecommerce::section::application_assessment $section_id]
     util_memoize_flush [list dotlrn_ecommerce::section::section_zones $community_id]
+    util_memoize_flush [list dotlrn_ecommerce::section::patron_catalog_message $community_id]
     util_memoize_flush [list dotlrn_ecommerce::section::has_discount_p $product_id]
+    util_memoize_flush [list dotlrn_ecommerce::section::has_discount_p $product_id]
+
     # not exactly flushing cache, but is in involved in keeping 
     # section ifno up to date
     dotlrn_ecommerce::section::approve_next_in_waiting_list $community_id

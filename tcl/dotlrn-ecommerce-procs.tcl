@@ -248,6 +248,58 @@ ad_proc -public dotlrn_ecommerce::allow_access_to_approved_users {
     }
 }
 
+
+
+ad_proc -public dotlrn_ecommerce::patron_catalog_message {
+    community_id
+    user_id
+    product_id
+} {
+    Return a string to put into a patron's catalog for a given
+    section/community
+} {
+    set memoize_max_age [parameter::get -parameter CatalogMemoizeAge -default 10800]
+    set patron_message ""
+    # get waiting list requests
+    db_multirow -extend {waiting_list_number} waiting_lists waiting_lists {
+	select r.user_id as participant_id,
+	acs_object__name(r.user_id) as name, r.member_state
+	from 
+	dotlrn_member_rels_full r,
+	acs_objects o
+	where o.object_id = r.rel_id
+	and r.community_id = :community_id
+	and r.member_state in ('request approval', 'request approved', 'needs approval', 'waitinglist approved')
+	and o.creation_user=:user_id
+	and r.user_id <> o.creation_user
+    } {
+	
+	set waiting_list_number [util_memoize [list dotlrn_ecommerce::section::waiting_list_number $participant_id $community_id] $memoize_max_age]
+	
+	set registration_approved_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id participant_id}]
+	
+	switch $member_state {
+	    "request approval" {
+		append patron_message "<font color=red>$name has a prerequisite application pending.</font>"
+	    }
+	    "request approved" {
+		append patron_message "<font color=red>$name has been accepted.<br/>  
+		<a href=\"$registration_approved_url\" class=\"button\">[_ dotlrn-ecommerce.lt_Continue_Registration]</a></font>"
+		
+	    }
+	    "needs approval" {
+		append patron_message "<font color=red>$name is number $waiting_list_number on waiting list</font>"
+	    }
+	    "waitinglist approved" {
+		append patron_message "<font color=red>There is a place for $name.<br/>		<a href=\"$registration_approved_url\" class=\"button\">[_ dotlrn-ecommerce.lt_Continue_Registration]</a></font>"
+	    }
+	}
+    }
+    return $patron_message
+}
+
+
+
 ad_proc -public dotlrn_ecommerce::disallow_access_to_approved_users {
 } {
     Don't allow approved users who haven't completed the registration to access the dotLRN community
