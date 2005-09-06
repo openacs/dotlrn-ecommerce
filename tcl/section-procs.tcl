@@ -179,10 +179,15 @@ ad_proc -public dotlrn_ecommerce::section::flush_cache {
     util_memoize_flush [list dotlrn_ecommerce::section::application_assessment $section_id]
     util_memoize_flush [list dotlrn_ecommerce::section::section_zones $community_id]
     util_memoize_flush [list dotlrn_ecommerce::section::has_discount_p $product_id]
+    # not exactly flushing cache, but is in involved in keeping 
+    # section ifno up to date
+    dotlrn_ecommerce::section::approve_next_in_waiting_list $community_id
+
     if { [exists_and_not_null user_id] } {
 	util_memoize_flush [list dotlrn_ecommerce::section::member_state $user_id $community_id]
 	util_memoize_flush [list dotlrn_ecommerce::section::waiting_list_number $user_id $community_id]
     }
+
 }
 
 ad_proc -public dotlrn_ecommerce::section::maxparticipants {
@@ -347,6 +352,11 @@ ad_proc -public dotlrn_ecommerce::section::check_elapsed_registrations {
 
 	dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
     }
+
+    # Let the next users in
+
+    dotlrn_ecommerce::section::approve_next_in_waiting_list $community_id
+
 }
 
 ad_proc -public dotlrn_ecommerce::section::approve_next_in_waiting_list {
@@ -369,8 +379,10 @@ ad_proc -public dotlrn_ecommerce::section::approve_next_in_waiting_list {
     set available_slots [dotlrn_ecommerce::section::available_slots -actual $section_id]
 
     if { $available_slots > 0 } {
+	set email_reg_info_to [parameter::get -parameter EmailRegInfoTo -default "patron"]
+
 	db_foreach next_in_waiting_list [subst {
-	    select pretty_name as community_name, person__name(r.user_id) as person_name, r.user_id, p.email
+	    select pretty_name as community_name, person__name(r.user_id) as person_name, r.user_id, p.email, o.creation_user as patron_id
 	    from acs_objects o, dotlrn_member_rels_full r, dotlrn_communities_all c, parties p
 	    where o.object_id = r.rel_id
 	    and r.community_id = c.community_id
@@ -394,6 +406,16 @@ ad_proc -public dotlrn_ecommerce::section::approve_next_in_waiting_list {
 				 and r.object_id_two = :user_id
 				 and m.member_state = 'needs approval')
 	    }
+
+
+	    if {$email_reg_info_to == "participant"} {
+		set email_user_id $user_id
+	    }  else {
+		set email_user_id $patron_id
+	    }
+
+            set email [cc_email_from_party $email_user_id]
+
 
 	    if { [parameter::get -parameter AllowAheadAccess -package_id [apm_package_id_from_key dotlrn-ecommerce] -default 0] } {
 		# Dispatch dotlrn applet callbacks
