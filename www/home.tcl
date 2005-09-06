@@ -159,8 +159,9 @@ set default_assessment_id [parameter::get -parameter ApplicationAssessment -defa
 	    }
 
 	    set edit_asm_url [export_vars -base /assessment/assessment { assessment_id }]
-	    set register_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id participant_id}]
+	   
 	}
+	set register_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id participant_id}]
 	incr sessions_with_applications
     }
 
