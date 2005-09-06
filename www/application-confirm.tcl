@@ -2,7 +2,12 @@ ad_page_contract {
 } {
     {product_id:notnull}
     member_state:notnull
+    {patron_id ""}
+
 }
+
+set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
+set admin_p [permission::permission_p -object_id $cc_package_id -privilege "admin"]
 
 if { [db_0or1row get_name {
     select c.course_name||': '||s.section_name as section_name, s.community_id

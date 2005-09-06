@@ -31,6 +31,7 @@ ad_page_contract {
 }
 
 
+
 # Proc to be used in form validation
 proc already_registered_p { section_id purchaser_id participant_id } {
     if { [empty_string_p $section_id] } {

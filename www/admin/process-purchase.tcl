@@ -23,6 +23,7 @@ ad_page_contract {
 
 set title ""
 
+
 if { [exists_and_not_null section_id] } {
 
     db_1row get_section_info "select c.course_id, c.course_name,

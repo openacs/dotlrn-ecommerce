@@ -19,6 +19,7 @@ ad_page_contract {
 } -errors {
 }
 
+
 if { ! [empty_string_p $cancel] } {
     ns_log notice "DEBUG:: CANCEL - $cancel - $return_url"
 

@@ -143,12 +143,13 @@ if { [acs_object_type $participant_id] != "group" } {
 		# No more slots left, ask user if he wants to go to
 		# waiting list
 		
-		if { $admin_p && $user_id != [ad_conn user_id] } {
+		if { $admin_p } {
 		    set cancel_url [set return_url [export_vars -base [ad_conn package_url]admin/process-purchase-course { user_id }]]
 		} else {
-		    set return_url [export_vars -base [ad_conn package_url]application-confirm { product_id {member_state "needs approval"} }]
 		    set cancel_url [ad_conn package_url]
 		}
+		
+		set return_url [export_vars -base [ad_conn package_url]application-confirm { product_id {member_state "needs approval"} {patron_id $user_id}} ]
 		ad_returnredirect [export_vars -base waiting-list-confirm { product_id user_id participant_id return_url cancel_url }]
 		ad_script_abort
 	    }

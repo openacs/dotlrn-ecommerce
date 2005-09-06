@@ -22,4 +22,19 @@
 <!--
   <a href="home" class="button">#dotlrn-ecommerce.Go_to_My_Account#</a> &nbsp;&nbsp;&nbsp;
 -->
+
+<if @admin_p@>
+    <ul>
+      <li> <a
+	  href="admin/process-purchase-course?user_id=@patron_id@">#dotlrn-ecommerce.lt_Purchase_another_Cour#</a> #dotlrn-ecommerce.lt_for_the_current_purch#</li>
+      <li> <a
+	  href="admin/process-purchase-all">#dotlrn-ecommerce.lt_Select_another_purcha#</a> </li>
+      
+      <li> <a
+	  href="admin">#dotlrn-ecommerce.lt_Return_to_main_course#</a> </li>
+    </ul>
+
+</if>
+<else>
   <a href="index" class="button">#dotlrn-ecommerce.lt_Register_for_Another_#</a>
+</else>

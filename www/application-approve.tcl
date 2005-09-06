@@ -3,7 +3,6 @@
 ad_page_contract {
     
     
-    
     @author Roel Canicula (roelmc@pldtdsl.net)
     @creation-date 2005-06-23
     @arch-tag: 93f47ba6-c04e-419a-bcd6-60bb95553236
