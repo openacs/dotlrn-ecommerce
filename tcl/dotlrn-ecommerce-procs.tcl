@@ -81,7 +81,7 @@ ad_proc -public dotlrn_ecommerce::notify_admins_of_waitlist {
             append message "Section: $course_name - $section_name
 Applicants in notify list: $waitlist_n 
 "
-ns_write $message
+
         }
 
         if {![empty_string_p $message]} {
