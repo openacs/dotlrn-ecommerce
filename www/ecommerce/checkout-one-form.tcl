@@ -18,6 +18,8 @@ ad_page_contract {
     user_id:integer,notnull,optional
     participant_id:integer,optional
 
+    {invalid_cc_p 0}
+
     {creditcard_expire_1 ""}
     {creditcard_expire_2 ""}
 }

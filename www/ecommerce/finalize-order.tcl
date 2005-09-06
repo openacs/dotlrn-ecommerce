@@ -51,7 +51,7 @@ if {$user_id == 0} {
     
     set return_url "[ad_conn url]"
 
-    ad_returnredirect "/register?[export_url_vars return_url]"
+    ad_returnredirect "[ad_conn package_url]login?[export_url_vars return_url]"
     ad_script_abort
 }
 
@@ -88,11 +88,9 @@ if { [empty_string_p $order_id] } {
 			and o2.confirmed_date is not null)" -default ""]
 
     if { [empty_string_p $most_recently_confirmed_order] } {
-	rp_internal_redirect "index"
         ns_log Notice "finalize-order.tcl ref(84): no confirmed order for user $user_id. Redirecting user."
-    } else {
-	ad_returnredirect ..
     }
+    ad_returnredirect ..
     ad_script_abort
 }
 
@@ -106,8 +104,7 @@ if { [db_string get_in_basket_count "
     select count(*) 
     from ec_items 
     where order_id = :order_id"] == 0 } {
-    rp_form_put user_id $user_id
-    rp_internal_redirect shopping-cart
+    ad_returnredirect [export_vars -base shopping-cart { user_id }]
     ad_script_abort
 }
 
@@ -120,8 +117,7 @@ set order_owner [db_string get_order_owner "
     from ec_orders 
     where order_id = :order_id"]
 if { $order_owner != $user_id } {
-    rp_form_put user_id $user_id
-    rp_internal_redirect checkout
+    ad_returnredirect [export_vars -base checkout-one-form { user_id }]
     ad_script_abort
 }
 
@@ -145,7 +141,7 @@ if { [empty_string_p $address_id] } {
 	and p.no_shipping_avail_p = 'f' 
 	and i.order_id = :order_id
 	group by no_shipping_avail_p"]} {
-	ad_returnredirect [ec_securelink checkout]
+	ad_returnredirect [export_vars -base checkout-one-form { user_id }]
         ad_script_abort
     }
 }
@@ -334,9 +330,8 @@ if {$hard_goods_cost > 0} {
 
                     # authorization error is not necessarily the fault of the user's card, so log it for identifying pattern for diagnostics
                     ns_log Notice "finalize-order.tcl ref(295): failed_authorization for order_id: $order_id. Redirecting user to credit-card-correction."
-
-		    rp_form_put user_id $user_id
-		    rp_internal_redirect credit-card-correction
+		    
+		    ad_returnredirect [export_vars -base checkout-one-form { user_id {invalid_cc_p 1} }]
                     ad_script_abort
 		} else {
 
@@ -454,8 +449,7 @@ if {$hard_goods_cost > 0} {
 
 		    ec_update_state_to_in_basket $order_id
                     ns_log Notice "finalize-order.tcl ref(411): updated creditcard check failed for order_id $order_id. Redirecting to credit-card-correction"
-		    rp_form_put user_id $user_id
-		    rp_internal_redirect credit-card-correction
+		    ad_returnredirect [export_vars -base checkout-one-form { user_id {invalid_cc_p 1} }]
                     ad_script_abort
 		} else {
 
@@ -595,9 +589,8 @@ if {$hard_goods_cost > 0} {
 
 			ec_update_state_to_in_basket $order_id
                         ns_log Notice "finalize-order.tcl ref(544): creditcard check failed. Redirecting user to credit-card-correction."
-			rp_form_put user_id $user_id
-			rp_internal_redirect credit-card-correction
-
+			ad_returnredirect [export_vars -base checkout-one-form { user_id {invalid_cc_p 1} }]
+			ad_script_abort
 		    } else {
 
 			# Then result is probably
@@ -621,9 +614,8 @@ if {$hard_goods_cost > 0} {
 
 		    ec_update_state_to_in_basket $order_id
 
-		    rp_form_put user_id $user_id
-		    rp_internal_redirect credit-card-correction
-                    ad_script_abort
+		    ad_returnredirect [export_vars -base checkout-one-form { user_id {invalid_cc_p 1} }]
+		    ad_script_abort
 		} else {
 
 		    # Then result is probably "invalid_input".  This should never
@@ -736,8 +728,7 @@ if {$hard_goods_cost > 0} {
                 # log this just in case this is a symptom of an extended gateway downtime
                 ns_log Notice "finalize-order.tcl, ref(671): creditcard check failed for order_id $order_id. Redirecting to credit-card-correction"
 
-		rp_form_put user_id $user_id
-		rp_internal_redirect credit-card-correction
+		ad_returnredirect [export_vars -base checkout-one-form { user_id {invalid_cc_p 1} }]
                 ad_script_abort
 	    } else {
 
@@ -883,8 +874,7 @@ if {$hard_goods_cost > 0} {
 		
 		ec_update_state_to_in_basket $order_id
                 ns_log Notice "finalize-order.tcl ref(789): creditcard check failed. Redirecting to credit-card-correction"		
-		rp_form_put user_id $user_id
-		rp_internal_redirect credit-card-correction
+		ad_returnredirect [export_vars -base checkout-one-form { user_id {invalid_cc_p 1} }]
                 ad_script_abort
 
 	    } else {

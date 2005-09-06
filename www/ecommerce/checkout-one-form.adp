@@ -2,9 +2,19 @@
 
 <!-- following from billing.adp -->
 
-  <property name="title">#dotlrn-ecommerce.lt_Completing_Your_Order_1#</property>
+  <if @invalid_cc_p@>
+    <property name="title">#dotlrn-ecommerce.lt_Completing_Your_Order_1#</property>
 
-  <p>#dotlrn-ecommerce.lt_To_complete_your_orde#</p>
+    <h2>#dotlrn-ecommerce.lt_Sorry_There_seems_to_#</h2>
+    <blockquote>
+      #dotlrn-ecommerce.lt_pAt_this_time_we_are_#
+    </blockquote>
+  </if>
+  <else>
+    <property name="title">#dotlrn-ecommerce.lt_Completing_Your_Order_1#</property>
+    
+    <p>#dotlrn-ecommerce.lt_To_complete_your_orde#</p>
+  </else>
 
 <if @more_addresses_available@ true>
   <p>#dotlrn-ecommerce.lt_Alternately_you_can_u# <a href="checkout">#dotlrn-ecommerce.lt_multi-page_order_proc#</a>, 

@@ -139,6 +139,12 @@
   <msg key="lt_Order_Details_for_ord">Order Details for %order_id%</msg>
   <msg key="lt_Orders_in_the_Last_7_">Orders in the Last 7 Days</msg>
   <msg key="lt_Participant_pays_for_">Participant pays for course</msg>
+  <msg key="lt_pAt_this_time_we_are_">&lt;p&gt;At this time we are unable to receive authorization to charge
+	your credit card.  Please check the number and the expiration
+	date and try again or use a different credit card.&lt;/p&gt;
+      &lt;p&gt;If this message persists, there may be a temporary problem, 
+	such as the system not being able to reach the merchant banking system.
+      &lt;/p&gt;</msg>
   <msg key="lt_patron_name_also_pays">%patron_name% also pays for the course</msg>
   <msg key="lt_Please_enter_a_credit">Please enter a credit card number</msg>
   <msg key="lt_Please_enter_a_name_f">Please enter a name for the group</msg>
@@ -167,6 +173,7 @@
   <msg key="lt_Select_another_purcha">Select another purchaser</msg>
   <msg key="lt_Sessions_and_Attendan">Sessions and Attendance</msg>
   <msg key="lt_Sorry_the_offer_code_">Sorry, the offer code was not accepted.</msg>
+  <msg key="lt_Sorry_There_seems_to_">Sorry, There seems to be a problem with completing this transaction.</msg>
   <msg key="lt_Thank_you_for_your_ap">Thank you for putting yourself on the waiting list for %section_name%.  We will notify you if a space becomes available.</msg>
   <msg key="lt_Thank_You_For_Your_Or">Thank You For Your Order</msg>
   <msg key="lt_The_course_only_has_a">The course only has $available_slots slot(s) left</msg>
