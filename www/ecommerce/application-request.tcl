@@ -53,6 +53,15 @@ switch $type {
     }
 }
 
+
+set email_reg_info_to [parameter::get -parameter EmailRegInfoTo -default "patron"]	   
+if {$email_reg_info_to == "participant"} {
+    set email_user_id $participant
+}  else {
+    set email_user_id $user_id
+}
+
+
 if {[catch {set rel_id [relation_add \
 			    -member_state $member_state \
 			    -extra_vars $extra_vars \
@@ -64,7 +73,7 @@ if {[catch {set rel_id [relation_add \
 } else {
     switch -- $member_state {
 	"awaiting payment" {
-	    dotlrn_community::send_member_email -community_id $community_id -to_user $participant_id -type "awaiting payment"
+	    dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type "awaiting payment"
 	}
         "needs approval" -
         "request approval" {
@@ -82,7 +91,7 @@ if {[catch {set rel_id [relation_add \
   	    if { [parameter::get -package_id [ad_conn package_id] -parameter NotifyApplicantOnRequest] } {
 		ns_log notice "DEBUG:: SENDING APPLICATION NOTIFICATION"
 		acs_mail_lite::send \
-			-to_addr [cc_email_from_party $participant_id] \
+			-to_addr [cc_email_from_party $email_user_id] \
 			-from_addr $mail_from \
 			-subject $subject \
 			-body $body
