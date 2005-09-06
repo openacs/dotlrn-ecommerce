@@ -280,18 +280,18 @@ ad_proc -public dotlrn_ecommerce::patron_catalog_message {
 	
 	switch $member_state {
 	    "request approval" {
-		append patron_message "<font color=red>$name has a prerequisite application pending.</font>"
+		append patron_message "<font color=red>$name has a prerequisite application pending.</font><br\>"
 	    }
 	    "request approved" {
 		append patron_message "<font color=red>$name has been accepted.<br/>  
-		<a href=\"$registration_approved_url\" class=\"button\">[_ dotlrn-ecommerce.lt_Continue_Registration]</a></font>"
+		<a href=\"$registration_approved_url\" class=\"button\">[_ dotlrn-ecommerce.lt_Continue_Registration]</a></font><br\>"
 		
 	    }
 	    "needs approval" {
-		append patron_message "<font color=red>$name is number $waiting_list_number on waiting list</font>"
+		append patron_message "<font color=red>$name is number $waiting_list_number on waiting list</font><br\>"
 	    }
 	    "waitinglist approved" {
-		append patron_message "<font color=red>There is a place for $name.<br/>		<a href=\"$registration_approved_url\" class=\"button\">[_ dotlrn-ecommerce.lt_Continue_Registration]</a></font>"
+		append patron_message "<font color=red>There is a place for $name.<br/>		<a href=\"$registration_approved_url\" class=\"button\">[_ dotlrn-ecommerce.lt_Continue_Registration]</a></font><br\>"
 	    }
 	}
     }
