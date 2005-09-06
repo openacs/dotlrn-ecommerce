@@ -104,14 +104,20 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 			set patron_id $saved_patron_id
 		    }
 
+		    if { [exists_and_not_null patron_id] } {
+
 		    # See if we need to send the welcome email to the
 		    # purchaser
 		    if { [lsearch [parameter::get -parameter WelcomeEmailRecipients] purchaser] != -1 } {
-			dotlrn_community::send_member_email -community_id $community_id -to_user $patron_id -type "on join" -override_enabled		
+			ns_log Notice "sending email to patron_id $patron_id for user_id $user_id"
+			if {$patron_id <> $user_id} {
+			    # if they are the participant, then
+			    # they will get the welcome email for the community
+			    dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type "on join" -email_send_to $patron_id   -override_enabled		
+			}
 		    }
-
 		    # Keep track of patron relationships
-		    if { [exists_and_not_null patron_id] } {
+
 			if { [db_0or1row member_rel {
 			    select rel_id
 			    from dotlrn_member_rels_full
