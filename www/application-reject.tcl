@@ -29,6 +29,18 @@ set section_id [db_string section {
 
 dotlrn_ecommerce::section::flush_cache $section_id
 
+
+# get the patron info
+
+set patron_id [db_string get_patron {
+    select o.creation_user as patron_id from
+    acs_rels r, acs_objects o
+    where r.rel_id = o.object_id
+    and r.object_id_one = :community_id
+    and r.object_id_two= :user_id
+}]
+
+
 if { !$send_email_p || $user_id == $actor_id } {
     if { [parameter::get -parameter AllowAheadAccess -default 0] } {
 	set member_state [db_string member_state {
@@ -99,7 +111,16 @@ if { !$send_email_p || $user_id == $actor_id } {
 		}
 	    }
 
+
             dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
+
+	    set email_reg_info_to [parameter::get -parameter EmailRegInfoTo -default "patron"]	   
+	    if {$email_reg_info_to == "participant"} {
+		set email_user_id $user_id
+	    }  else {
+		set email_user_id $patron_id
+	    }
+
 
             set applicant_email [cc_email_from_party $user_id]
             set actor_email [cc_email_from_party $actor_id]

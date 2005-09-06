@@ -18,6 +18,11 @@ ad_page_contract {
 } -errors {
 }
 
+
+## who should get the email?
+
+set email_reg_info_to [parameter::get -parameter EmailRegInfoTo -default "patron"]
+
 ### Check for security
 
 switch $type {
@@ -37,6 +42,7 @@ switch $type {
 	set email_type "on approval"
     }
 }
+
 
 set actor_id [ad_conn user_id]
 set section_id [db_string section {
@@ -108,10 +114,12 @@ if { $user_id == $actor_id } {
 		set reason "[lang::message::format $reason $var_list]"
             } \
             -on_submit {
+		
 		db_transaction {
+		    
 		    set rels [db_list rels {
 			select r.rel_id
-			from acs_rels r,
+			from acs_rels r, 
 			membership_rels m
 			where r.rel_id = m.rel_id
 			and r.object_id_one = :community_id
@@ -130,13 +138,26 @@ if { $user_id == $actor_id } {
 			set last_modified = current_timestamp
 			where object_id in ([join $rels ,])
 		    }]
+		    
+
+		    set rel [lindex $rels 0]
+		    set patron_id [db_string get_patron {
+			select creation_user from
+			acs_objects where object_id = :rel
+		    }]
+				  
 		} on_error {
 		}
 
-                set applicant_email [cc_email_from_party $user_id]
-                set actor_email [cc_email_from_party $actor_id]
 
-		dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type $email_type -override_email $reason
+		if {$email_reg_info_to == "participant"} {
+		    set email_user_id $user_id
+		}  else {
+		    set email_user_id $patron_id
+		}
+
+
+		dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type -override_email $reason
 
             } \
             -after_submit {
@@ -178,16 +199,30 @@ if { $user_id == $actor_id } {
 	} on_error {
 	}
 
+
+	set rel [lindex $rels 0]
+	set patron_id [db_string get_patron {
+	    select creation_user from
+	    acs_objects where object_id = :rel
+	}]
+		       
 	# Send email to applicant
-	set applicant_email [cc_email_from_party $user_id]
-	set actor_email [cc_email_from_party $actor_id]
+
 	set community_name [dotlrn_community::get_community_name $community_id]
 	if {[exists_and_not_null reason]} {
 	    set override_email $reason
 	} else {
 	    set override_email ""
 	}
-	dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type $email_type -override_email $override_email
+	
+	if {$email_reg_info_to == "participant"} {
+	    set email_user_id $user_id
+	}  else {
+	    set email_user_id $patron_id
+	}
+
+	
+	dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type -override_email $override_email
 	dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
 	ad_returnredirect $return_url
     }
