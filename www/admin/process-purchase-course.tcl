@@ -30,6 +30,7 @@ ad_page_contract {
 } -errors {
 }
 
+
 # Proc to be used in form validation
 proc already_registered_p { section_id purchaser_id participant_id } {
     if { [empty_string_p $section_id] } {
@@ -44,11 +45,13 @@ proc already_registered_p { section_id purchaser_id participant_id } {
 
 	set user_id [ad_decode $participant_id 0 $purchaser_id $participant_id]
 	
+	# if they are in approved state, then let the registration pass 
 	return [db_string registered {
 	    select count(*)
 	    from dotlrn_member_rels_full
 	    where community_id = :community_id
 	    and user_id = :user_id
+	    and member_state not in ('request approved', 'waitinglist approved')
 	}]
     }
 

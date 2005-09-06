@@ -88,7 +88,8 @@ set invisible_p [whos_online::user_invisible_p [ad_conn untrusted_user_id]]
 
 db_multirow -extend { order_url } orders get_orders {
     select o.order_id, confirmed_date
-    from ec_orders o, dotlrn_ecommerce_transactions t, ec_items i, dotlrn_ecommerce_section s
+    from ec_orders o, dotlrn_ecommerce_transactions t, ec_items i, 
+    dotlrn_ecommerce_section s
     where o.order_id = t.order_id
     and o.order_id = i.order_id
     and i.product_id = s.product_id
@@ -110,20 +111,21 @@ set sessions_with_applications 0
 
 set default_assessment_id [parameter::get -parameter ApplicationAssessment -default ""]
 
-    db_multirow -extend { asm_url edit_asm_url } sessions sessions {
-	select c.community_id, c.pretty_name,r.user_id as participant,
-	acs_object__name(r.user_id) as name, r.member_state, r.rel_id
+    db_multirow -extend { asm_url edit_asm_url register_url } sessions sessions {
+	select c.community_id, c.pretty_name,r.user_id as participant_id,
+	acs_object__name(r.user_id) as name, r.member_state, 
+	r.rel_id, s.product_id
 	from 
-	dotlrn_communities c,
-	dotlrn_member_rels_full r
-	left join (select object_id_two, object_id_one, rel_type from acs_rels
-		   where acs_rels.rel_type = 'patron_rel') ar 
-	on r.user_id=ar.object_id_two
+	dotlrn_communities c, dotlrn_ecommerce_section s,
+	dotlrn_member_rels_full r,
+	acs_objects o
 	where r.community_id = c.community_id
-	and r.member_state in ('request approval')
-	and (r.user_id = :user_id or ar.object_id_one=:user_id)
+	and s.community_id = c.community_id
+	and o.object_id = r.rel_id
+	and r.member_state in ('request approval', 'request approved')
+	and (r.user_id = :user_id or o.creation_user=:user_id)
     } {
-	append notice "community_id '${community_id}' participant = '${participant}' <br />"
+	append notice "community_id '${community_id}' participant = '${participant_id}' <br />"
 	if { [db_0or1row assessment {
 	    select ss.session_id, coalesce(case when c.assessment_id=-1 then null else a.assessment_id end,:default_assessment_id) as assessment_id
 	    from dotlrn_ecommerce_section s,
@@ -157,27 +159,30 @@ set default_assessment_id [parameter::get -parameter ApplicationAssessment -defa
 	    }
 
 	    set edit_asm_url [export_vars -base /assessment/assessment { assessment_id }]
-
+	    set register_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id participant_id}]
 
 	    incr sessions_with_applications
 	}
     }
 
 # get waiting list requests
-db_multirow -extend {waiting_list_number} waiting_lists waiting_lists {
-	select c.community_id, c.pretty_name,r.user_id as participant,
-	acs_object__name(r.user_id) as name
+db_multirow -extend {waiting_list_number register_url} waiting_lists waiting_lists {
+	select c.community_id, c.pretty_name,r.user_id as participant_id,
+	acs_object__name(r.user_id) as name, r.member_state,
+        s.product_id
 	from 
-	dotlrn_communities c,
-	dotlrn_member_rels_full r
-	left join (select object_id_two, object_id_one, rel_type from acs_rels
-		   where acs_rels.rel_type = 'patron_rel') ar
-	on r.user_id=ar.object_id_two 
-	where r.community_id = c.community_id
-	and r.member_state = 'needs approval'
-	and (r.user_id = :user_id or ar.object_id_one=:user_id)
+	dotlrn_communities c, dotlrn_ecommerce_section s,
+	dotlrn_member_rels_full r,
+        acs_objects o
+        where o.object_id = r.rel_id
+        and s.community_id = c.community_id
+	and r.community_id = c.community_id
+	and r.member_state in ('needs approval', 'waitinglist approved')
+	and (r.user_id = :user_id or o.creation_user=:user_id)
     } {
-	set waiting_list_number [util_memoize [list dotlrn_ecommerce::section::waiting_list_number $user_id $community_id] $memoize_max_age]
+	set waiting_list_number [util_memoize [list dotlrn_ecommerce::section::waiting_list_number $participant_id $community_id] $memoize_max_age]
+	
+	set register_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id participant_id}]
     }
 
 #ad_return_complaint 1 $notice

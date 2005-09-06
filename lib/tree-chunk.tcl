@@ -402,30 +402,31 @@ template::list::create \
 		<a href="@course_list.section_edit_url;noquote@" class="button">[_ dotlrn-ecommerce.edit]</a>
 		</if>
 		<if @course_list.pending_p@ eq 1>
-		<font color="red">[_ dotlrn-ecommerce.application_pending]</font>
+		   <font color="red">[_ dotlrn-ecommerce.application_pending]</font>
 		</if>
 		<if @course_list.waiting_p@ eq 1>
-		<font color="red">[_ dotlrn-ecommerce.lt_You_are_number_course]</font>
+		   <font color="red">[_ dotlrn-ecommerce.lt_You_are_number_course]</font>
 		</if>
 		<if @course_list.asm_url@ not nil>
 		<a href="@course_list.asm_url;noquote@" class="button">[_ dotlrn-ecommerce.review_application]</a>
 		</if>
 		<if @course_list.waiting_p@ eq 2>
-		<font color="red">[_ dotlrn-ecommerce.awaiting_approval]</font>
+		   <font color="red">[_ dotlrn-ecommerce.awaiting_approval]</font>
 		</if>
 		<if @course_list.instructor_p@ ne -1>
-		<a href="applications" class="button">[_ dotlrn-ecommerce.view_applications]</a>
+		  <a href="applications" class="button">[_ dotlrn-ecommerce.view_applications]</a>
 		</if>
 		</div>
+
 		<if @course_list.approved_p@ eq 1>
 		<div align="center" style="float: right">
 		
-		<if @course_list.member_state@ eq "request approved">
-		[_ dotlrn-ecommerce.lt_Your_application_was_]<p />
-		</if>
-		<else>
-		A place is now available.<p />
-		</else>
+  		   <if @course_list.member_state@ eq "request approved">
+		   [_ dotlrn-ecommerce.lt_Your_application_was_]<p />
+		   </if>
+		   <else>
+		    A place is now available.<p />
+		   </else>
 
 		<if @offer_code_p@ and @course_list.has_discount_p@>
 		<p />
@@ -442,6 +443,10 @@ template::list::create \
 		</div>
 		</if>
 		</if>
+		
+		<div align="center" style="float: right">
+		@course_list.patron_message;noquote@
+		</div>
 	    }
 	    html { width 40% valign middle nowrap }
 	}
@@ -473,7 +478,7 @@ if { $offer_code_p } {
     set discount_clause ""
 }
 
-db_multirow -extend {member_state fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades section_zones sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url assessment_id } course_list get_courses { } {
+db_multirow -extend {patron_message member_state fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades section_zones sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url assessment_id } course_list get_courses { } {
 
     # Since dotlrn-ecommerce is based on dotlrn-catalog,
     # it's possible to have a dotlrn_catalog object without an
@@ -518,7 +523,7 @@ db_multirow -extend {member_state fs_chunk section_folder_id section_pages_url c
 	}
     }
 
-    set registration_approved_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id }]
+    set registration_approved_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id}]
     
     set member_p [dotlrn_community::member_p $community_id $user_id]
     
@@ -683,6 +688,47 @@ db_multirow -extend {member_state fs_chunk section_folder_id section_pages_url c
 	    set approved_p 1
 	}
     }
+
+    # The above was the users waiting list and applications
+    # Get the patron information
+
+    set patron_message ""
+    # get waiting list requests
+    db_multirow -extend {waiting_list_number} waiting_lists waiting_lists {
+	select r.user_id as participant_id,
+	acs_object__name(r.user_id) as name, r.member_state
+	from 
+	dotlrn_member_rels_full r,
+        acs_objects o
+        where o.object_id = r.rel_id
+	and r.community_id = :community_id
+	and r.member_state in ('request approval', 'request approved', 'needs approval', 'waitinglist approved')
+	and o.creation_user=:user_id
+	and r.user_id <> o.creation_user
+    } {
+
+	set waiting_list_number [util_memoize [list dotlrn_ecommerce::section::waiting_list_number $participant_id $community_id] $memoize_max_age]
+
+	set registration_approved_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id participant_id}]
+
+	switch $member_state {
+	    "request approval" {
+		append patron_message "<font color=red>$name has a prerequisite application pending.</font>"
+	    }
+	    "request approved" {
+		append patron_message "<font color=red>$name has been accepted.<br/>  
+		<a href=\"$registration_approved_url\" class=\"button\">[_ dotlrn-ecommerce.lt_Continue_Registration]</a></font>"
+
+	    }
+	    "needs approval" {
+		append patron_message "<font color=red>$name is number $waiting_list_number on waiting list</font>"
+	    }
+	    "waitinglist approved" {
+		append patron_message "<font color=red>There is a place for $name.<br/>		<a href=\"$registration_approved_url\" class=\"button\">[_ dotlrn-ecommerce.lt_Continue_Registration]</a></font>"
+	    }
+	}
+    }
+
 
     # HAM : if we don't have an instructor id 
     set instructor_p -1

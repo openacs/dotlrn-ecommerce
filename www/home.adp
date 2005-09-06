@@ -95,13 +95,21 @@
 </else>
 	<ul class="action-links">
 	  <if @sessions_with_applications@ gt 0>
+
 	    <multiple name="sessions">
+	
 		<if @admin_p@ eq 1>
-		  <li> <a href="@sessions.asm_url;noquote@">@sessions.pretty_name@</a> <if @user_id@ ne @sessions.participant@>(@sessions.name@)</if>
+		  <li> <a href="@sessions.asm_url;noquote@">@sessions.pretty_name@</a> <if @user_id@ ne @sessions.participant_id@>(@sessions.name@)</if>
 		</if>
 		<else>
-		  <li> @sessions.pretty_name@ <if @user_id@ ne @sessions.participant@>(@sessions.name@)</if>
+		  <li> @sessions.pretty_name@ <if @user_id@ ne @sessions.participant_id@>(@sessions.name@)</if>
 		</else>    
+		<if @sessions.member_state@ eq "request approved">
+		
+		- Request approved <br/>
+		<a href="@sessions.register_url@" class="button">#dotlrn-ecommerce.lt_Continue_Registration#</a>
+		</if>
+	
 
 	<if @use_embedded_application_view_p@ ne 1> 
 	 [<a href="@sessions.edit_asm_url;noquote@">#acs-kernel.common_Edit#</a>]
@@ -116,10 +124,20 @@
 </if>
 	<h2>#dotlrn-ecommerce.Your_Waiting_Lists#</h2>
 	
-<if @waiting_lists:rowcount@ gt 0>
+    <if @waiting_lists:rowcount@ gt 0>
 	<ul class="action-links">
 	<multiple name="waiting_lists">
-	<li>@waiting_lists.pretty_name@ <if @user_id@ ne @waiting_lists.participant@>(@waiting_lists.name@) </if> - <font color=red>number @waiting_lists.waiting_list_number@ on waiting list</font></li>
+		<li> @waiting_lists.pretty_name@ <if @user_id@ ne @waiting_lists.participant_id@>(@waiting_lists.name@) </if> 
+
+	  	<if @waiting_lists.member_state@ eq "needs approval">
+			- <font color=red>number @waiting_lists.waiting_list_number@ on waiting list</font>
+		</if>
+		<else>
+		A place is available.<br/>		
+		<a href="@waiting_lists.register_url@" class="button">#dotlrn-ecommerce.lt_Continue_Registration#</a>
+		
+		</else>
+
 	</li>
         </multiple>
 	</ul>

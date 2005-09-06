@@ -65,7 +65,9 @@ if { [exists_and_not_null section_id] } {
 	and not u.user_id
 	in (select user_id
 	    from dotlrn_member_rels_full
-	    where community_id = :community_id)
+	    where community_id = :community_id
+	    and member_state not in ('request approved', 'waitinglist approved')
+	    )
     }]
 
 # 	set page_query {
