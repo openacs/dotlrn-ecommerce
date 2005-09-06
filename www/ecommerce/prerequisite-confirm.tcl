@@ -23,9 +23,6 @@ set package_id [ad_conn package_id]
 set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
 set admin_p [permission::permission_p -object_id $cc_package_id -privilege "admin"]
 
-if { $admin_p } {
-	set return_url "/dotlrn-ecommerce/admin/"
-}
 
 
 db_1row section {
