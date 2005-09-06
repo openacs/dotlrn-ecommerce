@@ -7,7 +7,7 @@
     <initial-install-p>f</initial-install-p>
     <singleton-p>t</singleton-p>
     
-    <version name="0.1d15" url="http://openacs.org/repository/download/apm/dotlrn-ecommerce-0.1d15.apm">
+    <version name="0.1d16" url="http://openacs.org/repository/download/apm/dotlrn-ecommerce-0.1d16.apm">
         <owner url="mailto:roelmc@solutiongrove.com">Roel Canicula</owner>
         <summary>Package to tie the dotLRN, Ecommerce, Assessments and dotLRN Catalog packages together</summary>
         <release-date>2005-08-10</release-date>
@@ -15,7 +15,7 @@
         <description format="text/html">Package to tie the dotLRN, Ecommerce, Assessments and dotLRN Catalog packages together.  Initially intended for the MOS and MGH projects, the goal is to create a reusable module for similar projects.</description>
         <maturity>0</maturity>
 
-        <provides url="dotlrn-ecommerce" version="0.1d15"/>
+        <provides url="dotlrn-ecommerce" version="0.1d16"/>
 
         <callbacks>
             <callback type="after-install"  proc="dotlrn_ecommerce::install"/>
@@ -59,6 +59,7 @@
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="SupportPublicPagesP"  default="0" description="Support publics pages."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="UseEmbeddedApplicationViewP"  default="0" description="Do you embed the assessment instead of redirecting to assessment?"/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="AllowRejectWithoutEmail"  default="0" description="Allow rejecting an application without sending an email to the user."/>
+            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="WelcomeEmailRecipients"  default="participant" description="Who receives the welcome email sent when a user joins the community. Either or both 'participant' or 'purchaser' separated by space."/>
         </parameters>
 
     </version>

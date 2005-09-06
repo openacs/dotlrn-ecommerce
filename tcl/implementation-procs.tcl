@@ -98,52 +98,16 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 		
 		if { [catch {
 
-#		    set waiting_list_p 0
-# 		    if { ! [empty_string_p $maxparticipants] } {
-# 			db_1row attendees {
-# 			    select count(*) as attendees
-# 			    from dotlrn_member_rels_approved
-# 			    where community_id = :community_id
-# 			    and (rel_type = 'dotlrn_member_rel'
-# 				 or rel_type = 'dc_student_rel')
-# 			}
-
-# 			# If the group members will exceed the maximum
-# 			# participants, the entire group goes to the
-# 			# waiting list
-# 			if { [acs_object_type $participant_id] == "group" } {
-# 			    if { ($attendees + [llength $user_ids]) > $maxparticipants } {
-# 				set waiting_list_p 1
-# 			    }
-# 			} else {
-# 			    if { $attendees >= $maxparticipants } {
-# 				set waiting_list_p 1
-# 			    }
-# 			}
-# 		    }
-
-#		    if { ! [empty_string_p $method] && $method != "cc" } {
-#			set waiting_list_p 1
-#		    }
-
-#		    if { ! $waiting_list_p } {
 		    dotlrn_community::add_user $community_id $user_id
-#		    } else {
-#			dotlrn_community::add_user -member_state "needs approval" $community_id $user_id
-			# DEDS
-			# we hit a waitlist
-			# we need to check if we possibly notify for this community
-			# we do the actual check if we reached the number at the end
-			# of the proc so that we save on execution time
-#			ns_log notice "dotlrn-ecommerce wait list notify: hit wait list on $community_id"
-#			if {[lsearch $community_notify_waitlist_list $community_id] == -1} {
-#			    lappend community_notify_waitlist_list $community_id
-#			}
-#			ns_log notice "dotlrn-ecommerce wait list notify: list is now $community_notify_waitlist_list"
-#		    }
 
 		    if { ! [exists_and_not_null patron_id] } {
 			set patron_id $saved_patron_id
+		    }
+
+		    # See if we need to send the welcome email to the
+		    # purchaser
+		    if { [lsearch [parameter::get -parameter WelcomeEmailRecipients] purchaser] != -1 } {
+			dotlrn_community::send_member_email -community_id $community_id -to_user $patron_id -type "on join" -override_enabled		
 		    }
 
 		    # Keep track of patron relationships
