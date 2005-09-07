@@ -46,7 +46,16 @@ set patron_id [db_string get_patron {
 }]
 
 
-if { !$send_email_p || $user_id == $actor_id } {
+
+set email_reg_info_to [parameter::get -parameter EmailRegInfoTo -default "patron"]	   
+if {$email_reg_info_to == "participant"} {
+    set email_user_id $user_id
+}  else {
+    set email_user_id $patron_id
+}
+
+
+if { !$send_email_p || $user_id == $email_user_id } {
     if { [parameter::get -parameter AllowAheadAccess -default 0] } {
 	set member_state [db_string member_state {
 	    select member_state
@@ -67,6 +76,7 @@ if { !$send_email_p || $user_id == $actor_id } {
     dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
 
     ad_returnredirect $return_url
+    as_script_abort
 } else {
     # Send email to applicant
     switch $type {
@@ -87,7 +97,7 @@ if { !$send_email_p || $user_id == $actor_id } {
             {reason:text(textarea),optional {label "[_ dotlrn-ecommerce.Reason]"} {html {rows 10 cols 60}}}
 	}
 
-    if { [parameter::get -parameter AllowRejectWithoutEmail] } {
+    if { [parameter::get -parameter AllowRejectWithoutEmail -default 0] } {
 	ad_form \
 	    -extend \
 	    -name email_form \
@@ -135,15 +145,7 @@ if { !$send_email_p || $user_id == $actor_id } {
 
             dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
 
-	    set email_reg_info_to [parameter::get -parameter EmailRegInfoTo -default "patron"]	   
-	    if {$email_reg_info_to == "participant"} {
-		set email_user_id $user_id
-	    }  else {
-		set email_user_id $patron_id
-	    }
-
-
-            set applicant_email [cc_email_from_party $user_id]
+            set to_email [cc_email_from_party $email_user_id]
             set actor_email [cc_email_from_party $actor_id]
             set community_name [dotlrn_community::get_community_name $community_id]
             switch $type {
@@ -162,7 +164,7 @@ if { !$send_email_p || $user_id == $actor_id } {
             }
 	
             acs_mail_lite::send \
-                -to_addr $applicant_email \
+                -to_addr $to_email \
                 -from_addr $actor_email \
                 -subject $subject \
                 -body $body
@@ -171,5 +173,6 @@ if { !$send_email_p || $user_id == $actor_id } {
 	    dotlrn_ecommerce::section::flush_cache $section_id
 	    dotlrn_ecommerce::section::approve_next_in_waiting_list $community_id
             ad_returnredirect $return_url
+	    ad_script_abort
         }
 }
