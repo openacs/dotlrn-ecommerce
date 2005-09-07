@@ -14,7 +14,6 @@ ad_page_contract {
     community_id:integer,notnull
     {type full}
     next_url:notnull
-    {as_done_p 0}
 } -properties {
 } -validate {
 } -errors {
@@ -34,25 +33,20 @@ db_1row section {
     where community_id = :community_id
 }
 
-set assessment_id [dotlrn_ecommerce::section::application_assessment $section_id]
-if { ! [empty_string_p $assessment_id] && $assessment_id != -1 && !$as_done_p} {
-    set return_url "[ad_return_url]&as_done_p=1"
-    ad_returnredirect [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]assessment" { assessment_id return_url }]
-    ad_script_abort    
-}
-
 switch $type {
     full {
 	set member_state "needs approval"
     }
     prereq {
 	set member_state "request approval"
+	set assessment_id [parameter::get -parameter ApplicationAssessment -default ""]
+
     }
     payment {
 	set member_state "awaiting payment"
+	set assessment_id [dotlrn_ecommerce::section::application_assessment $section_id]
     }
 }
-
 
 set email_reg_info_to [parameter::get -parameter EmailRegInfoTo -default "patron"]	   
 if {$email_reg_info_to == "participant"} {
@@ -60,7 +54,6 @@ if {$email_reg_info_to == "participant"} {
 }  else {
     set email_user_id $user_id
 }
-
 
 if {[catch {set rel_id [relation_add \
 			    -member_state $member_state \
@@ -149,11 +142,9 @@ Total persons in the waiting list for ${section_name}: $current_waitlisted"
 
 dotlrn_ecommerce::section::flush_cache -user_id $participant_id $section_id
 
-# Redirect to application assessment if exists
-set assessment_id [parameter::get -parameter ApplicationAssessment -default ""]
-
-if { [empty_string_p $assessment_id] || $type == "full" } {
+if { [empty_string_p $assessment_id] || $assessment_id == -1 || $type == "full" } {
     ad_returnredirect $next_url
+    ad_script_abort
 } else {
     # Start a new session
     as::assessment::data -assessment_id $assessment_id
@@ -169,7 +160,7 @@ if { [empty_string_p $assessment_id] || $type == "full" } {
 	set folder_id [db_string get_folder_id "select folder_id from cr_folders where package_id=:package_id"]
 	
 	set session_item_id [content::item::new -parent_id $folder_id -content_type {as_sessions} -name "$user_id-$assessment_rev_id-[as::item::generate_unique_name]" -title "$user_id-$assessment_rev_id-[as::item::generate_unique_name]" ]
-	set session_id [content::revision::new  -item_id $session_item_id  -content_type {as_sessions}  -title "$user_id-$assessment_rev_id-[as::item::generate_unique_name]"  -attributes [list [list assessment_rev_id $assessment_rev_id]  [list subject_id $user_id]  [list staff_id ""]  [list target_datetime ""]  [list creation_datetime ""]  [list first_mod_datetime ""]  [list last_mod_datetime ""]  [list completed_datetime ""]  [list percent_score ""]  [list consent_timestamp ""] ] ]
+	set session_id [content::revision::new  -item_id $session_item_id  -content_type {as_sessions}  -title "$user_id-$assessment_rev_id-[as::item::generate_unique_name]"  -attributes [list [list assessment_id $assessment_rev_id]  [list subject_id $user_id]  [list staff_id ""]  [list target_datetime ""]  [list creation_datetime ""]  [list first_mod_datetime ""]  [list last_mod_datetime ""]  [list completed_datetime ""]  [list percent_score ""]  [list consent_timestamp ""] ] ]
     }
 
     set return_url [export_vars -base "[ad_conn package_url]ecommerce/application-request-2" { user_id {return_url $next_url} rel_id session_id }]
