@@ -47,8 +47,6 @@ foreach tree [category_tree::get_mapped_trees $cc_package_id] {
     regsub -all { } $tree_name _ f
     set f [string tolower $f]_f
 
-    ns_log notice "DEBUG:: CATEGORY:: $tree_name | [lindex $tree 0]"
-
     lappend filter_list $f
     set ff [ns_set get $form $f]
 
@@ -62,8 +60,6 @@ foreach tree [category_tree::get_mapped_trees $package_id] {
     regsub -all { } $tree_name _ f
     set f [string tolower $f]_f
 
-    ns_log notice "DEBUG:: CATEGORY:: $tree_name"
-
     lappend filter_list $f
     set ff [ns_set get $form $f]
 
@@ -72,8 +68,6 @@ foreach tree [category_tree::get_mapped_trees $package_id] {
     }
     lappend section_categories [lindex $tree 0]
 }
-
-ns_log notice "DEBUG:: FILTER:: $filter_list"
 
 foreach f $filter_list {
     if { [info exists $f] } {
@@ -84,8 +78,6 @@ foreach f $filter_list {
 	set ${f}_category_v ""
 	set ${f}_level ""
     }
-
-    ns_log notice "DEBUG:: VARS:: category_v [set ${f}_category_v], level [set ${f}_level]"
 }
 
 if { ! [empty_string_p $level] } {
@@ -150,8 +142,6 @@ foreach tree_id $category_trees {
     # Get all sub categories
     set map_tree "("
     if { ![string equal [set ${f}_level] ""] } {
-	ns_log notice "DEBUG:: SUBCATEGORIES:: $f, $tree_length"
-	
 	set j 0
 	set i 0
 	while { $i < $tree_length } {
@@ -408,10 +398,10 @@ template::list::create \
 		   <font color="red">[_ dotlrn-ecommerce.lt_You_are_number_course]</font>
 		</if>
 		<if @course_list.asm_url@ not nil>
-		<a href="@course_list.asm_url;noquote@" class="button">[_ dotlrn-ecommerce.review_application]</a>
+		@course_list.asm_url;noquote@
 		</if>
-		<if @course_list.waiting_p@ eq 2>
-		   <font color="red">[_ dotlrn-ecommerce.awaiting_approval]</font>
+		<if @course_list.waiting_p@ eq 2 and @course_list.asm_url@ nil>
+		<font color="red">[_ dotlrn-ecommerce.awaiting_approval]</font>
 		</if>
 		<if @course_list.instructor_p@ ne -1>
 		  <a href="applications" class="button">[_ dotlrn-ecommerce.view_applications]</a>
@@ -491,7 +481,7 @@ if { $offer_code_p } {
     set discount_clause ""
 }
 
-db_multirow -extend {patron_message member_state fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades section_zones sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url assessment_id } course_list get_courses { } {
+db_multirow -extend {patron_message member_state fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades section_zones sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url } course_list get_courses { } {
 
     # Since dotlrn-ecommerce is based on dotlrn-catalog,
     # it's possible to have a dotlrn_catalog object without an
@@ -529,7 +519,7 @@ db_multirow -extend {patron_message member_state fs_chunk section_folder_id sect
 	} else {
 	    set return_url [export_vars -base [ad_conn package_url]ecommerce/shopping-cart-add { user_id product_id }]
 	    if { $user_id == 0 } {
-		set shopping_cart_add_url [export_vars -base login { return_url }]
+		set shopping_cart_add_url [export_vars -base [ad_conn package_url]ecommerce/login { return_url }]
 	    } else {
 		set shopping_cart_add_url $return_url
 	    }
@@ -661,18 +651,34 @@ db_multirow -extend {patron_message member_state fs_chunk section_folder_id sect
 	}
 	"awaiting payment" {
 	    set waiting_p 2
-	    if {![empty_string_p $assessment_id]} {
-		if { [db_0or1row assessment {
-		    select ss.session_id
-		    from as_sessions ss,
-		         cr_items i
-		    where i.item_id = :assessment_id
-		    and ss.assessment_id = coalesce(i.live_revision,i.latest_revision)
-		    and ss.subject_id = :user_id
-		    order by creation_datetime desc
+	    if { ![empty_string_p $assessment_id] } {
+		set rel_id [db_string membership_rel {
+		    select m.rel_id
+		    from acs_rels r,
+		    membership_rels m
+		    where r.rel_id = m.rel_id
+		    and r.object_id_one = :community_id
+		    and r.object_id_two = :user_id
 		    limit 1
+		}]
+
+		if { [db_0or1row assessment {
+		    select m.session_id, completed_datetime
+		    from dotlrn_ecommerce_application_assessment_map m, as_sessions s
+		    where m.session_id = s.session_id
+		    and rel_id = :rel_id
 		}] } {
-		    set asm_url [export_vars -base /assessment/session { session_id }]
+		    if { ! [empty_string_p $completed_datetime] } {
+			set review_asm_url [export_vars -base /assessment/session { session_id }]
+			set edit_asm_url [export_vars -base /assessment/assessment { assessment_id session_id }]
+			set asm_url [subst {
+			    <a href="$review_asm_url" class="button">[_ dotlrn-ecommerce.review_application]</a>
+			    <a href="$edit_asm_url" class="button">[_ dotlrn-ecommerce.lt_Edit_your_application]</a>
+			}]
+		    } else {
+			set asm_url [export_vars -base /assessment/assessment { assessment_id session_id }]
+			set asm_url [subst {<a href="$asm_url" class="button">[_ dotlrn-ecommerce.lt_Your_application_is_i]</a>}]
+		    }
 		}
 	    }
 	}
@@ -682,17 +688,33 @@ db_multirow -extend {patron_message member_state fs_chunk section_folder_id sect
 	"payment received" {
 	    set approved_p 1
 	    if {![empty_string_p $assessment_id]} {
+		set rel_id [db_string membership_rel {
+		    select m.rel_id
+		    from acs_rels r,
+		    membership_rels m
+		    where r.rel_id = m.rel_id
+		    and r.object_id_one = :community_id
+		    and r.object_id_two = :user_id
+		    limit 1
+		}]
+
 		if { [db_0or1row assessment {
-		    select ss.session_id
-		    from as_sessions ss,
-		         cr_items i
-		    where i.item_id = :assessment_id
-		    and ss.assessment_id = coalesce(i.live_revision,i.latest_revision)
-		    and ss.subject_id = :user_id
-		    order by creation_datetime desc
+		    select m.session_id, completed_datetime
+		    from dotlrn_ecommerce_application_assessment_map m, as_sessions s
+		    where m.session_id = s.session_id
+		    and rel_id = :rel_id
+		    order by m.session_id desc
 		    limit 1
 		}] } {
-		    set asm_url [export_vars -base /assessment/session { session_id }]
+		    if { ! [empty_string_p $completed_datetime] } {
+			set asm_url [export_vars -base /assessment/session { session_id }]
+			set asm_url [subst {
+			    <a href="$asm_url" class="button">[_ dotlrn-ecommerce.review_application]</a>
+			}]
+		    } else {
+			set asm_url [export_vars -base /assessment/assessment { assessment_id session_id }]
+			set asm_url [subst {<a href="$asm_url" class="button">[_ dotlrn-ecommerce.lt_Your_application_is_i]</a>}]
+		    }
 		}
 	    }
 	}

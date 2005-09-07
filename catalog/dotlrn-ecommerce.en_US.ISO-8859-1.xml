@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d13" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d16" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Action">Action</msg>
   <msg key="Add_Course">Add Course</msg>
@@ -114,6 +114,7 @@
   <msg key="lt_Credit_card_informati">Credit card information</msg>
   <msg key="lt_eCommerce_Administrat">eCommerce Administration</msg>
   <msg key="lt_Edit_Section_Informat">Edit Section Information</msg>
+  <msg key="lt_Edit_your_application">Edit your application</msg>
   <msg key="lt_Financial_Transaction">Financial Transactions</msg>
   <msg key="lt_for_first_names_last_">for %first_names% %last_name% (if you're not %first_names% %last_name%</msg>
   <msg key="lt_for_the_current_purch">for the current purchases</msg>
@@ -209,6 +210,7 @@ Instructors:
   <msg key="lt_You_may_only_enter_up">You may only enter up to the amount</msg>
   <msg key="lt_You_may_wish_to_conti">Would you like to be placed on the waiting list?</msg>
   <msg key="lt_You_may_wish_to_regis">Would you be interested in taking a different course?</msg>
+  <msg key="lt_Your_application_is_i">Your application is incomplete</msg>
   <msg key="lt_Your_application_to_j">Your application to join $community_name was approved. Please register via the MOS website or call to get registered via phone.</msg>
   <msg key="lt_Your_application_to_j_1">Your application to join %community_name% was rejected.</msg>
   <msg key="lt_Your_application_was_">Your application was approved.</msg>
