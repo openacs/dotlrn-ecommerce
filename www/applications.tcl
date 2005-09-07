@@ -260,7 +260,11 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 				    from ec_addresses
 				    group by user_id)) e
     on (r.user_id = e.user_id)
-    left join dotlrn_ecommerce_application_assessment_map m
+    left join (select *
+	       from dotlrn_ecommerce_application_assessment_map
+	       where session_id in (select max(session_id)
+				    from dotlrn_ecommerce_application_assessment_map
+				    group by rel_id)) m
     on (r.rel_id = m.rel_id), dotlrn_ecommerce_section s, dotlrn_catalogi t, cr_items i, acs_objects o
 
     where r.community_id = s.community_id
