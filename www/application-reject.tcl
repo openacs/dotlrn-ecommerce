@@ -22,7 +22,7 @@ ad_page_contract {
 
 if { [exists_and_equal submit2 "Reject Only"] } {
     ad_returnredirect [export_vars -base application-reject { community_id user_id type return_url {send_email_p 0} }]
-    ad_script_abort
+    ad_scrip_abort
 }
 
 set actor_id [ad_conn user_id]
@@ -76,7 +76,7 @@ if { !$send_email_p || $user_id == $email_user_id } {
     dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
 
     ad_returnredirect $return_url
-    as_script_abort
+    ad_script_abort
 } else {
     # Send email to applicant
     switch $type {
