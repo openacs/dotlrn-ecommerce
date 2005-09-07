@@ -13,10 +13,16 @@ ad_page_contract {
     user_id:integer,notnull
     {type full}
     {send_email_p 1}
-    {return_url "applications"}    
+    {return_url "applications"}
+    submit2:optional
 } -properties {
 } -validate {
 } -errors {
+}
+
+if { [exists_and_equal submit2 "Reject Only"] } {
+    ad_returnredirect [export_vars -base application-reject { community_id user_id type return_url {send_email_p 0} }]
+    ad_script_abort
 }
 
 set actor_id [ad_conn user_id]
@@ -79,6 +85,22 @@ if { !$send_email_p || $user_id == $actor_id } {
             {community_id:text(hidden)}
             {type:text(hidden)}
             {reason:text(textarea),optional {label "[_ dotlrn-ecommerce.Reason]"} {html {rows 10 cols 60}}}
+	}
+
+    if { [parameter::get -parameter AllowRejectWithoutEmail] } {
+	ad_form \
+	    -extend \
+	    -name email_form \
+	    -form {
+		{submit1:text(submit) {label "Reject and Send Email"}}
+		{submit2:text(submit) {label "Reject Only"}}
+	    }
+    }
+
+    ad_form \
+	-extend \
+	-name email_form \
+	-form {
         } \
         -on_request {
 	    set reason [lindex [lindex [callback dotlrn::default_member_email -community_id $community_id -to_user $user_id -type "prereq reject"] 0] 2]
