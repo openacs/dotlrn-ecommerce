@@ -223,7 +223,7 @@ if { $admin_p } {
 	and r.community_id in (select community_id
 			       from dotlrn_member_rels_full
 			       where user_id = :user_id
-			       and rel_type = 'dotlrn_admin_rel')
+			       and rel_type in ('dotlrn_admin_rel', 'dotlrn_ecom_instructor_rel'))
     }
 }
 
