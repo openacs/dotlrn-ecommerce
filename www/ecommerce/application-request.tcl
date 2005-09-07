@@ -163,6 +163,14 @@ if { [empty_string_p $assessment_id] || $assessment_id == -1 || $type == "full" 
 	set session_id [content::revision::new  -item_id $session_item_id  -content_type {as_sessions}  -title "$user_id-$assessment_rev_id-[as::item::generate_unique_name]"  -attributes [list [list assessment_id $assessment_rev_id]  [list subject_id $user_id]  [list staff_id ""]  [list target_datetime ""]  [list creation_datetime ""]  [list first_mod_datetime ""]  [list last_mod_datetime ""]  [list completed_datetime ""]  [list percent_score ""]  [list consent_timestamp ""] ] ]
     }
 
-    set return_url [export_vars -base "[ad_conn package_url]ecommerce/application-request-2" { user_id {return_url $next_url} rel_id session_id }]
+    # If a course or prerequisite assessment exists, it should be
+    # mapped now to the rel_id, even if the assessment isn't complete,
+    # it will show in the assessment list
+    db_dml map_application_to_assessment {
+	insert into dotlrn_ecommerce_application_assessment_map
+	values (:rel_id, :session_id)
+    }
+    
+    set return_url [export_vars -base "[ad_conn package_url]ecommerce/application-request-2" { user_id {return_url $next_url} }]
     ad_returnredirect [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]assessment" { assessment_id return_url session_id }]
 }
