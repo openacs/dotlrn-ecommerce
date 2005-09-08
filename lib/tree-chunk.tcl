@@ -667,6 +667,8 @@ db_multirow -extend {patron_message member_state fs_chunk section_folder_id sect
 		    from dotlrn_ecommerce_application_assessment_map m, as_sessions s
 		    where m.session_id = s.session_id
 		    and rel_id = :rel_id
+		    order by m.session_id desc
+		    limit 1
 		}] } {
 		    if { ! [empty_string_p $completed_datetime] } {
 			set review_asm_url [export_vars -base /assessment/session { session_id }]
