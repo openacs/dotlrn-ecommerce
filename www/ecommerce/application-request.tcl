@@ -50,7 +50,7 @@ switch $type {
 
 set email_reg_info_to [parameter::get -parameter EmailRegInfoTo -default "patron"]	   
 if {$email_reg_info_to == "participant"} {
-    set email_user_id $participant
+    set email_user_id $participant_id
 }  else {
     set email_user_id $user_id
 }
