@@ -42,19 +42,8 @@
 <li>#dotlrn-ecommerce.Assistant_Instuctors# - [ <a href=@assistant_community_url@>#dotlrn.Community#</a> | <a href=@assistant_community_url@/members>#dotlrn-ecommerce.List#</a> ]
 <li><a href="../Administration/categories/cadmin">#dotlrn-ecommerce.lt_Manage_Category_Trees#</a>
 <li>#dotlrn-ecommerce.Email_templates_1#
-<ul>
-  <li>#dotlrn-ecommerce.Welcome_message#[ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=Welcome_to_section&return_url=@return_url@">#dotlrn-ecommerce.subject#</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_Welcome_to_section_1&return_url=@return_url@">#dotlrn-ecommerce.body#</a> ]                
-<if @enable_applications_p@>
-  <li>Application approval (default <i>Note: this is customizable on a per section basis</i>) [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=Application_approved&return_url=@return_url@">subject</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_Your_application_to_j&return_url=@return_url@">body</a> ]
-</if>
-  <li>Grant spot from waiting list [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_A_space_has_opened_up&return_url=@return_url@">subject</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_A_space_has_opened_up_1&return_url=@return_url@">body</a> ]
-  <li>Approve waiver of prerequisites [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=Application_prereq_approved&return_url=@return_url@">subject</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_Your_prereq_approved&return_url=@return_url@">body</a> ]
-<if @enable_applications_p@>
-  <li>Reject application [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=Application_rejected&return_url=@return_url@">subject</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_Your_application_to_j_1&return_url=@return_url@">body</a> ]
-</if>
-  <li>Reject waiver of prerequisites [ <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=Application_prereq_rejected&return_url=@return_url@">subject</a> | <a href="/acs-lang/admin/edit-localized-message?package_key=dotlrn-ecommerce&locale=@package_locale@&message_key=lt_Your_prereq_rejected&return_url=@return_url@">body</a> ]
-  <li>Purchase receipt [ <a href="/ecommerce/admin/email-templates/edit.tcl?email_template_id=1&return_url=@return_url@">edit</a> ]
-</ul>
+<li>Purchase receipt [ <a href="/ecommerce/admin/email-templates/edit.tcl?email_template_id=1&return_url=@return_url@">edit</a> ]
+
 </ul>
 
 <h2 class="page-title">#dotlrn-ecommerce.System_Setup#</h2>
