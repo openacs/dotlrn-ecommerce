@@ -117,10 +117,7 @@ db_foreach products_select "
 
 	    # EVE: have to make items-void.tcl take more than just product_id
 	    
-	    append items_ul "
-		<font size=-1>
-		  (<a href=\"items-void?[export_url_vars order_id]&product_id=[lindex $old_product_color_size_style_price_price_name 0]\">remove</a>)
-		</font>"
+
 	}
 	append items_ul "
 	      <br>
@@ -149,10 +146,7 @@ if { [llength $old_product_color_size_style_price_price_name] != 0 } {
 
 	# I.e., if the items of this product_id are not all void
 
-	append items_ul "
-	    <font size=-1>
-	      (<a href=\"items-void?[export_url_vars order_id]&product_id=[lindex $old_product_color_size_style_price_price_name 0]\">remove</a>)
-	    </font>"
+
     }
     append items_ul "
 	  <br>
