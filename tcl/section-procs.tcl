@@ -605,12 +605,21 @@ ad_proc -public dotlrn_ecommerce::section::fs_chunk {
     set section_pages_url "pages/${section_id}/"
     set __adp_stub ""
     
-    return [eval [template::adp_compile -string [subst {
-	<include-optional src="/packages/file-storage/lib/folder-links" folder_id="$section_folder_id" base_url="$section_pages_url">
-	<strong>\#dotlrn-ecommerce.More_Information\#</strong><br />
-	<include-output>
-	</include-optional>
-    }]]]
+#    return [eval [template::adp_compile -string [subst {
+#	<include-optional src="/packages/file-storage/lib/folder-links" folder_id="$section_folder_id" base_url="$section_pages_url">
+#	<strong>\#dotlrn-ecommerce.More_Information\#</strong><br />
+#	<include-output>
+#	</include-optional>
+#    }]]]
+
+    return [template::adp_include "/packages/dotlrn-ecommerce/lib/fs-chunk" [list section_folder_id $section_folder_id section_pages_url $section_pages_url]]
+#    return [template::adp_compile -string [subst {
+#	<include-optional src="/packages/file-storage/lib/folder-links" folder_id="$section_folder_id" base_url="$section_pages_url">
+#	<strong>\#dotlrn-ecommerce.More_Information\#</strong><br />
+#	<include-output>
+#	</include-optional>
+#    }]]
+
 }
 
 ad_proc -public dotlrn_ecommerce::section::waiting_list_number {
