@@ -604,21 +604,9 @@ ad_proc -public dotlrn_ecommerce::section::fs_chunk {
     set section_folder_id [dotlrn_ecommerce::section::get_public_folder_id $section_id]
     set section_pages_url "pages/${section_id}/"
     set __adp_stub ""
-    
-#    return [eval [template::adp_compile -string [subst {
-#	<include-optional src="/packages/file-storage/lib/folder-links" folder_id="$section_folder_id" base_url="$section_pages_url">
-#	<strong>\#dotlrn-ecommerce.More_Information\#</strong><br />
-#	<include-output>
-#	</include-optional>
-#    }]]]
+    set __adp_include_optional_output [list]
 
     return [template::adp_include "/packages/dotlrn-ecommerce/lib/fs-chunk" [list section_folder_id $section_folder_id section_pages_url $section_pages_url]]
-#    return [template::adp_compile -string [subst {
-#	<include-optional src="/packages/file-storage/lib/folder-links" folder_id="$section_folder_id" base_url="$section_pages_url">
-#	<strong>\#dotlrn-ecommerce.More_Information\#</strong><br />
-#	<include-output>
-#	</include-optional>
-#    }]]
 
 }
 
