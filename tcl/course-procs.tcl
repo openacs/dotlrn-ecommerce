@@ -137,6 +137,6 @@ ad_proc -private dotlrn_ecommerce::email_type_pretty {
 		     "waitinglist approved" "Grant spot from waiting list" \
 		     "prereq approval" "Approve waiver of prerequisites" \
 		     "prereq reject" "Reject waiver of prerequitsites" \
-                     "needs approval" "Added to waiting list" \
+                     "needs approval" "Added to waiting list / Application Submitted" \
                      "request approval" "Application for waiver of prerequisites submitted"] $type]
 }
