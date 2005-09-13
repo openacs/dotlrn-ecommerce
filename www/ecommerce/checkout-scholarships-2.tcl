@@ -87,7 +87,7 @@ foreach one_fund_id $fund_id {
 			break
 		    }
 		    
-		    if { ! [exists_and_not_null $user_identification_id] } {
+		    if { ! [exists_and_not_null user_identification_id] } {
 			# no previous customer service interaction with this user, so
 			# insert them into ec_user_identification
 			set user_identification_id [db_nextval "ec_user_ident_id_sequence"]
