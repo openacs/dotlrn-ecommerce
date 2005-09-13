@@ -72,22 +72,10 @@ if {[catch {set rel_id [relation_add \
         "request approval" {
             set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
 	    set community_name [dotlrn_community::get_community_name $community_id]
-	    #FIXME add email templates for these??
-            if {$member_state eq "needs approval"} {
-                set subject [_ dotlrn-ecommerce.lt_Added_to_waiting_list]
-                set body [_ dotlrn-ecommerce.lt_Added_to_waiting_list_1]
-            } else {
-                set subject [_ dotlrn-ecommerce.lt_Requested_waiver_of_prereq]
-                set body [_ dotlrn-ecommerce.lt_Requested_waiver_of_prereq_1]
-            }
 
   	    if { [parameter::get -package_id [ad_conn package_id] -parameter NotifyApplicantOnRequest] } {
-		ns_log notice "DEBUG:: SENDING APPLICATION NOTIFICATION"
-		acs_mail_lite::send \
-			-to_addr [cc_email_from_party $email_user_id] \
-			-from_addr $mail_from \
-			-subject $subject \
-			-body $body
+		dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $member_state
+
 	   }
         }
     }
