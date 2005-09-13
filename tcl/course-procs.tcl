@@ -98,7 +98,9 @@ ad_proc -private dotlrn_ecommerce::email_type_message_key {
                      "on join" dotlrn-ecommerce.Welcome_to_section \
 		     "prereq approval" dotlrn-ecommerce.Application_prereq_approved \
 		    "waitinglist approved" dotlrn-ecommerce.lt_A_space_has_opened_up \
-		     "prereq reject" dotlrn-ecommerce.Application_prereq_rejected] \
+		     "prereq reject" dotlrn-ecommerce.Application_prereq_rejected \
+                     "needs approval" dotlrn-ecommerce.lt_Added_to_waiting_list \
+                     "request approval" dotlrn-ecommerce.lt_Requested_waiver_of_prereq] \
                    $type]
     } elseif {[string equal "body" $key]} {
         return [string map \
@@ -110,7 +112,9 @@ ad_proc -private dotlrn_ecommerce::email_type_message_key {
                      "on join" dotlrn-ecommerce.lt_Welcome_to_section_1 \
                      "waitinglist approved" dotlrn-ecommerce.lt_A_space_has_opened_up_1 \
 		     "prereq approval" dotlrn-ecommercel.lt_Your_prereq_approved \
-		     "prereq reject" dotlrn-ecommerce.lt_Your_prereq_rejected] \
+		     "prereq reject" dotlrn-ecommerce.lt_Your_prereq_rejected \
+                     "needs approval" dotlrn-ecommerce.lt_Added_to_waiting_list_1 \
+                     "request approval" dotlrn-ecommerce.lt_Requested_waiver_of_prereq_1] \
                    $type]
     } else {
         error "Key must be 'subject' or 'body'"
@@ -132,5 +136,7 @@ ad_proc -private dotlrn_ecommerce::email_type_pretty {
 		     "on join" "Welcome message" \
 		     "waitinglist approved" "Grant spot from waiting list" \
 		     "prereq approval" "Approve waiver of prerequisites" \
-		     "prereq reject" "Reject waiver of prerequitsites"] $type]
+		     "prereq reject" "Reject waiver of prerequitsites" \
+                     "needs approval" "Added to waiting list" \
+                     "request approval" "Application for waiver of prerequisites submitted"] $type]
 }
