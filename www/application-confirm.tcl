@@ -49,3 +49,9 @@ if { [db_0or1row get_name {
 } else {
     set section_name ""
 }
+
+set message [lindex [dotlrn_community::send_member_email -community_id $community_id -to_user [ad_conn user_id] -type "needs approval" -message_only] 1]
+
+if {[string equal "" $message]} {
+    set message [_ dotlrn-ecommerce.lt_Thank_you_for_your_ap]
+}

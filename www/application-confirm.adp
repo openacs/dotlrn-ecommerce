@@ -13,7 +13,7 @@
 </h3>
 </if>
 <else>
-    <h3>#dotlrn-ecommerce.lt_Thank_you_for_your_ap#</h3>
+    <h3>@message;noquote@</h3>
 </else>
 
   </div>
