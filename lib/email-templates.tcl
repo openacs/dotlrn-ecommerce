@@ -14,6 +14,9 @@ set email_types [list "on join" "waitinglist approved" "prereq approval" "prereq
 if {[parameter::get -package_id [ad_conn package_id] -parameter EnableCourseApplicationsP -default 1]} {
     lappend email_types "on approval" "awaiting payment" 
 }
+if {[parameter::get -package_id [ad_conn package_id] -parameter NotifyApplicantOnRequest]} {
+    lappend email_types "needs approval" "request approval"
+}
 
 db_multirow -extend {type_pretty action_url action from revert revert_url} email_templates get_email_templates "select subject,type from dotlrn_member_emails where community_id=:community_id" {
     set revert_url [export_vars -base email-template-delete {{community_id $community_id} {action $type} return_url}]
