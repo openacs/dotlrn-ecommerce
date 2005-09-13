@@ -125,7 +125,7 @@ ad_proc -private dotlrn_ecommerce::email_type_pretty {
 } {
     return [string map \
 		[list \
-		     "awaiting_payment" "Application Approved (awaiting payment)" \
+		     "awaiting payment" "Application Approved (awaiting payment)" \
 		     "on approval" "Application Approved" \
 		     "submit_app" "Application Submitted" \
 		     "approve_app" "Application Approved" \
