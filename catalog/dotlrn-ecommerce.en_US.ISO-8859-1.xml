@@ -20,6 +20,7 @@
   <msg key="Applications">Applications</msg>
   <msg key="apply_for_course">apply for course</msg>
   <msg key="Approve">Approve</msg>
+  <msg key="as_widget_help">The drop down displays existing applications. If you need to create a new application use this &lt;a href=&quot;/assessment/asm-admin&quot;&gt;link&lt;/a&gt; then return to this form.</msg>
   <msg key="assistant_instructor">Assistant Instructor(s)</msg>
   <msg key="Assistant_Instuctors">Assistant Instuctors</msg>
   <msg key="awaiting_approval">(awaiting approval)</msg>

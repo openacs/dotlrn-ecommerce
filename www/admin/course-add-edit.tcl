@@ -90,6 +90,7 @@ foreach attribute $attribute_list {
 	    if { [string equal [lindex $attribute 2] "assessment_id"]} {
 		set aditional_type "(select)"
 		set aditional_elements [list options $asm_list]
+		set help_text [list help_text "[_ dotlrn-ecommerce.as_widget_help]"]
 	    }
 	}
     }
