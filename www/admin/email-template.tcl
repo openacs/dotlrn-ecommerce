@@ -34,6 +34,8 @@ switch -exact $action {
     "on approval" -
     "waitinglist approved" -
     "prereq approval" -
+    "needs approval" -
+    "request approval" -
     "prereq reject" {
         set type $action
     }
