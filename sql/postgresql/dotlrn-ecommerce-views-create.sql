@@ -166,6 +166,40 @@ create view dlec_view_orders as (
     group by o.order_id, o.confirmed_date, o.order_state, ec_total_price(o.order_id), o.user_id, u.first_names, u.last_name, o.in_basket_date, t.method, s.section_name, s.section_id, s.course_id, o.authorized_date, balance
 );
 
+create view dlec_sections as (
+	select s.*,
+	v.maxparticipants,
+	(v.maxparticipants - s.attendees) as available_slots,
+	(s.attendees::float / v.maxparticipants * 100) as attendance_percentage
+	from (select *,
+	      (select count(*)
+	       from dotlrn_member_rels_approved
+	       where community_id = s.community_id
+	       and rel_type in ('dotlrn_member_rel', 'dc_student_rel')) as attendees
+	      from dotlrn_ecommerce_section s) s
+	left join ec_custom_product_field_values v
+	on (s.product_id = v.product_id)
+);
+
+create view dlec_members as (
+	select u.user_id, u.first_names, u.last_name, u.email, a.line1 as address1, a.line2 as address2, a.city, a.usps_abbrev as state_code, a.full_state_name, a.zip_code, phone
+	from dotlrn_users u
+	left join (select *
+		   from ec_addresses
+		   where address_id in (select max(address_id)
+					from ec_addresses
+					group by user_id)) a
+	on (u.user_id = a.user_id)
+	where u.user_id in (select member_id
+			  from group_member_map
+			  where group_id = (select attr_value
+			  		    from apm_parameter_values
+			  		    where parameter_id = (select parameter_id
+			      					  from apm_parameters
+			      					  where package_key = 'dotlrn-ecommerce'
+			      					  and parameter_name = 'MemberGroupId')))
+);
+
 -- scholarships allocated
 --create view dlec_view_scholarships_allocated as (
 --    select person__name(user_id), to_char(grant_date, 'Month dd, yyyy hh:miam') as grant_date, grant_amount, dlec_view_scholarship_funds.fund_id, dlec_view_scholarship_funds.account_code, dlec_view_scholarship_funds.object_title
