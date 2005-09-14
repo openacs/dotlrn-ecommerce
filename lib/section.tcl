@@ -116,7 +116,9 @@ ad_form -extend -name add_section -form {
 
 # HAM : Let's check if we have MemberPriceP enabled and set
 # if it is, let's add Member Price text
-if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0 ] } {
+if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0 ] &&
+     ! [parameter::get -parameter AllowFreeRegistration -default 0]
+ } {
 	ad_form -extend -name add_section -form {
 		{ member_price:currency,to_sql(sql_number) {label "Member Price"} {html {size 6}} }
 	}
@@ -347,12 +349,18 @@ foreach s $sessions_list {
 lappend validate {price
     { ![template::util::negative [template::util::currency::get_property whole_part $price]] }
     "Price can not be negative"
-} {price 
-    { !"[template::util::currency::get_property whole_part $price].[template::util::currency::get_property fractional_part $price]" == "0.00" }
-    "Price can not be zero"
+} 
+
+if { ! [parameter::get -parameter AllowFreeRegistration -default 0] } {
+    lappend validate {price 
+	{ !"[template::util::currency::get_property whole_part $price].[template::util::currency::get_property fractional_part $price]" == "0.00" }
+	"Price can not be zero"
+    }
 }
 
-if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0] } {
+if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0] &&
+     ! [parameter::get -parameter AllowFreeRegistration -default 0]
+ } {
     lappend validate {member_price
 	{ ![template::util::negative [template::util::currency::get_property whole_part $member_price]] }
 	"Member Price can not be negative"
@@ -426,7 +434,9 @@ ad_form -extend -name add_section -validate $validate -on_request {
 			where community_id = :assistant_community_id)
     }]
 
-    if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0 ] } {
+    if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0 ] &&
+	 ! [parameter::get -parameter AllowFreeRegistration -default 0]
+     } {
 	if { [db_0or1row member_price { }] } {
 	    # HAM
 	    # member_price is using currency_widget
@@ -545,7 +555,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	#HAM: create a sale item from the member price
 	# do so only if member price is provided
 	# and MemberPriceP is 1
-	if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0 ] && [exists_and_not_null member_price] && $member_price != 0.00} {
+	if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0 ] && [exists_and_not_null member_price] && $member_price != 0.00 && ! [parameter::get -parameter AllowFreeRegistration -default 0] } {
 
 		# HAM : FIXME
 
@@ -739,7 +749,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	}
 
 	# Set member price, this can be 1 to n but ignore for now
-	if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0 ] && [exists_and_not_null member_price]} {
+	if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0 ] && [exists_and_not_null member_price] && ! [parameter::get -parameter AllowFreeRegistration -default 0] } {
 	    if { [db_0or1row sale_price { }] } {
 		db_dml set_member_price { }	
 	    } else {

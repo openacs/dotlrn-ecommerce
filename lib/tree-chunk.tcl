@@ -23,6 +23,8 @@ set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
 
 set filters {}
 
+set allow_free_registration_p [parameter::get -parameter AllowFreeRegistration -default 0]
+
 # Generate filters based on categories
 # set filters {
 #     uncat_f {
@@ -255,7 +257,7 @@ template::list::create \
     -name course_list \
     -multirow course_list \
     -key course_id \
-    -pass_properties { admin_p allow_other_registration_p offer_code_p } \
+    -pass_properties { admin_p allow_other_registration_p offer_code_p allow_free_registration_p } \
     -actions $actions \
     -filters $filters \
     -bulk_action_method post \
@@ -301,7 +303,7 @@ template::list::create \
 		<if @course_list.sessions@ not nil and @course_list.show_sessions_p@ eq "t"><br />@course_list.sessions;noquote@</if>
 		<if @course_list.section_zones@ not nil><br />@course_list.section_zones;noquote@</if>
 		<if @course_list.instructor_names@ not nil><br />@course_list.instructor_names;noquote@</if>
-		<if @course_list.prices@ not nil><br />@course_list.prices;noquote@</if>
+		<if @course_list.prices@ not nil><br /><if @allow_free_registration_p@ and @course_list.prices@ lt 0.01>Free Registration</if><else>@course_list.prices;noquote@</else></if>
 		<if @course_list.show_participants_p@ eq "t">
 		<br />@course_list.attendees;noquote@ participant<if @course_list.attendees@ gt 1>s</if>
 		<if @course_list.available_slots@ not nil and @course_list.available_slots@ gt 0>,<br />@course_list.available_slots;noquote@ available</if>

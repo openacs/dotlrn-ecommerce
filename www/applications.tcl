@@ -36,6 +36,8 @@ set header_stuff {
 
 set enable_applications_p [parameter::get -package_id [ad_conn package_id] -parameter EnableCourseApplicationsP -default 1]
 
+set allow_free_registration_p [parameter::get -parameter AllowFreeRegistration -default 0]
+
 if { [exists_and_not_null type] } {
     set _type $type
 } else {
@@ -174,7 +176,6 @@ lappend elements \
 	    html { width 125 align center nowrap }
 	}
 
-
 template::list::create \
     -name "applications" \
     -key rel_id \
@@ -251,7 +252,7 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	   and rr.rel_id <= r.rel_id
 	   and rr.community_id = r.community_id
 	   and rr.member_state = r.member_state
-	   order by o.creation_date) r) as number, s.product_id, m.session_id
+	   order by o.creation_date) r) as number, s.product_id, m.session_id, p.price
 
     from dotlrn_member_rels_full r
     left join (select *
@@ -265,7 +266,13 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	       where session_id in (select max(session_id)
 				    from dotlrn_ecommerce_application_assessment_map
 				    group by rel_id)) m
-    on (r.rel_id = m.rel_id), dotlrn_ecommerce_section s, dotlrn_catalogi t, cr_items i, acs_objects o
+    on (r.rel_id = m.rel_id), 
+    dotlrn_ecommerce_section s
+    left join ec_products p
+    on (s.product_id = p.product_id),
+    dotlrn_catalogi t,
+    cr_items i,
+    acs_objects o
 
     where r.community_id = s.community_id
     and s.course_id = t.item_id
@@ -281,7 +288,11 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 }] {
     set list_type [ad_decode $member_state "needs approval" full "request approval" prereq "awaiting payment" payment full]
 
-    set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
+    if { ![empty_string_p $price] && $price < 0.01 && $allow_free_registration_p } {
+	set approve_url [export_vars -base "[ad_conn package_url]ecommerce/shopping-cart-add" { product_id {user_id $patron_id} {participant_id $applicant_user_id} return_url {override_p 1} }]
+    } else {
+	set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
+    }
     set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
     ns_log Notice "***HAM : $member_state : $applicant_user_id : $community_id ***"
     if { $member_state == "needs approval" || 
@@ -368,7 +379,7 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
     set section_edit_url [export_vars -base admin/one-section { section_id return_url }]
     set person_url [export_vars -base /acs-admin/users/one { {user_id $applicant_user_id} }]
 
-    set add_url [export_vars -base "../ecommerce/shopping-cart-add" { product_id {user_id $patron_id} {participant_id $applicant_user_id} return_url }]
+    set add_url [export_vars -base "[ad_conn package_url]ecommerce/shopping-cart-add" { product_id {user_id $patron_id} {participant_id $applicant_user_id} return_url }]
     set register_url [export_vars -base admin/participant-add { section_id {user_id $applicant_user_id} return_url add_url }]
 
     # get associated comment
