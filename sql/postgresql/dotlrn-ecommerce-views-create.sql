@@ -182,22 +182,29 @@ create view dlec_sections as (
 );
 
 create view dlec_members as (
-	select u.user_id, u.first_names, u.last_name, u.email, a.line1 as address1, a.line2 as address2, a.city, a.usps_abbrev as state_code, a.full_state_name, a.zip_code, phone
-	from dotlrn_users u
+ 	select to_char(o.authorized_date, 'yyyy-mm-dd hh:miam') as authorized_date, p.product_name, u.user_id, u.first_names, u.last_name, u.email, a.line1 as address1, a.line2 as address2, a.city, a.usps_abbrev as state_code, a.full_state_name, a.zip_code, a.phone
+	from ec_items i,
+	ec_orders o,
+	ec_products p,
+	dotlrn_users u
 	left join (select *
 		   from ec_addresses
 		   where address_id in (select max(address_id)
 					from ec_addresses
 					group by user_id)) a
 	on (u.user_id = a.user_id)
-	where u.user_id in (select member_id
-			  from group_member_map
-			  where group_id = (select attr_value
-			  		    from apm_parameter_values
-			  		    where parameter_id = (select parameter_id
-			      					  from apm_parameters
-			      					  where package_key = 'dotlrn-ecommerce'
-			      					  and parameter_name = 'MemberGroupId')))
+	where i.order_id = o.order_id
+	and i.product_id = p.product_id
+	and o.user_id = u.user_id
+	and o.order_state in ('authorized', 'fulfilled', 'returned')
+	and i.product_id in (select product_id
+			     from ec_category_product_map
+			     where category_id = (select attr_value
+			  		    	  from apm_parameter_values
+			  		    	  where parameter_id = (select parameter_id
+			      					  	from apm_parameters
+			      					  	where package_key = 'dotlrn-ecommerce'
+			      					  	and parameter_name = 'MembershipECCategoryId')))
 );
 
 -- scholarships allocated
