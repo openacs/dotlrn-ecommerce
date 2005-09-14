@@ -303,7 +303,7 @@ template::list::create \
 		<if @course_list.sessions@ not nil and @course_list.show_sessions_p@ eq "t"><br />@course_list.sessions;noquote@</if>
 		<if @course_list.section_zones@ not nil><br />@course_list.section_zones;noquote@</if>
 		<if @course_list.instructor_names@ not nil><br />@course_list.instructor_names;noquote@</if>
-		<if @course_list.prices@ not nil><br /><if @allow_free_registration_p@ and @course_list.prices@ lt 0.01>Free Registration</if><else>@course_list.prices;noquote@</else></if>
+		<if @course_list.prices@ not nil><br /><if @allow_free_registration_p@ and @course_list.price@ lt 0.01>[_ dotlrn-ecommerce.lt_There_is_no_fee_for_t]</if><else>@course_list.prices;noquote@</else></if>
 		<if @course_list.show_participants_p@ eq "t">
 		<br />@course_list.attendees;noquote@ participant<if @course_list.attendees@ gt 1>s</if>
 		<if @course_list.available_slots@ not nil and @course_list.available_slots@ gt 0>,<br />@course_list.available_slots;noquote@ available</if>
@@ -483,7 +483,7 @@ if { $offer_code_p } {
     set discount_clause ""
 }
 
-db_multirow -extend {patron_message member_state fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades section_zones sections_url member_p sessions instructor_names prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url } course_list get_courses { } {
+db_multirow -extend {patron_message member_state fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades section_zones sections_url member_p sessions instructor_names price prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url } course_list get_courses { } {
 
     # Since dotlrn-ecommerce is based on dotlrn-catalog,
     # it's possible to have a dotlrn_catalog object without an
@@ -622,7 +622,7 @@ db_multirow -extend {patron_message member_state fs_chunk section_folder_id sect
     }
 
     if { ! [empty_string_p $product_id] } {
-	set prices [util_memoize [list dotlrn_ecommerce::section::price $section_id] $memoize_max_age]
+	set prices [set price [util_memoize [list dotlrn_ecommerce::section::price $section_id] $memoize_max_age]]
 	if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0 ] } {
 	    set member_price [util_memoize [list dotlrn_ecommerce::section::member_price $section_id] $memoize_max_age]
 	    if { $member_price } {

@@ -108,9 +108,20 @@ if { [ad_form_new_p -key section_id] } {
     dotlrn_ecommerce::section::flush_cache $section_id
 }
 
-ad_form -extend -name add_section -form {
-    {section_name:text {label "Section Name"}}
-    {price:currency,to_sql(sql_number) {label "Regular Price"} {html {size 6}}}
+if { [parameter::get -parameter AllowFreeRegistration -default 0] } {
+    ad_form -extend -name add_section -form {
+	{section_name:text {label "Section Name"}}
+	{price:currency,to_sql(sql_number) {label "Regular Price"} {html {size 6}}
+	    {help_text {Enter any fees related to this course here. \$0 in this field means there is no related fee.}}
+	}
+    }
+} else {
+    ad_form -extend -name add_section -form {
+	{section_name:text {label "Section Name"}}
+	{price:currency,to_sql(sql_number) {label "Regular Price"} {html {size 6}}
+	    {help_text "Enter any fees related to this course here."}
+	}	
+    }
 }
 
 

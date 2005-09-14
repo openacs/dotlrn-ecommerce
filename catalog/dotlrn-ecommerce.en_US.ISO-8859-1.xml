@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d16" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d17" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Action">Action</msg>
   <msg key="Add_Course">Add Course</msg>
@@ -181,6 +181,7 @@
   <msg key="lt_The_course_only_has_a">The course only has $available_slots slot(s) left</msg>
   <msg key="lt_The_following_has_bee">The following has been sent to the purchaser</msg>
   <msg key="lt_The_offer_code_was_ac">The offer code was accepted. You save $savings!</msg>
+  <msg key="lt_There_is_no_fee_for_t">There is no fee for this course</msg>
   <msg key="lt_This_section_is_curre">This section is currently full, but we are taking names for the waiting list.</msg>
   <msg key="lt_To_complete_your_orde">To complete your order, submit this form, and confirm the information on the following page.</msg>
   <msg key="lt_to_send_us_your_order">to send us your order, or click &quot;back&quot; on your browser to make changes.</msg>
