@@ -1,10 +1,10 @@
 <master>
-<if @member_state@ eq "request approval">
-  <property name="title">Application Confirmed</property>	
-</if>
-<else>
-  <property name="title">#dotlrn-ecommerce.lt_Application_Confirmed#</property>
-</else>
+  <if @member_state@ eq "request approval" or @member_state@ eq "awaiting payment">
+    <property name="title">Application Confirmed</property>	
+  </if>
+  <else>
+    <property name="title">#dotlrn-ecommerce.lt_Application_Confirmed#</property>
+  </else>
 
   <div class="boxed-user-message">
 
