@@ -17,7 +17,7 @@ create view dlec_view_section_report as (
 	       from dotlrn_member_rels_approved
 	       where community_id = s.community_id
 	       and rel_type in ('dotlrn_member_rel', 'dc_student_rel')) as attendees
-	      from dotlrn_ecommerce_section s) s
+	      from dlec_view_sections s) s
 	left join ec_custom_product_field_values v
 	on (s.product_id = v.product_id)
 );
