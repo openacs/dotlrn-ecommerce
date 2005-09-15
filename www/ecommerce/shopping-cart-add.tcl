@@ -249,6 +249,9 @@ if { [info exists section_id] } {
 	}]
     }
 
+    # Flush cache
+    dotlrn_ecommerce::section::flush_cache $section_id
+
     if { [exists_and_not_null return_url] } {
 	ad_returnredirect $return_url
     } else {
