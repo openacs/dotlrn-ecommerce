@@ -578,9 +578,15 @@ db_multirow -extend {patron_message member_state fs_chunk section_folder_id sect
 	
 	set instructor_names [list]
 	set instructor_ids [list]
+    set bios_present_p 0
 	foreach instructor $instructors {
 	    lappend instructor_names [lindex $instructor 1]
 	    lappend instructor_ids [lindex $instructor 0]
+        if {!$bios_present_p} {
+            if {![empty_string_p [acs_user::get_element -user_id [lindex $instructor 0] -element bio]]} {
+                set bios_present_p 1
+            }
+        }
 	}
 
 	if { [llength $instructor_names] == 1 } {
@@ -591,7 +597,8 @@ db_multirow -extend {patron_message member_state fs_chunk section_folder_id sect
 	    set instructor_names ""
 	}
 	# if { ! [empty_string_p $instructor_names] && $member_p } { }
-	if { ! [empty_string_p $instructor_names] } {
+	# if { ! [empty_string_p $instructor_names] } {
+    if { $bios_present_p } {
 	    append instructor_names " <a href=\"${community_url}facilitator-bio?rel_type=dotlrn_ecom_instructor_rel\" class=\"button\">[_ dotlrn-ecommerce.view_bios]</a>"
 	}
 
