@@ -7,7 +7,7 @@
 -- @cvs-id $Id$
 --
 
-create view dlec_sections as (
+create view dlec_view_section_report as (
 	select s.*,
 	v.maxparticipants,
 	(v.maxparticipants - s.attendees) as available_slots,
@@ -22,7 +22,7 @@ create view dlec_sections as (
 	on (s.product_id = v.product_id)
 );
 
-create view dlec_members as (
+create view dlec_view_membership_orders as (
  	select to_char(o.authorized_date, 'yyyy-mm-dd hh:miam') as authorized_date, p.product_name, u.user_id, u.first_names, u.last_name, u.email, a.line1 as address1, a.line2 as address2, a.city, a.usps_abbrev as state_code, a.full_state_name, a.zip_code, a.phone
 	from ec_items i,
 	ec_orders o,
