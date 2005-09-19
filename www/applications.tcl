@@ -294,7 +294,6 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
     }
     set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
-    ns_log Notice "***HAM : $member_state : $applicant_user_id : $community_id ***"
     if { $member_state == "needs approval" || 
 	 $member_state == "awaiting payment" ||
 	 $member_state == "waitinglist approved" ||
@@ -332,7 +331,6 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	    }
 	}
 	    
-	ns_log Notice "A:HAM: $asm_url"
 
 #	}
 
@@ -372,9 +370,7 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	}
 	
 #	}
-	ns_log Notice "B:HAM: $asm_url"
     }
-    ns_log Notice "1:HAM: $asm_url"
 
     set section_edit_url [export_vars -base admin/one-section { section_id return_url }]
     set person_url [export_vars -base /acs-admin/users/one { {user_id $applicant_user_id} }]
