@@ -213,10 +213,10 @@ if { [acs_object_type $participant_id] != "group" } {
 
 # If the product_id is worth $0 and free registration is allowed, skip
 # the shopping cart and add the user immediately to the associated community
-if { [info exists section_id] } {
+if { [info exists section_id] && [parameter::get -parameter AllowFreeRegistration -default 0] } {
     set price [dotlrn_ecommerce::section::price $section_id]
 
-    if { $price < 0.01 && [parameter::get -parameter AllowFreeRegistration -default 0] } {
+    if { $price < 0.01 } {
 	dotlrn_community::add_user $community_id $participant_id
     }
 
