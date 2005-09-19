@@ -597,7 +597,7 @@ db_multirow -extend {patron_message member_state fs_chunk section_folder_id sect
 	    set instructor_names ""
 	}
 	# if { ! [empty_string_p $instructor_names] && $member_p } { }
-	# if { ! [empty_string_p $instructor_names] } {
+	# if { ! [empty_string_p $instructor_names] } { }
     if { $bios_present_p } {
 	    append instructor_names " <a href=\"${community_url}facilitator-bio?rel_type=dotlrn_ecom_instructor_rel\" class=\"button\">[_ dotlrn-ecommerce.view_bios]</a>"
 	}
