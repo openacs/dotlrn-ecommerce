@@ -56,7 +56,4 @@
 <li>@ds_toggle;noquote@
 </ul>
 
-
-<h1>test</h1>
-
 <include src="/packages/dotlrn-ecommerce/lib/email-templates" community_id="" course_name="">
