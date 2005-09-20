@@ -26,10 +26,11 @@ ad_form -name attribute -export {sort_order} -form {
     {widget:text(select) {label "Widget"} {options {
 	{"String (textfield)" string} \
 	    {"Text (textbox)" text} \
-	    {Integer integer}
+	    {Integer integer} \
+	    {Boolean boolean}
     }}}
 } -on_submit {
-    array set spec [list string text text text integer integer]
+    array set spec [list string text text text integer integer boolean boolean]
 
     content::type::attribute::new \
 	-content_type "dotlrn_catalog" \

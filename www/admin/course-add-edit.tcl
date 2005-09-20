@@ -69,6 +69,7 @@ foreach attribute $attribute_list {
     set aditional_type ""
     set aditional_elements ""
     set help_text ""
+
     switch [lindex $attribute 4] {
 	string {
 	    if { [string equal [lindex $attribute 2] "assessment_id"]} {
@@ -92,6 +93,10 @@ foreach attribute $attribute_list {
 		set aditional_elements [list options $asm_list]
 		set help_text [list help_text "[_ dotlrn-ecommerce.as_widget_help]"]
 	    }
+	}
+	boolean {
+	    set aditional_type "(radio)"
+	    set aditional_elements [list options {{Yes t} {No f}}]
 	}
     }
     if { $count > 3 } {
@@ -226,11 +231,13 @@ ad_form -extend -name add_course -on_submit {
     set page_title "[_ dotlrn-catalog.new_course]"
     set revision_id "-1"
     set display_p t
+    set auto_register_p f
 } -edit_request {
     set context [list [list course-list "[_ dotlrn-catalog.course_list]"] "[_ dotlrn-catalog.edit_course]"]
     set page_title "[_ dotlrn-catalog.edit_course]"
     db_1row get_course_info { }
     db_string get_course_assessment { } -default "[_ dotlrn-catalog.not_associated]"
+    set auto_register_p [ad_decode $auto_register_p "" f $auto_register_p]
 } -after_submit {
     if { $return_url == "" } {
 	# set return_url [export_vars -base course-info {course_id course_name course_key} ]

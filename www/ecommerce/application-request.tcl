@@ -36,6 +36,7 @@ db_1row section {
 switch $type {
     full {
 	set member_state "needs approval"
+	set assessment_id ""
     }
     prereq {
 	set member_state "request approval"
@@ -63,68 +64,69 @@ if {[catch {set rel_id [relation_add \
 			    $participant_id \
 			   ]} errmsg]} {
     ad_return_complaint "There was a problem with your request" $errmsg
-} else {
-    switch -- $member_state {
-	"awaiting payment" {
-	    dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type "awaiting payment"
-	}
-        "needs approval" -
-        "request approval" {
-            set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
-	    set community_name [dotlrn_community::get_community_name $community_id]
+    ad_script_abort
+}
 
-  	    if { [parameter::get -package_id [ad_conn package_id] -parameter NotifyApplicantOnRequest] } {
-		dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $member_state
-
-	   }
-        }
+switch -- $member_state {
+    "awaiting payment" {
+	dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type "awaiting payment"
     }
-    ns_log notice "DEBUG:: RELATION $participant_id, $community_id, $rel_id"
-    set wait_list_notify_email [parameter::get -package_id [ad_acs_kernel_id] -parameter AdminOwner]
-    set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
+    "needs approval" -
+    "request approval" {
+	set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
+	set community_name [dotlrn_community::get_community_name $community_id]
 
-    ns_log notice "application-request: wait list notify: potential community is $community_id"
-    if {[db_0or1row get_nwn {
-	select s.notify_waiting_number,
-	       s.section_name
-	from dotlrn_ecommerce_section s
-	where s.community_id = :community_id
-    }]} {
-	if {![empty_string_p $notify_waiting_number]} {
-	    set current_waitlisted [db_string get_cw {
-		select count(*)
-		from membership_rels m,
-		acs_rels r
-		where m.member_state in ('needs approval', 'awaiting payment')
-		      and m.rel_id = r.rel_id
-		      and r.rel_type = 'dotlrn_member_rel'
-		      and r.object_id_one = :community_id
-	    }]
-	    ns_log notice "application-request: wait list notify: community $community_id wait number is $notify_waiting_number"
-	    ns_log notice "application-request: wait list notify: community $community_id waitlisteed is $current_waitlisted"
-	    if {$current_waitlisted >= $notify_waiting_number} {
-		set subject "Waitlist notification for $section_name"
-		set body "$section_name is set to notify when the waitlist reaches ${notify_waiting_number}.
+	if { [parameter::get -package_id [ad_conn package_id] -parameter NotifyApplicantOnRequest] } {
+	    dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $member_state
+
+	}
+    }
+}
+ns_log notice "DEBUG:: RELATION $participant_id, $community_id, $rel_id"
+set wait_list_notify_email [parameter::get -package_id [ad_acs_kernel_id] -parameter AdminOwner]
+set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
+
+ns_log notice "application-request: wait list notify: potential community is $community_id"
+if {[db_0or1row get_nwn {
+    select s.notify_waiting_number,
+    s.section_name
+    from dotlrn_ecommerce_section s
+    where s.community_id = :community_id
+}]} {
+    if {![empty_string_p $notify_waiting_number]} {
+	set current_waitlisted [db_string get_cw {
+	    select count(*)
+	    from membership_rels m,
+	    acs_rels r
+	    where m.member_state in ('needs approval', 'awaiting payment')
+	    and m.rel_id = r.rel_id
+	    and r.rel_type = 'dotlrn_member_rel'
+	    and r.object_id_one = :community_id
+	}]
+	ns_log notice "application-request: wait list notify: community $community_id wait number is $notify_waiting_number"
+	ns_log notice "application-request: wait list notify: community $community_id waitlisteed is $current_waitlisted"
+	if {$current_waitlisted >= $notify_waiting_number} {
+	    set subject "Waitlist notification for $section_name"
+	    set body "$section_name is set to notify when the waitlist reaches ${notify_waiting_number}.
 Total persons in the waiting list for ${section_name}: $current_waitlisted"
-		acs_mail_lite::send \
-		    -to_addr $wait_list_notify_email \
-		    -from_addr $mail_from \
-		    -subject $subject \
-		    -body $body
-		ns_log notice "application-request: wait list notify: community $community_id sending email"
-	    } else {
-		ns_log notice "application-request: wait list notify: community $community_id NOT sending email"
-	    }
+	    acs_mail_lite::send \
+		-to_addr $wait_list_notify_email \
+		-from_addr $mail_from \
+		-subject $subject \
+		-body $body
+	    ns_log notice "application-request: wait list notify: community $community_id sending email"
+	} else {
+	    ns_log notice "application-request: wait list notify: community $community_id NOT sending email"
 	}
     }
+}
 
-    # Set the rel_id's creation user to the purchaser
-    if { [info exists user_id] && $user_id != [ad_conn user_id] } {
-	db_dml set_purchaser {
-	    update acs_objects
-	    set creation_user = :user_id
-	    where object_id = :rel_id
-	}
+# Set the rel_id's creation user to the purchaser
+if { [info exists user_id] && $user_id != [ad_conn user_id] } {
+    db_dml set_purchaser {
+	update acs_objects
+	set creation_user = :user_id
+	where object_id = :rel_id
     }
 }
 
@@ -132,7 +134,6 @@ dotlrn_ecommerce::section::flush_cache -user_id $participant_id $section_id
 
 if { [empty_string_p $assessment_id] || $assessment_id == -1 || $type == "full" } {
     ad_returnredirect $next_url
-    ad_script_abort
 } else {
     # Start a new session
     as::assessment::data -assessment_id $assessment_id
@@ -162,3 +163,5 @@ if { [empty_string_p $assessment_id] || $assessment_id == -1 || $type == "full" 
     set return_url [export_vars -base "[ad_conn package_url]ecommerce/application-request-2" { user_id {return_url $next_url} }]
     ad_returnredirect [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]assessment" { assessment_id return_url session_id }]
 }
+
+ad_script_abort

@@ -17,8 +17,6 @@ ad_page_contract {
 
 set attribute_list [package_object_attribute_list -start_with dotlrn_catalog dotlrn_catalog]
 
-ns_log notice "DEBUG:: ATTRIBUTES:: $attribute_list"
-
 template::multirow create attributes attribute_id name title sort_order widget
 
 set count 1
