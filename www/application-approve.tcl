@@ -143,7 +143,7 @@ if { $user_id == $actor_id } {
 		    set patron_id [db_string get_patron {
 			select creation_user from
 			acs_objects where object_id = :rel
-		    }]
+		    } -default ""]
 				  
 		} on_error {
 		}
@@ -156,7 +156,7 @@ if { $user_id == $actor_id } {
 		}
 
 
-		dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type -override_email $reason
+		dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type -override_email $reason -override_subject $subject
 
             } \
             -after_submit {
