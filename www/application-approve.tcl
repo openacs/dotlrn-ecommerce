@@ -98,10 +98,13 @@ if { $user_id == $actor_id } {
                 {user_id:text(hidden)}
                 {community_id:text(hidden)}
                 {type:text(hidden)}
+		{subject:text {html {size 60}}}
                 {reason:text(textarea),optional {label "[_ dotlrn-ecommerce.Reason]"} {html {rows 10 cols 60}}}
             } \
             -on_request {
-		set reason [lindex [lindex [callback dotlrn::default_member_email -community_id $community_id -to_user $user_id -type "prereq approval"] 0] 2]
+		set reason_email [lindex [callback dotlrn::default_member_email -community_id $community_id -to_user $user_id -type "prereq approval"] 0]
+		set reason [lindex $reason_email 2]
+		set subject [lindex $reason_email 1]
 		array set vars [lindex [callback dotlrn::member_email_var_list -community_id $community_id -to_user $user_id -type $type] 0]
 	    set email_vars [lang::message::get_embedded_vars $reason]
 	    foreach var [concat $email_vars] {
