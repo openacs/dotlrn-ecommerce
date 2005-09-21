@@ -408,8 +408,8 @@ if {![string equal "" $package_id]} {
 	set mapped_cats [category::get_mapped_categories -tree_id $tree_id $community_id]
 	set mapped_cat_names [category::get_names $mapped_cats]
 	set tree_var_name [util_text_to_url -text ${tree_name}]
-	set var_list($tree_var_name) $mapped_cat_names
-	ns_log notice "DAVEB \n trees='${trees}' tree_id='${tree_id}' \n community_id='${community_id}'\nmapped_cats='${mapped_cats}'\n tree_name='${tree_name}'\n mapped_cat_names '${mapped_cat_names}'"
+	set var_list($tree_var_name) [join $mapped_cat_names ","]
+
     }
 }
 
