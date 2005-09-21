@@ -399,7 +399,9 @@ if { [llength $_instructors] == 0 } {
 
 set course_id [db_string get_course_id "select course_id from dotlrn_ecommerce_section where community_id=:community_id" -default ""]
 set package_id [db_string get_package_id "select package_id from acs_objects where object_id=:course_id" -default ""]
-ns_log notice "DAVEB package_id='${package_id}'"
+if {[string equal "" package_id]} {
+	set package_id [lindex [site_node::get_children -node_id [site_node::get_node_id -url "/"] -package_key "dotlrn-ecommerce" -element package_id] 0]
+}
 if {![string equal "" $package_id]} {
     set trees [category_tree::get_mapped_trees $package_id]
     ns_log notice "DAVEB \n trees='${trees}'"
@@ -409,7 +411,6 @@ if {![string equal "" $package_id]} {
 	set mapped_cat_names [category::get_names $mapped_cats]
 	set tree_var_name [util_text_to_url -text ${tree_name}]
 	set var_list($tree_var_name) [join $mapped_cat_names ","]
-
     }
 }
 
@@ -424,9 +425,12 @@ ad_proc -callback dotlrn::member_email_available_vars -impl dotlrn-ecommerce {} 
     # get categories mapped to section?
     
     set available_vars [list "%first_name%" "Participant's First Name" "%last_name%" "Participant's Last Name" "%full_name%" "Participant's Full Name" "%sessions%" "Dates and times of sessions" "%community_name%" "Name of section" "%community_url%" "URL of the section page in the form http://example.com/" "%community_link%" "HTML link to section, ie: &lt;a href=\"http://example.com\"&gt;%community_name%&lt;/a&gt;" "%instructor_names%" "List of instructors names"]
-    if {[exists_and_not_null community_id]} {
+
 	set course_id [db_string get_course_id "select course_id from dotlrn_ecommerce_section where community_id=:community_id" -default ""]
 	set package_id [db_string get_package_id "select package_id from acs_objects where object_id=:course_id" -default ""]
+    if {[string equal "" $package_id]} {
+	set package_id [lindex [site_node::get_children -node_id [site_node::get_node_id -url "/"] -package_key "dotlrn-ecommerce" -element package_id] 0]
+    }
 
 	if {![string equal "" $package_id]} {
 	    set trees [category_tree::get_mapped_trees $package_id]
@@ -437,7 +441,6 @@ ad_proc -callback dotlrn::member_email_available_vars -impl dotlrn-ecommerce {} 
 	    }
 	}
 
-    }
     return $available_vars
 }
 
