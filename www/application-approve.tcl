@@ -33,7 +33,7 @@ switch $type {
     prereq {
 	set new_member_state "request approved"
 	set old_member_state "request approval"
-	set email_type "prereq approved"
+	set email_type "prereq approval"
     }
     payment {
 	set new_member_state "payment received"
@@ -102,7 +102,7 @@ if { $user_id == $actor_id } {
             } \
             -on_request {
 		set reason [lindex [lindex [callback dotlrn::default_member_email -community_id $community_id -to_user $user_id -type "prereq approval"] 0] 2]
-		set var_list [lindex [callback dotlrn::member_email_var_list -community_id $community_id -to_user $user_id -type $type] 0]
+		array set vars [lindex [callback dotlrn::member_email_var_list -community_id $community_id -to_user $user_id -type $type] 0]
 	    set email_vars [lang::message::get_embedded_vars $reason]
 	    foreach var [concat $email_vars] {
 		if {![info exists vars($var)]} {
