@@ -337,7 +337,7 @@ ad_proc -callback dotlrn::member_email_var_list -impl dotlrn-ecommerce {} {
     # check if this is a dotlrn-ecommerce community, if not, bail
     if {![db_string is_section "select 1 from dotlrn_ecommerce_section where community_id=:community_id" -default 0]} {
 	# this return code tells the caller to ignore the results of this callback implementation
-	ns_log notice  "DAVEB: email_var_list Skipping default email for dotlrn-ecommerce, not in a section community"
+	ns_log debug  "DAVEB: email_var_list Skipping default email for dotlrn-ecommerce, not in a section community"
 	return -code continue
     }
     #FIXME depend on email type??
@@ -394,7 +394,26 @@ if { [llength $_instructors] == 0 } {
 	}
       set var_list(instructor_names) $instructor_names
     }
-ns_log notice "DAVEB email var list '[array get var_list]'"
+    # get categories mapped to section
+
+
+set course_id [db_string get_course_id "select course_id from dotlrn_ecommerce_section where community_id=:community_id" -default ""]
+set package_id [db_string get_package_id "select package_id from acs_objects where object_id=:course_id" -default ""]
+ns_log notice "DAVEB package_id='${package_id}'"
+if {![string equal "" $package_id]} {
+    set trees [category_tree::get_mapped_trees $package_id]
+    ns_log notice "DAVEB \n trees='${trees}'"
+    foreach tree $trees {
+	foreach {tree_id tree_name subtree_cat_id assign_single_p require_category_p} $tree break
+	set mapped_cats [category::get_mapped_categories -tree_id $tree_id $community_id]
+	set mapped_cat_names [category::get_names $mapped_cats]
+	set tree_var_name [util_text_to_url -text ${tree_name}]
+	set var_list($tree_var_name) $mapped_cat_names
+	ns_log notice "DAVEB \n trees='${trees}' tree_id='${tree_id}' \n community_id='${community_id}'\nmapped_cats='${mapped_cats}'\n tree_name='${tree_name}'\n mapped_cat_names '${mapped_cat_names}'"
+    }
+}
+
+ns_log notice "DAVEB  email var list '[array get var_list]'"
     return [array get var_list]
 }
 
@@ -402,7 +421,23 @@ ad_proc -callback dotlrn::member_email_available_vars -impl dotlrn-ecommerce {} 
     List variables avaiable for this template
 } {
     #FIXME depend on email type??
-    return [list "%first_name%" "Participant's First Name" "%last_name%" "Participant's Last Name" "%full_name%" "Participant's Full Name" "%sessions%" "Dates and times of sessions" "%community_name%" "Name of section" "%community_url%" "URL of the section page in the form http://example.com/" "%community_link%" "HTML link to section, ie: &lt;a href=\"http://example.com\"&gt;%community_name%&lt;/a&gt;" "%instructor_names%" "List of instructors names"]
+    # get categories mapped to section?
+    
+    set available_vars [list "%first_name%" "Participant's First Name" "%last_name%" "Participant's Last Name" "%full_name%" "Participant's Full Name" "%sessions%" "Dates and times of sessions" "%community_name%" "Name of section" "%community_url%" "URL of the section page in the form http://example.com/" "%community_link%" "HTML link to section, ie: &lt;a href=\"http://example.com\"&gt;%community_name%&lt;/a&gt;" "%instructor_names%" "List of instructors names"]
+    if {[exists_and_not_null community_id]} {
+	set course_id [db_string get_course_id "select course_id from dotlrn_ecommerce_section where community_id=:community_id" -default ""]
+	set package_id [db_string get_package_id "select package_id from acs_objects where object_id=:course_id" -default ""]
 
+	if {![string equal "" $package_id]} {
+	    set trees [category_tree::get_mapped_trees $package_id]
+
+	    foreach tree $trees {
+		foreach {tree_id tree_name subtree_cat_id assign_single_p require_category_p} $tree break
+		lappend available_vars "%[util_text_to_url -text ${tree_name}]%" $tree_name
+	    }
+	}
+
+    }
+    return $available_vars
 }
 

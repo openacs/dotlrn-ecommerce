@@ -99,6 +99,7 @@ ad_proc -private dotlrn_ecommerce::email_type_message_key {
 		     "prereq approval" dotlrn-ecommerce.Application_prereq_approved \
 		    "waitinglist approved" dotlrn-ecommerce.lt_A_space_has_opened_up \
 		     "prereq reject" dotlrn-ecommerce.Application_prereq_rejected \
+		     "application reject" dotlrn-ecommerce.Application_rejected \
                      "needs approval" dotlrn-ecommerce.lt_Added_to_waiting_list \
                      "request approval" dotlrn-ecommerce.lt_Requested_waiver_of_prereq] \
                    $type]
@@ -113,6 +114,7 @@ ad_proc -private dotlrn_ecommerce::email_type_message_key {
                      "waitinglist approved" dotlrn-ecommerce.lt_A_space_has_opened_up_1 \
 		     "prereq approval" dotlrn-ecommercel.lt_Your_prereq_approved \
 		     "prereq reject" dotlrn-ecommerce.lt_Your_prereq_rejected \
+		     "application reject" dotlrn-ecommerce.lt_Your_application_to_j_1 \
                      "needs approval" dotlrn-ecommerce.lt_Added_to_waiting_list_1 \
                      "request approval" dotlrn-ecommerce.lt_Requested_waiver_of_prereq_1] \
                    $type]
@@ -136,7 +138,8 @@ ad_proc -private dotlrn_ecommerce::email_type_pretty {
 		     "on join" "Welcome message" \
 		     "waitinglist approved" "Grant spot from waiting list" \
 		     "prereq approval" "Approve waiver of prerequisites" \
-		     "prereq reject" "Reject waiver of prerequitsites" \
+		     "prereq reject" "Reject waiver of prerequitsites"
+		     "application reject" "Reject application" \
                      "needs approval" "Added to waiting list / Application Submitted" \
                      "request approval" "Application for waiver of prerequisites submitted"] $type]
 }
