@@ -289,37 +289,20 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
     set list_type [ad_decode $member_state "needs approval" full "request approval" prereq "awaiting payment" payment full]
 
     if { ![empty_string_p $price] && $price < 0.01 && $allow_free_registration_p } {
-	set approve_url [export_vars -base "[ad_conn package_url]ecommerce/shopping-cart-add" { product_id {user_id $patron_id} {participant_id $applicant_user_id} return_url {override_p 1} }]
+	set _return_url [export_vars -base "[ad_conn package_url]ecommerce/shopping-cart-add" { product_id {user_id $patron_id} {participant_id $applicant_user_id} return_url {override_p 1} }]
     } else {
-	set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
+	set _return_url $return_url
     }
+
+    set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} {type $list_type} {return_url $_return_url} }]
+	
     set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
+
     if { $member_state == "needs approval" || 
 	 $member_state == "awaiting payment" ||
 	 $member_state == "waitinglist approved" ||
 	 $member_state == "payment received"
      } {
-	# Get associated assessment
-# 	if { [db_0or1row assessment {
-# 	    select ss.session_id
-# 	    from dotlrn_ecommerce_section des, 
-# 	         dotlrn_catalog dc, 
-# 	         cr_items i1, 
-# 	         cr_items i2, 
-# 	         cr_revisions r, 
-# 	    as_sessions ss
-	      
-# 	    where des.community_id = :community_id 
-# 	          and i1.item_id = des.course_id 
-# 	          and i1.live_revision = dc.course_id 
-# 	          and dc.assessment_id = i2.item_id 
-# 	          and r.item_id = i2.item_id 
-# 	          and r.revision_id = ss.assessment_id 
-# 	          and ss.subject_id = :applicant_user_id
-# 	    order by ss.creation_datetime desc
-# 	    limit 1
-# 	}] } {
-	    
 	if { ! [empty_string_p $session_id] } {
 	    if {$use_embedded_application_view_p ==1} {
 		set asm_url "admin/application-view?session_id=$session_id"
@@ -331,33 +314,12 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	    }
 	}
 	    
-
-#	}
-
     } elseif { $member_state == "request approval" ||
 	       $member_state == "request approved" } {
 
 	# Get associated assessment
 	set assessment_id [parameter::get -parameter ApplicationAssessment -default ""]
 
-# 	if { [db_0or1row assessment {
-# 	    select ss.session_id
-
-# 	    from (select a.*
-# 		  from as_assessmentsi a,
-# 		  cr_items i
-# 		  where a.assessment_id = i.latest_revision) a,
-# 	    as_sessions ss
-	    
-# 	    where a.assessment_id = ss.assessment_id
-# 	    and a.item_id = :assessment_id
-# 	    and ss.subject_id = (select creation_user from acs_objects where object_id = :rel_id)
-	    
-# 	    order by creation_datetime desc
-	    
-# 	    limit 1
-# 	}] } {
-
 	if { ! [empty_string_p $session_id] } {
 	    if {$use_embedded_application_view_p ==1} {
 		set asm_url "admin/application-view?session_id=$session_id"
@@ -368,8 +330,6 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 		set target "_blank"
 	    }
 	}
-	
-#	}
     }
 
     set section_edit_url [export_vars -base admin/one-section { section_id return_url }]
