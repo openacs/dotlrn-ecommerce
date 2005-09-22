@@ -165,6 +165,7 @@ if { $user_id == $actor_id } {
             -after_submit {
 		dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
                 ad_returnredirect $return_url
+		ad_script_abort
             }
 
     } else {
@@ -227,5 +228,6 @@ if { $user_id == $actor_id } {
 	dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type -override_email $override_email
 	dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
 	ad_returnredirect $return_url
+	ad_script_abort
     }
 }
