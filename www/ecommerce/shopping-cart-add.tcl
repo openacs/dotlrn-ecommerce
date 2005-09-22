@@ -217,56 +217,55 @@ if { [acs_object_type $participant_id] != "group" } {
 		ad_script_abort
 	    }
 	}
-    }
 
-}
+	# If the product_id is worth $0 and free registration is allowed, skip
+	# the shopping cart and add the user immediately to the associated community
+	if { [info exists section_id] && [parameter::get -parameter AllowFreeRegistration -default 0] } {
+	    set price [dotlrn_ecommerce::section::price $section_id]
 
-# If the product_id is worth $0 and free registration is allowed, skip
-# the shopping cart and add the user immediately to the associated community
-if { [info exists section_id] && [parameter::get -parameter AllowFreeRegistration -default 0] } {
-    set price [dotlrn_ecommerce::section::price $section_id]
+	    if { $price < 0.01 } {
+		dotlrn_community::add_user $community_id $participant_id
 
-    if { $price < 0.01 } {
-	dotlrn_community::add_user $community_id $participant_id
+		# Adding these for correctness, taken from the after-checkout
+		# callback
 
-	# Adding these for correctness, taken from the after-checkout
-	# callback
+		if { [lsearch [parameter::get -parameter WelcomeEmailRecipients] purchaser] != -1 } {
+		    if {$user_id != $participant_id} {
+			# if they are the participant, then
+			# they will get the welcome email for the community
+			dotlrn_community::send_member_email -community_id $community_id -to_user $participant_id -type "on join" -email_send_to $user_id -override_enabled
+		    }
+		}
+		
+		if { [db_0or1row member_rel {
+		    select rel_id
+		    from dotlrn_member_rels_full
+		    where community_id = :community_id
+		    and user_id = :participant_id
+		    limit 1
+		}] } {
+		    set patron_rel_id [db_exec_plsql relate_patron {
+			select acs_rel__new (null,
+					     'membership_patron_rel',
+					     :rel_id,
+					     :user_id,
+					     null,
+					     null,
+					     null)
+		    }]
+		}
 
-	if { [lsearch [parameter::get -parameter WelcomeEmailRecipients] purchaser] != -1 } {
-	    if {$user_id != $participant_id} {
-		# if they are the participant, then
-		# they will get the welcome email for the community
-		dotlrn_community::send_member_email -community_id $community_id -to_user $participant_id -type "on join" -email_send_to $user_id -override_enabled
+		# Flush cache
+		dotlrn_ecommerce::section::flush_cache $section_id
+
+		if { [exists_and_not_null return_url] } {
+		    ad_returnredirect $return_url
+		} else {
+		    ad_returnredirect [ad_conn package_url]
+		}
+		ad_script_abort
 	    }
 	}
-	
-	if { [db_0or1row member_rel {
-	    select rel_id
-	    from dotlrn_member_rels_full
-	    where community_id = :community_id
-	    and user_id = :participant_id
-	    limit 1
-	}] } {
-	    set patron_rel_id [db_exec_plsql relate_patron {
-		select acs_rel__new (null,
-				     'membership_patron_rel',
-				     :rel_id,
-				     :user_id,
-				     null,
-				     null,
-				     null)
-	    }]
-	}
-
-	# Flush cache
-	dotlrn_ecommerce::section::flush_cache $section_id
-
-	if { [exists_and_not_null return_url] } {
-	    ad_returnredirect $return_url
-	} else {
-	    ad_returnredirect [ad_conn package_url]
-	}
-	ad_script_abort
     }
 }
 
