@@ -34,7 +34,6 @@ set section_id [db_string section {
 }]
 
 
-
 # get the patron info
 
 set patron_id [db_string get_patron {
@@ -46,13 +45,18 @@ set patron_id [db_string get_patron {
 } -default ""]
 
 set email_reg_info_to [parameter::get -parameter EmailRegInfoTo -default "patron"]	   
+
 if {$email_reg_info_to == "participant"} {
     set email_user_id $user_id
 }  else {
     set email_user_id $patron_id
 }
 
-if { !$send_email_p || $user_id == $email_user_id } {
+
+# send email if the logged in user is not the person 
+# getting the email
+ 
+if { !$send_email_p || $actor_id == $email_user_id } {
     if { [parameter::get -parameter AllowAheadAccess -default 0] } {
 	set member_state [db_string member_state {
 	    select member_state
