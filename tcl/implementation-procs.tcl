@@ -10,6 +10,62 @@ ad_library {
     @cvs-id $Id$
 }
 
+namespace eval dotlrn_ecommerce::registration {}
+
+ad_proc -public dotlrn_ecommerce::registration::new {
+    -user_id:required
+    -patron_id:required
+    -community_id:required
+} {
+    Register user to community
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-09-25
+    
+    @param user_id
+
+    @param patron_id
+
+    @param community_id
+
+    @return 
+    
+    @error 
+} {
+    dotlrn_community::add_user $community_id $user_id
+
+    # See if we need to send the welcome email to the
+    # purchaser
+    if { [lsearch [parameter::get -parameter WelcomeEmailRecipients] purchaser] != -1 } {
+	ns_log Notice "sending email to patron_id $patron_id for user_id $user_id"
+	if {$patron_id != $participant_id} {
+	    # if they are the participant, then
+	    # they will get the welcome email for the community
+	    dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type "on join" -email_send_to $patron_id -override_enabled
+	}
+    }
+
+    # Keep track of patron relationships
+    if { [db_0or1row member_rel {
+	select rel_id
+	from dotlrn_member_rels_full
+	where community_id = :community_id
+	and user_id = :user_id
+	limit 1
+    }] } {
+	set patron_rel_id [db_exec_plsql relate_patron {
+	    select acs_rel__new (null,
+				 'membership_patron_rel',
+				 :rel_id,
+				 :patron_id,
+				 null,
+				 null,
+				 null)
+	}]
+    }
+
+}
+
 ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
     -user_id
     -order_id
@@ -17,8 +73,6 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 } {
 
 } {
-    # DEDS: for notifying when wait list notify reached
-    set community_notify_waitlist_list [list]
     set checkout_user_id [ad_conn user_id]
 
     if { [exists_and_not_null patron_id] } {
@@ -96,46 +150,13 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 	    } {
 		ns_log notice "dotlrn-ecommerce callback: Adding user $user_id to community $community_id"
 		
-		if { [catch {
-
-		    dotlrn_community::add_user $community_id $user_id
+		if { ![empty_string_p $community_id] && [catch {
 
 		    if { ! [exists_and_not_null patron_id] } {
-			set patron_id $saved_patron_id
+			set patron_id  $saved_patron_id
 		    }
 
-		    if { [exists_and_not_null patron_id] } {
-
-		    # See if we need to send the welcome email to the
-		    # purchaser
-		    if { [lsearch [parameter::get -parameter WelcomeEmailRecipients] purchaser] != -1 } {
-			ns_log Notice "sending email to patron_id $patron_id for user_id $user_id"
-			if {$patron_id != $participant_id} {
-			    # if they are the participant, then
-			    # they will get the welcome email for the community
-			    dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type "on join" -email_send_to $patron_id   -override_enabled		
-			}
-		    }
-		    # Keep track of patron relationships
-
-			if { [db_0or1row member_rel {
-			    select rel_id
-			    from dotlrn_member_rels_full
-			    where community_id = :community_id
-			    and user_id = :user_id
-			    limit 1
-			}] } {
-			    set patron_rel_id [db_exec_plsql relate_patron {
-				select acs_rel__new (null,
-						     'membership_patron_rel',
-						     :rel_id,
-						     :patron_id,
-						     null,
-						     null,
-						     null)
-			    }]
-			}
-		    }
+		    dotlrn_ecommerce::registration::new -user_id $user_id -patron_id $patron_id -community_id $community_id
 
 		} errMsg] } {
 		    # Fixes for possible double click
@@ -143,47 +164,6 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 		}
 
 		dotlrn_ecommerce::section::flush_cache $section_id
-	    }
-	}
-    }
-
-    # DEDS
-    # loop for possible notifications on wait list triggered email
-    set wait_list_notify_email [parameter::get -package_id [ad_acs_kernel_id] -parameter AdminOwner]
-    set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
-    foreach community_id_wait $community_notify_waitlist_list {
-	ns_log notice "dotlrn-ecommerce wait list notify: potential community is $community_id"
-	if {[db_0or1row get_nwn {
-	    select s.notify_waiting_number,
-                   s.section_name
-	    from dotlrn_ecommerce_section s
-	    where s.community_id = :community_id_wait
-	}]} {
-	    if {![empty_string_p $notify_waiting_number]} {
-		set current_waitlisted [db_string get_cw {
-		    select count(*)
-		    from membership_rels m,
-                         acs_rels r
-		    where m.member_state = 'needs_approval'
-		          and m.rel_id = r.rel_id
-		          and r.rel_type = 'dotlrn_member_rel'
-		          and r.object_id_one = :community_id_wait
-		}]
-		ns_log notice "dotlrn-ecommerce wait list notify: community $community_id wait number is $notify_waiting_number"
-		ns_log notice "dotlrn-ecommerce wait list notify: community $community_id waitlisteed is $current_waitlisted"
-		if {$current_waitlisted >= $notify_waiting_number} {
-		    set subject "Waitlist notification for $section_name"
-		    set body "$section_name is set to notify when the waitlist reaches ${notify_waiting_number}.
-Total persons in the waiting list for ${section_name}: $current_waitlisted"
-		    acs_mail_lite::send \
-			-to_addr $wait_list_notify_email \
-			-from_addr $mail_from \
-			-subject $subject \
-			-body $body
-	    		ns_log notice "dotlrn-ecommerce wait list notify: community $community_id sending email"
-		} else {
-	    		ns_log notice "dotlrn-ecommerce wait list notify: community $community_id NOT sending email"
-		}
 	    }
 	}
     }
