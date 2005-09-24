@@ -44,56 +44,70 @@ switch $type {
 
 
 set actor_id [ad_conn user_id]
-set section_id [db_string section {
-    select section_id
+db_1row section {
+    select section_id, product_id
     from dotlrn_ecommerce_section
     where community_id = :community_id
-}]
+}
 
 dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
 
+set allow_free_registration_p [parameter::get -parameter AllowFreeRegistration -default 0]
+set price [dotlrn_ecommerce::section::price $section_id]
+
 if { $user_id == $actor_id } {
 
-    db_transaction {
-	set rels [db_list rels {
-	    select r.rel_id
-	    from acs_rels r,
-	    membership_rels m
-	    where r.rel_id = m.rel_id
-	    and r.object_id_one = :community_id
-	    and r.object_id_two = :user_id
-	    and m.member_state = :old_member_state
-	}]
+    # Application is constrained to be unique for each combination of user and community
+    if { [db_0or1row rels {
+	select r.rel_id, o.creation_user as patron_id
+	from dotlrn_member_rels_full r, acs_objects o
+	where r.rel_id = o.object_id
+	and r.community_id = :community_id
+	and r.user_id = :user_id
+	and r.member_state = :old_member_state
+    }] } {
 
-	db_dml approve_request [subst {
-	    update membership_rels
-	    set member_state = :new_member_state
-	    where rel_id in ([join $rels ,])
-	}]
+	# Approval on free registration gets the user registered immediately
+	if { ![empty_string_p $price] && $price < 0.01 && $allow_free_registration_p } {
 
-	db_dml update_objects [subst {
-	    update acs_objects
-	    set last_modified = current_timestamp
-	    where object_id in ([join $rels ,])
-	}]
+	    dotlrn_ecommerce::registration::new -user_id $user_id -patron_id $patron_id -community_id $community_id
 
-	if { [parameter::get -parameter AllowAheadAccess -default 0] } {
-	    # Dispatch dotlrn applet callbacks
-	    dotlrn_community::applets_dispatch \
-		-community_id $community_id \
-		-op AddUserToCommunity \
-		-list_args [list $community_id $user_id]
-	}	
-    } on_error {
+	} else {
+
+	    db_transaction {
+		db_dml approve_request [subst {
+		    update membership_rels
+		    set member_state = :new_member_state
+		    where rel_id = :rel_id
+		}]
+
+		db_dml update_objects [subst {
+		    update acs_objects
+		    set last_modified = current_timestamp
+		    where object_id = :rel_id
+		}]
+
+		if { [parameter::get -parameter AllowAheadAccess -default 0] } {
+		    # Dispatch dotlrn applet callbacks
+		    dotlrn_community::applets_dispatch \
+			-community_id $community_id \
+			-op AddUserToCommunity \
+			-list_args [list $community_id $user_id]
+		}	
+	    } on_error {
+	    }
+	    
+	    dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id	    
+	}
     }
     
-    dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
     ad_returnredirect $return_url
+    ad_script_abort
 } else {
     if { $type == "prereq" } {
         ad_form \
             -name email_form \
-	    -export { application_type } \
+	    -export { application_type return_url } \
             -form {
                 {user_id:text(hidden)}
                 {community_id:text(hidden)}
@@ -117,115 +131,110 @@ if { $user_id == $actor_id } {
             } \
             -on_submit {
 		
-		db_transaction {
-		    
-		    set rels [db_list rels {
-			select r.rel_id
-			from acs_rels r, 
-			membership_rels m
-			where r.rel_id = m.rel_id
-			and r.object_id_one = :community_id
-			and r.object_id_two = :user_id
-			and m.member_state = :old_member_state
-		    }]
-
-		    db_dml approve_request [subst {
-			update membership_rels
-			set member_state = :new_member_state
-			where rel_id in ([join $rels ,])
-		    }]
-
-		    db_dml update_objects [subst {
-			update acs_objects
-			set last_modified = current_timestamp
-			where object_id in ([join $rels ,])
-		    }]
-		    
-
-		    set rel [lindex $rels 0]
-		    set patron_id [db_string get_patron {
-			select creation_user from
-			acs_objects where object_id = :rel
-		    } -default ""]
-				  
-		} on_error {
-		}
-
-
 		if {$email_reg_info_to == "participant"} {
 		    set email_user_id $user_id
 		}  else {
 		    set email_user_id $patron_id
 		}
-
-
+				
 		dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type -override_email $reason -override_subject $subject
 
+		if { [db_0or1row rels {
+		    select r.rel_id, o.creation_user as patron_id
+		    from dotlrn_member_rels_full r, acs_objects o
+		    where r.rel_id = o.object_id
+		    and r.community_id = :community_id
+		    and r.user_id = :user_id
+		    and r.member_state = :old_member_state
+		}] } {
+		    
+		    if { ![empty_string_p $price] && $price < 0.01 && $allow_free_registration_p } {
+			
+			dotlrn_ecommerce::registration::new -user_id $user_id -patron_id $patron_id -community_id $community_id
+			
+		    } else {
+			
+			db_transaction {
+			    
+			    db_dml approve_request [subst {
+				update membership_rels
+				set member_state = :new_member_state
+				where rel_id = :rel_id
+			    }]
+			    
+			    db_dml update_objects [subst {
+				update acs_objects
+				set last_modified = current_timestamp
+				where object_id = :rel_id
+			    }]
+			    
+			} on_error {
+			}
+			
+		    }
+		}
+				
             } \
             -after_submit {
 		dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
                 ad_returnredirect $return_url
 		ad_script_abort
             }
-
+	
     } else {
-	db_transaction {
-	    set rels [db_list rels {
-		select r.rel_id
-		from acs_rels r,
-		membership_rels m
-		where r.rel_id = m.rel_id
-		and r.object_id_one = :community_id
-		and r.object_id_two = :user_id
-		and m.member_state = :old_member_state
-	    }]
 
-	    db_dml approve_request [subst {
-		update membership_rels
-		set member_state = :new_member_state
-		where rel_id in ([join $rels ,])
-	    }]
+	if { [db_0or1row rels {
+	    select r.rel_id, o.creation_user as patron_id
+	    from dotlrn_member_rels_full r, acs_objects o
+	    where r.rel_id = o.object_id
+	    and r.community_id = :community_id
+	    and r.user_id = :user_id
+	    and r.member_state = :old_member_state
+	}] } {
+	    
+	    # Send email to applicant
+	    set community_name [dotlrn_community::get_community_name $community_id]
 
-	    db_dml update_objects [subst {
-		update acs_objects
-		set last_modified = current_timestamp
-		where object_id in ([join $rels ,])
-	    }]
+	    if {$email_reg_info_to == "participant"} {
+		set email_user_id $user_id
+	    }  else {
+		set email_user_id $patron_id
+	    }
+	    	    
+	    dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type
 
-	    if { [parameter::get -parameter AllowAheadAccess -default 0] } {
-		# Dispatch dotlrn applet callbacks
-		dotlrn_community::applets_dispatch \
-		    -community_id $community_id \
-		    -op AddUserToCommunity \
-		    -list_args [list $community_id $user_id]
-	    }	
-	} on_error {
+	    if { ![empty_string_p $price] && $price < 0.01 && $allow_free_registration_p } {
+		
+		dotlrn_ecommerce::registration::new -user_id $user_id -patron_id $patron_id -community_id $community_id
+		
+	    } else {
+
+		db_transaction {
+		    db_dml approve_request [subst {
+			update membership_rels
+			set member_state = :new_member_state
+			where rel_id = :rel_id
+		    }]
+
+		    db_dml update_objects [subst {
+			update acs_objects
+			set last_modified = current_timestamp
+			where object_id = :rel_id
+		    }]
+
+		    if { [parameter::get -parameter AllowAheadAccess -default 0] } {
+			# Dispatch dotlrn applet callbacks
+			dotlrn_community::applets_dispatch \
+			    -community_id $community_id \
+			    -op AddUserToCommunity \
+			    -list_args [list $community_id $user_id]
+		    }	
+		} on_error {
+		}
+
+	    }
 	}
 
-
-	set rel [lindex $rels 0]
-	set patron_id [db_string get_patron {
-	    select creation_user from
-	    acs_objects where object_id = :rel
-	}]
-		       
-	# Send email to applicant
-
-	set community_name [dotlrn_community::get_community_name $community_id]
-	if {[exists_and_not_null reason]} {
-	    set override_email $reason
-	} else {
-	    set override_email ""
-	}
-	
-	if {$email_reg_info_to == "participant"} {
-	    set email_user_id $user_id
-	}  else {
-	    set email_user_id $patron_id
-	}
-
-	
-	dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type -override_email $override_email
 	dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
 	ad_returnredirect $return_url
 	ad_script_abort

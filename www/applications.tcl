@@ -36,8 +36,6 @@ set header_stuff {
 
 set enable_applications_p [parameter::get -package_id [ad_conn package_id] -parameter EnableCourseApplicationsP -default 1]
 
-set allow_free_registration_p [parameter::get -parameter AllowFreeRegistration -default 0]
-
 if { [exists_and_not_null type] } {
     set _type $type
 } else {
@@ -252,7 +250,7 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	   and rr.rel_id <= r.rel_id
 	   and rr.community_id = r.community_id
 	   and rr.member_state = r.member_state
-	   order by o.creation_date) r) as number, s.product_id, m.session_id, p.price
+	   order by o.creation_date) r) as number, s.product_id, m.session_id
 
     from dotlrn_member_rels_full r
     left join (select *
@@ -288,13 +286,7 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 }] {
     set list_type [ad_decode $member_state "needs approval" full "request approval" prereq "awaiting payment" payment full]
 
-    if { ![empty_string_p $price] && $price < 0.01 && $allow_free_registration_p } {
-	set _return_url [export_vars -base "[ad_conn package_url]ecommerce/shopping-cart-add" { product_id {user_id $patron_id} {participant_id $applicant_user_id} return_url {override_p 1} }]
-    } else {
-	set _return_url $return_url
-    }
-
-    set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} {type $list_type} {return_url $_return_url} }]
+    set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
 	
     set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
 
