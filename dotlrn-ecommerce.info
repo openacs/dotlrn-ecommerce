@@ -7,7 +7,7 @@
     <initial-install-p>f</initial-install-p>
     <singleton-p>t</singleton-p>
     
-    <version name="0.1d18" url="http://openacs.org/repository/download/apm/dotlrn-ecommerce-0.1d18.apm">
+    <version name="0.1d19" url="http://openacs.org/repository/download/apm/dotlrn-ecommerce-0.1d19.apm">
         <owner url="mailto:roelmc@solutiongrove.com">Roel Canicula</owner>
         <summary>Package to tie the dotLRN, Ecommerce, Assessments and dotLRN Catalog packages together</summary>
         <release-date>2005-08-10</release-date>
@@ -15,7 +15,7 @@
         <description format="text/html">Package to tie the dotLRN, Ecommerce, Assessments and dotLRN Catalog packages together.  Initially intended for the MOS and MGH projects, the goal is to create a reusable module for similar projects.</description>
         <maturity>0</maturity>
 
-        <provides url="dotlrn-ecommerce" version="0.1d18"/>
+        <provides url="dotlrn-ecommerce" version="0.1d19"/>
 
         <callbacks>
             <callback type="after-install"  proc="dotlrn_ecommerce::install"/>
@@ -61,6 +61,8 @@
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="AllowRejectWithoutEmail"  default="0" description="Allow rejecting an application without sending an email to the user."/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="WelcomeEmailRecipients"  default="participant" description="Who receives the welcome email sent when a user joins the community. Either or both 'participant' or 'purchaser' separated by space."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="AllowFreeRegistration"  default="0" description="If set, sections can have a price of $0.00 and users get registered immediately."/>
+            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="DotlrnEcommerceConfig"  description="A parameter that can hold more parameter values. dotLRN-Ecommerce uses a lot of APM parameters and probably will still grow. Some of the new parameters are just for simple UI items and since a new parameter leads to a version bump this using just this one parameter can save time. The format is: parameter:&quot;value&quot; [parameter:&quot;value&quot; ...]" section_name="Configuration"/>
+            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="CalendarView"  default="month" description="Determines how the calendar is displayed."/>
         </parameters>
 
     </version>
