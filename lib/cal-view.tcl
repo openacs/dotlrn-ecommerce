@@ -18,6 +18,8 @@ ad_page_contract {
     
     { orderby course_name }
     { groupby course_name }
+
+    {period_days 31}
 }
 
 
@@ -286,3 +288,5 @@ foreach {name discard} $filters {
 
 set next_month_template "[export_vars -exclude {date} -no_empty -base . $export]&date=\[ad_urlencode \$next_month\]"
 set prev_month_template "[export_vars -exclude {date} -no_empty -base . $export]&date=\[ad_urlencode \$prev_month\]"
+
+set view [parameter::get -default month -parameter CalendarView]

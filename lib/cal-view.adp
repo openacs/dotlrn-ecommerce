@@ -17,7 +17,7 @@ div.cal-month-event {
     </td>
     <td valign="top">	
 	<if @show_view_all@ eq "1" ><p>@currently_viewing;noquote@<p><a href=".?view=calendar&date=@date@" class="button">View All</a></p></if>
-	<include src="view-month-display" calendar_id_list="@calendar_id_list@" item_template="@item_template@" next_month_template="@next_month_template@" prev_month_template="@prev_month_template@" date="@date@" add_p="f" link_day_p="f">
+	<include src="view-@view@-display" calendar_id_list="@calendar_id_list@" item_template="@item_template@" next_month_template="@next_month_template@" prev_month_template="@prev_month_template@" date="@date@" add_p="f" link_day_p="f" period_days="@period_days@" />
     </td>
   </tr>
 </table>
