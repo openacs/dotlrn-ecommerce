@@ -244,6 +244,10 @@ set actions [list]
 
 lappend actions "[_ dotlrn-ecommerce.View_All]" ? "[_ dotlrn-ecommerce.View_All]"
 
+_deparam ShowCalendarButton {
+    lappend actions "[_ dotlrn-ecommerce.View_Calendar]" "?groupby=course%5fname&orderby=course%5fname&view=calendar" "[_ dotlrn-ecommerce.View_Calendar]"
+}
+
 if { $admin_p } {
     lappend actions "[_ dotlrn-ecommerce.Add_Course]" admin/course-add-edit "[_ dotlrn-ecommerce.Add_Course]"
 }
