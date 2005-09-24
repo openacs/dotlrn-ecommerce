@@ -12,6 +12,7 @@ ad_library {
 
 namespace eval dotlrn_ecommerce {}
 namespace eval dotlrn_ecommerce::util {}
+namespace eval dotlrn_ecommerce::util::param {}
 
 ad_proc -public dotlrn_ecommerce::notify_admins_of_waitlist {
 } {
@@ -470,5 +471,173 @@ ad_proc dotlrn_ecommerce_email_new_order {
 	
 	ec_sendmail_from_service "$email" "$email_from" "$email_subject" "$email_body"
 	ec_email_product_notification $order_id
+    }
+}
+
+ad_proc -private dotlrn_ecommerce::util::param {
+    string
+    target
+} {
+    Check parameters and return string if parameter satisfies op
+ 
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-09-23
+    
+    @param string
+
+    @param target
+
+    @return 
+    
+    @error 
+} {
+    if { [empty_string_p [set param [ns_set get $target param]]] } {
+	# Incorrectly used, return string
+	return $string
+    }
+
+    if { [empty_string_p [set op [ns_set get $target op]]] } {
+	set op "is_true"
+    }
+
+    # First check if param is in the DotlrnEcommerceConfig param
+    if { [catch {set deparams [parameter::get_from_package_key -parameter DotlrnEcommerceConfig -package_key dotlrn-ecommerce]}] } {
+	# Not properly configured, return string
+	return $string
+    }
+
+    set deparams [split $deparams]
+    foreach deparam $deparams {
+	if { [regexp {^(\w+):"?(.+?)"?$} $deparam match key value] } {
+	    if { [string equal -nocase $param $key] } {
+		switch $op {
+		    default {
+			if { [template::util::is_true $value] } {
+			    return $string
+			} else {
+			    return ""
+			}
+		    }
+		}
+	    }
+	}
+    }
+
+    # Then check existing APM params
+    if { [catch {set value [parameter::get_from_package_key -parameter $param -package_key dotlrn-ecommerce]}] } {
+	# Invalid parameter, return string
+	# No entry in DotlrnEcommerceConfig and no APM parameter,
+	# don't display
+	return ""
+    }
+
+    switch $op {
+	default {
+	    if { [template::util::is_true $value] } {
+		return $string
+	    } else {
+		return ""
+	    }
+	}
+    }
+}
+
+ad_proc -public dotlrn_ecommerce::util::param::get {
+    {-default ""}
+    param
+} {
+    Return value of parameter from DotlrnEcommerceConfig
+ 
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-09-23
+    
+    @param default
+
+    @param param
+
+    @return 
+    
+    @error 
+} {
+    # First check if param is in the DotlrnEcommerceConfig param
+    if { [catch {set deparams [parameter::get_from_package_key -parameter DotlrnEcommerceConfig -package_key dotlrn-ecommerce]}] } {
+	# Not properly configured, return string
+	return $default
+    }
+
+    set deparams [split $deparams]
+    foreach deparam $deparams {
+	if { [regexp {^(\w+):"?(.+?)"?$} $deparam match key value] } {
+	    if { [string equal -nocase $param $key] } {
+		return $value
+	    }
+	}
+    }
+
+    # Then check existing APM params
+    if { [catch {set value [parameter::get_from_package_key -parameter $param -package_key dotlrn-ecommerce]}] } {
+	# Invalid parameter, return string
+	return $default
+    }
+
+    return $value
+}
+
+ad_proc -public _deparam {
+    {-op "is_true"}
+    param
+    code
+} {
+    Check parameters and execute code if parameter satisfies op
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-09-23
+    
+    @param op
+
+    @param param
+
+    @param code
+
+    @return 
+    
+    @error 
+} {
+    # First check if param is in the DotlrnEcommerceConfig param
+    if { [catch {set deparams [parameter::get_from_package_key -parameter DotlrnEcommerceConfig -package_key dotlrn-ecommerce]}] } {
+	# Not properly configured, execute code
+	uplevel $code
+	return
+    }
+
+    set deparams [split $deparams]
+    foreach deparam $deparams {
+	if { [regexp {^(\w+):"?(.+?)"?$} $deparam match key value] } {
+	    if { [string equal -nocase $param $key] } {
+		switch $op {
+		    default {
+			if { [template::util::is_true $value] } {
+			    uplevel $code
+			    return
+			}
+		    }
+		}
+	    }
+	}
+    }
+
+    # Then check existing APM params
+    if { [catch {set value [parameter::get_from_package_key -parameter $param -package_key dotlrn-ecommerce]}] } {
+	# Invalid parameter, give up
+	return
+    }
+
+    switch $op {
+	default {
+	    if { [template::util::is_true $value] } {
+		uplevel $code
+		return
+	    }
+	}
     }
 }

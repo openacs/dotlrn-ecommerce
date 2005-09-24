@@ -24,3 +24,5 @@ if { [parameter::get -parameter AllowAheadAccess -package_id [apm_package_id_fro
     ns_log notice "dotlrn-ecommerce-init.tcl: Disallowing community access to approved member states, this simply restores dotlrn_member_rels_approved and membership_rels_up_tr"
     dotlrn_ecommerce::disallow_access_to_approved_users
 }
+
+ns_register_adptag "deparam" "/deparam" dotlrn_ecommerce::util::param
