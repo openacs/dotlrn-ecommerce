@@ -73,7 +73,7 @@ create view dlec_view_expense_terms as (
 
 -- locations
 
-create view dlec_view_zones as (
+create view dlec_view_locations as (
 	select dlec_view_categories.category, dlec_view_categories.category_id
 	from dlec_view_categories, dlec_view_category_trees
 	where dlec_view_category_trees.title = 'Location'
