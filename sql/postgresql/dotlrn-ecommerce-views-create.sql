@@ -187,7 +187,7 @@ create view dlec_view_orders as (
      u.first_names||' '||u.last_name as purchaser,
      i.item_id, deo.participant_id, case when ao.object_type = 'group' then acs_group__name(deo.participant_id) else person__name(deo.participant_id) end as participant_name,
     deo.checked_out_by, u.user_id as purchaser_id, (deo.checked_out_by != u.user_id) 
-	as checked_out_by_admin_p
+	as checked_out_by_admin_p, o.authorized_date, o.confirmed_date as confirmed_date_date_column, ao.object_type
     from ec_orders o
     join ec_items i using (order_id)
     join ec_products p using (product_id)
@@ -196,9 +196,7 @@ create view dlec_view_orders as (
     join dotlrn_ecommerce_transactions t using (order_id)
     left join dotlrn_ecommerce_section s on (i.product_id = s.product_id)
     left join cc_users u on (o.user_id=u.user_id)
-    where o.order_state in ('confirmed', 'authorized', 'fulfilled', 'returned')
-
-);
+    where o.order_state in ('confirmed', 'authorized', 'fulfilled', 'returned'));
 
 create view dlec_view_section_report as (
 	select s.*,
