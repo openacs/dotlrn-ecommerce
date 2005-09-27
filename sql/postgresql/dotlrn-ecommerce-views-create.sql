@@ -152,7 +152,7 @@ create view dlec_view_course_expenses as (
 
 create view dlec_view_orders as (
     select o.order_id, to_char(o.confirmed_date, 'Mon dd, yyyy hh:miam') 
-	as confirmed_date, o.order_state,   (i.price_charged + 
+	as confirmed_date, to_char(o.confirmed_date, 'Mon dd, yyyy') as confirmed_date_only_date, o.order_state,   (i.price_charged + 
 	coalesce(i.shipping_charged, 0) + coalesce(i.price_tax_charged, 0)
      	- coalesce(i.price_refunded, 0) - coalesce(i.shipping_refunded, 0) 
 	- coalesce(i.price_tax_refunded, 0)) as price_to_display,
@@ -216,7 +216,7 @@ create view dlec_view_section_report as (
 );
 
 create view dlec_view_membership_orders as (
- 	select to_char(o.authorized_date, 'yyyy-mm-dd hh:miam') as authorized_date, p.product_name, u.user_id, u.first_names, u.last_name, u.email, a.line1 as address1, a.line2 as address2, a.city, a.usps_abbrev as state_code, a.full_state_name, a.zip_code, a.phone
+ 	select to_char(o.authorized_date, 'yyyy-mm-dd') as authorized_date, p.product_name, u.user_id, u.first_names, u.last_name, u.email, a.line1 as address1, a.line2 as address2, a.city, a.usps_abbrev as state_code, a.full_state_name, a.zip_code, a.phone
 	from ec_items i,
 	ec_orders o,
 	ec_products p,
