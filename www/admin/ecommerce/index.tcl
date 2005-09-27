@@ -154,10 +154,10 @@ template::list::create \
 	}
     } -filters {
 	section_id {
-	    where_clause { s.section_id = :section_id }
+	    where_clause { section_id = :section_id }
 	}
 	user_id {
-	    where_clause { o.user_id = :user_id }
+	    where_clause { purchasing_user_id = :user_id }
 	}
 	start {
 	    label "[_ dotlrn-ecommerce.In_the_last]"
@@ -166,7 +166,7 @@ template::list::create \
 		{"7 days" "7 days"}
 		{"Month" "1 month"}
 	    }
-	    where_clause { o.authorized_date >= current_timestamp - :start::interval }
+	    where_clause { authorized_date >= current_timestamp - :start::interval }
 	}
 	type {
 	    label "[_ dotlrn-ecommerce.Orders_with]"
@@ -175,10 +175,10 @@ template::list::create \
 	    }
 	    where_clause {
 		(case when t.method = 'invoice' then
-		 ec_total_price(o.order_id) - ec_order_gift_cert_amount(o.order_id) - 
+		 ec_total_price(order_id) - ec_order_gift_cert_amount(order_id) - 
 		 (select coalesce(sum(amount), 0)
 		  from dotlrn_ecommerce_transaction_invoice_payments
-		  where order_id = o.order_id)
+		  where order_id = order_id)
 		 else 0 end) > 0
 	    }
 	}
@@ -191,7 +191,7 @@ template::list::create \
 		  coalesce((select true
 			    where exists (select *
 					  from ec_gift_certificate_usage
-					  where order_id = o.order_id
+					  where order_id = order_id
 					  and exists (select *
 						      from scholarship_fund_grants
 						      where ec_gift_certificate_usage.gift_certificate_id = gift_certificate_id))), false)))
@@ -200,11 +200,11 @@ template::list::create \
     } -orderby {
 	order_id {
 	    label "[_ dotlrn-ecommerce.Order_ID]"
-	    orderby o.order_id
+	    orderby order_id
 	}
 	confirmed_date {
 	    label "[_ dotlrn-ecommerce.Date]"
-	    orderby o.confirmed_date
+	    orderby confirmed_date_date_column
 	}
 	_section_name {
 	    label "[_ dotlrn-ecommerce.Section_Name]"
@@ -212,15 +212,15 @@ template::list::create \
 	}
 	purchaser {
 	    label "[_ dotlrn-ecommerce.Purchaser]"
-	    orderby "lower(u.first_names||' '||u.last_name)"
+	    orderby "lower(first_names||' '||last_name)"
 	}
 	participant_name {
 	    label "[_ dotlrn-ecommerce.Participant]"
-	    orderby "lower(case when ao.object_type = 'group' then acs_group__name(deo.participant_id) else person__name(deo.participant_id) end)"
+	    orderby "lower(case when object_type = 'group' then acs_group__name(participant_id) else person__name(participant_id) end)"
 	}
 	method {
 	    label "[_ dotlrn-ecommerce.Payment_Method]"
-	    orderby t.method
+	    orderby method
 	}
 	total_price {
 	    label "[_ dotlrn-ecommerce.Total_Amount]"
@@ -245,61 +245,9 @@ template::list::create \
     }
 
 db_multirow -extend { order_url section_url pretty_total pretty_balance person_url pretty_refund pretty_actual_total refund_url participant_url participant_type } orders orders [subst {
-    select o.order_id, to_char(o.confirmed_date, 'Mon dd, yyyy hh:miam') as confirmed_date, o.order_state, 
-
-    (i.price_charged + coalesce(i.shipping_charged, 0) + coalesce(i.price_tax_charged, 0)
-    - coalesce(i.price_refunded, 0) - coalesce(i.shipping_refunded, 0) - coalesce(i.price_tax_refunded, 0)) as price_to_display,
-
-    o.user_id as purchasing_user_id, u.first_names, u.last_name, 
-
-    t.method, coalesce((select true
-			where exists (select *
-				      from ec_gift_certificate_usage
-				      where order_id = o.order_id
-				      and exists (select *
-						  from scholarship_fund_grants
-						  where ec_gift_certificate_usage.gift_certificate_id = gift_certificate_id))), false) as has_scholarship_p, 
-    
-    s.section_id as _section_id, 
-    
-    coalesce((select course_name
-	      from dlec_view_sections
-	      where section_id = s.section_id)||': '||s.section_name, p.product_name) as _section_name, s.course_id, 
-    
-    case when t.method = 'invoice' then
-    ec_total_price(o.order_id) - ec_order_gift_cert_amount(o.order_id) - 
-    (select coalesce(sum(amount), 0)
-     from dotlrn_ecommerce_transaction_invoice_payments
-     where order_id = o.order_id) + ec_total_refund(o.order_id)
-    else 0 end as balance, 
-
-	(coalesce(i.price_refunded, 0) + coalesce(i.shipping_refunded, 0) - coalesce(i.price_tax_refunded, 0)) as refund_price,
-
-	(i.price_charged + coalesce(i.shipping_charged, 0) + coalesce(i.price_tax_charged, 0)) as total_price, 
-
-    (select to_char(refund_date, 'Mon dd, yyyy')
-     from ec_refunds
-     where order_id = o.order_id
-     order by refund_date desc
-     limit 1) as refund_date, 
-
-	u.first_names||' '||u.last_name as purchaser,
-
-    i.item_id, deo.participant_id, case when ao.object_type = 'group' then acs_group__name(deo.participant_id) else person__name(deo.participant_id) end as participant_name,
-
-    deo.checked_out_by, u.user_id as purchaser_id, (deo.checked_out_by != u.user_id) as checked_out_by_admin_p
-
-    from ec_orders o
-    join ec_items i using (order_id)
-    join ec_products p using (product_id)
-    join dotlrn_ecommerce_orders deo using (item_id)
-    join acs_objects ao on (deo.participant_id = ao.object_id)
-    join dotlrn_ecommerce_transactions t using (order_id)
-    left join dotlrn_ecommerce_section s on (i.product_id = s.product_id)
-    left join cc_users u on (o.user_id=u.user_id)
-    
-    where o.order_state in ('confirmed', 'authorized', 'fulfilled', 'returned')
-    
+        
+    select * from dlec_view_orders
+    where 1=1
     [template::list::filter_where_clauses -and -name orders]
     
 --    group by o.order_id, o.confirmed_date, o.order_state, ec_total_price(o.order_id), o.user_id, u.first_names, u.last_name, o.in_basket_date, t.method, section_name, s.section_id, s.course_id, o.authorized_date, balance, refund_price, refund_date, purchaser
