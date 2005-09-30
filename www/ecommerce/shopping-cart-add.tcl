@@ -81,8 +81,16 @@ if { $participant_id == 0 } {
     set participant_id $user_id
 }
 
-dotlrn::user_add -user_id $user_id
-dotlrn::user_add -user_id $participant_id
+
+if { ! [dotlrn::user_p -user_id $user_id] } {
+    dotlrn::user_add -user_id $user_id
+    dotlrn_privacy::set_user_guest_p -user_id $user_id -value f
+}
+
+if { ! [dotlrn::user_p -user_id $participant_id] } {
+    dotlrn::user_add -user_id $participant_id
+    dotlrn_privacy::set_user_guest_p -user_id $participant_id -value f
+}
 
 db_0or1row section_info {
     select section_id, community_id
@@ -132,10 +140,7 @@ if { [acs_object_type $participant_id] != "group" } {
 		}] } {
 		    if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
 			if { $auto_register_p == "t" } {
-			    set form [rp_getform]
-			    ns_set delkey $form override_course_application_p
-
-			    set return_url [export_vars -base [ad_return_url] { {override_course_application_p 1} }]
+			    set return_url [export_vars -base [ad_conn url] { product_id user_id participant_id override_p offer_code return_url {override_course_application_p 1} }]
 			    ad_returnredirect [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]assessment" { assessment_id return_url }]
 			} else {
 			    set return_url [export_vars -base "[ad_conn package_url]application-confirm" { product_id {member_state "awaiting payment"} }]
