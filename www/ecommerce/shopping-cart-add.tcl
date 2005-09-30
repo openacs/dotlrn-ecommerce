@@ -81,6 +81,9 @@ if { $participant_id == 0 } {
     set participant_id $user_id
 }
 
+dotlrn::user_add -user_id $user_id
+dotlrn::user_add -user_id $participant_id
+
 db_0or1row section_info {
     select section_id, community_id
     from dotlrn_ecommerce_section
