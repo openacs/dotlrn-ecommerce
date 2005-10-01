@@ -27,6 +27,7 @@ ad_page_contract {
 
 set actor_id [ad_conn user_id]
 set email_reg_info_to [parameter::get -parameter EmailRegInfoTo -default "patron"]
+set allow_free_registration_p [parameter::get -parameter AllowFreeRegistration -default 0]
 
 if { [info exists __confirmed_p] } {
     set rel_id [split [lindex $rel_id 0]]
@@ -129,10 +130,17 @@ if { [template::multirow size applications] > 0 } {
 		dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type
 	    }	    
 
-	    dotlrn_ecommerce::section::user_approve -rel_id $_rel_id -user_id $user_id -community_id $community_id
-	    dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
-	}
+	    set price [dotlrn_ecommerce::section::price $section_id]
 
+	    # Approval on free registration gets the user registered immediately
+	    if { ![empty_string_p $price] && $price < 0.01 && $allow_free_registration_p } {
+		dotlrn_ecommerce::registration::new -user_id $user_id -patron_id $patron_id -community_id $community_id
+	    } else {
+		dotlrn_ecommerce::section::user_approve -rel_id $_rel_id -user_id $user_id -community_id $community_id
+		dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
+	    }
+	}
+	    
 	# Redirect to myself, if there's nothing left to do, we'll go
 	# back to return_url
 	ad_returnredirect [export_vars -base [ad_conn url] { rel_id:multiple return_url }]
