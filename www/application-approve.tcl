@@ -74,29 +74,7 @@ if { $user_id == $actor_id } {
 
 	} else {
 
-	    db_transaction {
-		db_dml approve_request [subst {
-		    update membership_rels
-		    set member_state = :new_member_state
-		    where rel_id = :rel_id
-		}]
-
-		db_dml update_objects [subst {
-		    update acs_objects
-		    set last_modified = current_timestamp
-		    where object_id = :rel_id
-		}]
-
-		if { [parameter::get -parameter AllowAheadAccess -default 0] } {
-		    # Dispatch dotlrn applet callbacks
-		    dotlrn_community::applets_dispatch \
-			-community_id $community_id \
-			-op AddUserToCommunity \
-			-list_args [list $community_id $user_id]
-		}	
-	    } on_error {
-	    }
-	    
+	    dotlrn_ecommerce::section::user_approve -rel_id $rel_id -user_id $user_id -community_id $community_id
 	    dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id	    
 	}
     }
@@ -149,28 +127,9 @@ if { $user_id == $actor_id } {
 		}] } {
 		    
 		    if { ![empty_string_p $price] && $price < 0.01 && $allow_free_registration_p } {
-			
 			dotlrn_ecommerce::registration::new -user_id $user_id -patron_id $patron_id -community_id $community_id
-			
 		    } else {
-			
-			db_transaction {
-			    
-			    db_dml approve_request [subst {
-				update membership_rels
-				set member_state = :new_member_state
-				where rel_id = :rel_id
-			    }]
-			    
-			    db_dml update_objects [subst {
-				update acs_objects
-				set last_modified = current_timestamp
-				where object_id = :rel_id
-			    }]
-			    
-			} on_error {
-			}
-			
+			dotlrn_ecommerce::section::user_approve -rel_id $rel_id -user_id $user_id -community_id $community_id
 		    }
 		}
 				
@@ -204,34 +163,9 @@ if { $user_id == $actor_id } {
 	    dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type
 
 	    if { ![empty_string_p $price] && $price < 0.01 && $allow_free_registration_p } {
-		
 		dotlrn_ecommerce::registration::new -user_id $user_id -patron_id $patron_id -community_id $community_id
-		
 	    } else {
-
-		db_transaction {
-		    db_dml approve_request [subst {
-			update membership_rels
-			set member_state = :new_member_state
-			where rel_id = :rel_id
-		    }]
-
-		    db_dml update_objects [subst {
-			update acs_objects
-			set last_modified = current_timestamp
-			where object_id = :rel_id
-		    }]
-
-		    if { [parameter::get -parameter AllowAheadAccess -default 0] } {
-			# Dispatch dotlrn applet callbacks
-			dotlrn_community::applets_dispatch \
-			    -community_id $community_id \
-			    -op AddUserToCommunity \
-			    -list_args [list $community_id $user_id]
-		    }	
-		} on_error {
-		}
-
+		dotlrn_ecommerce::section::user_approve -rel_id $rel_id -user_id $user_id -community_id $community_id
 	    }
 	}
 

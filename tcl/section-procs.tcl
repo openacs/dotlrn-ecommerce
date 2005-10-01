@@ -690,3 +690,94 @@ ad_proc -public dotlrn_ecommerce::section::has_discount_p {
 	where product_id=:product_id
     } -default 0]
 }
+
+ad_proc -public dotlrn_ecommerce::section::user_approve {
+    -rel_id
+    -user_id
+    -community_id
+} {
+    Add user to community
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-09-29
+    
+    @param user_id
+
+    @param community_id
+
+    @param rel_id
+
+    @param user_id
+
+    @param community_id
+
+    @return 
+    
+    @error 
+} {
+    if { ! [info exists rel_id] } {
+	if { [info exists user_id] && [info exists community_id] } {
+	    if { ! [db_0or1row membership_rel {
+		select rel_id
+		from dotlrn_member_rels_full
+		where user_id = :user_id
+		and community_id = :community_id
+	    }] } {
+		return
+	    }
+	} else {
+	    return
+	}
+    } elseif { ! [info exists user_id] && ! [info exists community_id] } {
+	if { [info exists rel_id] } {
+	    if { ! [db_0or1row membership_info {
+		select user_id, community_id
+		from dotlrn_member_rels_full
+		where rel_id = :rel_id
+	    }] } {
+		return
+	    }
+	} else {
+	    return
+	}
+    }
+
+    set old_member_state [db_string old_member_state {
+	select member_state
+	from dotlrn_member_rels_full
+	where rel_id = :rel_id
+    }]
+
+    set new_member_state [ad_decode $old_member_state \
+			      "needs approval" "waitinglist approved" \
+			      "request approval" "request approved" \
+			      "awaiting payment" "payment received" \
+			      "waitinglist approved"]
+
+    db_transaction {
+	db_dml approve_request [subst {
+	    update membership_rels
+	    set member_state = :new_member_state
+	    where rel_id = :rel_id
+	}]
+
+	db_dml update_objects [subst {
+	    update acs_objects
+	    set last_modified = current_timestamp
+	    where object_id = :rel_id
+	}]
+
+	if { [parameter::get -parameter AllowAheadAccess -default 0] } {
+	    # Dispatch dotlrn applet callbacks
+	    dotlrn_community::applets_dispatch \
+		-community_id $community_id \
+		-op AddUserToCommunity \
+		-list_args [list $community_id $user_id]
+	}
+
+	ns_log notice "dotlrn_ecommerce::section::user_approve: Application approved successfully: user_id $user_id community_id $community_id member_state $old_member_state"
+    } on_error {
+	ns_log notice "dotlrn_ecommerce::section::user_approve: Application error: user_id $user_id community_id $community_id member_state $old_member_state"
+    }
+    
+}

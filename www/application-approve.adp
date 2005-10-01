@@ -1,4 +1,4 @@
 <master>
-  <property name="title">Approve application</property>
+  <property name="title">#dotlrn-ecommerce.Approve_application#</property>
   
-<formtemplate id="email_form"></formtemplate>
+  <formtemplate id="email_form"></formtemplate>
