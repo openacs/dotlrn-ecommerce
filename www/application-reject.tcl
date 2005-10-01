@@ -20,9 +20,8 @@ ad_page_contract {
 } -errors {
 }
 
-if { [exists_and_equal submit2 "Reject Only"] } {
-    ad_returnredirect [export_vars -base application-reject { community_id user_id type return_url {send_email_p 0} }]
-    ad_script_abort
+if { [exists_and_equal submit2 "[_ dotlrn-ecommerce.Reject_Only]"] } {
+    set send_email_p 0
 }
 
 set actor_id [ad_conn user_id]
@@ -91,7 +90,7 @@ if { !$send_email_p || $actor_id == $email_user_id } {
 	    set email_type "application reject"
         }
     }
-    set context [list [list applications "Pending applications"] $title]
+    set context [list [list applications "[_ dotlrn-ecommerce.Pending_applications]"] $title]
     ad_form \
         -name email_form \
         -form {
@@ -107,8 +106,8 @@ if { !$send_email_p || $actor_id == $email_user_id } {
 	    -extend \
 	    -name email_form \
 	    -form {
-		{submit1:text(submit) {label "Reject and Send Email"}}
-		{submit2:text(submit) {label "Reject Only"}}
+		{submit1:text(submit) {label "[_ dotlrn-ecommerce.lt_Reject_and_Send_Email]"}}
+		{submit2:text(submit) {label "[_ dotlrn-ecommerce.Reject_Only]"}}
 	    }
     }
 
@@ -118,7 +117,7 @@ if { !$send_email_p || $actor_id == $email_user_id } {
 	-form {
         } \
         -on_request {
-	    set reason_email [lindex [callback dotlrn::default_member_email -community_id $community_id -to_user $user_id -type "prereq reject"] 0]
+	    set reason_email [lindex [callback dotlrn::default_member_email -community_id $community_id -to_user $user_id -type $email_type] 0]
 	    set reason [lindex $reason_email 2]
 	    set subject [lindex $reason_email 1]
 	    array set vars [lindex [callback dotlrn::member_email_var_list -community_id $community_id -to_user $user_id -type $type] 0]
@@ -164,5 +163,3 @@ if { !$send_email_p || $actor_id == $email_user_id } {
 	    ad_script_abort
         }
 }
-
-
