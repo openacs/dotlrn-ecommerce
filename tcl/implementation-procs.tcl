@@ -64,6 +64,7 @@ ad_proc -public dotlrn_ecommerce::registration::new {
 	}]
     }
 
+    ns_log notice "dotlrn_ecommerce::registration::new: User successfully registered: user_id $user_id patron_id $patron_id community_id $community_id"
 }
 
 ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
@@ -78,6 +79,7 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
     if { [exists_and_not_null patron_id] } {
 	if { ! [dotlrn::user_p -user_id $patron_id] } {
 	    dotlrn::user_add -user_id $patron_id
+	    dotlrn_privacy::set_user_guest_p -user_id $patron_id -value f	
 	}
     }
 
@@ -114,6 +116,7 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 	if { [exists_and_not_null saved_patron_id] } {
 	    if { ! [dotlrn::user_p -user_id $saved_patron_id] } {
 		dotlrn::user_add -user_id $saved_patron_id
+		dotlrn_privacy::set_user_guest_p -user_id $saved_patron_id -value f	
 	    }
 	}
 
@@ -131,6 +134,7 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 	foreach user_id $user_ids {
 	    if { ! [dotlrn::user_p -user_id $user_id] } {
 		dotlrn::user_add -user_id $user_id
+		dotlrn_privacy::set_user_guest_p -user_id $user_id -value f	
 	    }
 
 	    if {$membership_product_p} {

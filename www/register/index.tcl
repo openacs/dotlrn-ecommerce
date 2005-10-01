@@ -38,6 +38,8 @@ if { $user_id == 0 } {
 		# FIXME : put some error handling here
 		# make sure user is an approved dotlrn user
 		dotlrn::user_add -user_id $user_id
+		dotlrn_privacy::set_user_guest_p -user_id $user_id -value f
+		
 		# register the user		
 		dotlrn_community::add_user $community_id $user_id
 		set reg_message "Thank you for registering.... <br /> <i>Placeholder for complete message</i>"

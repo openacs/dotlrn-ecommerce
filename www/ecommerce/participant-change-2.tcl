@@ -23,6 +23,7 @@ ad_page_contract {
 
 if { ! [dotlrn::user_p -user_id $user_id] } {
     dotlrn::user_add -user_id $user_id
+    dotlrn_privacy::set_user_guest_p -user_id $user_id -value f
 }
 
 # Get section

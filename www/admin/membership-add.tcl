@@ -34,6 +34,7 @@ if { ! [empty_string_p $cancel] } {
 
 if { ! [dotlrn::user_p -user_id $user_id] } {
     dotlrn::user_add -user_id $user_id
+    dotlrn_privacy::set_user_guest_p -user_id $user_id -value f	
 }
 
 if { [info exists participant_id] } {

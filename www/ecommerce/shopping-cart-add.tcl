@@ -140,8 +140,8 @@ if { [acs_object_type $participant_id] != "group" } {
 		}] } {
 		    if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
 			if { $auto_register_p == "t" } {
-			    set return_url [export_vars -base [ad_conn url] { product_id user_id participant_id override_p offer_code return_url {override_course_application_p 1} }]
-			    ad_returnredirect [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]assessment" { assessment_id return_url }]
+			    set _return_url [export_vars -base [ad_conn url] { product_id user_id participant_id override_p offer_code {override_course_application_p 1} }]
+			    ad_returnredirect [export_vars -base application-request { user_id participant_id community_id {next_url $_return_url} { type payment } return_url }]
 			} else {
 			    set return_url [export_vars -base "[ad_conn package_url]application-confirm" { product_id {member_state "awaiting payment"} }]
 			    ad_returnredirect [export_vars -base application-request { user_id participant_id community_id {next_url $return_url} { type payment } }]

@@ -14,6 +14,8 @@ ad_page_contract {
     community_id:integer,notnull
     {type full}
     next_url:notnull
+
+    return_url:optional
 } -properties {
 } -validate {
 } -errors {
@@ -21,6 +23,7 @@ ad_page_contract {
 
 if { ! [dotlrn::user_p -user_id $participant_id] } {
     dotlrn::user_add -user_id $participant_id
+    dotlrn_privacy::set_user_guest_p -user_id $participant_id -value f	
 }
 
 set extra_vars [ns_set create]
@@ -158,6 +161,10 @@ if { [empty_string_p $assessment_id] || $assessment_id == -1 || $type == "full" 
     db_dml map_application_to_assessment {
 	insert into dotlrn_ecommerce_application_assessment_map
 	values (:rel_id, :session_id)
+    }
+
+    if { [exists_and_not_null return_url] } {
+	set next_url [export_vars -base $next_url { return_url }]
     }
     
     set return_url [export_vars -base "[ad_conn package_url]ecommerce/application-request-2" { user_id {return_url $next_url} }]

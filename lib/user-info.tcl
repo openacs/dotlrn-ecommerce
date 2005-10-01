@@ -262,6 +262,7 @@ ad_form -extend -name user_info -form {} -on_request {
     category::map_object -remove_old -object_id $user_id [list $grade]
 
     dotlrn::user_add -user_id $user_id
+    dotlrn_privacy::set_user_guest_p -user_id $user_id -value f	
 } -after_submit {
     if { [string equal [ad_conn account_status] "closed"] } {
         auth::verify_account_status
