@@ -57,12 +57,12 @@ if { $enable_applications_p } {
 
 
 set actions ""
-set bulk_actions ""
+set bulk_actions [list [_ dotlrn-ecommerce.Approve] application-bulk-approve [_ dotlrn-ecommerce.Approve] "[_ dotlrn-ecommerce.Reject] / [_ dotlrn-ecommerce.Cancel]" application-bulk-reject "[_ dotlrn-ecommerce.Reject] / [_ dotlrn-ecommerce.Cancel]"]
 
 if {[parameter::get -parameter AllowApplicationBulkEmail -default 0]} {
     set actions [list "[_ dotlrn-ecommerce.View_previously_email]" "sent-emails" "[_ dotlrn-ecommerce.View_previously_email]"]
-    set bulk_actions [list "[_ dotlrn-ecommerce.Email_applicants]" "email-applicants" "[_ dotlrn-ecommerce.Email_applicants]"]
-} 
+    lappend bulk_actions "[_ dotlrn-ecommerce.Email_applicants]" "email-applicants" "[_ dotlrn-ecommerce.Email_applicants]"
+}
 
 set elements {section_name {
 	    label "[_ dotlrn-ecommerce.Section]"
@@ -127,6 +127,10 @@ set elements {section_name {
 	    display_template {
 		<if @applications.asm_url@ not nil>
 		<a href="@applications.asm_url;noquote@" class="button" target="@applications.target@">[_ dotlrn-ecommerce.View]</a>
+		<if @applications.completed_datetime@ nil>
+		<br />
+		[_ dotlrn-ecommerce.incomplete]
+		</if>
 		</if>
 		<else>
 		N/A
@@ -184,6 +188,7 @@ template::list::create \
     -pass_properties { admin_p return_url _type } \
     -actions $actions \
     -bulk_actions $bulk_actions \
+    -bulk_action_export_vars { return_url } \
     -elements $elements \
     -filters [subst {
 	type {
@@ -240,7 +245,7 @@ if { $enable_applications_p } {
 
 set general_comments_url [apm_package_url_from_key "general-comments"]
 
-db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target} applications applications [subst {
+db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target } applications applications [subst {
     select person__name(r.user_id) as person_name, member_state, r.community_id, r.user_id as applicant_user_id, s.section_name, t.course_name, s.section_id, r.rel_id, e.phone, o.creation_user as patron_id,
     (select count(*)
      from (select *
@@ -250,7 +255,7 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	   and rr.rel_id <= r.rel_id
 	   and rr.community_id = r.community_id
 	   and rr.member_state = r.member_state
-	   order by o.creation_date) r) as number, s.product_id, m.session_id
+	   order by o.creation_date) r) as number, s.product_id, m.session_id, m.completed_datetime
 
     from dotlrn_member_rels_full r
     left join (select *
@@ -259,9 +264,10 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 				    from ec_addresses
 				    group by user_id)) e
     on (r.user_id = e.user_id)
-    left join (select *
-	       from dotlrn_ecommerce_application_assessment_map
-	       where session_id in (select max(session_id)
+    left join (select m.*, s.completed_datetime
+	       from dotlrn_ecommerce_application_assessment_map m, as_sessions s
+	       where m.session_id = s.session_id
+	       and m.session_id in (select max(session_id)
 				    from dotlrn_ecommerce_application_assessment_map
 				    group by rel_id)) m
     on (r.rel_id = m.rel_id), 
