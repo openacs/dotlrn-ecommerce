@@ -98,6 +98,22 @@ db_0or1row section_info {
     where product_id = :product_id
 }
 
+# See if this user already has a pending application or is already
+# registered to the course
+if { [db_0or1row existing_rel {
+    select rel_id
+    from dotlrn_member_rels_full
+    where user_id = :participant_id
+    and community_id = :community_id
+}] } {
+    if { [exists_and_not_null return_url] } {
+	ad_returnredirect $return_url
+    } else {
+	ad_returnredirect [ad_conn package_url]
+    }
+    ad_script_abort
+}
+
 if { [acs_object_type $participant_id] != "group" } {
     ns_log notice "DEBUG:: checking if this should go to the waiting list"
 
