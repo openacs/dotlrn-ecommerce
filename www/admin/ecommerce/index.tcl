@@ -154,7 +154,7 @@ template::list::create \
 	}
     } -filters {
 	section_id {
-	    where_clause { section_id = :section_id }
+	    where_clause { _section_id = :section_id }
 	}
 	user_id {
 	    where_clause { purchasing_user_id = :user_id }
