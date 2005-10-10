@@ -160,8 +160,8 @@ if { [empty_string_p $assessment_id] || $assessment_id == -1 || $type == "full" 
 	# mapped now to the rel_id, even if the assessment isn't complete,
 	# it will show in the assessment list
 	db_dml map_application_to_assessment {
-	insert into dotlr	n_ecommerce_application_assessment_map
-	values (:rel_id, :sessio	n_id)
+	insert into dotlrn_ecommerce_application_assessment_map
+	values (:rel_id, :session_id)
 	}
 
 	if { [exists_and_not_null return_url] } {
