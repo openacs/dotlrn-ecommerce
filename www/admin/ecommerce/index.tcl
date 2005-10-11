@@ -186,7 +186,7 @@ template::list::create \
 	    label "[_ dotlrn-ecommerce.Payment_method]"
 	    values { $method_filters }
 	    where_clause { 
-		(t.method = :payment_method or
+		(method = :payment_method or
 		 (:payment_method = 'scholarship' and
 		  coalesce((select true
 			    where exists (select *
