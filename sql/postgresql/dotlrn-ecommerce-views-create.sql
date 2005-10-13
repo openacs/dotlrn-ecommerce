@@ -129,7 +129,14 @@ create or replace view dlec_view_sections as (
 -- calendars for the section
 
 create or replace view dlec_view_calendars as (
-select section_id, calendars.calendar_id from acs_objects, calendars, apm_packages, dotlrn_ecommerce_section, dotlrn_communities where dotlrn_ecommerce_section.community_id = dotlrn_communities.community_id and  acs_objects.context_id = dotlrn_communities.package_id and acs_objects.object_id = apm_packages.package_id and apm_packages.package_key='calendar' and calendars.package_id = apm_packages.package_id
+	select section_id, calendars.calendar_id 
+	from acs_objects, calendars, apm_packages, dotlrn_ecommerce_section, 
+	dotlrn_communities 
+	where dotlrn_ecommerce_section.community_id = dotlrn_communities.community_id 
+	and  acs_objects.context_id = dotlrn_communities.package_id 
+	and acs_objects.object_id = apm_packages.package_id 
+	and apm_packages.package_key='calendar' 
+	and calendars.package_id = apm_packages.package_id
 );
 
 create or replace view dlec_view_cal_session_item_types as (
