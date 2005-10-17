@@ -11,6 +11,13 @@
 	<h2>#acs-subsite.Basic_Information#</h2>
 
 	<include src="/packages/dotlrn-ecommerce/lib/user-info" cancel="@cancel@" add_url="home" return_url="home" />
+	<if @edit_reg_url@ defined>
+	<p />
+	  <ul class="action-links">
+	    <li>#dotlrn-ecommerce.lt_Registration_assessme# [<a href="@edit_reg_url;noquote@">#acs-kernel.common_Edit#</a>]</li>
+	  </ul>
+	</if>
+
 	<p><a href="@community_member_url@">#acs-subsite.lt_What_other_people_see#</a></p>
 
 	<list name="fragments">
@@ -85,66 +92,68 @@
 	  </if>
 	  <else>
 	    <li>#dotlrn-ecommerce.You_have_no_orders#</li>
-	</else>
+	  </else>
 	</ul>
-<if @applications_p@>
-	<h2>#dotlrn-ecommerce.Your_Applications#</h2>
-</if>
-<else>
-	<h2>#dotlrn-ecommerce.Your_Prereq_Waiver_Requests#</h2>
-</else>
+	<if @applications_p@>
+	  <h2>#dotlrn-ecommerce.Your_Applications#</h2>
+	</if>
+	<else>
+	  <h2>#dotlrn-ecommerce.Your_Prereq_Waiver_Requests#</h2>
+	</else>
 	<ul class="action-links">
 	  <if @sessions_with_applications@ gt 0>
 
 	    <multiple name="sessions">
-	
-		<if @admin_p@ eq 1>
-		  <li> <a href="@sessions.asm_url;noquote@">@sessions.pretty_name@</a> <if @user_id@ ne @sessions.participant_id@>(@sessions.name@)</if>
-		</if>
-		<else>
-		  <li> @sessions.pretty_name@ <if @user_id@ ne @sessions.participant_id@>(@sessions.name@)</if>
-		</else>    
-		<if @sessions.member_state@ eq "request approved">
+	      
+	      <if @admin_p@ eq 1>
+		<li> <a href="@sessions.asm_url;noquote@">@sessions.pretty_name@</a> <if @user_id@ ne @sessions.participant_id@>(@sessions.name@)</if>
+	      </if>
+	      <else>
+		<li> @sessions.pretty_name@ <if @user_id@ ne @sessions.participant_id@>(@sessions.name@)</if>
+	      </else>    
+	      <if @sessions.member_state@ eq "request approved">
 		
 		- Request approved <br/>
 		<a href="@sessions.register_url@" class="button">#dotlrn-ecommerce.lt_Continue_Registration#</a>
-		</if>
-	
+	      </if>
+	      
 
-	<if @use_embedded_application_view_p@ ne 1> 
-	 [<a href="@sessions.edit_asm_url;noquote@">#acs-kernel.common_Edit#</a>]
-	</if>
-	</li>
+	      <if @use_embedded_application_view_p@ ne 1> 
+		[<a href="@sessions.edit_asm_url;noquote@">#acs-kernel.common_Edit#</a>]
+	      </if>
+	    </li>
 	    </multiple>
 	  </if>
 	  <else>
 	    <li>#dotlrn-ecommerce.lt_You_have_no_applicati#</li>
 	  </else>
 	</ul>
-</if>
+      </if>
 	<h2>#dotlrn-ecommerce.Your_Waiting_Lists#</h2>
 	
-    <if @waiting_lists:rowcount@ gt 0>
-	<ul class="action-links">
-	<multiple name="waiting_lists">
-		<li> @waiting_lists.pretty_name@ <if @user_id@ ne @waiting_lists.participant_id@>(@waiting_lists.name@) </if> 
+	<if @waiting_lists:rowcount@ gt 0>
+	  <ul class="action-links">
+	    <multiple name="waiting_lists">
+	      <li> @waiting_lists.pretty_name@ <if @user_id@ ne @waiting_lists.participant_id@>(@waiting_lists.name@) </if> 
 
 	  	<if @waiting_lists.member_state@ eq "needs approval">
-			- <font color=red>number @waiting_lists.waiting_list_number@ on waiting list</font>
+		  - <font color=red>#dotlrn-ecommerce.lt_number_waiting_listsw#</font>
 		</if>
 		<else>
-		A place is available.<br/>		
-		<a href="@waiting_lists.register_url@" class="button">#dotlrn-ecommerce.lt_Continue_Registration#</a>
-		
+		  #dotlrn-ecommerce.A_place_is_available#<br/>		
+		  <a href="@waiting_lists.register_url@" class="button">#dotlrn-ecommerce.lt_Continue_Registration#</a>
+		  
 		</else>
 
-	</li>
-        </multiple>
-	</ul>
-</if>
-<else>
-No waiting lists
-</else>
+	      </li>
+	    </multiple>
+	  </ul>
+	</if>
+	<else>
+	  <ul class="action-links">
+	    <li>#dotlrn-ecommerce.No_waiting_lists#</li>
+	  </ul>
+	</else>
       </td>
     </tr>
   </table>

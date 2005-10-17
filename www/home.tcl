@@ -114,53 +114,41 @@ set default_assessment_id [parameter::get -parameter ApplicationAssessment -defa
     db_multirow -extend { asm_url edit_asm_url register_url } sessions sessions {
 	select c.community_id, c.pretty_name,r.user_id as participant_id,
 	acs_object__name(r.user_id) as name, r.member_state, 
-	r.rel_id, s.product_id
+	r.rel_id, s.product_id, m.session_id
+
 	from 
 	dotlrn_communities c, dotlrn_ecommerce_section s,
-	dotlrn_member_rels_full r,
+	dotlrn_member_rels_full r
+	left join dotlrn_ecommerce_application_assessment_map m
+	on (r.rel_id = m.rel_id),
 	acs_objects o
+
 	where r.community_id = c.community_id
 	and s.community_id = c.community_id
 	and o.object_id = r.rel_id
-	and r.member_state in ('request approval', 'request approved')
+	and r.member_state in ('request approval', 'request approved', 'awaiting payment', 'payment received')
 	and (r.user_id = :user_id or o.creation_user=:user_id)
     } {
 	append notice "community_id '${community_id}' participant = '${participant_id}' <br />"
-	if { [db_0or1row assessment {
-	    select ss.session_id, coalesce(case when c.assessment_id=-1 then null else a.assessment_id end,:default_assessment_id) as assessment_id
-	    from dotlrn_ecommerce_section s,
-	    (select c.*
-	     from dotlrn_catalogi c,
-	     cr_items i
-	     where c.course_id = i.live_revision) c,
-	    (select a.*
-	     from as_assessmentsi a,
-	     cr_items i
-	     where a.assessment_id = i.latest_revision) a,
-	    as_sessions ss
-	    
-	    where s.community_id = :community_id
-	    and s.course_id = c.item_id
-	    and a.item_id = coalesce(case when c.assessment_id=-1 then null else c.item_id end,:default_assessment_id)
-	    and a.assessment_id = ss.assessment_id
-	    and ss.subject_id = :user_id
-	    
-	    order by creation_datetime desc
-	    
-	    limit 1
-	}] } {
-	    if {$use_embedded_application_view_p == 1} {
-		set asm_url "admin/application-view?session_id=$session_id"
-		
-	    } else {
-		
-		set asm_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/results-session" { session_id }]
-		
-	    }
 
-	    set edit_asm_url [export_vars -base /assessment/assessment { assessment_id }]
-	   
+	set assessment_id [db_string get_assessment_id {
+	    select a.item_id
+	    from as_sessions s, as_assessmentsi a
+	    where s.assessment_id = a.assessment_id
+	    and session_id = :session_id
+	}]
+
+	if {$use_embedded_application_view_p == 1} {
+	    set asm_url "admin/application-view?session_id=$session_id"
+	    
+	} else {
+	    
+	    set asm_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/results-session" { session_id }]
+	    
 	}
+
+	set edit_asm_url [export_vars -base /assessment/assessment { session_id assessment_id }]
+	   
 	set register_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id participant_id}]
 	incr sessions_with_applications
     }
@@ -189,3 +177,19 @@ db_multirow -extend {waiting_list_number register_url} waiting_lists waiting_lis
 set catalog_url [ad_conn package_url]
 set cc_package_id [apm_package_id_from_key "dotlrn-ecommerce"]
 set admin_p [permission::permission_p -object_id $cc_package_id -privilege "admin"]
+
+set reg_asm_id [parameter::get -parameter "RegistrationId" -package_id [subsite::main_site_id] -default ""]
+if { ! [empty_string_p $reg_asm_id] } {
+    if { [db_0or1row get_reg_session {
+	select assessment_id, session_id
+	from as_sessions
+	where assessment_id in (select assessment_id
+				from as_assessmentsi
+				where item_id = :reg_asm_id)
+	and subject_id = :user_id
+	and not completed_datetime is null
+	limit 1
+    }] } {
+	set edit_reg_url [export_vars -base [apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]assessment { {assessment_id $reg_asm_id} session_id }]
+    }
+}
