@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d19" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d23" locale="en_US" charset="ISO-8859-1">
 
+  <msg key="A_place_is_available">A place is available.</msg>
   <msg key="Action">Action</msg>
   <msg key="Add_Course">Add Course</msg>
   <msg key="Add_note">Add note</msg>
@@ -143,6 +144,7 @@
   <msg key="lt_No_orders_for_this_se">No orders for this section</msg>
   <msg key="lt_num_attendees_partici">%num_attendees% participants registered</msg>
   <msg key="lt_Number_in_Waiting_Lis">Number in Waiting List</msg>
+  <msg key="lt_number_waiting_listsw">number %waiting_lists.waiting_list_number% on waiting list</msg>
   <msg key="lt_One_or_more_prerequis">One or more prerequisites for this section have not been met:</msg>
   <msg key="lt_Or_create_an_account_">Or create an account for the participant</msg>
   <msg key="lt_Or_put_this_purchase_">Put this purchase in the waiting list</msg>
@@ -172,6 +174,7 @@
   <msg key="lt_Register_for_Another_">Register for Another Course</msg>
   <msg key="lt_Register_for_another_">Register for another course</msg>
   <msg key="lt_Registering_for_class">Registering for classes with %service_name% is quick and easy</msg>
+  <msg key="lt_Registration_assessme">Registration assessment</msg>
   <msg key="lt_Reject_and_Send_Email">Reject and Send Email</msg>
   <msg key="lt_Reject_the_following_">Reject the following applications:</msg>
   <msg key="lt_Reject_waiver_of_prer">Reject waiver of prerequisites</msg>
@@ -245,6 +248,7 @@ Instructors:
   <msg key="No_applications">No applications</msg>
   <msg key="No_orders">No orders</msg>
   <msg key="No_related_users">No related users</msg>
+  <msg key="No_waiting_lists">No waiting lists</msg>
   <msg key="Notes">Notes</msg>
   <msg key="Offer_Code">Offer Code:</msg>
   <msg key="Order_Details">Order Details</msg>
