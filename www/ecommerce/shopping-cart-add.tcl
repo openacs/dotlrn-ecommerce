@@ -43,7 +43,7 @@ ad_page_contract {
 }
 
 set user_session_id [ec_get_user_session_id]
-ec_create_new_session_if_necessary [export_url_vars product_id user_id participant_id item_count offer_code return_url]
+ec_create_new_session_if_necessary [export_url_vars product_id user_id participant_id item_count offer_code return_url override_p override_course_application_p]
 
 if { [info exists offer_code] } {
     if { ! [exists_and_not_null product_id] && ! [exists_and_not_null user_id] } {
@@ -105,7 +105,8 @@ if { [db_0or1row existing_rel {
     from dotlrn_member_rels_full
     where user_id = :participant_id
     and community_id = :community_id
-}] } {
+    and member_state in ('approved', 'waitinglist approved', 'request approved', 'payment received')
+}] && $override_p == 0 && $override_course_application_p == 0 } {
     if { [exists_and_not_null return_url] } {
 	ad_returnredirect $return_url
     } else {
@@ -246,8 +247,12 @@ if { [acs_object_type $participant_id] != "group" } {
 	set allow_free_registration_p [parameter::get -parameter AllowFreeRegistration -default 0]
 	set price [dotlrn_ecommerce::section::price $section_id]
 
+	ns_log notice "DEBUG:: checking if free registration is allowed - $allow_free_registration_p, price $price"
+
 	if { ![empty_string_p $price] && $price < 0.01 && $allow_free_registration_p } {
 	    
+	    ns_log notice "DEBUG:: This is a free course, register user $participant_id, community $community_id"
+
 	    dotlrn_ecommerce::registration::new -user_id $participant_id \
 		-patron_id $user_id \
 		-community_id $community_id
