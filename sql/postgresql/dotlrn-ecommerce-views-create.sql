@@ -195,7 +195,7 @@ create view dlec_view_course_expenses as (
 
 -- revenue earned
 
-create view dlec_view_orders as (
+create or replace view dlec_view_orders as (
     select o.order_id, to_char(o.confirmed_date, 'Mon dd, yyyy hh:miam') 
 	as confirmed_date, to_char(o.confirmed_date, 'Mon dd, yyyy') as confirmed_date_only_date, o.order_state,   (i.price_charged + 
 	coalesce(i.shipping_charged, 0) + coalesce(i.price_tax_charged, 0)
@@ -213,7 +213,11 @@ create view dlec_view_orders as (
 		    	coalesce((select course_name
 	      		from dlec_view_sections
 	      		where section_id = s.section_id)||': '||s.section_name, 
-			p.product_name) as _section_name, s.course_id, 
+			p.product_name) as _section_name, s.course_id,
+        case when t.method = 'cc' then
+	(select creditcard_type from ec_creditcards where 
+	ec_creditcards.creditcard_id = o.creditcard_id)
+	else null end as credit_card_type,	 
 	case when t.method = 'invoice' then
    	ec_total_price(o.order_id) - ec_order_gift_cert_amount(o.order_id) - 
     	(select coalesce(sum(amount), 0)
