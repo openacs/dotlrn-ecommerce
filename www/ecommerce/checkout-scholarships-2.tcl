@@ -81,15 +81,45 @@ foreach one_fund_id $fund_id {
 		    set peeraddr [ns_conn peeraddr]
 		    set gc_months [ad_parameter -package_id [ec_id] GiftCertificateMonths ecommerce]
 		    
-		    set viewing_user_id [ad_conn user_id]
+		    db_foreach user_identification_select {
+			select user_identification_id from ec_user_identification where user_id = :user_id
+		    } {
+			break
+		    }
+		    
+		    if { ! [exists_and_not_null user_identification_id] } {
+			# no previous customer service interaction with this user, so
+			# insert them into ec_user_identification
+			set user_identification_id [db_nextval "ec_user_ident_id_sequence"]
+			db_dml user_identification_insert {
+			    insert into ec_user_identification
+			    (user_identification_id, user_id)
+			    values
+			    (:user_identification_id, :user_id)
+			}
+		    }
 
 		    db_dml insert_new_gc_into_db [subst {
 			insert into ec_gift_certificates
 			(gift_certificate_id, gift_certificate_state, amount, issue_date, purchased_by, expires, last_modified, last_modifying_user, modified_ip_address, user_id)
 			values
-			(:gift_certificate_id, 'authorized', :amount_to_grant, current_timestamp, :viewing_user_id, current_timestamp + '$gc_months months'::interval, current_timestamp, :viewing_user_id, :peeraddr, :user_id)
+			(:gift_certificate_id, 'authorized', :amount_to_grant, current_timestamp, :user_id, current_timestamp + '$gc_months months'::interval, current_timestamp, :user_id, :peeraddr, :user_id)
 		    }]
 		    
+		    db_dml email_log_insert_4 {
+			insert into ec_automatic_email_log
+			(user_identification_id, email_template_id, gift_certificate_id, date_sent)
+			values
+			(:user_identification_id, 4, :gift_certificate_id, current_timestamp)
+		    }
+
+		    db_dml email_log_insert_5 {
+			insert into ec_automatic_email_log
+			(user_identification_id, email_template_id, gift_certificate_id, date_sent)
+			values
+			(:user_identification_id, 5, :gift_certificate_id, current_timestamp)
+		    }
+
 		    db_dml insert_scholarship_grant {
 			insert into scholarship_fund_grants
 			(fund_id, user_id, gift_certificate_id, grant_amount)

@@ -287,7 +287,7 @@ set locale [ad_conn locale]
 set related_user_options [linsert [db_list_of_lists related_users {
     select *
     from (
-	  select u.first_names||' '||u.last_name||' (participant is '||(select c.name
+	  select u.first_names||' '||u.last_name||' (purchaser is '||(select c.name
 									from category_object_map m, category_translations c
 									where m.category_id = c.category_id
 									and m.object_id = r.rel_id
@@ -300,7 +300,7 @@ set related_user_options [linsert [db_list_of_lists related_users {
 
 	  union
 
-	  select u.first_names||' '||u.last_name||' (purchaser is '||(select c.name
+	  select u.first_names||' '||u.last_name||' (participant is '||(select c.name
 								      from category_object_map m, category_translations c
 								      where m.category_id = c.category_id
 								      and m.object_id = r.rel_id

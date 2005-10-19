@@ -33,7 +33,7 @@ switch $type {
     prereq {
 	set new_member_state "request approved"
 	set old_member_state "request approval"
-	set email_type "prereq approved"
+	set email_type "prereq approval"
     }
     payment {
 	set new_member_state "payment received"
@@ -98,11 +98,14 @@ if { $user_id == $actor_id } {
                 {user_id:text(hidden)}
                 {community_id:text(hidden)}
                 {type:text(hidden)}
+		{subject:text {html {size 60}}}
                 {reason:text(textarea),optional {label "[_ dotlrn-ecommerce.Reason]"} {html {rows 10 cols 60}}}
             } \
             -on_request {
-		set reason [lindex [lindex [callback dotlrn::default_member_email -community_id $community_id -to_user $user_id -type "prereq approval"] 0] 2]
-		set var_list [lindex [callback dotlrn::member_email_var_list -community_id $community_id -to_user $user_id -type $type] 0]
+		set reason_email [lindex [callback dotlrn::default_member_email -community_id $community_id -to_user $user_id -type "prereq approval"] 0]
+		set reason [lindex $reason_email 2]
+		set subject [lindex $reason_email 1]
+		array set vars [lindex [callback dotlrn::member_email_var_list -community_id $community_id -to_user $user_id -type $type] 0]
 	    set email_vars [lang::message::get_embedded_vars $reason]
 	    foreach var [concat $email_vars] {
 		if {![info exists vars($var)]} {
@@ -143,7 +146,7 @@ if { $user_id == $actor_id } {
 		    set patron_id [db_string get_patron {
 			select creation_user from
 			acs_objects where object_id = :rel
-		    }]
+		    } -default ""]
 				  
 		} on_error {
 		}
@@ -156,12 +159,13 @@ if { $user_id == $actor_id } {
 		}
 
 
-		dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type -override_email $reason
+		dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type -override_email $reason -override_subject $subject
 
             } \
             -after_submit {
 		dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
                 ad_returnredirect $return_url
+		ad_script_abort
             }
 
     } else {
@@ -224,5 +228,6 @@ if { $user_id == $actor_id } {
 	dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type -override_email $override_email
 	dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
 	ad_returnredirect $return_url
+	ad_script_abort
     }
 }

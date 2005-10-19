@@ -93,7 +93,11 @@ db_multirow -extend { relationship } patrons patrons {
 
 ) rels left join acs_rels r
 on (rels.rel_id = r.object_id_one and r.rel_type = 'membership_patron_rel' and rels.patron_id = r.object_id_two)
-left join ec_addresses a
+left join (select *
+	   from ec_addresses
+	   where address_id in (select max(address_id)
+				from ec_addresses
+				group by user_id)) a
 on (r.object_id_two = a.user_id)
 
     order by lower(rels.participant)
@@ -105,9 +109,9 @@ on (r.object_id_two = a.user_id)
     set relationship [join $relationship ", "]
 
     if { $direction == 1 } {
-	set relationship "$relationship <big>&raquo;</big>"
+	set relationship "<big>&laquo;</big> $relationship"
     } else {
-	set relationship "&laquo; $relationship"
+	set relationship "$relationship <big>&raquo;</big>"
     }
 }
 

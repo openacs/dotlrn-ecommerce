@@ -13,10 +13,16 @@ ad_page_contract {
     user_id:integer,notnull
     {type full}
     {send_email_p 1}
-    {return_url "applications"}    
+    {return_url "applications"}
+    submit2:optional
 } -properties {
 } -validate {
 } -errors {
+}
+
+if { [exists_and_equal submit2 "Reject Only"] } {
+    ad_returnredirect [export_vars -base application-reject { community_id user_id type return_url {send_email_p 0} }]
+    ad_script_abort
 }
 
 set actor_id [ad_conn user_id]
@@ -28,7 +34,6 @@ set section_id [db_string section {
 }]
 
 
-
 # get the patron info
 
 set patron_id [db_string get_patron {
@@ -37,10 +42,21 @@ set patron_id [db_string get_patron {
     where r.rel_id = o.object_id
     and r.object_id_one = :community_id
     and r.object_id_two= :user_id
-}]
+} -default ""]
+
+set email_reg_info_to [parameter::get -parameter EmailRegInfoTo -default "patron"]	   
+
+if {$email_reg_info_to == "participant"} {
+    set email_user_id $user_id
+}  else {
+    set email_user_id $patron_id
+}
 
 
-if { !$send_email_p || $user_id == $actor_id } {
+# send email if the logged in user is not the person 
+# getting the email
+ 
+if { !$send_email_p || $actor_id == $email_user_id } {
     if { [parameter::get -parameter AllowAheadAccess -default 0] } {
 	set member_state [db_string member_state {
 	    select member_state
@@ -61,14 +77,18 @@ if { !$send_email_p || $user_id == $actor_id } {
     dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
 
     ad_returnredirect $return_url
+    ad_script_abort
 } else {
+
     # Send email to applicant
     switch $type {
         prereq {
             set title "[_ dotlrn-ecommerce.Reject_prereq]"
+	    set email_type "prereq reject"
         }
         default {
             set title "[_ dotlrn-ecommerce.Reject_application]"
+	    set email_type "application reject"
         }
     }
     set context [list [list applications "Pending applications"] $title]
@@ -78,13 +98,32 @@ if { !$send_email_p || $user_id == $actor_id } {
             {user_id:text(hidden)}
             {community_id:text(hidden)}
             {type:text(hidden)}
+	    {subject:text {html {size 60}}}
             {reason:text(textarea),optional {label "[_ dotlrn-ecommerce.Reason]"} {html {rows 10 cols 60}}}
+	}
+
+    if { [parameter::get -parameter AllowRejectWithoutEmail -default 0] } {
+	ad_form \
+	    -extend \
+	    -name email_form \
+	    -form {
+		{submit1:text(submit) {label "Reject and Send Email"}}
+		{submit2:text(submit) {label "Reject Only"}}
+	    }
+    }
+
+    ad_form \
+	-extend \
+	-name email_form \
+	-form {
         } \
         -on_request {
-	    set reason [lindex [lindex [callback dotlrn::default_member_email -community_id $community_id -to_user $user_id -type "prereq reject"] 0] 2]
-	    set var_list [lindex [callback dotlrn::member_email_var_list -community_id $community_id -to_user $user_id -type $type] 0]
+	    set reason_email [lindex [callback dotlrn::default_member_email -community_id $community_id -to_user $user_id -type "prereq reject"] 0]
+	    set reason [lindex $reason_email 2]
+	    set subject [lindex $reason_email 1]
+	    array set vars [lindex [callback dotlrn::member_email_var_list -community_id $community_id -to_user $user_id -type $type] 0]
 	    set email_vars [lang::message::get_embedded_vars $reason]
-	    foreach var [concat $email_vars] {
+	    foreach var $email_vars {
 		if {![info exists vars($var)]} {
 		    set vars($var) ""
 		}
@@ -110,44 +149,20 @@ if { !$send_email_p || $user_id == $actor_id } {
 		}
 	    }
 
-
             dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
 
-	    set email_reg_info_to [parameter::get -parameter EmailRegInfoTo -default "patron"]	   
-	    if {$email_reg_info_to == "participant"} {
-		set email_user_id $user_id
-	    }  else {
-		set email_user_id $patron_id
-	    }
-
-
-            set applicant_email [cc_email_from_party $user_id]
+            set to_email [cc_email_from_party $email_user_id]
             set actor_email [cc_email_from_party $actor_id]
             set community_name [dotlrn_community::get_community_name $community_id]
-            switch $type {
-                prereq {
-                    set subject "[_ dotlrn-ecommerce.Application_prereq_rejected]"
-		    if {[string equal "" $reason]} {
-			set body "[_ dotlrn-ecommerce.lt_Your_prereq_rejected]"
-		    } else {
-			set body $reason
-		    }
-                }
-                default {
-                    set subject "[_ dotlrn-ecommerce.Application_rejected]"
-                    set body "[_ dotlrn-ecommerce.lt_Your_application_to_j_1]"
-                }
-            }
-	
-            acs_mail_lite::send \
-                -to_addr $applicant_email \
-                -from_addr $actor_email \
-                -subject $subject \
-                -body $body
+	    dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type -override_email $reason -override_subject $subject
+
         } \
         -after_submit {
 	    dotlrn_ecommerce::section::flush_cache $section_id
 	    dotlrn_ecommerce::section::approve_next_in_waiting_list $community_id
             ad_returnredirect $return_url
+	    ad_script_abort
         }
 }
+
+

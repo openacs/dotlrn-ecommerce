@@ -71,12 +71,12 @@ create view dlec_view_expense_terms as (
 	and dlec_view_categories.tree_id = dlec_view_category_trees.tree_id
 );
 
--- zones
+-- locations
 
-create view dlec_view_zones as (
+create view dlec_view_locations as (
 	select dlec_view_categories.category, dlec_view_categories.category_id
 	from dlec_view_categories, dlec_view_category_trees
-	where dlec_view_category_trees.title = 'Zones'
+	where dlec_view_category_trees.title = 'Location'
 	and dlec_view_categories.tree_id = dlec_view_category_trees.tree_id
 );
 
@@ -126,8 +126,53 @@ create or replace view dlec_view_sections as (
     and c.course_id = i.live_revision
 );
 
+-- calendars for the section
 
--- categoreis with sections
+create or replace view dlec_view_calendars as (
+	select section_id, calendars.calendar_id 
+	from acs_objects, calendars, apm_packages, dotlrn_ecommerce_section, 
+	dotlrn_communities 
+	where dotlrn_ecommerce_section.community_id = dotlrn_communities.community_id 
+	and  acs_objects.context_id = dotlrn_communities.package_id 
+	and acs_objects.object_id = apm_packages.package_id 
+	and apm_packages.package_key='calendar' 
+	and calendars.package_id = apm_packages.package_id
+);
+
+create or replace view dlec_view_cal_session_item_types as (
+	select section_id, cal_item_types.calendar_id, item_type_id
+	from cal_item_types, dlec_view_calendars
+	where cal_item_types.calendar_id = dlec_view_calendars.calendar_id	
+	and type = 'Session'
+);
+
+create or replace view dlec_view_sessions as (
+	select section_id, dlec_view_cal_session_item_types.calendar_id, 
+	acs_events.event_id, 
+	start_date,
+	end_date from dlec_view_cal_session_item_types, 
+     	acs_events, cal_items, timespans, time_intervals
+	where cal_items.cal_item_id = acs_events.event_id
+	and cal_items.on_which_calendar = dlec_view_cal_session_item_types.calendar_id
+	and acs_events.timespan_id = timespans.timespan_id
+	and timespans.interval_id = time_intervals.interval_id	
+);
+
+create or replace view dlec_view_sessions_first as (
+	select min(start_date), to_date(min(start_date), 'YYYY-MM-DD') as start_date,
+	to_char(min(start_date), 'HH24:MI') as start_time,section_id
+	from dlec_view_sessions group by section_id
+);
+
+
+create or replace view dlec_view_sections_with_start as (
+	select dlec_view_sections.*,  start_date, start_time
+	from dlec_view_sections, dlec_view_sessions_first
+	where dlec_view_sections.section_id = dlec_view_sessions_first.section_id
+);
+
+
+-- categories with sections
 create view dlec_view_sections_and_categories as (
 	select dlec_view_sections.*, dlec_view_categories.category, 
          dlec_view_categories.category_id  from dlec_view_sections, 
@@ -150,20 +195,97 @@ create view dlec_view_course_expenses as (
 
 -- revenue earned
 
-create view dlec_view_orders as (
-    select o.order_id, o.confirmed_date, o.order_state, ec_total_price(o.order_id) as price_to_display, o.user_id as purchasing_user_id, u.first_names, u.last_name, count(*) as n_items, person__name(o.user_id), t.method, s.section_id as _section_id, s.section_name, s.course_id, 
-    case when t.method = 'invoice' then
-    ec_total_price(o.order_id) - ec_order_gift_cert_amount(o.order_id) - 
-    (select coalesce(sum(amount), 0)
-     from dotlrn_ecommerce_transaction_invoice_payments
-     where order_id = o.order_id) + ec_total_refund(o.order_id)
-    else 0 end as balance
+create or replace view dlec_view_orders as (
+    select o.order_id, to_char(o.confirmed_date, 'Mon dd, yyyy hh:miam') 
+	as confirmed_date, to_char(o.confirmed_date, 'Mon dd, yyyy') as confirmed_date_only_date, o.order_state,   (i.price_charged + 
+	coalesce(i.shipping_charged, 0) + coalesce(i.price_tax_charged, 0)
+     	- coalesce(i.price_refunded, 0) - coalesce(i.shipping_refunded, 0) 
+	- coalesce(i.price_tax_refunded, 0)) as price_to_display,
+	o.user_id as purchasing_user_id, u.first_names, u.last_name, 
+	t.method, coalesce((select true
+		where exists (select *
+			from ec_gift_certificate_usage
+			where order_id = o.order_id
+			and exists (select *
+				from scholarship_fund_grants
+				where ec_gift_certificate_usage.gift_certificate_id 				      = gift_certificate_id))), false) as has_scholarship_p,
+				s.section_id as _section_id, 
+		    	coalesce((select course_name
+	      		from dlec_view_sections
+	      		where section_id = s.section_id)||': '||s.section_name, 
+			p.product_name) as _section_name, s.course_id,
+        case when t.method = 'cc' then
+	(select creditcard_type from ec_creditcards where 
+	ec_creditcards.creditcard_id = o.creditcard_id)
+	else null end as credit_card_type,	 
+	case when t.method = 'invoice' then
+   	ec_total_price(o.order_id) - ec_order_gift_cert_amount(o.order_id) - 
+    	(select coalesce(sum(amount), 0)
+     	from dotlrn_ecommerce_transaction_invoice_payments
+     	where order_id = o.order_id) + ec_total_refund(o.order_id)
+    	else 0 end as balance, 
+	(coalesce(i.price_refunded, 0) + coalesce(i.shipping_refunded, 0) - 
+	coalesce(i.price_tax_refunded, 0)) as refund_price,
+	(i.price_charged + coalesce(i.shipping_charged, 0) + 
+	coalesce(i.price_tax_charged, 0)) as total_price, 
+    (select to_char(refund_date, 'Mon dd, yyyy')
+     from ec_refunds
+     where order_id = o.order_id
+     order by refund_date desc
+     limit 1) as refund_date, 
+     u.first_names||' '||u.last_name as purchaser,
+     i.item_id, deo.participant_id, case when ao.object_type = 'group' then acs_group__name(deo.participant_id) else person__name(deo.participant_id) end as participant_name,
+    deo.checked_out_by, u.user_id as purchaser_id, (deo.checked_out_by != u.user_id) 
+	as checked_out_by_admin_p, o.authorized_date, o.confirmed_date as confirmed_date_date_column, ao.object_type
     from ec_orders o
     join ec_items i using (order_id)
+    join ec_products p using (product_id)
+    join dotlrn_ecommerce_orders deo using (item_id)
+    join acs_objects ao on (deo.participant_id = ao.object_id)
     join dotlrn_ecommerce_transactions t using (order_id)
-    join dotlrn_ecommerce_section s on (i.product_id = s.product_id)
+    left join dotlrn_ecommerce_section s on (i.product_id = s.product_id)
     left join cc_users u on (o.user_id=u.user_id)
-    group by o.order_id, o.confirmed_date, o.order_state, ec_total_price(o.order_id), o.user_id, u.first_names, u.last_name, o.in_basket_date, t.method, s.section_name, s.section_id, s.course_id, o.authorized_date, balance
+    where o.order_state in ('confirmed', 'authorized', 'fulfilled', 'returned'));
+
+create view dlec_view_section_report as (
+	select s.*,
+	v.maxparticipants,
+	(v.maxparticipants - s.attendees) as available_slots,
+	(s.attendees::float / v.maxparticipants * 100) as attendance_percentage
+	from (select *,
+	      (select count(*)
+	       from dotlrn_member_rels_approved
+	       where community_id = s.community_id
+	       and rel_type in ('dotlrn_member_rel', 'dc_student_rel')) as attendees
+	      from dlec_view_sections s) s
+	left join ec_custom_product_field_values v
+	on (s.product_id = v.product_id)
+);
+
+create view dlec_view_membership_orders as (
+ 	select to_char(o.authorized_date, 'yyyy-mm-dd') as authorized_date, p.product_name, u.user_id, u.first_names, u.last_name, u.email, a.line1 as address1, a.line2 as address2, a.city, a.usps_abbrev as state_code, a.full_state_name, a.zip_code, a.phone
+	from ec_items i,
+	ec_orders o,
+	ec_products p,
+	dotlrn_users u
+	left join (select *
+		   from ec_addresses
+		   where address_id in (select max(address_id)
+					from ec_addresses
+					group by user_id)) a
+	on (u.user_id = a.user_id)
+	where i.order_id = o.order_id
+	and i.product_id = p.product_id
+	and o.user_id = u.user_id
+	and o.order_state in ('authorized', 'fulfilled', 'returned')
+	and i.product_id in (select product_id
+			     from ec_category_product_map
+			     where category_id = (select attr_value
+			  		    	  from apm_parameter_values
+			  		    	  where parameter_id = (select parameter_id
+			      					  	from apm_parameters
+			      					  	where package_key = 'dotlrn-ecommerce'
+			      					  	and parameter_name = 'MembershipECCategoryId')))
 );
 
 -- scholarships allocated
