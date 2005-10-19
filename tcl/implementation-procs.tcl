@@ -16,6 +16,7 @@ ad_proc -public dotlrn_ecommerce::registration::new {
     -user_id:required
     -patron_id:required
     -community_id:required
+    -suppress_patron_email:boolean
 } {
     Register user to community
     
@@ -36,7 +37,8 @@ ad_proc -public dotlrn_ecommerce::registration::new {
 
     # See if we need to send the welcome email to the
     # purchaser
-    if { [lsearch [parameter::get -parameter WelcomeEmailRecipients] purchaser] != -1 } {
+    if { [lsearch [parameter::get -parameter WelcomeEmailRecipients] purchaser] != -1 && \
+	     $suppress_patron_email_p == 0 } {
 	ns_log Notice "sending email to patron_id $patron_id for user_id $user_id"
 	if {$patron_id != $participant_id} {
 	    # if they are the participant, then
@@ -160,7 +162,11 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 			set patron_id  $saved_patron_id
 		    }
 
-		    dotlrn_ecommerce::registration::new -user_id $user_id -patron_id $patron_id -community_id $community_id
+		    if { [acs_object_type $participant_id] == "group" } {
+			dotlrn_ecommerce::registration::new -user_id $user_id -patron_id $patron_id -community_id $community_id -suppress_patron_email
+		    } else {
+			dotlrn_ecommerce::registration::new -user_id $user_id -patron_id $patron_id -community_id $community_id
+		    }
 
 		} errMsg] } {
 		    # Fixes for possible double click
