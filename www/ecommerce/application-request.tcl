@@ -168,7 +168,7 @@ if { [empty_string_p $assessment_id] || $assessment_id == -1 || $type == "full" 
 	    set next_url [export_vars -base $next_url { return_url }]
 	}
     
-	set return_url [export_vars -base "[ad_conn package_url]ecommerce/application-request-2" { user_id {return_url $next_url} }]
+	set return_url [export_vars -base "[ad_conn package_url]ecommerce/application-request-2" { user_id session_id {return_url $next_url} }]
 	ad_returnredirect [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]assessment" { assessment_id return_url session_id }]
 
     } on_error {

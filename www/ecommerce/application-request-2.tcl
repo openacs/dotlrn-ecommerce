@@ -10,6 +10,7 @@ ad_page_contract {
     @cvs-id $Id$
 } {
     user_id:integer,notnull
+    session_id:integer,notnull
     return_url:notnull
 } -properties {
 } -validate {
@@ -19,30 +20,10 @@ ad_page_contract {
 set assessment_id [parameter::get -parameter ApplicationAssessment -default ""]
 set viewing_user_id [ad_conn user_id]
 
-if { ! [empty_string_p $assessment_id] && $assessment_id != -1 } {
-    set session_id [db_string session {
-	select ss.session_id
-	
-	from (select a.*
-	      from as_assessmentsi a,
-	      cr_items i
-	      where a.assessment_id = i.latest_revision) a,
-	as_sessions ss
-	
-	where a.assessment_id = ss.assessment_id
-	and a.item_id = :assessment_id
-	and ss.subject_id = :viewing_user_id
-	
-	order by creation_datetime desc
-	
-	limit 1
-    }]
-
-    db_dml set_assessment_subject {	
-	update as_sessions	
-	set subject_id = :user_id
-	where session_id = :session_id
-    }
+db_dml set_assessment_subject {	
+    update as_sessions	
+    set subject_id = :user_id
+    where session_id = :session_id
 }
 
 ad_returnredirect $return_url
