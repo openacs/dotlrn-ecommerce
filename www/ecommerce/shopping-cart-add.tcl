@@ -105,7 +105,7 @@ if { [db_0or1row existing_rel {
     from dotlrn_member_rels_full
     where user_id = :participant_id
     and community_id = :community_id
-    and member_state in = 'approved'
+    and member_state = 'approved'
 }] && $override_p == 0 && $override_course_application_p == 0 } {
     if { [exists_and_not_null return_url] } {
 	ad_returnredirect $return_url
