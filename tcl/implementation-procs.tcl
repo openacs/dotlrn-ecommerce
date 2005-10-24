@@ -2,7 +2,7 @@
 
 ad_library {
     
-    
+    Callback implementations
     
     @author Roel Canicula (roelmc@pldtdsl.net)
     @creation-date 2005-05-19
@@ -38,13 +38,14 @@ ad_proc -public dotlrn_ecommerce::registration::new {
     # See if we need to send the welcome email to the
     # purchaser
     if { [lsearch [parameter::get -parameter WelcomeEmailRecipients] purchaser] != -1 && \
-	     $suppress_patron_email_p == 0 } {
+	     $suppress_patron_email_p == 0 && \
+	     $patron_id != $user_id } {
+
 	ns_log Notice "sending email to patron_id $patron_id for user_id $user_id"
-	if {$patron_id != $participant_id} {
-	    # if they are the participant, then
-	    # they will get the welcome email for the community
-	    dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type "on join" -email_send_to $patron_id -override_enabled
-	}
+	
+	# if they are the participant, then
+	# they will get the welcome email for the community
+	dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type "on join" -email_send_to $patron_id -override_enabled
     }
 
     # Keep track of patron relationships
@@ -343,13 +344,14 @@ ad_proc -callback dotlrn::member_email_var_list -impl dotlrn-ecommerce {} {
     if {![string equal "" $community_id]} {
 	set community_url [dotlrn_community::get_community_url $community_id]
 	set var_list(community_url) "[ad_url]$community_url"
-	set course_name [db_string get_course_name "select dc.course_name from dotlrn_catalog dc, dotlrn_ecommerce_section ds, cr_items ci where ds.course_id=ci.item_id and ci.live_revision=dc.course_id and ds.community_id=:community_id" -default ""]
-	if {$course_name ne ""} {
-	    append course_name ":"
+	set var_list(course_name) [db_string get_course_name "select dc.course_name from dotlrn_catalog dc, dotlrn_ecommerce_section ds, cr_items ci where ds.course_id=ci.item_id and ci.live_revision=dc.course_id and ds.community_id=:community_id" -default ""]
+	if {$var_list(course_name) ne ""} {
+	    lappend var_list(community_name) $var_list(course_name)
 	}
-	set var_list(community_name) "${course_name} [dotlrn_community::get_community_name $community_id]"
+	set var_list(section_name) [dotlrn_community::get_community_name $community_id]
+	lappend var_list(community_name) $var_list(section_name)
+	set var_list(community_name) [join $var_list(community_name) ": "]
 	set var_list(community_link) "<a href=\"${var_list(community_url)}\">${var_list(community_name)}</a>"
-	set var_list(course_name) $var_list(community_name)
 	set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id $community_id]
 	lappend calendar_id_list $calendar_id
 	set var_list(sessions) [util_memoize [list dotlrn_ecommerce::section::sessions $calendar_id]]
@@ -414,7 +416,7 @@ ad_proc -callback dotlrn::member_email_available_vars -impl dotlrn-ecommerce {} 
     #FIXME depend on email type??
     # get categories mapped to section?
     
-    set available_vars [list "%first_name%" "Participant's First Name" "%last_name%" "Participant's Last Name" "%full_name%" "Participant's Full Name" "%sessions%" "Dates and times of sessions" "%community_name%" "Name of section" "%community_url%" "URL of the section page in the form http://example.com/" "%community_link%" "HTML link to section, ie: &lt;a href=\"http://example.com\"&gt;%community_name%&lt;/a&gt;" "%instructor_names%" "List of instructors names"]
+    set available_vars [list "%first_name%" "Participant's First Name" "%last_name%" "Participant's Last Name" "%full_name%" "Participant's Full Name" "%sessions%" "Dates and times of sessions" "%community_name%" "Name of section" "%community_url%" "URL of the section page in the form http://example.com/" "%community_link%" "HTML link to section, ie: &lt;a href=\"http://example.com\"&gt;%community_name%&lt;/a&gt;" "%instructor_names%" "List of instructors names" "%course_name%" "Name of the course" "%section_name%" "Name of the section"]
 
 	set course_id [db_string get_course_id "select course_id from dotlrn_ecommerce_section where community_id=:community_id" -default ""]
 	set package_id [db_string get_package_id "select package_id from acs_objects where object_id=:course_id" -default ""]
