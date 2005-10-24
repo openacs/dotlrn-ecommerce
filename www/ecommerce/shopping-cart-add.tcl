@@ -87,7 +87,7 @@ if { ! [dotlrn::user_p -user_id $user_id] } {
     dotlrn_privacy::set_user_guest_p -user_id $user_id -value f
 }
 
-if { ! [dotlrn::user_p -user_id $participant_id] } {
+if { ! [dotlrn::user_p -user_id $participant_id] && [acs_object_type $participant_id] != "group" } {
     dotlrn::user_add -user_id $participant_id
     dotlrn_privacy::set_user_guest_p -user_id $participant_id -value f
 }
@@ -105,7 +105,7 @@ if { [db_0or1row existing_rel {
     from dotlrn_member_rels_full
     where user_id = :participant_id
     and community_id = :community_id
-    and member_state in ('approved', 'waitinglist approved', 'request approved', 'payment received')
+    and member_state in = 'approved'
 }] && $override_p == 0 && $override_course_application_p == 0 } {
     if { [exists_and_not_null return_url] } {
 	ad_returnredirect $return_url
