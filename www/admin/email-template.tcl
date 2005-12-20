@@ -63,4 +63,6 @@ if {$section_id ne ""} {
     set title "Add/edit Section email template"
 }
 
+set template [dotlrn_ecommerce::email_type_pretty -type $type]
+set sent_when [dotlrn_ecommerce::email_type_sent_when -type $type] 
 set extra_vars [list [list action $action] [list section_id $section_id]]
