@@ -131,15 +131,35 @@ ad_proc -private dotlrn_ecommerce::email_type_pretty {
 } {
     return [string map \
 		[list \
-		     "awaiting payment" "Application Approved (awaiting payment)" \
-		     "on approval" "Application Approved" \
-		     "submit_app" "Application Submitted" \
-		     "approve_app" "Application Approved" \
-		     "on join" "Welcome message" \
-		     "waitinglist approved" "Grant spot from waiting list" \
-		     "prereq approval" "Approve waiver of prerequisites" \
-		     "prereq reject" "Reject waiver of prerequitsites" \
-		     "application reject" "Reject application" \
-                     "needs approval" "Added to waiting list / Application Submitted" \
-                     "request approval" "Application for waiver of prerequisites submitted"] $type]
+		     "awaiting payment" "[_ dotlrn-ecommerce.Application_1]" \
+		     "on approval" "[_ dotlrn-ecommerce.Application_2]" \
+		     "submit_app" "[_ dotlrn-ecommerce.Application_3]" \
+		     "approve_app" "[_ dotlrn-ecommerce.Application_2]" \
+		     "on join" "[_ dotlrn-ecommerce.Welcome]" \
+		     "waitinglist approved" "[_ dotlrn-ecommerce.Grant]" \
+		     "prereq approval" "[_ dotlrn-ecommerce.Approve_1]" \
+		     "prereq reject" "[_ dotlrn-ecommerce.Reject_1]" \
+		     "application reject" "[_ dotlrn-ecommerce.Reject_2]" \
+                     "needs approval" "[_ dotlrn-ecommerce.Added]" \
+                     "request approval" "[_ dotlrn-ecommerce.Application_4]"] $type]
+}
+
+ad_proc -private dotlrn_ecommerce::email_type_sent_when {
+    -type
+} {
+    Pretty email type for display
+} {
+    return [string map \
+		[list \
+		     "awaiting payment" "[_ dotlrn-ecommerce.sent]" \
+		     "on approval" "[_ dotlrn-ecommerce.sent_1]" \
+		     "submit_app" "[_ dotlrn-ecommerce.sent_2]" \
+		     "approve_app" "[_ dotlrn-ecommerce.sent_1]" \
+		     "on join" "[_ dotlrn-ecommerce.sent_3]" \
+		     "waitinglist approved" "[_ dotlrn-ecommerce.sent_4]" \
+		     "prereq approval" "[_ dotlrn-ecommerce.sent_5]" \
+		     "prereq reject" "[_ dotlrn-ecommerce.sent_6]" \
+		     "application reject" "[_ dotlrn-ecommerce.sent_7]" \
+                     "needs approval" "[_ dotlrn-ecommerce.sent_8]" \
+                     "request approval" "[_ dotlrn-ecommerce.sent_9]"] $type]
 }
