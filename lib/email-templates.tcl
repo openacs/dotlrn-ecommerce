@@ -18,18 +18,20 @@ if {[parameter::get -package_id [ad_conn package_id] -parameter NotifyApplicantO
     lappend email_types "needs approval" "request approval"
 }
 
-db_multirow -extend {type_pretty action_url action from revert revert_url} email_templates get_email_templates "select subject,type from dotlrn_member_emails where community_id=:community_id" {
+db_multirow -extend {type_pretty action_url action from revert revert_url sent_when test_url} email_templates get_email_templates "select subject,type from dotlrn_member_emails where community_id=:community_id" {
     set revert_url [export_vars -base email-template-delete {{community_id $community_id} {action $type} return_url}]
-    set revert "Revert to default"
+    set revert "[_ dotlrn-ecommerce.Revert]"
 
     set action_url [export_vars -base email-template {{community_id $community_id} {action $type} return_url}]
-    set action "Edit"
+    set action "#acs-kernel.common_Edit#"
 
     if {[set index [lsearch $email_types $type]] > -1} {
 	set email_types [lreplace $email_types $index $index]
     }
     set type_pretty [dotlrn_ecommerce::email_type_pretty -type $type]
     set from "using section specific template"
+    set sent_when [dotlrn_ecommerce::email_type_sent_when -type $type] 
+    set test_url [export_vars -base email-test {community_id return_url type}]
 }
 
 foreach type $email_types {
@@ -41,16 +43,17 @@ foreach type $email_types {
 	set subject "[lindex $email 1]"
 	switch [lindex $email 3] {
 	    dotlrn-ecommerce {
-		set from "using site-wide default template"
+		set from "[_ dotlrn-ecommerce.site-wide]"
 	    }
 	    course {
-	        set from  "using course default template"
+	        set from  "[_ dotlrn-ecommerce.course]"
 	    }
 	    default {
-		set from "using section specific template"
+		set from "[_ dotlrn-ecommerce.section]"
 	    }
 	}
-	template::multirow append email_templates $subject $type [dotlrn_ecommerce::email_type_pretty -type $type] $action_url $action $from
+    set test_url [export_vars -base email-test {community_id return_url type}]
+	template::multirow append email_templates $subject $type [dotlrn_ecommerce::email_type_pretty -type $type] $action_url $action $from "" "" [dotlrn_ecommerce::email_type_sent_when -type $type] $test_url
     }
 }
 
@@ -61,6 +64,8 @@ template::list::create \
         subject {label "Email subject"}
 	from {label "Template Used"}
         type_pretty {label "Type"}
+	sent_when {label "Sent after"}
 	action {label "" link_url_col action_url}
 	revert {label "" link_url_col revert_url}
+	test {label "" link_url_col test_url display_eval {[_ dotlrn-ecommerce.Send]}}
     }
