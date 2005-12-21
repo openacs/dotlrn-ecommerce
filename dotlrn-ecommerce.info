@@ -20,7 +20,6 @@
         <requires url="dotlrn-assessment" version="0.2"/>
         <requires url="dotlrn-attendance" version="0.1d"/>
         <requires url="dotlrn-catalog" version="0.1a5"/>
-        <requires url="scholarship-fund" version="0.7d"/>
         <requires url="wps-portlet" version="2.0.2"/>
 
         <callbacks>
