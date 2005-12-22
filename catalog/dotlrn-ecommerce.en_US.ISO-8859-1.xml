@@ -9,10 +9,15 @@
   <msg key="Add_Purchaser">Add Purchaser</msg>
   <msg key="add_section">add section</msg>
   <msg key="add_to_cart">register for course</msg>
+  <msg key="Added">to waiting list / Application Submitted</msg>
   <msg key="Administer_Public_Pages">Administer Public Pages</msg>
   <msg key="Administrative_Setup">Administrative Setup</msg>
   <msg key="Amount_to_be_Paid">Amount to be Paid</msg>
   <msg key="Application">Application</msg>
+  <msg key="Application_1">Approved (awaiting payment)</msg>
+  <msg key="Application_2">Approved</msg>
+  <msg key="Application_3">Submitted</msg>
+  <msg key="Application_4">for waiver of prerequisites submitted</msg>
   <msg key="Application_approved">Application approved</msg>
   <msg key="application_pending">(application pending)</msg>
   <msg key="Application_prereq_approved">Waiver of prerequisite approved</msg>
@@ -21,6 +26,7 @@
   <msg key="Applications">Applications</msg>
   <msg key="apply_for_course">apply for course</msg>
   <msg key="Approve">Approve</msg>
+  <msg key="Approve_1">waiver of prerequisites</msg>
   <msg key="Approve_application">Approve application</msg>
   <msg key="as_widget_help">The drop down displays existing applications. If you need to create a new application use this &lt;a href=&quot;/assessment/asm-admin&quot;&gt;link&lt;/a&gt; then return to this form.</msg>
   <msg key="assistant_instructor">Assistant Instructors</msg>
@@ -40,6 +46,7 @@
   <msg key="click_here">click here</msg>
   <msg key="Community_User_Pages">Community User Pages</msg>
   <msg key="Continue">Continue</msg>
+  <msg key="course">default template</msg>
   <msg key="Course_Catalog">Course Catalog</msg>
   <msg key="Course_Page">Course Page:</msg>
   <msg key="Course_Quick_Jump">Course Quick Jump</msg>
@@ -73,6 +80,7 @@
   <msg key="Gift_Certificate">Gift Certificate:</msg>
   <msg key="Go_to_My_Account">Go to My Account</msg>
   <msg key="Grade">Grade</msg>
+  <msg key="Grant">spot from waiting list</msg>
   <msg key="Grant_Scholarships">Grant Scholarships</msg>
   <msg key="Im_a_new_customer">I'm a new customer:</msg>
   <msg key="In_the_last">In the last</msg>
@@ -125,6 +133,7 @@
   <msg key="lt_eCommerce_Administrat">eCommerce Administration</msg>
   <msg key="lt_Edit_Section_Informat">Edit Section Information</msg>
   <msg key="lt_Edit_your_application">Edit your application</msg>
+  <msg key="lt_Email_templates_for_c">Email templates for %course_name% |</msg>
   <msg key="lt_Financial_Transaction">Financial Transactions</msg>
   <msg key="lt_for_first_names_last_">for %first_names% %last_name% (if you're not %first_names% %last_name%</msg>
   <msg key="lt_for_the_current_purch">for the current purchases</msg>
@@ -187,8 +196,10 @@
   <msg key="lt_Select_a_payment_meth">Select a payment method</msg>
   <msg key="lt_Select_another_purcha">Select another purchaser</msg>
   <msg key="lt_Sessions_and_Attendan">Sessions and Attendance</msg>
+  <msg key="lt_Site_wide_default_ema">Site wide default email templates for new sections</msg>
   <msg key="lt_Sorry_the_offer_code_">Sorry, the offer code was not accepted.</msg>
   <msg key="lt_Sorry_There_seems_to_">Sorry, There seems to be a problem with completing this transaction.</msg>
+  <msg key="lt_Test_email_sent_to_user">Test email sent to %user.email%. Please check your inbox.</msg>
   <msg key="lt_Thank_you_for_your_ap">Thank you for putting yourself on the waiting list for %section_name%.  We will notify you if a space becomes available.</msg>
   <msg key="lt_Thank_You_For_Your_Or">Thank You For Your Order</msg>
   <msg key="lt_The_applications_have">The applications have been rejected.</msg>
@@ -289,24 +300,42 @@ Instructors:
   <msg key="Registration">Registration</msg>
   <msg key="Regsitered_By_Admin">Regsitered By Admin</msg>
   <msg key="Reject">Reject</msg>
+  <msg key="Reject_1">waiver of prerequitsites</msg>
+  <msg key="Reject_2">application</msg>
   <msg key="Reject_application">Reject application</msg>
   <msg key="Reject_Only">Reject Only</msg>
   <msg key="Reject_prereq">Reject waiver of prerequisite</msg>
   <msg key="Related_Items">Expert Administartion Options</msg>
   <msg key="Related_Users">Related Users</msg>
+  <msg key="Return_to_where">&lt;a href=&quot;%return_url%&quot;&gt;Return&lt;/a&gt; to where you were.</msg>
+  <msg key="Revert">Revert to default</msg>
   <msg key="review_application">Review your application</msg>
   <msg key="Role">Role</msg>
   <msg key="Scholarship">Scholarship</msg>
   <msg key="Scholarship_Funds">Scholarship Funds</msg>
   <msg key="Scholarships">Scholarships</msg>
   <msg key="Section">Section</msg>
+  <msg key="section">specific template</msg>
   <msg key="Section_1">Name</msg>
   <msg key="Section_Information">Advanced Options</msg>
   <msg key="Section_Name">Section Name</msg>
   <msg key="Section_Quick_Jump">Section Quick Jump</msg>
   <msg key="Select">a payment method</msg>
+  <msg key="Send">Send test email to yourself</msg>
+  <msg key="sent">after application is approved and payment is required</msg>
+  <msg key="sent_1">after application is approved</msg>
+  <msg key="sent_2">after application is submitted</msg>
+  <msg key="sent_3">after user is added to group</msg>
+  <msg key="sent_4">after user is added to group from waiting list</msg>
+  <msg key="sent_5">after user is added to group when waiver of prerequisites has been requested</msg>
+  <msg key="sent_6">after request for waiver of prerequisites is rejected</msg>
+  <msg key="sent_7">after application is rejected</msg>
+  <msg key="sent_8">after application is submitted and user is added to waiting list</msg>
+  <msg key="sent_9">after application is submitted with request for waiver of prerequisites</msg>
   <msg key="Set_Relationship">Set Relationship</msg>
   <msg key="Shopping_Cart">Shopping Cart</msg>
+  <msg key="site-wide">default template</msg>
+  <msg key="Site_wide_defaults">Site wide defaults</msg>
   <msg key="Skip">Skip</msg>
   <msg key="Special_Needs">Special Needs</msg>
   <msg key="subject">subject</msg>
@@ -314,6 +343,7 @@ Instructors:
   <msg key="Subtotal_1">Subtotal</msg>
   <msg key="System_Setup">System Setup</msg>
   <msg key="Tax">Tax:</msg>
+  <msg key="Test_email_sent">Test email sent</msg>
   <msg key="The_section_is_full">The section is full.</msg>
   <msg key="TOTAL">TOTAL:</msg>
   <msg key="Total">Total:</msg>
@@ -337,6 +367,7 @@ Instructors:
   <msg key="View_previously_email">View sent emails</msg>
   <msg key="View_User_Requests">View User Requests</msg>
   <msg key="Waiting_List">Waiting List</msg>
+  <msg key="Welcome">message</msg>
   <msg key="Welcome_message">Welcome message</msg>
   <msg key="Welcome_to_section">Welcome to %course_name%</msg>
   <msg key="Yes">Yes</msg>
