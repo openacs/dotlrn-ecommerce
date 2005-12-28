@@ -43,7 +43,7 @@
 <if @attendance_show_p@>
 <h2>#dotlrn-ecommerce.lt_Sessions_and_Attendan#</h2>
 
-<include src=/packages/attendance/lib/cp-attendance community_id=@community_id@ package_id=@community_package_id@ show_non_session_calendar_links=@show_non_session_calendar_links@>
+<include src=/packages/attendance/lib/cp-attendance community_id=@community_id@ package_id=@community_package_id@>
 </if>
 
 
