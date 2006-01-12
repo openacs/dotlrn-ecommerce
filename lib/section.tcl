@@ -110,14 +110,14 @@ if { [ad_form_new_p -key section_id] } {
 
 if { [parameter::get -parameter AllowFreeRegistration -default 0] } {
     ad_form -extend -name add_section -form {
-	{section_name:text {label "Section Name"}}
+	{section_name:text {label "Section Code"} {help_text {E.g. Section 01, W06}}}
 	{price:currency,to_sql(sql_number) {label "Regular Price"} {html {size 6}}
 	    {help_text {Enter any fees related to this course here. \$0 in this field means there is no related fee.}}
 	}
     }
 } else {
     ad_form -extend -name add_section -form {
-	{section_name:text {label "Section Name"}}
+	{section_name:text {label "Section Code"} {help_text {E.g. Section 01, W06}}}
 	{price:currency,to_sql(sql_number) {label "Regular Price"} {html {size 6}}
 	    {help_text "Enter any fees related to this course here."}
 	}	
@@ -383,6 +383,11 @@ if { [parameter::get -package_id [ad_conn package_id] -parameter ShowSectionCate
 	{ [dotlrn_ecommerce_check_grade $section_id $categories] }
 	"Please select one or more grades"
 	}
+}
+set section_name_validate_message "Section code must be less than [expr {100 - [string length "$course_data(name): Section "]}] characters"
+lappend validate {section_name 
+    {([string length "$course_data(name): Section $section_name"] < 100)} 
+    $section_name_validate_message
 }
 
 ad_form -extend -name add_section -validate $validate -on_request {
