@@ -70,21 +70,15 @@ if {[catch {set rel_id [relation_add \
     ad_script_abort
 }
 
-switch -- $member_state {
-    "awaiting payment" {
-	dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type "awaiting payment"
-    }
-    "needs approval" -
-    "request approval" {
-	set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
-	set community_name [dotlrn_community::get_community_name $community_id]
-
-	if { [parameter::get -package_id [ad_conn package_id] -parameter NotifyApplicantOnRequest] } {
-	    dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $member_state
-
-	}
+if { $member_state eq "needs approval" } {
+    set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
+    set community_name [dotlrn_community::get_community_name $community_id]
+    
+    if { [parameter::get -package_id [ad_conn package_id] -parameter NotifyApplicantOnRequest] } {
+	dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type "needs approval"
     }
 }
+
 ns_log notice "DEBUG:: RELATION $participant_id, $community_id, $rel_id"
 set wait_list_notify_email [parameter::get -package_id [ad_acs_kernel_id] -parameter AdminOwner]
 set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
@@ -175,7 +169,7 @@ if { [empty_string_p $assessment_id] || $assessment_id == -1 || $type == "full" 
 	ad_script_abort	
     }
 
-    set return_url [export_vars -base "[ad_conn package_url]ecommerce/application-request-2" { user_id session_id {return_url $next_url} }]
+    set return_url [export_vars -base "[ad_conn package_url]ecommerce/application-request-2" { user_id session_id {return_url $next_url} type community_id email_user_id }]
     ad_returnredirect [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]assessment" { assessment_id return_url session_id }]    
 }
 

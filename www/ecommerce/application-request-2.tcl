@@ -12,6 +12,10 @@ ad_page_contract {
     user_id:integer,notnull
     session_id:integer,notnull
     return_url:notnull
+
+    type:notnull
+    community_id:integer,notnull
+    email_user_id:integer,notnull
 } -properties {
 } -validate {
 } -errors {
@@ -24,6 +28,22 @@ db_dml set_assessment_subject {
     update as_sessions	
     set subject_id = :user_id
     where session_id = :session_id
+}
+
+# Send emails
+switch -- type {
+    "payment" {
+	dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type "awaiting payment"
+    }
+    "prereq" {
+	set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
+	set community_name [dotlrn_community::get_community_name $community_id]
+
+	if { [parameter::get -package_id [ad_conn package_id] -parameter NotifyApplicantOnRequest] } {
+	    dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type "request approval"
+
+	}
+    }
 }
 
 ad_returnredirect $return_url
