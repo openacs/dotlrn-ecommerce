@@ -174,7 +174,7 @@ template::list::create \
 		{"[_ dotlrn-ecommerce.Outstanding_blance]" balance}
 	    }
 	    where_clause {
-		(case when t.method = 'invoice' then
+		(case when method = 'invoice' then
 		 ec_total_price(order_id) - ec_order_gift_cert_amount(order_id) - 
 		 (select coalesce(sum(amount), 0)
 		  from dotlrn_ecommerce_transaction_invoice_payments
