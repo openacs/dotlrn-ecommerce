@@ -12,6 +12,7 @@ ad_page_contract {
     instructor:optional
     { orderby course_name }
     { groupby course_name }
+    {show_hidden "f"}
 }
 
 set memoize_max_age [parameter::get -parameter CatalogMemoizeAge -default 10800]
@@ -239,6 +240,14 @@ set filters [linsert $filters 0 view {
 
 set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
 set admin_p [permission::permission_p -object_id $cc_package_id -privilege "admin"]
+
+if {$admin_p} {
+    set hidden_filter_hide_p 0
+} else {
+    set show_hidden f
+    set hidden_filter_hide_p 1
+}
+lappend filters show_hidden [list hide_p $hidden_filter_hide_p label "Show hidden courses" values { {Show t} {Hide f}} where_clause " (display_section_p <> :show_hidden or display_section_p is null or display_section_p = 't') "]
 
 set actions [list]
 
