@@ -404,7 +404,8 @@ template::list::create \
 		</if>
 		
 		<if @admin_p@ eq 1>
-		<a href="@course_list.section_edit_url;noquote@" class="button">[_ dotlrn-ecommerce.edit]</a>
+		<a href="@course_list.section_edit_url;noquote@" class="button">[_ dotlrn-ecommerce.edit]</a> 
+		<if @course_list.toggle_display_url@ not nil><a href="@course_list.toggle_display_url;noquote@" class="button"><if @course_list.display_section_p@ eq "f">[_ dotlrn-ecommerce.show]</if><else>[_ dotlrn-ecommerce.hide]</else></a></if>
 		</if>
 		<if @course_list.pending_p@ eq 1>
 		   <font color="red">[_ dotlrn-ecommerce.application_pending]</font>
@@ -496,7 +497,7 @@ if { $offer_code_p } {
     set discount_clause ""
 }
 
-db_multirow -extend {patron_message member_state fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades section_zones sections_url member_p sessions instructor_names price prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url } course_list get_courses { } {
+db_multirow -extend {toggle_display_url patron_message member_state fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades section_zones sections_url member_p sessions instructor_names price prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url } course_list get_courses { } {
 
     # Since dotlrn-ecommerce is based on dotlrn-catalog,
     # it's possible to have a dotlrn_catalog object without an
@@ -507,7 +508,7 @@ db_multirow -extend {patron_message member_state fs_chunk section_folder_id sect
     }
 
     set button [_ dotlrn-ecommerce.add_to_cart]
-
+    set toggle_display_url [export_vars -base admin/toggle-display {section_id {return_url [ad_return_url]}}]
     set category_name [string range $category_name 0 [expr [string length $category_name] - 3]]
     set community_url [dotlrn_community::get_community_url $community_id]
     set return_url [ad_return_url]
