@@ -247,7 +247,7 @@ if {$admin_p} {
     set show_hidden f
     set hidden_filter_hide_p 1
 }
-lappend filters show_hidden [list hide_p $hidden_filter_hide_p label "Show hidden courses" values { {Show t} {Hide f}} where_clause " (display_section_p <> :show_hidden or display_section_p is null or display_section_p = 't') "]
+lappend filters show_hidden [list hide_p $hidden_filter_hide_p label [_ dotlrn-ecommerce.Hidden_Courses] values { {[_ dotlrn-ecommerce.Show] t} {[_ dotlrn-ecommerce.Hide] f}} where_clause " (display_section_p <> :show_hidden or display_section_p is null or display_section_p = 't') "]
 
 set actions [list]
 
