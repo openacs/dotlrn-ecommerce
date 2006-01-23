@@ -405,7 +405,7 @@ template::list::create \
 		
 		<if @admin_p@ eq 1>
 		<a href="@course_list.section_edit_url;noquote@" class="button">[_ dotlrn-ecommerce.edit]</a> 
-		<if @course_list.toggle_display_url@ not nil><a href="@course_list.toggle_display_url;noquote@" class="button"><if @course_list.display_section_p@ eq "f">[_ dotlrn-ecommerce.show]</if><else>[_ dotlrn-ecommerce.hide]</else></a></if>
+		<if @course_list.toggle_display_url@ not nil><a href="@course_list.toggle_display_url;noquote@" class="button"><if @course_list.display_section_p@ eq "f">[_ dotlrn-ecommerce.Show]</if><else>[_ dotlrn-ecommerce.Hide]</else></a></if>
 		</if>
 		<if @course_list.pending_p@ eq 1>
 		   <font color="red">[_ dotlrn-ecommerce.application_pending]</font>
