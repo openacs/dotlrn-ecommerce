@@ -84,6 +84,7 @@
   <msg key="Grant_Scholarships">Grant Scholarships</msg>
   <msg key="Hidden_Courses">Hidden Courses</msg>
   <msg key="Hide">Hide</msg>
+  <msg key="Hide_this_section">Hide this section</msg>
   <msg key="Im_a_new_customer">I'm a new customer:</msg>
   <msg key="In_the_last">In the last</msg>
   <msg key="In_the_last_24_hours">In the last 24 hours</msg>
@@ -338,6 +339,7 @@ Instructors:
   <msg key="Set_Relationship">Set Relationship</msg>
   <msg key="Shopping_Cart">Shopping Cart</msg>
   <msg key="Show">Show</msg>
+  <msg key="Show_this_section">Show this section.</msg>
   <msg key="site-wide">default template</msg>
   <msg key="Site_wide_defaults">Site wide defaults</msg>
   <msg key="Skip">Skip</msg>
@@ -349,6 +351,7 @@ Instructors:
   <msg key="Tax">Tax:</msg>
   <msg key="Test_email_sent">Test email sent</msg>
   <msg key="The_section_is_full">The section is full.</msg>
+  <msg key="This_section_is_hidden">This section is currently hidden.</msg>
   <msg key="TOTAL">TOTAL:</msg>
   <msg key="Total">Total:</msg>
   <msg key="Total_1">Total</msg>
