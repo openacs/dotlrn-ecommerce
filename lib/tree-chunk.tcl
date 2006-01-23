@@ -674,7 +674,7 @@ db_multirow -extend {toggle_display_url patron_message member_state fs_chunk sec
 	    set waiting_p 1
 	    set waiting_list_number [util_memoize [list dotlrn_ecommerce::section::waiting_list_number $user_id $community_id] $memoize_max_age]
 	}
-	"awaiting payment" {
+	"application sent" {
 	    set waiting_p 2
 	    if { ![empty_string_p $assessment_id] } {
 		set rel_id [db_string membership_rel {
@@ -712,7 +712,7 @@ db_multirow -extend {toggle_display_url patron_message member_state fs_chunk sec
 	"request approval" {
 	    set pending_p 1
 	}
-	"payment received" {
+	"application approved" {
 	    set approved_p 1
 	    if {![empty_string_p $assessment_id]} {
 		set rel_id [db_string membership_rel {

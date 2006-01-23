@@ -9,12 +9,12 @@
   <msg key="Add_Purchaser">Add Purchaser</msg>
   <msg key="add_section">add section</msg>
   <msg key="add_to_cart">register for course</msg>
-  <msg key="Added">to waiting list / Application Submitted</msg>
+  <msg key="Added">to waiting list / Application submitted</msg>
   <msg key="Administer_Public_Pages">Administer Public Pages</msg>
   <msg key="Administrative_Setup">Administrative Setup</msg>
   <msg key="Amount_to_be_Paid">Amount to be Paid</msg>
   <msg key="Application">Application</msg>
-  <msg key="Application_1">Approved (awaiting payment)</msg>
+  <msg key="Application_1">Application submitted</msg>
   <msg key="Application_2">Approved</msg>
   <msg key="Application_3">Submitted</msg>
   <msg key="Application_4">for waiver of prerequisites submitted</msg>

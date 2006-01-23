@@ -33,13 +33,13 @@ if {![exists_and_not_null community_id]} {
 
 switch -exact $action {
     "submit_app" {
-        set type "awaiting payment"
+        set type "application sent"
     }
     "approve_app" {
 	set type "on approval"
     }
     "on join" -
-    "awaiting payment" -
+    "application sent" -
     "on approval" -
     "waitinglist approved" -
     "prereq approval" -

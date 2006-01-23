@@ -47,7 +47,7 @@ switch $type {
 
     }
     payment {
-	set member_state "awaiting payment"
+	set member_state "application sent"
 	set assessment_id [dotlrn_ecommerce::section::application_assessment $section_id]
     }
 }
@@ -95,7 +95,7 @@ if {[db_0or1row get_nwn {
 	    select count(*)
 	    from membership_rels m,
 	    acs_rels r
-	    where m.member_state in ('needs approval', 'awaiting payment')
+	    where m.member_state in ('needs approval', 'application sent')
 	    and m.rel_id = r.rel_id
 	    and r.rel_type = 'dotlrn_member_rel'
 	    and r.object_id_one = :community_id

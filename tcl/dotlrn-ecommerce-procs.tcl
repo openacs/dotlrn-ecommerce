@@ -186,7 +186,7 @@ ad_proc -public dotlrn_ecommerce::allow_access_to_approved_users {
 	    create or replace view dotlrn_member_rels_approved
 	    as select *
 	    from dotlrn_member_rels_full
-	    where member_state in ('approved', 'waitinglist approved', 'request approved', 'payment received');
+	    where member_state in ('approved', 'waitinglist approved', 'request approved', 'application approved');
 
 	    drop trigger membership_rels_up_tr on membership_rels;
 	    drop function membership_rels_up_tr ();
@@ -204,7 +204,7 @@ ad_proc -public dotlrn_ecommerce::allow_access_to_approved_users {
 	    from group_element_index
 	    where rel_id = new.rel_id
 	    loop
-	    if new.member_state in (''approved'', ''waitinglist approved'', ''request approved'', ''payment received'') then
+	    if new.member_state in (''approved'', ''waitinglist approved'', ''request approved'', ''application approved'') then
 	    perform party_approved_member__add(map.group_id, map.element_id, new.rel_id, map.rel_type);
 	    else
 	    perform party_approved_member__remove(map.group_id, map.element_id, new.rel_id, map.rel_type);
@@ -223,7 +223,7 @@ ad_proc -public dotlrn_ecommerce::allow_access_to_approved_users {
 	db_foreach current_users {
 	    select rel_id, community_id, user_id
 	    from dotlrn_member_rels_full
-	    where member_state in ('waitinglist approved', 'request approved', 'payment received')
+	    where member_state in ('waitinglist approved', 'request approved', 'application approved')
 	} {
 	    db_exec_plsql approve_current_users {
 		declare
@@ -355,7 +355,7 @@ ad_proc -public dotlrn_ecommerce::disallow_access_to_approved_users {
 	db_foreach current_users {
 	    select rel_id, community_id, user_id
 	    from dotlrn_member_rels_full
-	    where member_state in ('waitinglist approved', 'request approved', 'payment received')
+	    where member_state in ('waitinglist approved', 'request approved', 'application approved')
 	} {
 	    db_exec_plsql approve_current_users {
 		declare

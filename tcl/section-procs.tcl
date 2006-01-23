@@ -286,7 +286,7 @@ ad_proc -public dotlrn_ecommerce::section::attendees {
 			      from dotlrn_ecommerce_section
 			      where section_id = :section_id)
 	and (rel_type = 'dotlrn_member_rel' or rel_type = 'dc_student_rel')
-	and member_state in ('approved', 'request approval', 'request approved', 'waitinglist approved', 'payment received')) 
+	and member_state in ('approved', 'request approval', 'request approved', 'waitinglist approved', 'application approved')) 
 
 	+ 
 
@@ -344,7 +344,7 @@ ad_proc -public dotlrn_ecommerce::section::check_elapsed_registrations {
 	from acs_objects o, dotlrn_member_rels_full r
 	where o.object_id = r.rel_id
 	and (current_timestamp - o.last_modified)::interval >= (:time_period||' seconds')::interval
-	and r.member_state in ('request approved', 'waitinglist approved', 'payment received')
+	and r.member_state in ('request approved', 'waitinglist approved', 'application approved')
     } {
 	if { [parameter::get -parameter AllowAheadAccess -package_id [apm_package_id_from_key dotlrn-ecommerce] -default 0] } {
 	    # Dispatch dotlrn applet callbacks
@@ -751,7 +751,7 @@ ad_proc -public dotlrn_ecommerce::section::user_approve {
     set new_member_state [ad_decode $old_member_state \
 			      "needs approval" "waitinglist approved" \
 			      "request approval" "request approved" \
-			      "awaiting payment" "payment received" \
+			      "application sent" "application approved" \
 			      "waitinglist approved"]
 
     db_transaction {

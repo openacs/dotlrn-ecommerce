@@ -32,8 +32,8 @@ db_dml set_assessment_subject {
 
 # Send emails
 switch -- $type {
-    "awaiting payment" {
-	dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type "awaiting payment"
+    "application sent" {
+	dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type "application sent"
     }
     "prereq" {
 	set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]

@@ -14,7 +14,7 @@
 	  #dotlrn-ecommerce.lt_Youve_already_purchas#
 	</if>
 	<else>
-	  <if @member_state@ in "request approval" "needs approval" "awaiting payment">
+	  <if @member_state@ in "request approval" "needs approval" "application sent">
 	    #dotlrn-ecommerce.lt_Your_request_has_been#
 	  </if>
 	</else>

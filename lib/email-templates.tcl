@@ -12,7 +12,7 @@ if {![exists_and_not_null scope]} {
 }
 set email_types [list "on join" "waitinglist approved" "prereq approval" "prereq reject"]
 if {[parameter::get -package_id [ad_conn package_id] -parameter EnableCourseApplicationsP -default 1]} {
-    lappend email_types "on approval" "awaiting payment" "application reject" 
+    lappend email_types "on approval" "application sent" "application reject" 
 }
 if {[parameter::get -package_id [ad_conn package_id] -parameter NotifyApplicantOnRequest]} {
     lappend email_types "needs approval" "request approval"

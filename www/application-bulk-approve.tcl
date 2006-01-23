@@ -14,7 +14,7 @@ ad_page_contract {
     __confirmed_p:optional
 
     {filter_community_id ""}
-    {filter_member_state:multiple {{needs approval} {awaiting payment}}}
+    {filter_member_state:multiple {{needs approval} {application sent}}}
 } -properties {
 } -validate {
 } -errors {
@@ -57,7 +57,7 @@ db_multirow -extend { url type } todo todo [subst {
     set type [ad_decode $member_state \
 		  "needs approval" "Waiting List" \
 		  "request approval" "Prerequisite" \
-		  "awaiting payment" "Application" \
+		  "application sent" "Application" \
 		  "Waiting List"]
 }
 
@@ -73,7 +73,7 @@ db_multirow -extend { type } applications applications [subst {
     set type [ad_decode $member_state \
 		  "needs approval" "Waiting List" \
 		  "request approval" "Prerequisite" \
-		  "awaiting payment" "Application" \
+		  "application sent" "Application" \
 		  "Waiting List"]
 }
 
@@ -125,7 +125,7 @@ if { [template::multirow size applications] > 0 } {
 
 		dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type "prereq approval" -override_email $reason -override_subject $subject
 	    } else {
-		set email_type [ad_decode $member_state "needs approval" "waitinglist approved" "awaiting payment" "on approval" "waitinglist approved"]
+		set email_type [ad_decode $member_state "needs approval" "waitinglist approved" "application sent" "on approval" "waitinglist approved"]
 
 		dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type
 	    }	    
@@ -154,7 +154,7 @@ db_multirow approved approved [subst {
     from dotlrn_member_rels_full r, dotlrn_communities_full c
     where r.community_id = c.community_id
     and rel_id in ([join $rel_id ,])
-    and member_state in ('waitinglist approved', 'request approved', 'payment received')
+    and member_state in ('waitinglist approved', 'request approved', 'application approved')
     
     order by r.community_id
 }]

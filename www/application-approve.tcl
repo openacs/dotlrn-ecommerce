@@ -36,8 +36,8 @@ switch $type {
 	set email_type "prereq approval"
     }
     payment {
-	set new_member_state "payment received"
-	set old_member_state "awaiting payment"
+	set new_member_state "application approved"
+	set old_member_state "application sent"
 	set email_type "on approval"
     }
 }

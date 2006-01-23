@@ -47,7 +47,7 @@ db_multirow -extend { url type } todo todo [subst {
 
     where r.community_id = c.community_id
     and rel_id in ([join $rel_id ,])
-    and r.member_state in ('needs approval', 'request approval', 'awaiting payment', 'waitinglist approved', 'request approved', 'payment received')
+    and r.member_state in ('needs approval', 'request approval', 'application sent', 'waitinglist approved', 'request approved', 'application approved')
 
     group by r.community_id, r.member_state, c.pretty_name
 }] {
@@ -56,10 +56,10 @@ db_multirow -extend { url type } todo todo [subst {
     set type [ad_decode $member_state \
 		  "needs approval" "Waiting List" \
 		  "request approval" "Prerequisite" \
-		  "awaiting payment" "Application" \
+		  "application sent" "Application" \
 		  "waitinglist approved" "Waiting List" \
 		  "request approved" "Prerequisite" \
-		  "payment received" "Application" \
+		  "application approved" "Application" \
 		  "Waiting List"]
 }
 
@@ -75,10 +75,10 @@ db_multirow -extend { type } applications applications [subst {
     set type [ad_decode $member_state \
 		  "needs approval" "Waiting List" \
 		  "request approval" "Prerequisite" \
-		  "awaiting payment" "Application" \
+		  "application sent" "Application" \
 		  "waitinglist approved" "Waiting List" \
 		  "request approved" "Prerequisite" \
-		  "payment received" "Application" \
+		  "application approved" "Application" \
 		  "Waiting List"]
 }
 

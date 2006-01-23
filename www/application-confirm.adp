@@ -1,5 +1,5 @@
 <master>
-  <if @member_state@ eq "request approval" or @member_state@ eq "awaiting payment">
+  <if @member_state@ eq "request approval" or @member_state@ eq "application sent">
     <property name="title">Application Confirmed</property>	
   </if>
   <else>

@@ -59,7 +59,7 @@ ad_proc -private dotlrn_ecommerce::copy_course_default_email {
 } {
     set var_list [list community_name [dotlrn_community::get_community_name $community_id]]
     db_transaction {
-        foreach type [list "on join" "awaiting payment" "on approval"] {
+        foreach type [list "on join" "application sent" "on approval"] {
             set from_addr ""
             set email [_ [email_type_message_key -type $type -key body] $var_list]
             set subject [_ [email_type_message_key -type $type -key subject] $var_list]
@@ -76,7 +76,7 @@ ad_proc -private dotlrn_ecommerce::active_email_types {
 } {
     list of valid email types for this dotlrn_ecommerce
 } {
-    return [list "on join" "awaiting payment" "on approval"]
+    return [list "on join" "application sent" "on approval"]
 }
 
 ad_proc -private dotlrn_ecommerce::email_type_message_key {
@@ -91,7 +91,7 @@ ad_proc -private dotlrn_ecommerce::email_type_message_key {
     if {[string equal "subject" $key]} {
         return [string map \
                 [list \
-                     "awaiting payment" dotlrn-ecommerce.Application_submitted \
+                     "application sent" dotlrn-ecommerce.Application_submitted \
                      "on approval" dotlrn-ecommerce.Application_approved \
                      submit_app dotlrn-ecommerce.Application_submitted \
                      approve_app dotlrn-ecommerce.Application_approved \
@@ -106,7 +106,7 @@ ad_proc -private dotlrn_ecommerce::email_type_message_key {
     } elseif {[string equal "body" $key]} {
         return [string map \
                 [list \
-                     "awaiting payment" dotlrn-ecommerce.lt_Your_application_has_been_submitted \
+                     "application sent" dotlrn-ecommerce.lt_Your_application_has_been_submitted \
                      "on approval" dotlrn-ecommerce.lt_Your_application_to_j \
                      submit_app dotlrn-ecommerce.lt_Your_application_has_been_submitted \
                      approve_app dotlrn-ecommerce.lt_Your_application_to_j \
@@ -131,7 +131,7 @@ ad_proc -private dotlrn_ecommerce::email_type_pretty {
 } {
     return [string map \
 		[list \
-		     "awaiting payment" "[_ dotlrn-ecommerce.Application_1]" \
+		     "application sent" "[_ dotlrn-ecommerce.Application_1]" \
 		     "on approval" "[_ dotlrn-ecommerce.Application_2]" \
 		     "submit_app" "[_ dotlrn-ecommerce.Application_3]" \
 		     "approve_app" "[_ dotlrn-ecommerce.Application_2]" \
@@ -151,7 +151,7 @@ ad_proc -private dotlrn_ecommerce::email_type_sent_when {
 } {
     return [string map \
 		[list \
-		     "awaiting payment" "[_ dotlrn-ecommerce.sent]" \
+		     "application sent" "[_ dotlrn-ecommerce.sent]" \
 		     "on approval" "[_ dotlrn-ecommerce.sent_1]" \
 		     "submit_app" "[_ dotlrn-ecommerce.sent_2]" \
 		     "approve_app" "[_ dotlrn-ecommerce.sent_1]" \

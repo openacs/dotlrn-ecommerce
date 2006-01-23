@@ -126,7 +126,7 @@ set default_assessment_id [parameter::get -parameter ApplicationAssessment -defa
 	where r.community_id = c.community_id
 	and s.community_id = c.community_id
 	and o.object_id = r.rel_id
-	and r.member_state in ('request approval', 'request approved', 'awaiting payment', 'payment received')
+	and r.member_state in ('request approval', 'request approved', 'application sent', 'application approved')
 	and (r.user_id = :user_id or o.creation_user=:user_id)
     } {
 	append notice "community_id '${community_id}' participant = '${participant_id}' <br />"

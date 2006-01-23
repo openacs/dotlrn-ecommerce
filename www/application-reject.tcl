@@ -64,7 +64,7 @@ if { !$send_email_p || $actor_id == $email_user_id } {
 	    and community_id = :community_id
 	}]
 
-	if { [lsearch $member_state {"waitinglist approved" "request approved" "payment received"}] != -1 } {
+	if { [lsearch $member_state {"waitinglist approved" "request approved" "application approved"}] != -1 } {
 	    # Dispatch dotlrn applet callbacks
 	    dotlrn_community::applets_dispatch \
 		-community_id $community_id \
@@ -139,7 +139,7 @@ if { !$send_email_p || $actor_id == $email_user_id } {
 		    and community_id = :community_id
 		}]
 
-		if { [lsearch $member_state {"waitinglist approved" "request approved" "payment received"}] != -1 } {
+		if { [lsearch $member_state {"waitinglist approved" "request approved" "application approved"}] != -1 } {
 		    # Dispatch dotlrn applet callbacks
 		    dotlrn_community::applets_dispatch \
 			-community_id $community_id \

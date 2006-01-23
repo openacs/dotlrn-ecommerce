@@ -59,7 +59,7 @@ db_multirow -extend { asm_url edit_asm_url } sessions sessions {
     select c.community_id, c.pretty_name
     from dotlrn_member_rels_full r, dotlrn_communities c
     where r.community_id = c.community_id
-    and r.member_state = 'awaiting payment'
+    and r.member_state = 'application sent'
     and r.user_id = :user_id
 } {
     if { [db_0or1row assessment {

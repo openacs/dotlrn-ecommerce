@@ -51,8 +51,8 @@ set filters {
 
 if { $enable_applications_p } {
     lappend filters \
-	{"[_ dotlrn-ecommerce.Applications]" "awaiting payment"} \
-	{"[_ dotlrn-ecommerce.lt_Approved_Applications]" "payment received"}
+	{"[_ dotlrn-ecommerce.Applications]" "application sent"} \
+	{"[_ dotlrn-ecommerce.lt_Approved_Applications]" "application approved"}
 }
 
 
@@ -78,12 +78,12 @@ set elements {section_name {
 	number {
 	    label "[_ dotlrn-ecommerce.lt_Number_in_Waiting_Lis]"
 	    html { align center }
-	    hide_p {[ad_decode $_type "waitinglist approved" 1 "request approved" 1 "payment received" 1 "all" 0 0]}
+	    hide_p {[ad_decode $_type "waitinglist approved" 1 "request approved" 1 "application approved" 1 "all" 0 0]}
 	    display_template {
 		<if @applications.member_state@ in "needs approval" "request approval">
 		@applications.number@
 		</if>
-		<elseif @applications.member_state@ eq "awaiting payment">
+		<elseif @applications.member_state@ eq "application sent">
                 Awaiting approval
                 </elseif>
 		<else>
@@ -108,7 +108,7 @@ set elements {section_name {
 		<if @applications.member_state@ eq "needs approval">
 		[_ dotlrn-ecommerce.lt_User_is_in_waiting_li]
 		</if>
-                <elseif @applications.member_state@ eq "payment received">
+                <elseif @applications.member_state@ eq "application approved">
 		[_ dotlrn-ecommerce.lt_User_application_appr]
                 </elseif>
                 <elseif @applications.member_state@ eq "waitinglist approved">
@@ -140,7 +140,7 @@ set elements {section_name {
 	}
 	phone {
 	    label "[_ dotlrn-ecommerce.Phone_Number]"
-	    hide_p {[ad_decode $_type "waitinglist approved" 0 "request approved" 0 "payment received" 0 "all" 0 1]}
+	    hide_p {[ad_decode $_type "waitinglist approved" 0 "request approved" 0 "application approved" 0 "all" 0 1]}
 	}
 }
 
@@ -164,7 +164,7 @@ lappend elements \
 	actions {
 	    label ""
 	    display_template {
-		<if @applications.member_state@ in "needs approval" "request approval" "awaiting payment">
+		<if @applications.member_state@ in "needs approval" "request approval" "application sent">
 		<a href="@applications.approve_url;noquote@" class="button">[_ dotlrn-ecommerce.Approve]</a>
 		<a href="@applications.reject_url;noquote@" class="button">[_ dotlrn-ecommerce.Reject]</a>
 		</if>
@@ -238,7 +238,7 @@ if { [exists_and_not_null section_id] } {
 }
 
 if { $enable_applications_p } {
-    set member_state_clause { and member_state in ('needs approval', 'waitinglist approved', 'request approval', 'request approved', 'awaiting payment', 'payment received') }
+    set member_state_clause { and member_state in ('needs approval', 'waitinglist approved', 'request approval', 'request approved', 'application sent', 'application approved') }
 } else {
     set member_state_clause { and member_state in ('needs approval', 'waitinglist approved', 'request approval', 'request approved') }
 }
@@ -290,16 +290,16 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
     [template::list::filter_where_clauses -and -name applications]
     [template::list::orderby_clause -name applications -orderby]         
 }] {
-    set list_type [ad_decode $member_state "needs approval" full "request approval" prereq "awaiting payment" payment full]
+    set list_type [ad_decode $member_state "needs approval" full "request approval" prereq "application sent" payment full]
 
     set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
 	
     set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
 
     if { $member_state == "needs approval" || 
-	 $member_state == "awaiting payment" ||
+	 $member_state == "application sent" ||
 	 $member_state == "waitinglist approved" ||
-	 $member_state == "payment received"
+	 $member_state == "application approved"
      } {
 	if { ! [empty_string_p $session_id] } {
 	    if {$use_embedded_application_view_p ==1} {

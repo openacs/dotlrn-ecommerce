@@ -135,7 +135,7 @@ if { [acs_object_type $participant_id] != "group" } {
 	if { $member_state != "approved" &&
 	     $member_state != "waitinglist approved" &&
 	     $member_state != "request approved" &&
-	     $member_state != "payment received" &&
+	     $member_state != "application approved" &&
 	     ($override_p == 0 || $admin_p == 0)
 	 } {
 	    
@@ -160,7 +160,7 @@ if { [acs_object_type $participant_id] != "group" } {
 			    set _return_url [export_vars -base [ad_conn url] { product_id user_id participant_id override_p offer_code {override_course_application_p 1} }]
 			    ad_returnredirect [export_vars -base application-request { user_id participant_id community_id {next_url $_return_url} { type payment } return_url }]
 			} else {
-			    set return_url [export_vars -base "[ad_conn package_url]application-confirm" { product_id {member_state "awaiting payment"} }]
+			    set return_url [export_vars -base "[ad_conn package_url]application-confirm" { product_id {member_state "application sent"} }]
 			    ad_returnredirect [export_vars -base application-request { user_id participant_id community_id {next_url $return_url} { type payment } }]
 			}
 			ad_script_abort
