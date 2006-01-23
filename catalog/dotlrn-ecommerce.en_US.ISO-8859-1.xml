@@ -82,6 +82,7 @@
   <msg key="Grade">Grade</msg>
   <msg key="Grant">spot from waiting list</msg>
   <msg key="Grant_Scholarships">Grant Scholarships</msg>
+  <msg key="Hide">Hide</msg>
   <msg key="Im_a_new_customer">I'm a new customer:</msg>
   <msg key="In_the_last">In the last</msg>
   <msg key="In_the_last_24_hours">In the last 24 hours</msg>
@@ -334,6 +335,7 @@ Instructors:
   <msg key="sent_9">after application is submitted with request for waiver of prerequisites</msg>
   <msg key="Set_Relationship">Set Relationship</msg>
   <msg key="Shopping_Cart">Shopping Cart</msg>
+  <msg key="Show">Show</msg>
   <msg key="site-wide">default template</msg>
   <msg key="Site_wide_defaults">Site wide defaults</msg>
   <msg key="Skip">Skip</msg>
