@@ -120,4 +120,5 @@
 <h3>Sections</h3>
 
 <listtemplate name=section_list></listtemplate>
-<include src="/packages/dotlrn-ecommerce/lib/email-templates" community_id="@template_community_id@" course_name="@course_name@">
+<h3>Email Templates</h3>
+<a href="email-templates?community_id=@template_community_id@">Administer Email Templates</a>

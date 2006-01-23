@@ -32,7 +32,7 @@
 		<li><a href="../applications?section_id=@section_id@&type=request+approval">Users for Prerequisite Approval</a>
 		<li><a href="../applications?section_id=@section_id@&type=request+approved">Approved Users for Prerequisite Approval</a>
 	</ul>
-<a href="ecommerce/index?section_id=@section_id@">#dotlrn-ecommerce.Order_Summary#</a>
+<!-- <a href="ecommerce/index?section_id=@section_id@">#dotlrn-ecommerce.Order_Summary#</a> -->
 
 
 <if @show_public_pages_p@>
@@ -52,8 +52,8 @@
 
 <include src=/packages/expense-tracking/lib/cp-expense-tracking community_id=@community_id@ package_id=@community_package_id@>
 </if>
-
-<include src="/packages/dotlrn-ecommerce/lib/email-templates" community_id="@community_id@" course_name="@section_name@" scope="section">
+<h2>Email Templates</h2>
+<a href="email-templates?community_id=@community_id@">Administer Email Templates</a>
 
 <h2>#dotlrn-ecommerce.Related_Items#</h2>
 
