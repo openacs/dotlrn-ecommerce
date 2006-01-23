@@ -334,6 +334,7 @@ Instructors:
   <msg key="sent_7">after application is rejected</msg>
   <msg key="sent_8">after application is submitted and user is added to waiting list</msg>
   <msg key="sent_9">after application is submitted with request for waiver of prerequisites</msg>
+  <msg key="Sent_when">Send: %sent_when%</msg>
   <msg key="Set_Relationship">Set Relationship</msg>
   <msg key="Shopping_Cart">Shopping Cart</msg>
   <msg key="Show">Show</msg>
