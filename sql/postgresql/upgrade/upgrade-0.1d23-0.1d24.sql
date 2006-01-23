@@ -56,6 +56,6 @@ create or replace view dlec_view_orders as (
 
 -- Change membership states to more appropriate names
 alter table membership_rels drop constraint membership_rel_mem_ck;
-update membership_rels set member_state = 'application sent' where member_state = 'application sent';
-update membership_rels set member_state = 'application approved' where member_state = 'application approved';
+update membership_rels set member_state = 'application sent' where member_state = 'awaiting payment';
+update membership_rels set member_state = 'application approved' where member_state = 'payment received';
 alter table membership_rels add constraint membership_rel_mem_ck check (member_state::text = 'merged'::text OR member_state::text = 'approved'::text OR member_state::text = 'needs approval'::text OR member_state::text = 'banned'::text OR member_state::text = 'rejected'::text OR member_state::text = 'deleted'::text OR member_state::text = 'request approval'::text OR member_state::text = 'request approved'::text OR member_state::text = 'waitinglist approved'::text or member_state::text = 'application sent' or member_state::text = 'application approved');
