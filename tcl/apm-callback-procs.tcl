@@ -157,6 +157,18 @@ ad_proc -private dotlrn_ecommerce::after_upgrade {
 		    0 \
 		    number
 	    }
+	    0.1d23 0.1d24 {
+		# check for missing guest rels
+		# add them
+		foreach user_id [db_list get_missing_rels "select du.user_id from
+                dotlrn_users du left join
+                dotlrn_guest_status dg
+                on du.user_id=dg.user_id
+                where dg.guest_p is null"] {
+		    # for now I am assuming NON-GUEST
+		    dotlrn_privacy::set_user_guest_p -user_id $user_id -value f
+		}
+	    }
     	}
 }
 
