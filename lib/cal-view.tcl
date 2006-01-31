@@ -113,6 +113,31 @@ if { ! [empty_string_p $level] } {
 #set category_trees [linsert [category_tree::get_mapped_trees $package_id] 0 $tree_id]
 #set category_trees [category_tree::get_mapped_trees $cc_package_id]
 
+# Display only categories with associated courses/sections
+set show_used_categories_only_p [parameter::get -package_id [ad_conn package_id] -parameter ShowUsedCategoriesOnlyP -default "0"]
+
+if { $show_used_categories_only_p } {
+    set used_categories [db_list used_categories {
+	select distinct category_id
+	from (
+
+	      select category_id
+	      from categories c
+	      where exists (select 1
+			    from category_object_map
+			    where category_id in (select category_id
+						  from categories
+						  where left_ind > c.left_ind
+						  and right_ind < c.right_ind))
+	      union
+
+	      select category_id
+	      from category_object_map
+
+	      ) c
+    }]
+}
+
 foreach tree_id $category_trees {
 
     set tree_id [lindex $tree_id 0]
@@ -131,13 +156,16 @@ foreach tree_id $category_trees {
     set $name [list]
 
     foreach element $tree_list {
-	set ident [lindex $element 3]
-	set spacer ""
-	for { set i 1 } { $i < $ident } { incr i } {
-	    append spacer ". . "
+	if { ! $show_used_categories_only_p || [lsearch $used_categories [lindex $element 0]] != -1 } {
+	    set ident [lindex $element 3]
+	    set spacer ""
+	    for { set i 1 } { $i < $ident } { incr i } {
+		append spacer ". . "
+	    }
+	    lappend $name [list "${spacer}[lindex "$element" 1]" "[lindex $element 0]&level=[lindex $element 3]" ]
 	}
-	lappend $name [list "${spacer}[lindex "$element" 1]" "[lindex $element 0]&level=[lindex $element 3]" ]
     }
+
 
     regsub -all { } $name _ f
     set f [string tolower $f]_f
