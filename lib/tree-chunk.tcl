@@ -308,8 +308,11 @@ template::list::create \
 	    display_template {
 		<if @course_list.section_id@ not nil>
 		<b>Section @course_list.section_name@</b>
+		<if @admin_p@ eq 1>
+		<a href="@course_list.section_edit_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.edit]</a> 
+		</if>
 		<if @admin_p@>
-		<if @course_list.toggle_display_url@ not nil><p style="margin-top: 3px" /><if @course_list.display_section_p@ eq "f">[_ dotlrn-ecommerce.This_section_is_hidden] <a href="@course_list.toggle_display_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.Show_this_section]</a></if><else><a href="@course_list.toggle_display_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.Hide_this_section]</else></a><br /></if>
+		<if @course_list.toggle_display_url@ not nil><if @course_list.display_section_p@ eq "f">[_ dotlrn-ecommerce.This_section_is_hidden] <a href="@course_list.toggle_display_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.Show_this_section]</a></if><else><a href="@course_list.toggle_display_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.Hide_this_section]</else></a><br /></if>
 		</if>
 		<if @course_list.show_description_p@ eq "t" and @course_list.description@ not nil>
 		<br />
@@ -406,9 +409,6 @@ template::list::create \
 		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.register]</a>
 		</if>
 		
-		<if @admin_p@ eq 1>
-		<a href="@course_list.section_edit_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.edit]</a> 
-		</if>
 		<if @course_list.pending_p@ eq 1>
 		   <font color="red">[_ dotlrn-ecommerce.application_pending]</font>
 		</if>
