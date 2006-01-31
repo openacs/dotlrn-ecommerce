@@ -13,6 +13,7 @@ set user_id [ad_conn user_id]
 if { $user_id } {
     if { ! [dotlrn::user_p -user_id $user_id] } {
 	dotlrn::user_add -user_id $user_id
+	dotlrn_privacy::set_user_guest_p -user_id $user_id -value f
     }
 }
 
