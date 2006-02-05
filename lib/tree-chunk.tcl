@@ -773,6 +773,6 @@ db_multirow -extend {toggle_display_url patron_message member_state fs_chunk sec
 	set button "[_ dotlrn-ecommerce.apply_for_course]"
     }
 
-    set fs_chunk [util_memoize [list dotlrn_ecommerce::section::fs_chunk $section_id] $memoize_max_age]
+    set fs_chunk [util_memoize [list uplevel dotlrn_ecommerce::section::fs_chunk $section_id] $memoize_max_age]
     set description [ad_text_to_html $description]
 }
