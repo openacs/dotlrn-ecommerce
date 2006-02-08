@@ -21,7 +21,7 @@ ad_page_contract {
 
 
 if { ! [empty_string_p $cancel] } {
-    ns_log notice "DEBUG:: CANCEL - $cancel - $return_url"
+    ns_log debug "DEBUG:: CANCEL - $cancel - $return_url"
 
     ad_returnredirect $return_url
     ad_script_abort

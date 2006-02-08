@@ -116,12 +116,12 @@ if { [db_0or1row existing_rel {
 }
 
 if { [acs_object_type $participant_id] != "group" } {
-    ns_log notice "DEBUG:: checking if this should go to the waiting list"
+    ns_log debug "DEBUG:: checking if this should go to the waiting list"
 
     set admin_p [permission::permission_p -object_id [ad_conn package_id] -privilege admin]
 
     if { [exists_and_not_null community_id] } {
-	ns_log notice "DEBUG:: checking available slots"
+	ns_log debug "DEBUG:: checking available slots"
 	set member_state [db_string awaiting_approval {
 	    select m.member_state
 	    from acs_rels r,
@@ -190,7 +190,7 @@ if { [acs_object_type $participant_id] != "group" } {
 	    }
 
 	    # Are prerequisites met?
-	    ns_log notice "DEBUG:: checking prerequisites"
+	    ns_log debug "DEBUG:: checking prerequisites"
 	    set prereq_not_met 0
 	    db_foreach prereqs {
 		select m.tree_id, m.user_field, s.community_id
@@ -229,7 +229,7 @@ if { [acs_object_type $participant_id] != "group" } {
 	    }
 
 	    if { $prereq_not_met > 0 } {
-		ns_log notice "DEBUG:: prerequisites not met"
+		ns_log debug "DEBUG:: prerequisites not met"
 		if { $admin_p && $user_id != [ad_conn user_id] } {
 		    set cancel_url [set return_url [export_vars -base [ad_conn package_url]admin/process-purchase-course { user_id }]]
 		} else {
@@ -247,11 +247,11 @@ if { [acs_object_type $participant_id] != "group" } {
 	set allow_free_registration_p [parameter::get -parameter AllowFreeRegistration -default 0]
 	set price [dotlrn_ecommerce::section::price $section_id]
 
-	ns_log notice "DEBUG:: checking if free registration is allowed - $allow_free_registration_p, price $price"
+	ns_log debug "DEBUG:: checking if free registration is allowed - $allow_free_registration_p, price $price"
 
 	if { ![empty_string_p $price] && $price < 0.01 && $allow_free_registration_p } {
 	    
-	    ns_log notice "DEBUG:: This is a free course, register user $participant_id, community $community_id"
+	    ns_log debug "DEBUG:: This is a free course, register user $participant_id, community $community_id"
 
 	    dotlrn_ecommerce::registration::new -user_id $participant_id \
 		-patron_id $user_id \

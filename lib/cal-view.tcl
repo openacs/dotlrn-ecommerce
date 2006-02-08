@@ -64,7 +64,7 @@ foreach tree [category_tree::get_mapped_trees $cc_package_id] {
     regsub -all { } $tree_name _ f
     set f [string tolower $f]_f
 
-    ns_log notice "DEBUG:: CATEGORY:: $tree_name"
+    ns_log debug "DEBUG:: CATEGORY:: $tree_name"
 
     lappend filter_list $f
     set ff [ns_set get $form $f]
@@ -79,7 +79,7 @@ foreach tree [category_tree::get_mapped_trees $package_id] {
     regsub -all { } $tree_name _ f
     set f [string tolower $f]_f
 
-    ns_log notice "DEBUG:: CATEGORY:: $tree_name"
+    ns_log debug "DEBUG:: CATEGORY:: $tree_name"
 
     lappend filter_list $f
     set ff [ns_set get $form $f]
@@ -90,7 +90,7 @@ foreach tree [category_tree::get_mapped_trees $package_id] {
     lappend section_categories [lindex $tree 0]
 }
 
-ns_log notice "DEBUG:: FILTER:: $filter_list"
+ns_log debug "DEBUG:: FILTER:: $filter_list"
 
 foreach f $filter_list {
     if { [info exists $f] } {
@@ -102,7 +102,7 @@ foreach f $filter_list {
 	set ${f}_level ""
     }
 
-    ns_log notice "DEBUG:: VARS:: category_v [set ${f}_category_v], level [set ${f}_level]"
+    ns_log debug "DEBUG:: VARS:: category_v [set ${f}_category_v], level [set ${f}_level]"
 }
 
 if { ! [empty_string_p $level] } {
@@ -173,7 +173,7 @@ foreach tree_id $category_trees {
     # Get all sub categories
     set map_tree "("
     if { ![string equal [set ${f}_level] ""] } {
-	ns_log notice "DEBUG:: SUBCATEGORIES:: $f, $tree_length"
+	ns_log debug "DEBUG:: SUBCATEGORIES:: $f, $tree_length"
 	
 	set j 0
 	set i 0

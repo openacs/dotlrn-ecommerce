@@ -79,11 +79,11 @@ if { $member_state eq "needs approval" } {
     }
 }
 
-ns_log notice "DEBUG:: RELATION $participant_id, $community_id, $rel_id"
+ns_log debug "DEBUG:: RELATION $participant_id, $community_id, $rel_id"
 set wait_list_notify_email [parameter::get -package_id [ad_acs_kernel_id] -parameter AdminOwner]
 set mail_from [parameter::get -package_id [ad_acs_kernel_id] -parameter OutgoingSender]
 
-ns_log notice "application-request: wait list notify: potential community is $community_id"
+ns_log debug "application-request: wait list notify: potential community is $community_id"
 if {[db_0or1row get_nwn {
     select s.notify_waiting_number,
     s.section_name
@@ -100,8 +100,8 @@ if {[db_0or1row get_nwn {
 	    and r.rel_type = 'dotlrn_member_rel'
 	    and r.object_id_one = :community_id
 	}]
-	ns_log notice "application-request: wait list notify: community $community_id wait number is $notify_waiting_number"
-	ns_log notice "application-request: wait list notify: community $community_id waitlisteed is $current_waitlisted"
+	ns_log debug "application-request: wait list notify: community $community_id wait number is $notify_waiting_number"
+	ns_log debug "application-request: wait list notify: community $community_id waitlisteed is $current_waitlisted"
 	if {$current_waitlisted >= $notify_waiting_number} {
 	    set subject "Waitlist notification for $section_name"
 	    set body "$section_name is set to notify when the waitlist reaches ${notify_waiting_number}.
@@ -111,9 +111,9 @@ Total persons in the waiting list for ${section_name}: $current_waitlisted"
 		-from_addr $mail_from \
 		-subject $subject \
 		-body $body
-	    ns_log notice "application-request: wait list notify: community $community_id sending email"
+	    ns_log debug "application-request: wait list notify: community $community_id sending email"
 	} else {
-	    ns_log notice "application-request: wait list notify: community $community_id NOT sending email"
+	    ns_log debug "application-request: wait list notify: community $community_id NOT sending email"
 	}
     }
 }
