@@ -43,6 +43,7 @@ if { [exists_and_not_null type] } {
 }
 
 set filters {
+    {"[_ dotlrn-ecommerce.Already_Registered]" "approved"}
     {"[_ dotlrn-ecommerce.In_Waiting_List]" "needs approval"}
     {"[_ dotlrn-ecommerce.lt_Approved_Waiting_List]" "waitinglist approved"}
     {"[_ dotlrn-ecommerce.For_PreReq_Approval]" "request approval"}
@@ -117,6 +118,9 @@ set elements {section_name {
                 <elseif @applications.member_state@ eq "request approved">
 		[_ dotlrn-ecommerce.lt_User_has_approved_pre]
                 </elseif>
+		<elseif @applications.member_state@ eq "approved">
+		[_ dotlrn-ecommerce.lt_User_is_already_regis_1]
+		</elseif>
 		<else>
 		[_ dotlrn-ecommerce.lt_User_has_submitted_an]
 		</else>
@@ -168,12 +172,12 @@ lappend elements \
 		<a href="@applications.approve_url;noquote@" class="button">[_ dotlrn-ecommerce.Approve]</a>
 		<a href="@applications.reject_url;noquote@" class="button">[_ dotlrn-ecommerce.Reject]</a>
 		</if>
-		<else>
+		<elseif @applications.member_state@ ne "approved">
 		<a href="@applications.reject_url;noquote@" class="button">[_ dotlrn-ecommerce.Cancel]</a>
 		<if @admin_p@>
 		<a href="@applications.register_url;noquote@" class="button">[_ dotlrn-ecommerce.Register]</a>
 		</if>
-		</else>
+		</elseif>
 	    }
 	    html { width 125 align center nowrap }
 	}
@@ -238,9 +242,9 @@ if { [exists_and_not_null section_id] } {
 }
 
 if { $enable_applications_p } {
-    set member_state_clause { and member_state in ('needs approval', 'waitinglist approved', 'request approval', 'request approved', 'application sent', 'application approved') }
+    set member_state_clause { and member_state in ('needs approval', 'waitinglist approved', 'request approval', 'request approved', 'application sent', 'application approved', 'approved') }
 } else {
-    set member_state_clause { and member_state in ('needs approval', 'waitinglist approved', 'request approval', 'request approved') }
+    set member_state_clause { and member_state in ('needs approval', 'waitinglist approved', 'request approval', 'request approved', 'approved') }
 }
 
 set general_comments_url [apm_package_url_from_key "general-comments"]
@@ -296,39 +300,16 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	
     set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
 
-    if { $member_state == "needs approval" || 
-	 $member_state == "application sent" ||
-	 $member_state == "waitinglist approved" ||
-	 $member_state == "application approved"
-     } {
-	if { ! [empty_string_p $session_id] } {
-	    if {$use_embedded_application_view_p ==1} {
-		set asm_url "admin/application-view?session_id=$session_id"
-		set target ""
-	    } else {
-		
-		set asm_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/results-session" { session_id }]
-		set target "_blank"
-	    }
-	}
+    if { ! [empty_string_p $session_id] } {
+	if {$use_embedded_application_view_p ==1} {
+	    set asm_url "admin/application-view?session_id=$session_id"
+	    set target ""
+	} else {
 	    
-    } elseif { $member_state == "request approval" ||
-	       $member_state == "request approved" } {
-
-	# Get associated assessment
-	set assessment_id [parameter::get -parameter ApplicationAssessment -default ""]
-
-	if { ! [empty_string_p $session_id] } {
-	    if {$use_embedded_application_view_p ==1} {
-		set asm_url "admin/application-view?session_id=$session_id"
-		set target ""
-	    } else {
-		
-		set asm_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/results-session" { session_id }]
-		set target "_blank"
-	    }
+	    set asm_url [export_vars -base "[apm_package_url_from_id [parameter::get -parameter AssessmentPackage]]asm-admin/results-session" { session_id }]
+	    set target "_blank"
 	}
-    }
+    }	    
 
     set section_edit_url [export_vars -base admin/one-section { section_id return_url }]
     set person_url [export_vars -base /acs-admin/users/one { {user_id $applicant_user_id} }]
