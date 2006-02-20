@@ -19,7 +19,7 @@
   <msg key="Application_2">Approved</msg>
   <msg key="Application_3">Submitted</msg>
   <msg key="Application_4">for waiver of prerequisites submitted</msg>
-  <msg key="Application_approved">Approved/Unpaid</msg>
+  <msg key="Application_approved">Application approved</msg>
   <msg key="application_pending">(application pending)</msg>
   <msg key="Application_prereq_approved">Waiver of prerequisite approved</msg>
   <msg key="Application_prereq_rejected">Waiver of prerequisite rejected</msg>
@@ -119,7 +119,7 @@
   <msg key="lt_Applications_that_can">Applications that can be approved now</msg>
   <msg key="lt_Applications_that_can_1">Applications that can be approved immediately</msg>
   <msg key="lt_Approve_the_following">Approve the following applications:</msg>
-  <msg key="lt_Approved_Applications">Approved Applications</msg>
+  <msg key="lt_Approved_Applications">Approved/Unpaid</msg>
   <msg key="lt_Approved_PreReq_Appli">Approved PreReq Applications</msg>
   <msg key="lt_Approved_Users_from_W">Approved Users from Waiting List</msg>
   <msg key="lt_Approved_Waiting_List">Approved Waiting List Applications</msg>
