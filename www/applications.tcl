@@ -43,7 +43,6 @@ if { [exists_and_not_null type] } {
 }
 
 set filters {
-    {"[_ dotlrn-ecommerce.Already_Registered]" "approved"}
     {"[_ dotlrn-ecommerce.In_Waiting_List]" "needs approval"}
     {"[_ dotlrn-ecommerce.lt_Approved_Waiting_List]" "waitinglist approved"}
     {"[_ dotlrn-ecommerce.For_PreReq_Approval]" "request approval"}
@@ -56,6 +55,7 @@ if { $enable_applications_p } {
 	{"[_ dotlrn-ecommerce.lt_Approved_Applications]" "application approved"}
 }
 
+lappend filters {"[_ dotlrn-ecommerce.Already_Registered]" "approved"}
 
 set actions ""
 set bulk_actions [list [_ dotlrn-ecommerce.Approve] application-bulk-approve [_ dotlrn-ecommerce.Approve] "[_ dotlrn-ecommerce.Reject] / [_ dotlrn-ecommerce.Cancel]" application-bulk-reject "[_ dotlrn-ecommerce.Reject] / [_ dotlrn-ecommerce.Cancel]"]
