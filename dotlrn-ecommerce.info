@@ -24,6 +24,7 @@
 
         <callbacks>
             <callback type="after-install"  proc="dotlrn_ecommerce::install"/>
+	    <callback type="after-mount"  proc="dotlrn_ecommerce::after_mount"/>
             <callback type="after-upgrade"  proc="dotlrn_ecommerce::after_upgrade"/>
         </callbacks>
         <parameters>
