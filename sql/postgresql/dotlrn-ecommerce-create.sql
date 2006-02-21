@@ -107,6 +107,21 @@ create table dotlrn_ecommerce_transaction_invoice_payments (
 	payment_date	timestamp default current_timestamp not null
 );
 
+--Assessment Map
+create table dotlrn_ecommerce_application_assessment_map (
+	rel_id		integer references membership_rels on delete cascade not null,
+	session_id	integer references as_sessions on delete cascade not null
+);
+
+create index dotlrn_ecommerce_application_assessment_map_rel_id_idx
+on dotlrn_ecommerce_application_assessment_map (rel_id);
+
+create index dotlrn_ecommerce_application_assessment_map_session_id_idx
+on dotlrn_ecommerce_application_assessment_map (session_id);
+
+create unique index dotlrn_ecommerce_application_assessment_map_un
+on dotlrn_ecommerce_application_assessment_map (rel_id, session_id);
+
 \i dotlrn-ecommerce-memberships-create.sql
 \i dotlrn-ecommerce-admin-portlet-create.sql
 \i dotlrn-eccmmerce-views-create.sql
