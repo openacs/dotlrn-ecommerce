@@ -47,7 +47,9 @@ db_foreach assessment { } {
     }
 }
 
-unset assessment_id
+if { [info exists assessment_id] } {
+	unset assessment_id
+}
 
 # Get a list of all the attributes asociated to dotlrn_catalog
 set attribute_list [package_object_attribute_list -start_with dotlrn_catalog dotlrn_catalog]
