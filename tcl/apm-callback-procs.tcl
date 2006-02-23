@@ -64,7 +64,18 @@ ad_proc -private dotlrn_ecommerce::install {
 		-sort_order $sort_order \
 		-default_value "true" \
 		-column_spec "boolean"
-	
+
+	incr sort_order
+
+	content::type::attribute::new \
+		-content_type "dotlrn_catalog" \
+		-attribute_name "auto_register_p" \
+		-datatype "boolean" \
+		-pretty_name "Auto Register" \
+		-sort_order $sort_order \
+		-default_value "false" \
+		-column_spec "boolean"	
+
 	# I think default_value does not set the default for the column so we do a db_dml 
 	db_dml "update_default" "alter table dotlrn_catalog alter display_p set default 'true'"
 
