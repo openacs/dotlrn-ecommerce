@@ -592,9 +592,9 @@ db_multirow -extend {toggle_display_url patron_message member_state fs_chunk sec
 	set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id $community_id]
 	lappend calendar_id_list $calendar_id
 	if { $all_sessions_p && $calendar_id == $active_calendar_id } {
-	    set sessions [dotlrn_ecommerce::section::sessions $calendar_id]
+	    set sessions [dotlrn_ecommerce::section::sessions -anchor $course_key $calendar_id]
 	} else {
-	    set sessions [util_memoize [list dotlrn_ecommerce::section::sessions $calendar_id] $memoize_max_age]
+	    set sessions [util_memoize [list dotlrn_ecommerce::section::sessions -anchor $course_key $calendar_id] $memoize_max_age]
 	}
 
 	set instructors [util_memoize [list dotlrn_ecommerce::section::instructors $community_id $__instructors] $memoize_max_age]

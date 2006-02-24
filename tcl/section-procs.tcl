@@ -72,6 +72,7 @@ ad_proc -public dotlrn_ecommerce::section::course_grades {
 }
 
 ad_proc -public dotlrn_ecommerce::section::sessions {
+    -anchor
     calendar_id
 } {
     Return sessions
@@ -141,20 +142,32 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
     set form [rp_getform]
     set all_p_param [ns_set get $form all_sessions_p]
     set active_calendar_id [ns_set get $form active_calendar_id]
+    ns_set delkey $form all_sessions_p
+    ns_set delkey $form active_calendar_id
 
     if { $all_p_param eq "" || $active_calendar_id != $calendar_id } {
 	# Just return 3 with more link
 	if { [llength $text_sessions] > 3 } {
 	    set sessions [join [lrange $text_sessions 0 2] ",<br />"]
-	    ns_set delkey $form all_sessions_p
-	    ns_set delkey $form active_calendar_id
-	    append sessions "<br /><a href=\"[export_vars -base [ad_return_url] { {all_sessions_p 1} { active_calendar_id $calendar_id} }]\">[expr [llength $text_sessions]-3] more</a>"
+	    if { [exists_and_not_null anchor] } {
+		append sessions "<br /><a href=\"[export_vars -base [ad_return_url] { {all_sessions_p 1} { active_calendar_id $calendar_id} }]#[ns_urlencode $anchor]\">[expr [llength $text_sessions]-3] more</a>"
+	    } else {
+		append sessions "<br /><a href=\"[export_vars -base [ad_return_url] { {all_sessions_p 1} { active_calendar_id $calendar_id} }]\">[expr [llength $text_sessions]-3] more</a>"		
+	    }
+
 	    return $sessions
 	}
     }
     
     set sessions [join $text_sessions ",<br />"]
-
+    if { [llength $text_sessions] } {
+	if { [exists_and_not_null anchor] } {
+	    append sessions "<br /><a href=\"[ad_return_url]#[ns_urlencode $anchor]\">less</a>"
+	} else {
+	    append sessions "<br /><a href=\"[ad_return_url]\">less</a>"
+	}
+    }
+    
     return $sessions
 }
 
