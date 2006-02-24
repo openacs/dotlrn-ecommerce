@@ -74,7 +74,7 @@ ad_proc -public dotlrn_ecommerce::section::course_grades {
 ad_proc -public dotlrn_ecommerce::section::sessions {
     calendar_id
 } {
-    
+    Return sessions
     
     @author Roel Canicula (roelmc@pldtdsl.net)
     @creation-date 2005-05-20
@@ -93,6 +93,7 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
     }
 
     set days [list]
+    array set months [list Jan 1 Feb 2 Mar 3 Apr 4 May 5 Jun 6 Jul 7 Aug 8 Sep 9 Oct 10 Nov 11 Dec 12]
     foreach times [array names arr_sessions] {
 	set times [split $times _]
 	set month [lindex $times 0]
@@ -126,10 +127,32 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
 		set time "${start}${startampm}-${end}${endampm}"
 	    }
 
-	    lappend text_sessions "$month [join [lsort -integer [set days_${month}_${start}_${end}_${startampm}_${endampm}]] ,] $time"
+	    lappend text_sessions [list $month [join [lsort -integer [set days_${month}_${start}_${end}_${startampm}_${endampm}]] ,] $time $months($month)]
 	}
     }
 
+    # Sort dates
+    set _text_sessions [lsort -index end -integer $text_sessions]
+    set text_sessions [list]
+    foreach _text_session $_text_sessions {
+	lappend text_sessions [join [lrange $_text_session 0 2]]
+    }
+
+    set form [rp_getform]
+    set all_p_param [ns_set get $form all_sessions_p]
+    set active_calendar_id [ns_set get $form active_calendar_id]
+
+    if { $all_p_param eq "" || $active_calendar_id != $calendar_id } {
+	# Just return 3 with more link
+	if { [llength $text_sessions] > 3 } {
+	    set sessions [join [lrange $text_sessions 0 2] ",<br />"]
+	    ns_set delkey $form all_sessions_p
+	    ns_set delkey $form active_calendar_id
+	    append sessions "<br /><a href=\"[export_vars -base [ad_return_url] { {all_sessions_p 1} { active_calendar_id $calendar_id} }]\">[expr [llength $text_sessions]-3] more</a>"
+	    return $sessions
+	}
+    }
+    
     set sessions [join $text_sessions ",<br />"]
 
     return $sessions

@@ -13,6 +13,9 @@ ad_page_contract {
     { orderby course_name }
     { groupby course_name }
     {show_hidden "f"}
+
+    {active_calendar_id 0}
+    {all_sessions_p 0}
 }
 
 set memoize_max_age [parameter::get -parameter CatalogMemoizeAge -default 10800]
@@ -588,7 +591,11 @@ db_multirow -extend {toggle_display_url patron_message member_state fs_chunk sec
 	# Build sessions
 	set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id $community_id]
 	lappend calendar_id_list $calendar_id
-	set sessions [util_memoize [list dotlrn_ecommerce::section::sessions $calendar_id] $memoize_max_age]
+	if { $all_sessions_p && $calendar_id == $active_calendar_id } {
+	    set sessions [dotlrn_ecommerce::section::sessions $calendar_id]
+	} else {
+	    set sessions [util_memoize [list dotlrn_ecommerce::section::sessions $calendar_id] $memoize_max_age]
+	}
 
 	set instructors [util_memoize [list dotlrn_ecommerce::section::instructors $community_id $__instructors] $memoize_max_age]
 	
