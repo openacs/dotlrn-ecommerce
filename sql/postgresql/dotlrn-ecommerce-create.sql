@@ -60,7 +60,7 @@ create table dotlrn_ecommerce_orders (
 -- Can be a user or group
 	patron_id	integer	references users(user_id) on delete cascade not null,
 	participant_id	integer	references parties(party_id) on delete cascade not null,
-	checked_out_by	integer references users(user_id) on delete cascade not null
+	checked_out_by	integer references users(user_id) on delete cascade
 );
 
 create table dotlrn_ecommerce_transactions (
