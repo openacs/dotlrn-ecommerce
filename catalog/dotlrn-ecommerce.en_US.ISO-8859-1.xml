@@ -107,6 +107,7 @@
   <msg key="lt_1_Please_review_your_">1. Please review your order list for accuracy.</msg>
   <msg key="lt_2_Complete_this_infor">2. Complete this information.</msg>
   <msg key="lt_A_full_credit_card_ex">A full credit card expiration date (month and year) is required</msg>
+  <msg key="lt_A_place_is_now_availa">A place is now available.</msg>
   <msg key="lt_A_space_has_opened_up">A space has opened up in %community_name%.</msg>
   <msg key="lt_A_space_has_opened_up_1">A space has opened up in %community_name%. Please register via the website or call to get registered via phone.</msg>
   <msg key="lt_Added_to_waiting_list">Added to waiting list for %community_name%</msg>
@@ -277,6 +278,7 @@ Instructors:
   <msg key="Paid_By">Paid By</msg>
   <msg key="Paid_Via">Paid Via:</msg>
   <msg key="Participant">Participant</msg>
+  <msg key="participant">participant</msg>
   <msg key="Participants">Participants</msg>
   <msg key="Payment_Information">Payment Information</msg>
   <msg key="Payment_Method">Payment Method</msg>
