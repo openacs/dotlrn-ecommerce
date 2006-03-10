@@ -328,7 +328,7 @@ template::list::create \
 		<if @course_list.prices@ not nil><br /><if @allow_free_registration_p@ and @course_list.price@ lt 0.01>[_ dotlrn-ecommerce.lt_There_is_no_fee_for_t]</if><else>@course_list.prices;noquote@</else></if>
 		<if @course_list.show_participants_p@ eq "t">
 		<br />@course_list.attendees;noquote@ [_ dotlrn-ecommerce.participant]<if @course_list.attendees@ gt 1>s</if>
-		<if @course_list.available_slots@ not nil and @course_list.available_slots@ gt 0>,<br />@course_list.available_slots;noquote@ available</if>
+		<if @course_list.available_slots@ not nil and @course_list.available_slots@ gt 0>,<br />@course_list.available_slots;noquote@ [_ dotlrn-ecommerce.available]</if>
 		<if @course_list.available_slots@ le 0>
 		<br />[_ dotlrn-ecommerce.lt_This_section_is_curre]
 		</if>
