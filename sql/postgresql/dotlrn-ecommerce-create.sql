@@ -31,6 +31,7 @@ create table dotlrn_ecommerce_section (
 	non_member_price      numeric,
 	show_participants_p   char(1) check (show_participants_p in ('t','f')),
 	show_sessions_p       char(1) check (show_sessions_p in ('t','f')),
+	show_price_p          char(1) check (show_price_p in ('t','f')),
 	description	      text
 );
 

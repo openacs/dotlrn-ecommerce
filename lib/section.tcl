@@ -114,6 +114,7 @@ if { [parameter::get -parameter AllowFreeRegistration -default 0] } {
 	{price:currency,to_sql(sql_number) {label "Regular Price"} {html {size 6}}
 	    {help_text {Enter any fees related to this course here. \$0 in this field means there is no related fee.}}
 	}
+	{show_price_p:text(radio) {label "Show Price Information"} {options {{Yes t} {No f}}}}
     }
 } else {
     ad_form -extend -name add_section -form {
@@ -121,6 +122,7 @@ if { [parameter::get -parameter AllowFreeRegistration -default 0] } {
 	{price:currency,to_sql(sql_number) {label "Regular Price"} {html {size 6}}
 	    {help_text "Enter any fees related to this course here."}
 	}	
+	{show_price_p:text(radio) {label "Show Price Information"} {options {{Yes t} {No f}}}}
     }
 }
 
@@ -405,6 +407,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
     }
     set show_participants_p t
     set show_sessions_p t
+    set show_price_p t
 } -new_request {
     set product_id 0
     set price [template::util::currency::create "$" "0" "." "00" ]
@@ -590,8 +593,8 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	# Use item_id as course_id coz course_id is the revision and
 	# its easier to keep track of the item_id
 	db_dml add_section {
-	    insert into dotlrn_ecommerce_section(section_id, course_id, section_name, community_id,product_id, notify_waiting_number, show_participants_p, show_sessions_p, description) values
-	    (:section_id, :item_id, :section_name, :community_id, :product_id, :notify_waiting_number, :show_participants_p, :show_sessions_p, :description)
+	    insert into dotlrn_ecommerce_section(section_id, course_id, section_name, community_id,product_id, notify_waiting_number, show_participants_p, show_sessions_p, description, show_price_p) values
+	    (:section_id, :item_id, :section_name, :community_id, :product_id, :notify_waiting_number, :show_participants_p, :show_sessions_p, :description, :show_price_p)
 	}
 
 	# for this to work, dotlrn_eccomerce_section must be an object 
@@ -672,6 +675,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	    notify_waiting_number = :notify_waiting_number,
 	    show_participants_p = :show_participants_p,
 	    show_sessions_p = :show_sessions_p,
+	    show_price_p = :show_price_p,
 	    description = :description
 	    where section_id = :section_id
 	}
