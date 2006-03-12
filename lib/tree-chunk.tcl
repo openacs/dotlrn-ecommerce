@@ -150,6 +150,7 @@ foreach tree_id $category_trees {
     if { ![string equal [set ${f}_level] ""] } {
 	set j 0
 	set i 0
+	set pos 0
 	while { $i < $tree_length } {
 	    set element [lindex $tree_list $i]
 	    if {[string equal [set ${f}_category_v] [lindex $element 0]] } {
@@ -325,9 +326,7 @@ template::list::create \
 		<if @course_list.sessions@ not nil and @course_list.show_sessions_p@ eq "t"><br />@course_list.sessions;noquote@</if>
 		<if @course_list.section_zones@ not nil><br />@course_list.section_zones;noquote@</if>
 		<if @course_list.instructor_names@ not nil><br />@course_list.instructor_names;noquote@</if>
-		<if @course_list.show_price_p@ eq "t">
-		<if @course_list.prices@ not nil><br /><if @allow_free_registration_p@ and @course_list.price@ lt 0.01>[_ dotlrn-ecommerce.lt_There_is_no_fee_for_t]</if><else>@course_list.prices;noquote@</else></if>
-		</if>
+		<if @course_list.prices@ not nil and @course_list.show_price_p@ true><br /><if @allow_free_registration_p@ and @course_list.price@ lt 0.01>[_ dotlrn-ecommerce.lt_There_is_no_fee_for_t]</if><else>@course_list.prices;noquote@</else></if>
 		<if @course_list.show_participants_p@ eq "t">
 		<br />@course_list.attendees;noquote@ [_ dotlrn-ecommerce.participant]<if @course_list.attendees@ gt 1>s</if>
 		<if @course_list.available_slots@ not nil and @course_list.available_slots@ gt 0>,<br />@course_list.available_slots;noquote@ [_ dotlrn-ecommerce.available]</if>
@@ -782,6 +781,10 @@ db_multirow -extend {toggle_display_url patron_message member_state fs_chunk sec
 	set button "[_ dotlrn-ecommerce.apply_for_course]"
     }
 
-    set fs_chunk [util_memoize [list uplevel dotlrn_ecommerce::section::fs_chunk $section_id] $memoize_max_age]
+    if {[catch {set fs_chunk [util_memoize [list uplevel dotlrn_ecommerce::section::fs_chunk $section_id] $memoize_max_age]} errmsg]} {
+	ns_log notice "ERROR:DAVEB tree-chunk.tcl calling fs_chunk section_id='${section_id} \n tree_id = '${tree_id}' \n ------ \n $errmsg \n ----- \n'"
+    }
     set description [ad_text_to_html $description]
 }
+
+ad_return_template

@@ -9,3 +9,4 @@
 
 alter table dotlrn_ecommerce_section add show_price_p char(1);
 alter table dotlrn_ecommerce_section alter show_price_p set default 't';
+update dotlrn_ecommerce_section set show_price_p='t';
