@@ -91,6 +91,7 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
     array set arr_sessions [list]
     db_foreach sessions { } {
 	lappend arr_sessions(${month}_${timestart}_${timeend}_${startampm}_${endampm}) $day
+	lappend arr_sessions_sort(${month}_${timestart}_${timeend}_${startampm}_${endampm}) [clock scan $datenum]
     }
 
     set days [list]
@@ -103,6 +104,7 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
 	set endampm [lindex $times 4]
 
 	set _sessions $arr_sessions(${month}_${start}_${end}_${startampm}_${endampm})
+	set datenum $arr_sessions_sort(${month}_${start}_${end}_${startampm}_${endampm})
 
 	set _days [list]
 	foreach day $_sessions {
@@ -132,7 +134,7 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
     }
 
     # Sort dates
-    set _text_sessions [lsort -index end -integer $text_sessions]
+    set _text_sessions [lsort -index end $text_sessions]
     set text_sessions [list]
     foreach _text_session $_text_sessions {
 	lappend text_sessions [join [lrange $_text_session 0 2]]
@@ -149,9 +151,9 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
 	if { [llength $text_sessions] > 3 } {
 	    set sessions [join [lrange $text_sessions 0 2] ",<br />"]
 	    if { [exists_and_not_null anchor] } {
-		append sessions "<br /><a href=\"[export_vars -base [ad_return_url] { {all_sessions_p 1} { active_calendar_id $calendar_id} }]#[ns_urlencode $anchor]\">[expr [llength $text_sessions]-3] more</a>"
+		append sessions "<br /><a href=\"[export_vars -base [ad_return_url] { {all_sessions_p 1} { active_calendar_id $calendar_id} }]#[ns_urlencode $anchor]\">[_ dotlrn-ecommerce.lt_Show_additional_dates] ([expr [llength $text_sessions]-3] [_ dotlrn-ecommerce.more])</a>"
 	    } else {
-		append sessions "<br /><a href=\"[export_vars -base [ad_return_url] { {all_sessions_p 1} { active_calendar_id $calendar_id} }]\">[expr [llength $text_sessions]-3] more</a>"		
+		append sessions "<br /><a href=\"[export_vars -base [ad_return_url] { {all_sessions_p 1} { active_calendar_id $calendar_id} }]\">[_ dotlrn-ecommerce.lt_Show_additional_dates] ([expr [llength $text_sessions]-3] [_ dotlrn-ecommerce.more])</a>"
 	    }
 
 	    return $sessions
@@ -161,9 +163,9 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
     set sessions [join $text_sessions ",<br />"]
     if { [llength $text_sessions] > 3 } {
 	if { [exists_and_not_null anchor] } {
-	    append sessions "<br /><a href=\"[ad_return_url]#[ns_urlencode $anchor]\">less</a>"
+	    append sessions "<br /><a href=\"[ad_return_url]#[ns_urlencode $anchor]\">[_ dotlrn-ecommerce.lt_Hide_additional_dates]</a>"
 	} else {
-	    append sessions "<br /><a href=\"[ad_return_url]\">less</a>"
+	    append sessions "<br /><a href=\"[ad_return_url]\">[_ dotlrn-ecommerce.lt_Hide_additional_dates]</a>"
 	}
     }
     
