@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d24" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d25" locale="en_US" charset="ISO-8859-1">
 
   <msg key="A_place_is_available">A place is available.</msg>
   <msg key="Action">Action</msg>
@@ -144,6 +144,7 @@
   <msg key="lt_for_first_names_last_">for %first_names% %last_name% (if you're not %first_names% %last_name%</msg>
   <msg key="lt_for_the_current_purch">for the current purchases</msg>
   <msg key="lt_Go_on_the_waiting_lis">Waiting list</msg>
+  <msg key="lt_Hide_additional_dates">Hide additional dates</msg>
   <msg key="lt_Hold_slot_and_wait_fo">Request an exception</msg>
   <msg key="lt_How_are_you_related_t">This person is your</msg>
   <msg key="lt_I_am_a_returning_cust">I am a returning customer:</msg>
@@ -202,6 +203,7 @@
   <msg key="lt_Select_a_payment_meth">Select a payment method</msg>
   <msg key="lt_Select_another_purcha">Select another purchaser</msg>
   <msg key="lt_Sessions_and_Attendan">Sessions and Attendance</msg>
+  <msg key="lt_Show_additional_dates">Show additional dates</msg>
   <msg key="lt_Site_wide_default_ema">Site wide default email templates for new sections</msg>
   <msg key="lt_Sorry_the_offer_code_">Sorry, the offer code was not accepted.</msg>
   <msg key="lt_Sorry_There_seems_to_">Sorry, There seems to be a problem with completing this transaction.</msg>
@@ -260,6 +262,7 @@ Instructors:
   <msg key="Manage_Course_List">Manage Course List</msg>
   <msg key="Medical_Issues">Medical Issues</msg>
   <msg key="Member_Request">Member Request</msg>
+  <msg key="more">more</msg>
   <msg key="More_Information">More Information:</msg>
   <msg key="My_Shopping_Cart">My Shopping Cart</msg>
   <msg key="No">No</msg>
