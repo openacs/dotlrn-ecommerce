@@ -42,6 +42,7 @@ dotlrn_catalog::get_course_data -course_id $course_id
 
 set package_id [ad_conn package_id]
 set validate [list]
+set show_price_option_p [dotlrn_ecommerce::util::param::get -default 1 ShowPriceOptionP]
 
 catch {
     db_1row template_community {
@@ -114,7 +115,6 @@ if { [parameter::get -parameter AllowFreeRegistration -default 0] } {
 	{price:currency,to_sql(sql_number) {label "Regular Price"} {html {size 6}}
 	    {help_text {Enter any fees related to this course here. \$0 in this field means there is no related fee.}}
 	}
-	{show_price_p:text(radio) {label "Show Price Information"} {options {{Yes t} {No f}}}}
     }
 } else {
     ad_form -extend -name add_section -form {
@@ -122,10 +122,14 @@ if { [parameter::get -parameter AllowFreeRegistration -default 0] } {
 	{price:currency,to_sql(sql_number) {label "Regular Price"} {html {size 6}}
 	    {help_text "Enter any fees related to this course here."}
 	}	
-	{show_price_p:text(radio) {label "Show Price Information"} {options {{Yes t} {No f}}}}
     }
 }
 
+if { $show_price_option_p } {
+    ad_form -extend -name add_section -form {
+	{show_price_p:text(radio) {label "Show Price Information"} {options {{Yes t} {No f}}}}
+    }
+}
 
 # HAM : Let's check if we have MemberPriceP enabled and set
 # if it is, let's add Member Price text
@@ -407,7 +411,9 @@ ad_form -extend -name add_section -validate $validate -on_request {
     }
     set show_participants_p t
     set show_sessions_p t
-    set show_price_p t
+    if { $show_price_option_p } {
+	set show_price_p t
+    }
 } -new_request {
     set product_id 0
     set price [template::util::currency::create "$" "0" "." "00" ]
@@ -470,6 +476,11 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	where section_id = :section_id
     }]
 } -new_data {
+    
+    if { ! $show_price_option_p } {
+	set show_price_p t
+    }
+
     db_transaction {
         # create the class instance
 	# See if we have a template community
@@ -666,6 +677,10 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	if { $categories == [list [list $community_id $package_id]] } {
 		set categories ""
 	}
+    }
+
+    if { ! $show_price_option_p } {
+	set show_price_p t
     }
 
     db_transaction {
