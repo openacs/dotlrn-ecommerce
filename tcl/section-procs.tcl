@@ -94,7 +94,6 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
     }
 
     set days [list]
-    array set months [list Jan 1 Feb 2 Mar 3 Apr 4 May 5 Jun 6 Jul 7 Aug 8 Sep 9 Oct 10 Nov 11 Dec 12]
     foreach times [array names arr_sessions] {
 	set times [split $times _]
 	set month [lindex $times 0]
@@ -128,7 +127,7 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
 		set time "${start}${startampm}-${end}${endampm}"
 	    }
 
-	    lappend text_sessions [list $month [join [lsort -integer [set days_${month}_${start}_${end}_${startampm}_${endampm}]] ,] $time $months($month)]
+	    lappend text_sessions [list $month [join [lsort -integer [set days_${month}_${start}_${end}_${startampm}_${endampm}]] ,] $time $datenum]
 	}
     }
 

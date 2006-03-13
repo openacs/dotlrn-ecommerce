@@ -43,7 +43,8 @@
 			to_char(start_date, 'hh:mi') as timestart, 
 			to_char(end_date, 'hh:mi') as timeend, 
 			to_char(start_date, 'am') as startampm, 
-			to_char(end_date, 'am') as endampm
+			to_char(end_date, 'am') as endampm,
+			to_char(start_date, 'yyyymmddhh24miss') as datenum
 		from cal_items ci, acs_events e, acs_activities a, timespans s, time_intervals t
 		where e.timespan_id = s.timespan_id
 		and s.interval_id = t.interval_id
