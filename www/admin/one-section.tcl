@@ -40,6 +40,28 @@ set attendance_show_p [apm_package_installed_p "attendance"]
 set expensetracking_show_p [apm_package_installed_p "expenses"]
 set show_public_pages_p [parameter::get -parameter SupportPublicPagesP -default 0]
 
+# Get application assessment
+set assessment_id [db_string get_assessment {
+    select c.assessment_id, c.auto_register_p
+    
+    from dotlrn_ecommerce_section s,
+    dotlrn_catalogi c,
+    cr_items i
+    
+    where s.course_id = c.item_id
+    and c.item_id = i.item_id
+    and i.live_revision = c.course_id
+    and s.section_id = :section_id
+    
+    limit 1
+} -default ""]
+
+if { ! [empty_string_p $assessment_id] } {
+    as::assessment::data -assessment_id $assessment_id
+    set assessment_view_url [export_vars -base ${community_url}assessment/assessment { assessment_id }]
+    set assessment_edit_url [export_vars -base ${community_url}assessment/asm-admin/one-a { assessment_id }]
+}
+
 # Flush cache for this section
 # Shouldn't have much effect on performance and will keep the data
 # more up to date
