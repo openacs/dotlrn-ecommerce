@@ -160,7 +160,7 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
     }
     
     set sessions [join $text_sessions ",<br />"]
-    if { [llength $text_sessions] } {
+    if { [llength $text_sessions] > 3 } {
 	if { [exists_and_not_null anchor] } {
 	    append sessions "<br /><a href=\"[ad_return_url]#[ns_urlencode $anchor]\">less</a>"
 	} else {
