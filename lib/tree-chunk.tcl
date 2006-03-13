@@ -785,6 +785,10 @@ db_multirow -extend {toggle_display_url patron_message member_state fs_chunk sec
 	ns_log notice "ERROR:DAVEB tree-chunk.tcl calling fs_chunk section_id='${section_id} \n tree_id = '${tree_id}' \n ------ \n $errmsg \n ----- \n'"
     }
     set description [ad_text_to_html $description]
+
+    if { ! [dotlrn_ecommerce::util::param::get -default 1 ShowPriceOptionP] } {
+	set show_price_p f
+    }
 }
 
 ad_return_template
