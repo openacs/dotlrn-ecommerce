@@ -36,7 +36,7 @@
 
 <if @assessment_id@ not nil>
 #dotlrn-ecommerce.lt_Application_assessmen#<br />
-<a href="../applications?section_id=@section_id@" class="button">#dotlrn-ecommerce.Select_1#</a> <a href="@assessment_view_url;noquote@" class="button">#acs-kernel.common_View#</a> <a href="@assessment_edit_url;noquote@" class="button">#acs-kernel.common_Edit#</a>
+<a href="@assessment_select_url;noquote@" class="button">#dotlrn-ecommerce.Select_1#</a> <a href="@assessment_edit_url;noquote@" class="button">#dotlrn-ecommerce.Edit_Application#</a> <a href="@assessment_view_url;noquote@" class="button">#dotlrn-ecommerce.Preview_Application#</a>
 </if>
 
 <if @show_public_pages_p@>

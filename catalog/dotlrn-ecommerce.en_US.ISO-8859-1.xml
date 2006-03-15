@@ -64,6 +64,7 @@
   <msg key="Display_Course">Display Course</msg>
   <msg key="E-mail_address">E-mail address:</msg>
   <msg key="edit">edit</msg>
+  <msg key="Edit_Application">Edit Application</msg>
   <msg key="Edit_My_Application">Edit My Application</msg>
   <msg key="Email">Email</msg>
   <msg key="Email_applicants">Email selected applicants</msg>
@@ -293,6 +294,7 @@ Instructors:
   <msg key="Phone_Number">Phone Number</msg>
   <msg key="Please_select_one">Please select one</msg>
   <msg key="PreReq_Approval_List">PreReq Approval List</msg>
+  <msg key="Preview_Application">Preview Application</msg>
   <msg key="PriceItem">Price/Item</msg>
   <msg key="Proceed">Proceed</msg>
   <msg key="Process_Registration">Process Registration</msg>
@@ -333,7 +335,7 @@ Instructors:
   <msg key="Section_Name">Section Name</msg>
   <msg key="Section_Quick_Jump">Section Quick Jump</msg>
   <msg key="Select">a payment method</msg>
-  <msg key="Select_1">Select</msg>
+  <msg key="Select_1">Select Different Application</msg>
   <msg key="Send">Send test email to yourself</msg>
   <msg key="sent">after application is approved and payment is required</msg>
   <msg key="sent_1">after application is approved</msg>

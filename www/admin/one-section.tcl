@@ -58,6 +58,7 @@ set assessment_id [db_string get_assessment {
 
 if { ! [empty_string_p $assessment_id] } {
     as::assessment::data -assessment_id $assessment_id
+    set assessment_select_url [export_vars -base [apm_package_url_from_key dotlrn-ecommerce]admin/course-add-edit { course_id }]
     set assessment_view_url [export_vars -base ${community_url}assessment/assessment { assessment_id }]
     set assessment_edit_url [export_vars -base ${community_url}assessment/asm-admin/one-a { assessment_id }]
 }
