@@ -83,6 +83,7 @@ ad_proc -private dotlrn_ecommerce::install {
 
 ad_proc -private dotlrn_ecommerce::after_mount {
     -package_id
+    -node_id
 } {
     After mount callback
     
