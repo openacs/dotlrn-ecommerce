@@ -337,7 +337,7 @@ Instructors:
   <msg key="Select">a payment method</msg>
   <msg key="Select_1">Select Different Application</msg>
   <msg key="Send">Send test email to yourself</msg>
-  <msg key="sent">after application is approved and payment is required</msg>
+  <msg key="sent">after application is submitted</msg>
   <msg key="sent_1">after application is approved</msg>
   <msg key="sent_2">after application is submitted</msg>
   <msg key="sent_3">after user is added to group</msg>
