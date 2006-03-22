@@ -32,7 +32,7 @@ db_dml set_assessment_subject {
 
 # Send emails
 switch -- $type {
-    "application sent" {
+    "payment" {
 	dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type "application sent"
     }
     "prereq" {
