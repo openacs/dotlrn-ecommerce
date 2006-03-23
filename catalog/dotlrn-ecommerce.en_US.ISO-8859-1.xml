@@ -210,8 +210,8 @@
   <msg key="lt_Sorry_the_offer_code_">Sorry, the offer code was not accepted.</msg>
   <msg key="lt_Sorry_There_seems_to_">Sorry, There seems to be a problem with completing this transaction.</msg>
   <msg key="lt_Test_email_sent_to_user">Test email sent to %user.email%. Please check your inbox.</msg>
-  <msg key="lt_Thank_you_for_your_ap">Thank you for applying, the course administrator(s) will contact you soon regarding your registration.
-If you have any technical issues please contact the &lt;a href="mailto://%administrator_email%"&gt;web site administrator&lt;/a&gt;</msg>
+  <msg key="lt_Thank_you_for_your_ap">&lt;p&gt;Thank you for applying, the course administrator(s) will contact you soon regarding your registration.&lt;/p&gt;&lt;p&gt;
+If you have any technical issues please contact the &lt;a href="mailto:%administrator_email%"&gt;web site administrator&lt;/a&gt;&lt;/p&gt;</msg>
   <msg key="lt_Thank_You_For_Your_Or">Thank You For Your Order</msg>
   <msg key="lt_The_applications_have">The applications have been rejected.</msg>
   <msg key="lt_The_course_only_has_a">The course only has $available_slots slots left</msg>
