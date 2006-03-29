@@ -436,3 +436,46 @@ ad_proc -callback dotlrn::member_email_available_vars -impl dotlrn-ecommerce {} 
     return $available_vars
 }
 
+
+ad_proc -callback fs::file_delete -impl dotlrn_ecommerce {
+    -package_id
+    -file_id
+} {
+    Update catalog when files change in course public folder
+} {
+    dotlrn_ecommerce::fs_flush_cache -package_id $package_id
+}
+
+ad_proc -callback fs::file_new -impl dotlrn_ecommerce {
+    -package_id
+    -file_id
+} {
+    Update catalog when files change in course public folder
+} {
+    dotlrn_ecommerce::fs_flush_cache -package_id $package_id
+}
+
+ad_proc -callback fs::file_revision_new -impl dotlrn_ecommerce {
+    -package_id
+    -file_id
+} {
+    Update catalog when files change in course public folder
+} {
+    # new revision doesn't affect us right now, return empty
+    return {}
+}
+
+namespace eval dotlrn_ecommerce {}
+
+ad_proc -private dotlrn_ecommerce::fs_flush_cache {
+    -package_id
+} {
+    Flush cache for a package_id 
+} {
+    set dotlrn_package_id [site_node::closest_ancestor_package \
+			       -node_id [site_node::get_node_id_from_object_id -object_id $package_id] \
+			       -package_key dotlrn]
+    set community_id [dotlrn_community::get_community_id -package_id $dotlrn_package_id]
+    set section_id [db_string get_section "select section_id from dotlrn_ecommerce_section where community_id=:community_id" -default ""]
+    util_memoize_flush [list uplevel dotlrn_ecommerce::section::fs_chunk $section_id]
+}
