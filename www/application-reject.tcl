@@ -93,6 +93,7 @@ if { !$send_email_p || $actor_id == $email_user_id } {
     set context [list [list applications "[_ dotlrn-ecommerce.Pending_applications]"] $title]
     ad_form \
         -name email_form \
+	-export { return_url } \
         -form {
             {user_id:text(hidden)}
             {community_id:text(hidden)}
