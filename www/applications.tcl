@@ -249,6 +249,12 @@ if { $enable_applications_p } {
 
 set general_comments_url [apm_package_url_from_key "general-comments"]
 
+# prepare to add attendance data to application export DAVEB
+set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id \
+    [db_string get_community_id "select community_id from dotlrn_ecommerce_section where section_id=:section_id" -default ""]]
+set item_type_id [db_string item_type_id "select item_type_id from cal_item_types where type='Session' and  calendar_id = :calendar_id"]
+set num_sessions [db_string num_sessions "select count(cal_item_id) from cal_items where on_which_calendar = :calendar_id and item_type_id = :item_type_id"]
+
 db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target } applications applications [subst {
     select person__name(r.user_id) as person_name, member_state, r.community_id, r.user_id as applicant_user_id, s.section_name, t.course_name, s.section_id, r.rel_id, e.phone, o.creation_user as patron_id,
     (select count(*)
@@ -354,6 +360,7 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
         }
 	set add_comment_url [export_vars -base "${general_comments_url}comment-add" {{object_id $session_id} {object_name "Application"} return_url}]
     }
+
 }
 
 # if we are CSV we need to get the assessment items
@@ -373,7 +380,11 @@ if {$csv_p == 1} {
 	    set csv_cols_labels($__element_name) $__element_properties(label)
 	}
     }
-    
+
+    lappend csv_cols "attendance" "attendance_rate"
+    set csv_cols_labels(attendance) attendance
+    set csv_cols_labels(attendance_rate) "attendance rate"
+    template::multirow extend applications attendance attendance_rate
     set csv_as_item_list [list]
     set assessment_rev_id_list [list]
     set item_list [list]
@@ -442,7 +453,14 @@ if {$csv_p == 1} {
 		array unset results
 	    }
         }
+	# attendance data
+	set attendance [db_string "count" "select count(user_id) from attendance_cal_item_map where user_id = :applicant_user_id and cal_item_id in (select cal_item_id from cal_items where on_which_calendar = :calendar_id and item_type_id = :item_type_id )" ]
+	if { $num_sessions == 0 } { set attendance_rate "0" } else  { set attendance_rate [format "% .0f" [expr (${attendance}.0/$num_sessions)*100]] }
+	set attendance "${attendance}/${num_sessions}"
+
     }
+    
+
     
     set __output {}
     set __cols [list]
