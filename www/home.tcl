@@ -111,7 +111,7 @@ set sessions_with_applications 0
 
 set default_assessment_id [parameter::get -parameter ApplicationAssessment -default ""]
 
-    db_multirow -extend { asm_url edit_asm_url register_url } sessions sessions {
+    db_multirow -extend { asm_url edit_asm_url register_url cancel_url } sessions sessions {
 	select c.community_id, c.pretty_name,r.user_id as participant_id,
 	acs_object__name(r.user_id) as name, r.member_state, 
 	r.rel_id, s.product_id, m.session_id
@@ -148,6 +148,7 @@ set default_assessment_id [parameter::get -parameter ApplicationAssessment -defa
 	}
 
 	set edit_asm_url [export_vars -base /assessment/assessment { session_id assessment_id }]
+	set cancel_url [export_vars -base application-reject { community_id user_id {send_email_p 0} return_url }]
 	   
 	set register_url [export_vars -base ecommerce/shopping-cart-add { user_id product_id participant_id}]
 	incr sessions_with_applications

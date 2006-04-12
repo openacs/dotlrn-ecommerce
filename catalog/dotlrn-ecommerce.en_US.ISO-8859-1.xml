@@ -130,6 +130,7 @@
   <msg key="lt_Back_to_shopping_cart">Back to shopping cart</msg>
   <msg key="lt_Bulk_Approve_Applicat">Bulk Approve Applications</msg>
   <msg key="lt_Bulk_Reject_Applicati">Bulk Reject Applications</msg>
+  <msg key="lt_Cancel_your_applicati">Cancel your application</msg>
   <msg key="lt_Community_Admin_Pages">Community Admin Pages</msg>
   <msg key="lt_Completing_Your_Order">Completing Your Order: Verify and submit order</msg>
   <msg key="lt_Completing_Your_Order_1">Completing Your Order</msg>

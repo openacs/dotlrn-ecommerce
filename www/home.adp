@@ -119,7 +119,7 @@
 	      
 
 	      <if @use_embedded_application_view_p@ ne 1> 
-		[<a href="@sessions.edit_asm_url;noquote@">#acs-kernel.common_Edit#</a>]
+		[<a href="@sessions.edit_asm_url;noquote@">#acs-kernel.common_Edit#</a>] [<a onclick="return confirm('Are you sure you want to cancel your application?')" href="@sessions.cancel_url;noquote@">#dotlrn-ecommerce.lt_Cancel_your_applicati#</a>]
 	      </if>
 	    </li>
 	    </multiple>

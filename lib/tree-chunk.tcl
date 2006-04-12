@@ -18,7 +18,7 @@ ad_page_contract {
     {all_sessions_p 0}
 }
 
-set memoize_max_age [parameter::get -parameter CatalogMemoizeAge -default 10800]
+set memoize_max_age [parameter::get -parameter CatalogMemoizeAge -default 120]
 
 set package_id [ad_conn package_id]
 set user_id [ad_conn user_id]
@@ -311,7 +311,7 @@ template::list::create \
 	    
 	    display_template {
 		<if @course_list.section_id@ not nil>
-		<b>Section @course_list.section_name@</b>
+		<b>@course_list.section_name@</b>
 		<if @admin_p@ eq 1>
 		<a href="@course_list.section_edit_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.edit]</a> 
 		</if>
@@ -503,7 +503,7 @@ if { $offer_code_p } {
     set discount_clause ""
 }
 
-db_multirow -extend {toggle_display_url patron_message member_state fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades section_zones sections_url member_p sessions instructor_names price prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url } course_list get_courses { } {
+db_multirow -extend {toggle_display_url patron_message member_state fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades section_zones sections_url member_p sessions instructor_names price prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url cancel_url } course_list get_courses { } {
 
     # Since dotlrn-ecommerce is based on dotlrn-catalog,
     # it's possible to have a dotlrn_catalog object without an
@@ -703,16 +703,21 @@ db_multirow -extend {toggle_display_url patron_message member_state fs_chunk sec
 		    order by m.session_id desc
 		    limit 1
 		}] } {
+		    set edit_asm_url [export_vars -base /assessment/assessment { assessment_id session_id }]
+		    set cancel_url [export_vars -base application-reject { community_id user_id {send_email_p 0} {return_url [ad_return_url]} }]
+
 		    if { ! [empty_string_p $completed_datetime] } {
 			set review_asm_url [export_vars -base /assessment/session { session_id }]
-			set edit_asm_url [export_vars -base /assessment/assessment { assessment_id session_id }]
 			set asm_url [subst {
 			    <a href="$review_asm_url" class="button">[_ dotlrn-ecommerce.review_application]</a>
 			    <a href="$edit_asm_url" class="button">[_ dotlrn-ecommerce.lt_Edit_your_application]</a>
+			    <a onclick="return confirm('Are you sure you want to cancel your application?')" href="$cancel_url" class="button">[_ dotlrn-ecommerce.lt_Cancel_your_applicati]</a>
 			}]
 		    } else {
-			set asm_url [export_vars -base /assessment/assessment { assessment_id session_id }]
-			set asm_url [subst {<a href="$asm_url" class="button">[_ dotlrn-ecommerce.lt_Your_application_is_i]</a>}]
+			set asm_url [subst {
+			    <a href="$edit_asm_url" class="button">[_ dotlrn-ecommerce.lt_Your_application_is_i]</a>
+			    <a href="$cancel_url" class="button">[_ dotlrn-ecommerce.lt_Cancel_your_applicati]</a>
+			}]
 		    }
 		}
 	    }
