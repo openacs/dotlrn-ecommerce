@@ -623,7 +623,7 @@ db_multirow -extend {toggle_display_url patron_message member_state fs_chunk sec
 	# if { ! [empty_string_p $instructor_names] && $member_p } { }
 	# if { ! [empty_string_p $instructor_names] } { }
     if { $bios_present_p } {
-	    append instructor_names " <a href=\"${community_url}facilitator-bio?rel_type=dotlrn_ecom_instructor_rel\" class=\"button\">[_ dotlrn-ecommerce.view_bios]</a>"
+	    append instructor_names " <a href=\"facilitators${community_url}facilitator-bio?rel_type=dotlrn_ecom_instructor_rel\" class=\"button\">[_ dotlrn-ecommerce.view_bios]</a>"
 	}
 
 	set attendees [util_memoize [list dotlrn_ecommerce::section::attendees $section_id] $memoize_max_age]
