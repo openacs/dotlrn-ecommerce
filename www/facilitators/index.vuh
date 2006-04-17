@@ -1,0 +1,21 @@
+# packages/dotlrn-ecommerce/www/facilitators/index.vuh
+#
+# Facilitator pages
+#
+# @author Roel Canicula (roel@solutiongrove.com)
+# @creation-date 2006-04-15
+# @arch-tag: cdebbed5-a2aa-49d7-b26a-8b43b50f4dc0
+# @cvs-id $Id$
+
+set urlv [split [ad_conn path_info] "/"]
+set the_url [join $urlv "/"]
+
+set the_root [ns_info pageroot]
+
+if {[string equal "" $the_url]} {
+    set the_url "/"
+}
+
+array set node [site_node::get -url /$the_url]
+rp_form_put community_id [dotlrn_community::get_community_id -package_id $node(object_id)]
+rp_internal_redirect /packages/dotlrn/www/facilitator-bio
