@@ -21,6 +21,7 @@
         <requires url="dotlrn-attendance" version="0.1d"/>
         <requires url="dotlrn-catalog" version="0.1a5"/>
         <requires url="wps-portlet" version="2.0.2"/>
+        <requires url="ecommerce" version="5.0.5">/
 
         <callbacks>
             <callback type="after-install"  proc="dotlrn_ecommerce::install"/>

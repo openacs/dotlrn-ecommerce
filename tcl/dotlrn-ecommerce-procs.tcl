@@ -575,7 +575,7 @@ ad_proc -public dotlrn_ecommerce::util::param::get {
     }
 
     # Then check existing APM params
-    if { [catch {set value [parameter::get_from_package_key -parameter $param -package_key dotlrn-ecommerce]}] } {
+    if { [catch {set value [parameter::get_from_package_key -parameter $param -package_key dotlrn-ecommerce -default $default]}] } {
 	# Invalid parameter, return string
 	return $default
     }
