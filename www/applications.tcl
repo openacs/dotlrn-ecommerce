@@ -65,6 +65,8 @@ if {[parameter::get -parameter AllowApplicationBulkEmail -default 0]} {
     lappend bulk_actions "[_ dotlrn-ecommerce.Email_applicants]" "email-applicants" "[_ dotlrn-ecommerce.Email_applicants]"
 }
 
+lappend bulk_actions "Mark as Paid" application-bulk-payments "Mark as Paid"
+
 set elements {section_name {
 	    label "[_ dotlrn-ecommerce.Section]"
 	    display_template {
@@ -249,12 +251,13 @@ if { $enable_applications_p } {
 
 set general_comments_url [apm_package_url_from_key "general-comments"]
 
-# prepare to add attendance data to application export DAVEB
-set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id \
-    [db_string get_community_id "select community_id from dotlrn_ecommerce_section where section_id=:section_id" -default ""]]
-set item_type_id [db_string item_type_id "select item_type_id from cal_item_types where type='Session' and  calendar_id = :calendar_id"]
-set num_sessions [db_string num_sessions "select count(cal_item_id) from cal_items where on_which_calendar = :calendar_id and item_type_id = :item_type_id"]
-
+if {[exists_and_not_null section_id]} {
+    # prepare to add attendance data to application export DAVEB
+    set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id \
+			 [db_string get_community_id "select community_id from dotlrn_ecommerce_section where section_id=:section_id" -default ""]]
+    set item_type_id [db_string item_type_id "select item_type_id from cal_item_types where type='Session' and  calendar_id = :calendar_id"]
+    set num_sessions [db_string num_sessions "select count(cal_item_id) from cal_items where on_which_calendar = :calendar_id and item_type_id = :item_type_id"]
+}
 db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target } applications applications [subst {
     select person__name(r.user_id) as person_name, member_state, r.community_id, r.user_id as applicant_user_id, s.section_name, t.course_name, s.section_id, r.rel_id, e.phone, o.creation_user as patron_id,
     (select count(*)
