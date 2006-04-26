@@ -8,10 +8,6 @@
 		<li><a href="@calendar_url@cal-item-new?item_type_id=@item_type_id@&calendar_id=@calendar_id@">Add Session</a>
 		</ul>
 	<li><a href="@dotlrn_ecommerce_url;noquote@admin/patrons?section_id=@section_id@">Related Users</a>
-	<li>Purchases
-		<ul>
-		<li><a href="@dotlrn_ecommerce_url;noquote@admin/process-purchase?section_id=@section_id@">Individual</a>
-		<li><a href="@dotlrn_ecommerce_url;noquote@admin/process-group-purchase?section_id=@section_id@">Group</a>
-		</ul>
+	<li><a href="@dotlrn_ecommerce_url;noquote@admin/process-purchase-all?section_id=@section_id@">Purchase</a>
 </ul>
 </if>
