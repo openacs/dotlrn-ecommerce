@@ -432,7 +432,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	# HAM
 	# price is using currency_widget
 	set price_split [split $price .]
-	set price [template::util::currency::create "$" [lindex $price_split 0] [lindex $price_split 1] ]
+	set price [template::util::currency::create "$" [lindex $price_split 0] "." [lindex $price_split 1] ]
 
     db_1row custom_fields {
 	select * from ec_custom_product_field_values where product_id = :product_id
@@ -498,8 +498,6 @@ ad_form -extend -name add_section -validate $validate -on_request {
 				  -object_type dotlrn_club \
 				  -community_key $section_key \
 				  -pretty_name "$course_data(name): Section $section_name"]
-
-	    ns_log notice "DEBUG:: New community created"
 	}
 
 	# HAM : Let's add chosen instructors in the role of instructors 
