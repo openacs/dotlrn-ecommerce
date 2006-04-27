@@ -73,7 +73,7 @@
 	  @in_cart.quantity@
 	</td>
 	<td>@in_cart.price;noquote@</td>
-	<if @product_counter@ gt 1><td align="right">@in_cart.line_subtotal@</td>
+	<if @product_counter@ gt 1><td align="right">@in_cart.line_subtotal;noquote@</td>
 	</if>
 	<if @in_cart.has_discount_p@>
 	  <td nowrap>
@@ -100,7 +100,7 @@
 	<td align=center>@product_counter@</td>
 	<if @product_counter@ gt 1><td bgcolor="#cccccc">&nbsp;</td>
 	</if>
-	<td align="right">@pretty_total_price@</td>
+	<td align="right">@pretty_total_price;noquote@</td>
 	<td></td>
 	<if @offer_code_p@ gt 1>
 	  <td></td>
