@@ -93,7 +93,7 @@ template::list::create \
 	    label "[_ dotlrn-ecommerce.Total_Amount]"
 	    html { align right }
 	    display_template {
-		@orders.pretty_actual_total@
+		@orders.pretty_actual_total;noquote@
 	    }
 	    aggregate sum
 	    aggregate_label "[_ dotlrn-ecommerce.Total_1]:"
@@ -102,7 +102,7 @@ template::list::create \
 	    label "[_ dotlrn-ecommerce.Total_Refunds]"
 	    html { align right }
 	    display_template {
-		@orders.pretty_refund@
+		@orders.pretty_refund;noquote@
 	    }
 	    aggregate sum
 	    aggregate_label "[_ dotlrn-ecommerce.Total_1]:"
@@ -111,7 +111,7 @@ template::list::create \
 	    label "[_ dotlrn-ecommerce.lt_Total_Amount_Received]"
 	    html { align right }
 	    display_template {
-		@orders.pretty_total@
+		@orders.pretty_total;noquote@
 	    }
 	    aggregate sum
 	    aggregate_label "[_ dotlrn-ecommerce.Total_1]:"
