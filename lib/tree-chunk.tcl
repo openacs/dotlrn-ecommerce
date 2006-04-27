@@ -653,18 +653,16 @@ db_multirow -extend {toggle_display_url patron_message member_state fs_chunk sec
     }
 
     if { ! [empty_string_p $product_id] } {
-	set prices [set price [util_memoize [list dotlrn_ecommerce::section::price $section_id] $memoize_max_age]]
+	set prices [ec_pretty_price [set price [util_memoize [list dotlrn_ecommerce::section::price $section_id] $memoize_max_age]]]
 	if { [parameter::get -package_id [ad_conn package_id] -parameter MemberPriceP -default 0 ] } {
 	    set member_price [util_memoize [list dotlrn_ecommerce::section::member_price $section_id] $memoize_max_age]
 	    if { $member_price } {
 		if { ! [empty_string_p $member_price] } {
-		    append prices " / $member_price"
+		    append prices " / [ec_pretty_price $member_price]"
 		}
 	    }
 	}
 	
-	set prices \$$prices
-
 	# HAM : if the NoPayment parameter is set to "1" don't show the prices
 	if { [parameter::get -package_id [ad_conn package_id] -parameter NoPayment -default 0] } {
 		set prices ""
