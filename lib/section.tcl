@@ -539,6 +539,13 @@ ad_form -extend -name add_section -validate $validate -on_request {
             #maybe there aren't 4 letters in the product name
             set dirname "$letters_in_product_name$product_id"
         }
+
+	set subdirectory "[ec_data_directory][ec_product_directory][ec_product_file_directory $product_id]"
+	ec_assert_directory $subdirectory
+
+	set full_dirname "$subdirectory/$dirname"
+	ec_assert_directory $full_dirname
+
 	set color_list ""
         set size_list ""
 	set peeraddr [ad_conn peeraddr]
