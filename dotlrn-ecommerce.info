@@ -21,11 +21,11 @@
         <requires url="dotlrn-attendance" version="0.1d"/>
         <requires url="dotlrn-catalog" version="0.1a5"/>
         <requires url="wps-portlet" version="2.0.2"/>
-        <requires url="ecommerce" version="5.0.5">/
+        <requires url="ecommerce" version="5.0.5"/>
         <requires url="scholarship-fund" version="0.7d"/>
         <callbacks>
             <callback type="after-install"  proc="dotlrn_ecommerce::install"/>
-	    <callback type="after-mount"  proc="dotlrn_ecommerce::after_mount"/>
+	    	<callback type="after-mount"  proc="dotlrn_ecommerce::after_mount"/>
             <callback type="after-upgrade"  proc="dotlrn_ecommerce::after_upgrade"/>
         </callbacks>
         <parameters>
@@ -68,8 +68,7 @@
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowUsedCategoriesOnlyP"  default="0" description="Show only categories used in any course or section."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="SupportPublicPagesP"  default="0" description="Support publics pages."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="UseEmbeddedApplicationViewP"  default="0" description="Do you embed the assessment instead of redirecting to assessment?"/>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="WelcomeEmailRecipients"  default="participant" description="Who receives the welcome email sent when a user joins the community. Either or both 'participant' or 'purchaser' separated by space."/>
+            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="WelcomeEmailRecipients"  default="participant" description="Who receives the welcome email sent when a user joins the community. Either or both participant or purchaser separated by space."/>
         </parameters>
-
     </version>
 </package>
