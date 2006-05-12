@@ -6,7 +6,7 @@
       <ul>
 	<b>Payments</b>
 	<multiple name="invoice_payments">
-	  <li>Date: @invoice_payments.pretty_payment_date@, Amount: @invoice_payments.amount@, Via: @invoice_payments.invoice_method@</li>
+	  <li>Date: @invoice_payments.pretty_payment_date@, Amount: @invoice_payments.amount;noquote@, Via: @invoice_payments.invoice_method@</li>
 	</multiple>
 
 	<if @invoice_payment_sum@ lt 0.01>
@@ -36,7 +36,7 @@
     
     <ul>
       <multiple name="funds">
-	<li>Date: @funds.grant_date@, Fund: @funds.title@, Amount Granted: @funds.grant_amount@, Amount Used: @funds.amount_used@</li>
+	<li>Date: @funds.grant_date@, Fund: @funds.title@, Amount Granted: @funds.grant_amount;noquote@, Amount Used: @funds.amount_used@</li>
       </multiple>
     </ul>
   </blockquote>
