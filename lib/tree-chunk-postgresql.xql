@@ -33,6 +33,7 @@
 			
 		where dc.course_id = ci.live_revision
 		[template::list::filter_where_clauses -and -name course_list]
+		$show_hidden_not_exists_clause
 	
 		order by lower(dc.course_name), lower(dec.section_name)
 	</querytext>

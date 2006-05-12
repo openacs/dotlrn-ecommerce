@@ -12,7 +12,7 @@ ad_page_contract {
     instructor:optional
     { orderby course_name }
     { groupby course_name }
-    {show_hidden "f"}
+    show_hidden:optional
 
     {active_calendar_id 0}
     {all_sessions_p 0}
@@ -251,7 +251,13 @@ if {$admin_p} {
     set show_hidden f
     set hidden_filter_hide_p 1
 }
-lappend filters show_hidden [list hide_p $hidden_filter_hide_p label [_ dotlrn-ecommerce.Hidden_Courses] values { {[_ dotlrn-ecommerce.Show] t} {[_ dotlrn-ecommerce.Hide] f}} where_clause " (display_section_p <> :show_hidden or display_section_p is null or display_section_p = 't') "]
+lappend filters show_hidden [list hide_p $hidden_filter_hide_p label [_ dotlrn-ecommerce.Hidden_Courses] values { {[_ dotlrn-ecommerce.Show] t} } where_clause ""]
+
+if { ![exists_and_not_null show_hidden] } {
+    set show_hidden_not_exists_clause "and (display_section_p is null or display_section_p = 't')"
+} else {
+    set show_hidden_not_exists_clause ""
+}
 
 set actions [list]
 
@@ -303,6 +309,7 @@ template::list::create \
 	spacing {
 	    label ""
 	    display_template {
+
 	    }
 	    html { width 10% bgcolor=white }
 	}
