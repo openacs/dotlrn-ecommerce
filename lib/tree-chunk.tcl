@@ -253,7 +253,7 @@ if {$admin_p} {
 }
 lappend filters show_hidden [list hide_p $hidden_filter_hide_p label [_ dotlrn-ecommerce.Hidden_Courses] values { {[_ dotlrn-ecommerce.Show] t} } where_clause ""]
 
-if { ![exists_and_not_null show_hidden] } {
+if { ![exists_and_not_null show_hidden] || $show_hidden ne "t" } {
     set show_hidden_not_exists_clause "and (display_section_p is null or display_section_p = 't')"
 } else {
     set show_hidden_not_exists_clause ""
