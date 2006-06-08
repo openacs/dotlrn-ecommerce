@@ -12,11 +12,16 @@ ad_page_contract {
     user_id:integer,notnull
     {type full}
     {return_url "applications"}
+    {send_email_p 1}
 } -properties {
 } -validate {
 } -errors {
 }
 
+
+if { [exists_and_equal submit2 "[_ dotlrn-ecommerce.Approve_no_email]"] } {
+    set send_email_p 0
+}
 
 ## who should get the email?
 
@@ -55,93 +60,34 @@ dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
 set allow_free_registration_p [parameter::get -parameter AllowFreeRegistration -default 0]
 set price [dotlrn_ecommerce::section::price $section_id]
 
-if { $user_id == $actor_id } {
-
-    # Application is constrained to be unique for each combination of user and community
-    if { [db_0or1row rels {
-	select r.rel_id, o.creation_user as patron_id
-	from dotlrn_member_rels_full r, acs_objects o
-	where r.rel_id = o.object_id
-	and r.community_id = :community_id
-	and r.user_id = :user_id
-	and r.member_state = :old_member_state
-    }] } {
-
-	# Approval on free registration gets the user registered immediately
-	if { ![empty_string_p $price] && $price < 0.01 && $allow_free_registration_p } {
-
-	    dotlrn_ecommerce::registration::new -user_id $user_id -patron_id $patron_id -community_id $community_id
-
-	} else {
-
-	    dotlrn_ecommerce::section::user_approve -rel_id $rel_id -user_id $user_id -community_id $community_id
-	    dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id	    
-	}
-    }
-    
-    ad_returnredirect $return_url
-    ad_script_abort
-} else {
-    if { $type == "prereq" } {
-        ad_form \
-            -name email_form \
-	    -export { application_type return_url } \
-            -form {
-                {user_id:text(hidden)}
-                {community_id:text(hidden)}
-                {type:text(hidden)}
-		{subject:text {html {size 60}}}
-                {reason:text(textarea),optional {label "[_ dotlrn-ecommerce.Reason]"} {html {rows 10 cols 60}}}
-            } \
-            -on_request {
-		set reason_email [lindex [callback dotlrn::default_member_email -community_id $community_id -to_user $user_id -type "prereq approval"] 0]
-		set reason [lindex $reason_email 2]
-		set subject [lindex $reason_email 1]
-		array set vars [lindex [callback dotlrn::member_email_var_list -community_id $community_id -to_user $user_id -type $type] 0]
-	    set email_vars [lang::message::get_embedded_vars $reason]
-	    foreach var [concat $email_vars] {
-		if {![info exists vars($var)]} {
-		    set vars($var) ""
-		}
+ad_form \
+    -name email_form \
+    -export { application_type return_url } \
+    -form {
+	{user_id:text(hidden)}
+	{community_id:text(hidden)}
+	{type:text(hidden)}
+	{subject:text {html {size 60}}}
+	{reason:text(textarea),optional {label "[_ dotlrn-ecommerce.Reason]"} {html {rows 10 cols 60}}}
+	{submit1:text(submit) {label "[_ dotlrn-ecommerce.Approve]"}}
+	{submit2:text(submit) {label "[_ dotlrn-ecommerce.Approve_no_email]"}}
+    } \
+    -on_request {
+	set reason_email [lindex [callback dotlrn::default_member_email -community_id $community_id -to_user $user_id -type $email_type] 0]
+	set reason [lindex $reason_email 2]
+	set subject [lindex $reason_email 1]
+	array set vars [lindex [callback dotlrn::member_email_var_list -community_id $community_id -to_user $user_id -type $type] 0]
+	set email_vars [lang::message::get_embedded_vars $reason]
+	foreach var [concat $email_vars] {
+	    if {![info exists vars($var)]} {
+		set vars($var) ""
 	    }
-		set var_list [array get vars]
-		set reason "[lang::message::format $reason $var_list]"
-            } \
-            -on_submit {
-		
-		if {$email_reg_info_to == "participant"} {
-		    set email_user_id $user_id
-		}  else {
-		    set email_user_id $patron_id
-		}
-				
-		dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type -override_email $reason -override_subject $subject
-
-		if { [db_0or1row rels {
-		    select r.rel_id, o.creation_user as patron_id
-		    from dotlrn_member_rels_full r, acs_objects o
-		    where r.rel_id = o.object_id
-		    and r.community_id = :community_id
-		    and r.user_id = :user_id
-		    and r.member_state = :old_member_state
-		}] } {
-		    
-		    if { ![empty_string_p $price] && $price < 0.01 && $allow_free_registration_p } {
-			dotlrn_ecommerce::registration::new -user_id $user_id -patron_id $patron_id -community_id $community_id
-		    } else {
-			dotlrn_ecommerce::section::user_approve -rel_id $rel_id -user_id $user_id -community_id $community_id
-		    }
-		}
-				
-            } \
-            -after_submit {
-		dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
-                ad_returnredirect $return_url
-		ad_script_abort
-            }
+	}
+	set var_list [array get vars]
+	set reason "[lang::message::format $reason $var_list]"
+    } \
+    -on_submit {
 	
-    } else {
-
 	if { [db_0or1row rels {
 	    select r.rel_id, o.creation_user as patron_id
 	    from dotlrn_member_rels_full r, acs_objects o
@@ -150,27 +96,26 @@ if { $user_id == $actor_id } {
 	    and r.user_id = :user_id
 	    and r.member_state = :old_member_state
 	}] } {
-	    
-	    # Send email to applicant
-	    set community_name [dotlrn_community::get_community_name $community_id]
-
-	    if {$email_reg_info_to == "participant"} {
-		set email_user_id $user_id
-	    }  else {
-		set email_user_id $patron_id
+	    if {$send_email_p} {
+		if {$email_reg_info_to == "participant"} {
+		    set email_user_id $user_id
+		}  else {
+		    set email_user_id $patron_id
+		}
+		
+		dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type -override_email $reason -override_subject $subject
 	    }
-	    	    
-	    dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type
-
+	    
 	    if { ![empty_string_p $price] && $price < 0.01 && $allow_free_registration_p } {
 		dotlrn_ecommerce::registration::new -user_id $user_id -patron_id $patron_id -community_id $community_id
 	    } else {
 		dotlrn_ecommerce::section::user_approve -rel_id $rel_id -user_id $user_id -community_id $community_id
 	    }
 	}
-
+	
+    } \
+    -after_submit {
 	dotlrn_ecommerce::section::flush_cache -user_id $user_id $section_id
 	ad_returnredirect $return_url
 	ad_script_abort
     }
-}
