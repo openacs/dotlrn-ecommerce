@@ -51,8 +51,12 @@ set filters {
 
 if { $enable_applications_p } {
     lappend filters \
-	{"[_ dotlrn-ecommerce.Applications]" "application sent"} \
-	{"[_ dotlrn-ecommerce.lt_Approved_Applications]" "application approved"}
+	{"[_ dotlrn-ecommerce.Applications]" "application sent"}
+    
+    if { ![exists_and_not_null section_id] || [dotlrn_ecommerce::section::price $section_id] > 0.01 } {
+	lappend filters \
+	    {"[_ dotlrn-ecommerce.lt_Approved_Applications]" "application approved"}
+    }
 }
 
 lappend filters {"[_ dotlrn-ecommerce.Already_Registered]" "approved"}
@@ -65,7 +69,9 @@ if {[parameter::get -parameter AllowApplicationBulkEmail -default 0]} {
     lappend bulk_actions "[_ dotlrn-ecommerce.Email_applicants]" "email-applicants" "[_ dotlrn-ecommerce.Email_applicants]"
 }
 
-lappend bulk_actions "Mark as Paid" application-bulk-payments "Mark as Paid"
+if { ![exists_and_not_null section_id] || [dotlrn_ecommerce::section::price $section_id] > 0.01 } {
+    lappend bulk_actions "[_ dotlrn-ecommerce.Mark_as_Paid]" application-bulk-payments "[_ dotlrn-ecommerce.Mark_as_Paid]"
+}
 
 set elements {section_name {
 	    label "[_ dotlrn-ecommerce.Section]"

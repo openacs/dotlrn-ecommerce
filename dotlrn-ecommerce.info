@@ -7,7 +7,7 @@
     <initial-install-p>f</initial-install-p>
     <singleton-p>t</singleton-p>
     
-    <version name="0.1d25" url="http://openacs.org/repository/download/apm/dotlrn-ecommerce-0.1d25.apm">
+    <version name="0.1d26" url="http://openacs.org/repository/download/apm/dotlrn-ecommerce-0.1d26.apm">
         <owner url="mailto:roelmc@solutiongrove.com">Roel Canicula</owner>
         <summary>Package to tie the dotLRN, Ecommerce, Assessments and dotLRN Catalog packages together</summary>
         <release-date>2005-08-10</release-date>
@@ -15,7 +15,7 @@
         <description format="text/html">Package to tie the dotLRN, Ecommerce, Assessments and dotLRN Catalog packages together.  Initially intended for the MOS and MGH projects, the goal is to create a reusable module for similar projects.</description>
         <maturity>0</maturity>
 
-        <provides url="dotlrn-ecommerce" version="0.1d25"/>        
+        <provides url="dotlrn-ecommerce" version="0.1d26"/>
         <requires url="dotlrn" version="2.1.3"/>
         <requires url="dotlrn-assessment" version="0.2"/>
         <requires url="dotlrn-attendance" version="0.1d"/>
@@ -25,7 +25,7 @@
         <requires url="scholarship-fund" version="0.7d"/>
         <callbacks>
             <callback type="after-install"  proc="dotlrn_ecommerce::install"/>
-	    	<callback type="after-mount"  proc="dotlrn_ecommerce::after_mount"/>
+            <callback type="after-mount"  proc="dotlrn_ecommerce::after_mount"/>
             <callback type="after-upgrade"  proc="dotlrn_ecommerce::after_upgrade"/>
         </callbacks>
         <parameters>
@@ -63,6 +63,7 @@
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="OfferCodesP"  default="0" description="Support asking for offer codes for discount prices."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="PatronRelationshipCategoryTree"  description="Category tree to use when adding participant-patron relationships."/>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="PaymentMethods"  default="cc" description="A space separeted list of allowed payment methods. Valid payment methods are 'cc' (Credit Card), 'internal_account' (With extra field asking for internal account code) or 'check'."/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowNonSessionCalendarLinks"  default="0" description="Show links to the calendar that are not Session Events."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowSectionCategoryFields"  default="0" description="Display the category field in the section add/edit form."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowTemplateCommunityAdminP"  default="0" description="Show the buttons to administer template community."/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ShowUsedCategoriesOnlyP"  default="0" description="Show only categories used in any course or section."/>

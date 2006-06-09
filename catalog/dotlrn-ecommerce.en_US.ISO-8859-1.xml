@@ -14,6 +14,7 @@
   <msg key="Administrative_Setup">Administrative Setup</msg>
   <msg key="Already_Registered">Approved/Registered</msg>
   <msg key="Amount_to_be_Paid">Amount to be Paid</msg>
+  <msg key="Applicant">Applicant</msg>
   <msg key="Application">Application</msg>
   <msg key="Application_1">Application submitted</msg>
   <msg key="Application_2">Approved</msg>
@@ -35,10 +36,12 @@
   <msg key="available">available</msg>
   <msg key="awaiting_approval">(awaiting approval)</msg>
   <msg key="Back_to">Back to</msg>
+  <msg key="Back_to_Applications">Back to Applications</msg>
   <msg key="Balance">Balance</msg>
   <msg key="Balance_due">Balance due:</msg>
   <msg key="Bill_to">Bill to:</msg>
   <msg key="body">body</msg>
+  <msg key="Bulk_Payments">Bulk Payments</msg>
   <msg key="Cancel">Cancel</msg>
   <msg key="Cash">Cash</msg>
   <msg key="change">change</msg>
@@ -98,6 +101,7 @@
   <msg key="Instructor">Instructor</msg>
   <msg key="Instructors">Instructors</msg>
   <msg key="Internal_Account">Internal Account</msg>
+  <msg key="Invalid_price">Invalid price</msg>
   <msg key="Invoice">Invoice</msg>
   <msg key="Item">Item</msg>
   <msg key="Item_Description">Item Description</msg>
@@ -182,6 +186,7 @@
   <msg key="lt_Please_enter_a_search">Please enter a search string</msg>
   <msg key="lt_Please_enter_a_value_">Please enter a value greater than 1</msg>
   <msg key="lt_Please_enter_an_inter">Please enter an internal account code</msg>
+  <msg key="lt_Please_enter_an_inter_1">Please enter an internal account number.</msg>
   <msg key="lt_Please_enter_the_numb">Please enter the number of attendees</msg>
   <msg key="lt_Please_select_a_credi">Please select a credit card type</msg>
   <msg key="lt_Please_select_a_secti">Please select a section from the list</msg>
@@ -212,7 +217,7 @@
   <msg key="lt_Sorry_There_seems_to_">Sorry, There seems to be a problem with completing this transaction.</msg>
   <msg key="lt_Test_email_sent_to_user">Test email sent to %user.email%. Please check your inbox.</msg>
   <msg key="lt_Thank_you_for_your_ap">&lt;p&gt;Thank you for applying, the course administrator(s) will contact you soon regarding your registration.&lt;/p&gt;&lt;p&gt;
-If you have any technical issues please contact the &lt;a href="mailto:%administrator_email%"&gt;web site administrator&lt;/a&gt;&lt;/p&gt;</msg>
+If you have any technical issues please contact the &lt;a href=&quot;mailto:%administrator_email%&quot;&gt;web site administrator&lt;/a&gt;&lt;/p&gt;</msg>
   <msg key="lt_Thank_You_For_Your_Or">Thank You For Your Order</msg>
   <msg key="lt_The_applications_have">The applications have been rejected.</msg>
   <msg key="lt_The_course_only_has_a">The course only has $available_slots slots left</msg>
@@ -220,8 +225,10 @@ If you have any technical issues please contact the &lt;a href="mailto:%administ
   <msg key="lt_The_following_applica_1">The following applications are already approved:</msg>
   <msg key="lt_The_following_applica_2">The following applications need to be handled separately because a section specific rejection email needs to be sent:</msg>
   <msg key="lt_The_following_has_bee">The following has been sent to the purchaser</msg>
+  <msg key="lt_The_following_users_p">The following users' payment info could not be entered because they are already regsitered for the course.</msg>
   <msg key="lt_The_offer_code_was_ac">The offer code was accepted. You save $savings!</msg>
   <msg key="lt_There_is_no_fee_for_t">There is no fee for this course</msg>
+  <msg key="lt_There_was_a_problem_r">There was a problem registering this user</msg>
   <msg key="lt_This_section_is_curre">This section is currently full, but we are taking names for the waiting list.</msg>
   <msg key="lt_To_complete_your_orde">To complete your order, submit this form, and confirm the information on the following page.</msg>
   <msg key="lt_to_send_us_your_order">to send us your order, or click &quot;back&quot; on your browser to make changes.</msg>
@@ -245,6 +252,7 @@ This course willl be held on:
 
 Instructors:
 %instructor_names%</msg>
+  <msg key="lt_Were_sorry_but_we_can">We're sorry, but we cannot display this page because SSL isn't available from this site.  Please contact &lt;a href=\&quot;mailto:[ad_system_owner]\&quot;&gt;[ad_system_owner]&lt;/a&gt; for assistance</msg>
   <msg key="lt_Who_is_taking_the_cou">Who is taking the course?</msg>
   <msg key="lt_Whos_participating_in">Who's participating in this course?</msg>
   <msg key="lt_You_are_number_course">(You are number @course_list.waiting_list_number@ on the wait list)</msg>
@@ -264,15 +272,18 @@ Instructors:
   <msg key="lt_Youve_already_purchas">You've already purchased this course. You may purchase for someone else.</msg>
   <msg key="Make_a_donation">Make a donation</msg>
   <msg key="Manage_Course_List">Manage Course List</msg>
+  <msg key="Mark_as_Paid">Mark as Paid</msg>
   <msg key="Medical_Issues">Medical Issues</msg>
   <msg key="Member_Request">Member Request</msg>
   <msg key="more">more</msg>
   <msg key="More_Information">More Information:</msg>
   <msg key="My_Shopping_Cart">My Shopping Cart</msg>
+  <msg key="New_Price">New Price</msg>
   <msg key="No">No</msg>
   <msg key="No_applications">No applications</msg>
   <msg key="No_orders">No orders</msg>
   <msg key="No_related_users">No related users</msg>
+  <msg key="No_SSL_available">No SSL available</msg>
   <msg key="No_waiting_lists">No waiting lists</msg>
   <msg key="Notes">Notes</msg>
   <msg key="Offer_Code">Offer Code:</msg>
@@ -291,12 +302,15 @@ Instructors:
   <msg key="Payment_Information">Payment Information</msg>
   <msg key="Payment_Method">Payment Method</msg>
   <msg key="Payment_method">Payment method</msg>
+  <msg key="Pending_Applications">Pending Applications</msg>
   <msg key="Pending_applications">Pending applications</msg>
+  <msg key="Pending_Applications_1">{Pending Applications}</msg>
   <msg key="Per_User">Per User</msg>
   <msg key="Phone_Number">Phone Number</msg>
   <msg key="Please_select_one">Please select one</msg>
   <msg key="PreReq_Approval_List">PreReq Approval List</msg>
   <msg key="Preview_Application">Preview Application</msg>
+  <msg key="Price_Charged">Price Charged</msg>
   <msg key="PriceItem">Price/Item</msg>
   <msg key="Proceed">Proceed</msg>
   <msg key="Process_Registration">Process Registration</msg>
@@ -315,6 +329,7 @@ Instructors:
   <msg key="Registered_By_Admin">Registered By Admin</msg>
   <msg key="Registration">Registration</msg>
   <msg key="Regsitered_By_Admin">Regsitered By Admin</msg>
+  <msg key="Regular_Price">Regular Price</msg>
   <msg key="Reject">Reject</msg>
   <msg key="Reject_1">waiver of prerequitsites</msg>
   <msg key="Reject_2">application</msg>
