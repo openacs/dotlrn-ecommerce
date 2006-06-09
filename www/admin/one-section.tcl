@@ -46,11 +46,13 @@ set assessment_id [db_string get_assessment {
     
     from dotlrn_ecommerce_section s,
     dotlrn_catalogi c,
-    cr_items i
+    cr_items i,
+    as_assessmentsi a
     
     where s.course_id = c.item_id
     and c.item_id = i.item_id
     and i.live_revision = c.course_id
+    and c.assessment_id = a.item_id
     and s.section_id = :section_id
     
     limit 1
