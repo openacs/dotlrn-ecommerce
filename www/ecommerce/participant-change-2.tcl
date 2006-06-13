@@ -21,10 +21,7 @@ ad_page_contract {
 
 # Add some security checks here
 
-if { ! [dotlrn::user_p -user_id $user_id] } {
-    dotlrn::user_add -user_id $user_id
-    dotlrn_privacy::set_user_guest_p -user_id $user_id -value f
-}
+dotlrn_ecommerce::check_user -user_id $user_id
 
 # Get section
 db_1row section {

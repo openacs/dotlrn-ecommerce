@@ -81,15 +81,10 @@ if { $participant_id == 0 } {
     set participant_id $user_id
 }
 
+dotlrn_ecommerce::check_user -user_id $user_id
 
-if { ! [dotlrn::user_p -user_id $user_id] } {
-    dotlrn::user_add -user_id $user_id
-    dotlrn_privacy::set_user_guest_p -user_id $user_id -value f
-}
-
-if { ! [dotlrn::user_p -user_id $participant_id] && [acs_object_type $participant_id] != "group" } {
-    dotlrn::user_add -user_id $participant_id
-    dotlrn_privacy::set_user_guest_p -user_id $participant_id -value f
+if { [acs_object_type $participant_id] ne "group" } {
+    dotlrn_ecommerce::check_user -user_id $participant_id
 }
 
 db_0or1row section_info {

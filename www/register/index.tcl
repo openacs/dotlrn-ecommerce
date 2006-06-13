@@ -34,17 +34,13 @@ if { $user_id == 0 } {
 	ad_returnredirect $register_url
 	ad_script_abort
 } else {
-	if { [exists_and_not_null community_id] } {
-		# FIXME : put some error handling here
-		# make sure user is an approved dotlrn user
-		dotlrn::user_add -user_id $user_id
-		dotlrn_privacy::set_user_guest_p -user_id $user_id -value f
-		
-		# register the user		
-		dotlrn_community::add_user $community_id $user_id
-		set reg_message "Thank you for registering.... <br /> <i>Placeholder for complete message</i>"
-	} else {
-		set reg_message "Invalid community id"
-	}
-
+    if { [exists_and_not_null community_id] } {
+	dotlrn_ecommerce::check_user -user_id $user_id
+	
+	# register the user		
+	dotlrn_community::add_user $community_id $user_id
+	set reg_message "Thank you for registering.... <br /> <i>Placeholder for complete message</i>"
+    } else {
+	set reg_message "Invalid community id"
+    }
 }

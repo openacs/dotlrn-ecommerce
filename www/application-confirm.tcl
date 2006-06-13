@@ -25,8 +25,7 @@ if { [db_0or1row get_name {
 	    # This is a newly created user and if this page is reached, that
 	    # means a new user answered a course application and should be put
 	    # on the approval list
-	    dotlrn::user_add -user_id $user_id
-	    dotlrn_privacy::set_user_guest_p -user_id $user_id -value f
+	    dotlrn_ecommerce::check_user -user_id $user_id
 	    
 	    # Adding a user removes an existing entry in member_rels and
 	    # creates a new one with the default member_state so set the

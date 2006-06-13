@@ -72,16 +72,10 @@ set title "Choose Participant"
 
 set next_url [export_vars -base process-purchase-course { {purchaser_id $user_id} participant participant_id section section_id related_user {new_user_p 1} }]
 
-if { ! [dotlrn::user_p -user_id $user_id] } {
-    dotlrn::user_add -user_id $user_id
-    dotlrn_privacy::set_user_guest_p -user_id $user_id -value f	
-}
+dotlrn_ecommerce::check_user -user_id $user_id
 
 if { $participant_id } {
-    if { ! [dotlrn::user_p -user_id $participant_id] } {
-	dotlrn::user_add -user_id $participant_id
-	dotlrn_privacy::set_user_guest_p -user_id $participant_id -value f	
-    }
+    dotlrn_ecommerce::check_user -user_id $participant_id
 }
 
 set validate [list]

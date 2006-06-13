@@ -21,10 +21,7 @@ ad_page_contract {
 } -errors {
 }
 
-if { ! [dotlrn::user_p -user_id $participant_id] } {
-    dotlrn::user_add -user_id $participant_id
-    dotlrn_privacy::set_user_guest_p -user_id $participant_id -value f	
-}
+dotlrn_ecommerce::check_user -user_id $participant_id
 
 set extra_vars [ns_set create]
 ns_set put $extra_vars user_id $participant_id

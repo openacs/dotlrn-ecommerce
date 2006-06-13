@@ -641,3 +641,46 @@ ad_proc -public _deparam {
 	}
     }
 }
+
+ad_proc -public dotlrn_ecommerce::check_user {
+    -user_id:required
+} {
+    Check user and add to dotlrn, set access and guest settings if necessary
+    
+    @author Roel Canicula (roel@solutiongrove.com)
+    @creation-date 2006-06-14
+    
+    @param user_id
+
+    @return 
+    
+    @error 
+} {
+    if { ![dotlrn::user_p -user_id $user_id] } {
+	set package_id [dotlrn::get_package_id]
+
+	set type [parameter::get \
+		      -parameter AutoUserType \
+		      -package_id $package_id \
+		      -default "student"]
+	
+	set can_browse_p [parameter::get \
+			      -parameter AutoUserAccessLevel \
+			      -package_id $package_id \
+			      -default 1]
+	
+	set read_private_data_p [parameter::get \
+				     -parameter AutoUserReadPrivateDataP \
+				     -package_id $package_id \
+				     -default 1]
+	
+	dotlrn::user_add \
+	    -type $type \
+	    -can_browse=$can_browse_p \
+	    -user_id $user_id
+	
+	dotlrn_privacy::set_user_is_non_guest \
+	    -user_id $user_id \
+	    -value $read_private_data_p
+    }
+}

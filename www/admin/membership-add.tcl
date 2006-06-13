@@ -32,10 +32,7 @@ if { ! [empty_string_p $cancel] } {
     ad_script_abort
 }
 
-if { ! [dotlrn::user_p -user_id $user_id] } {
-    dotlrn::user_add -user_id $user_id
-    dotlrn_privacy::set_user_guest_p -user_id $user_id -value f	
-}
+dotlrn_ecommerce::check_user -user_id $user_id
 
 if { [info exists participant_id] } {
     set patron_id $user_id

@@ -80,10 +80,7 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
     set checkout_user_id [ad_conn user_id]
 
     if { [exists_and_not_null patron_id] } {
-	if { ! [dotlrn::user_p -user_id $patron_id] } {
-	    dotlrn::user_add -user_id $patron_id
-	    dotlrn_privacy::set_user_guest_p -user_id $patron_id -value f	
-	}
+	dotlrn_ecommerce::check_user -user_id $patron_id
     }
 
     db_foreach items_in_order {
@@ -117,10 +114,7 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 	}
 
 	if { [exists_and_not_null saved_patron_id] } {
-	    if { ! [dotlrn::user_p -user_id $saved_patron_id] } {
-		dotlrn::user_add -user_id $saved_patron_id
-		dotlrn_privacy::set_user_guest_p -user_id $saved_patron_id -value f	
-	    }
+	    dotlrn_ecommerce::check_user -user_id $saved_patron_id
 	}
 
 	set membership_product_p 0
@@ -135,10 +129,7 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 	}
 
 	foreach user_id $user_ids {
-	    if { ! [dotlrn::user_p -user_id $user_id] } {
-		dotlrn::user_add -user_id $user_id
-		dotlrn_privacy::set_user_guest_p -user_id $user_id -value f	
-	    }
+	    dotlrn_ecommerce::check_user -user_id $user_id
 
 	    if {$membership_product_p} {
 		set membership_group_id [parameter::get -parameter MemberGroupId -package_id [apm_package_id_from_key "dotlrn-ecommerce"]]
