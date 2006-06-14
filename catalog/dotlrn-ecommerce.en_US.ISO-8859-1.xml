@@ -30,6 +30,7 @@
   <msg key="Approve">Approve</msg>
   <msg key="Approve_1">waiver of prerequisites</msg>
   <msg key="Approve_application">Approve application</msg>
+  <msg key="Approve_no_email">Approve without email</msg>
   <msg key="as_widget_help">The drop down displays existing applications. If you need to create a new application use this &lt;a href=&quot;/assessment/asm-admin&quot;&gt;link&lt;/a&gt; then return to this form.</msg>
   <msg key="assistant_instructor">Assistant Instructors</msg>
   <msg key="Assistant_Instuctors">Assistant Instuctors</msg>
