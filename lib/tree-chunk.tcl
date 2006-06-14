@@ -720,7 +720,7 @@ db_multirow -extend {toggle_display_url patron_message member_state fs_chunk sec
 			}]
 		    } else {
 			set asm_url [subst {
-			    <a href="$edit_asm_url" class="button">[_ dotlrn-ecommerce.lt_Your_application_is_i]</a>
+			    <a href="$shopping_cart_add_url" class="button">[_ dotlrn-ecommerce.lt_Your_application_is_i]</a>
 			    <a href="$cancel_url" class="button">[_ dotlrn-ecommerce.lt_Cancel_your_applicati]</a>
 			}]
 		    }
