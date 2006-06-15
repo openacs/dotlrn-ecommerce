@@ -98,6 +98,12 @@ if { ! [empty_string_p $level] } {
 set show_used_categories_only_p [parameter::get -package_id [ad_conn package_id] -parameter ShowUsedCategoriesOnlyP -default "0"]
 
 if { $show_used_categories_only_p } {
+    if { [exists_and_not_null show_hidden] } {
+	set categories_show_hidden $show_hidden
+    } else {
+	set categories_show_hidden f
+    }
+
     set used_categories [db_list used_categories {
 	select distinct category_id
 	from (
@@ -105,15 +111,24 @@ if { $show_used_categories_only_p } {
 	      select category_id
 	      from categories c
 	      where exists (select 1
-			    from category_object_map
+			    from category_object_map m, cr_revisions r, dotlrn_ecommerce_section s, ec_custom_product_field_values v
 			    where category_id in (select category_id
 						  from categories
 						  where left_ind > c.left_ind
-						  and right_ind < c.right_ind))
+						  and right_ind < c.right_ind)
+			    and m.object_id = r.revision_id
+			    and r.item_id = s.course_id
+			    and s.product_id = v.product_id
+			    and (v.display_section_p = 't' or :categories_show_hidden = 't'))
+
 	      union
 
 	      select category_id
-	      from category_object_map
+	      from category_object_map m, cr_revisions r, dotlrn_ecommerce_section s, ec_custom_product_field_values v
+	      where m.object_id = r.revision_id
+	      and r.item_id = s.course_id
+	      and s.product_id = v.product_id
+	      and (v.display_section_p = 't' or :categories_show_hidden = 't')
 
 	      ) c
     }]
@@ -251,6 +266,7 @@ if {$admin_p} {
     set show_hidden f
     set hidden_filter_hide_p 1
 }
+
 lappend filters show_hidden [list hide_p $hidden_filter_hide_p label [_ dotlrn-ecommerce.Hidden_Courses] values { {[_ dotlrn-ecommerce.Show] t} } where_clause ""]
 
 if { ![exists_and_not_null show_hidden] || $show_hidden ne "t" } {
