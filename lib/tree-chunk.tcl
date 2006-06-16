@@ -40,6 +40,12 @@ set allow_free_registration_p [parameter::get -parameter AllowFreeRegistration -
 #     }
 # }
 
+if { [exists_and_not_null show_hidden] } {
+    set show_hidden_p $show_hidden
+} else {
+    set show_hidden_p f
+}
+
 set filter_list [list category_f]
 
 set form [rp_getform]
@@ -119,7 +125,7 @@ if { $show_used_categories_only_p } {
 			    and m.object_id = r.revision_id
 			    and r.item_id = s.course_id
 			    and s.product_id = v.product_id
-			    and (v.display_section_p = 't' or :categories_show_hidden = 't'))
+			    and (v.display_section_p is null or v.display_section_p = 't' or :show_hidden_p = 't'))
 
 	      union
 
@@ -128,7 +134,7 @@ if { $show_used_categories_only_p } {
 	      where m.object_id = r.revision_id
 	      and r.item_id = s.course_id
 	      and s.product_id = v.product_id
-	      and (v.display_section_p = 't' or :categories_show_hidden = 't')
+	      and (v.display_section_p is null or v.display_section_p = 't' or :show_hidden_p = 't')
 
 	      ) c
     }]
@@ -225,9 +231,19 @@ if { [llength $_instructors] == 0 } {
     set _instructors 0
     set instructors_filter ""
 } else {
+    set active_instructors [db_list get_active_instructors {
+	select distinct r.user_id
+	from dotlrn_ecommerce_section s, ec_custom_product_field_values v, dotlrn_member_rels_approved r
+	where s.product_id = v.product_id
+	and s.community_id = r.community_id
+	and (v.display_section_p is null or v.display_section_p = 't' or :show_hidden_p = 't')
+	and r.rel_type = 'dotlrn_ecom_instructor_rel'
+    }]
     foreach _instructor $_instructors {
 	lappend __instructors [ns_set get $_instructor user_id]
-	lappend instructors_filter [list "[ns_set get $_instructor first_names] [ns_set get $_instructor last_name]" [ns_set get $_instructor user_id]]
+	if { ! $show_used_categories_only_p || [lsearch -integer -exact $active_instructors [ns_set get $_instructor user_id]] != -1 } {
+	    lappend instructors_filter [list "[ns_set get $_instructor first_names] [ns_set get $_instructor last_name]" [ns_set get $_instructor user_id]]
+	}
     }
 }
 
