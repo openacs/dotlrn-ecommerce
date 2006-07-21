@@ -1,4 +1,4 @@
-# packages/dotlrn-ecommerce/www/applications2.tcl
+# packages/dotlrn-ecommerce/www/applications.tcl
 
 ad_page_contract {
     
@@ -8,23 +8,83 @@ ad_page_contract {
     @creation-date 2005-07-23
     @arch-tag: 7d7789ef-523a-40dc-aa32-c650e19ece40
     @cvs-id $Id$
-} {
-    type:optional
-    orderby:optional
-    section_id:optional
-    {csv_p 0}
-} -properties {
-} -validate {
-} -errors {
-}
-
-### Add security checks
+} [concat \
+       [list \
+	    type:optional \
+	    orderby:optional \
+	    section_id:optional \
+	    {csv_p 0} \
+	    {as_item_id ""} \
+	    {as_search ""} \
+	    ] \
+       [as::list::params]]
 
 set user_id [ad_conn user_id]
 
 set package_id [ad_conn package_id]
 set admin_p [permission::permission_p -object_id $package_id -privilege "admin"]
 set return_url [ad_return_url]
+
+set enable_applications_p [parameter::get -package_id [ad_conn package_id] -parameter EnableCourseApplicationsP -default 1]
+
+if { $as_item_id eq "type" } {
+    set as_item_type type
+    set as_item_choices [subst {
+	{"[_ dotlrn-ecommerce.In_Waiting_List]" "needs approval"}
+	{"[_ dotlrn-ecommerce.lt_Approved_Waiting_List]" "waitinglist approved"}
+	{"[_ dotlrn-ecommerce.For_PreReq_Approval]" "request approval"}
+	{"[_ dotlrn-ecommerce.lt_Approved_PreReq_Appli]" "request approved"}
+    }]
+    
+    if { $enable_applications_p } {
+	lappend as_item_choices \
+	    [list "[_ dotlrn-ecommerce.Applications]" "application sent"] \
+	    [list "[_ dotlrn-ecommerce.lt_Approved_Applications]" "application approved"]
+    }
+    
+    lappend as_item_choices [list "[_ dotlrn-ecommerce.Already_Registered]" "approved"]
+} elseif { $as_item_id ne "" } {
+    set as_item_type [db_string get_type {
+	select oi.object_type
+	from cr_items i, as_item_rels it, as_item_rels dt, acs_objects oi
+	where dt.item_rev_id = it.item_rev_id
+	and it.rel_type = 'as_item_type_rel'
+	and dt.rel_type = 'as_item_display_rel'
+	and oi.object_id = it.target_rev_id
+	and i.latest_revision = it.item_rev_id
+	and i.item_id = :as_item_id
+    }]
+
+    set as_revision_id [db_string get_item_revision {
+	select latest_revision
+	from cr_items
+	where item_id = :as_item_id
+    }]
+
+    if { $as_item_type eq "as_item_type_mc" } {
+	set as_item_choices [db_list_of_lists item_choices {
+	    select r.title, c.choice_id
+	    
+	    from cr_revisions r, as_item_choices c
+	    left outer join cr_revisions r2 on (c.content_value = r2.revision_id)
+	    
+	    where r.revision_id = c.choice_id
+	    and c.mc_id = (select max(t.as_item_type_id)
+			   from as_item_type_mc t, cr_revisions c, as_item_rels r
+			   where t.as_item_type_id = r.target_rev_id
+			   and r.item_rev_id = :as_revision_id
+			   and r.rel_type = 'as_item_type_rel'
+			   and c.revision_id = t.as_item_type_id
+			   group by c.title, t.increasing_p, t.allow_negative_p,
+			   t.num_correct_answers, t.num_answers)
+	    
+	    order by c.sort_order
+	}]
+    }
+} else {
+    set as_item_type ""
+    set as_revision_id ""
+}
 
 set use_embedded_application_view_p [parameter::get -parameter UseEmbeddedApplicationViewP -default 0]
 
@@ -33,8 +93,6 @@ set header_stuff {
     <!-- overLIB (c) Erik Bosrup (http://www.bosrup.com/web/overlib) -->
     </script>
 }
-
-set enable_applications_p [parameter::get -package_id [ad_conn package_id] -parameter EnableCourseApplicationsP -default 1]
 
 if { [exists_and_not_null type] } {
     set _type $type
@@ -60,6 +118,14 @@ if { $enable_applications_p } {
 }
 
 lappend filters {"[_ dotlrn-ecommerce.Already_Registered]" "approved"}
+
+set list_filters [subst {
+    type {
+	label "[_ dotlrn-ecommerce.Type_of_Request]"
+	values { $filters }
+	where_clause { member_state = :type }
+    }
+}]
 
 set actions ""
 set bulk_actions [list [_ dotlrn-ecommerce.Approve] application-bulk-approve [_ dotlrn-ecommerce.Approve] "[_ dotlrn-ecommerce.Reject] / [_ dotlrn-ecommerce.Cancel]" application-bulk-reject "[_ dotlrn-ecommerce.Reject] / [_ dotlrn-ecommerce.Cancel]"]
@@ -190,6 +256,108 @@ lappend elements \
 	    html { width 125 align center nowrap }
 	}
 
+if { [exists_and_not_null section_id] } {
+    set section_clause {and s.section_id = :section_id}
+
+    if { [db_0or1row assessment_revision {
+	select a.assessment_id as section_assessment_rev_id
+	from dotlrn_ecommerce_section s, dotlrn_catalogi c, as_assessmentsi a, cr_items ci, cr_items ai
+	where s.course_id = c.item_id
+	and c.assessment_id = a.item_id
+	and c.course_id = ci.latest_revision
+	and a.assessment_id = ai.latest_revision
+	and s.section_id = :section_id
+    }] } {
+	array set search_arr [as::list::filters -assessment_id $section_assessment_rev_id]
+    } else {
+	array set search_arr [list list_filters [list] assessment_search_options [list] search_js_array ""]
+    }
+} else {
+    set section_clause ""
+    # we want to get all the questions that are common to dotlrn-ecommerce 
+    # applications
+    set filter_assessments [db_list_of_lists get_filter_assessments "
+select distinct a.title, a.revision_id as assessment_id from dotlrn_catalog c, cr_items i, as_assessmentsx a where i.item_id=c.assessment_id and i.latest_revision=a.revision_id"]
+
+    array set search_arr [as::list::filters -assessments $filter_assessments]
+}
+
+set search_options [concat [list [list [_ dotlrn-ecommerce.Type_of_Request] type]] $search_arr(assessment_search_options)]
+
+if { [info exists type] } {
+    set filters {
+	{"[_ dotlrn-ecommerce.In_Waiting_List]" "needs approval"}
+	{"[_ dotlrn-ecommerce.lt_Approved_Waiting_List]" "waitinglist approved"}
+	{"[_ dotlrn-ecommerce.For_PreReq_Approval]" "request approval"}
+	{"[_ dotlrn-ecommerce.lt_Approved_PreReq_Appli]" "request approved"}
+    }
+    
+    if { $enable_applications_p } {
+	lappend filters \
+	    {"[_ dotlrn-ecommerce.Applications]" "application sent"} \
+	    {"[_ dotlrn-ecommerce.lt_Approved_Applications]" "application approved"}
+    }
+    
+    lappend filters {"[_ dotlrn-ecommerce.Already_Registered]" "approved"}
+
+    set list_filters [subst {
+	type {
+	    label "[_ dotlrn-ecommerce.Type_of_Request]"
+	    values { $filters }
+	    where_clause { member_state = :type }
+	}
+    }]
+}
+
+append list_filters {
+    section_id {}
+    as_item_id {}
+    as_search {}
+}
+
+set search_options [concat {{"" ""}} $search_options]
+ad_form -name as_search -export [concat [list type orderby section_id cvs_p] [as::list::params]] -form {
+    {as_item_id:text(select) {label Question} {options {$search_options}} {html {onchange "if (searchItems\[this.value\] != 'section' && searchItems\[this.value\] != 'assessment') { this.form.as_search.disabled = true; this.form.submit() } else { this.form.as_search.disabled = true; this.form.search.disabled = true }"}}}
+}
+
+if { $as_item_id ne "" && ($as_item_type eq "as_item_type_mc" || $as_item_type eq "type") } {
+    ad_form -extend -name as_search -form {
+	{as_search:text(select) {label Search} {options {$as_item_choices}}}
+    }
+} else {
+    ad_form -extend -name as_search -form {
+	{as_search:text {label Search}}
+    }
+}
+
+ad_form -extend -name as_search -form {
+    {search:text(submit) {label Search}}
+    {clear:text(submit) {label Clear}}
+} -on_request {
+} -on_submit {
+    if { $as_item_type eq "type" } {
+	ad_returnredirect [export_vars -base applications [concat [list orderby section_id csv_p as_item_id as_search [list type $as_search]] [as::list::params]]]
+    } else {
+	ad_returnredirect [export_vars -base applications [concat [list type orderby section_id csv_p as_item_id as_search [list "as_item_id_$as_item_id" $as_search]] [as::list::params]]]
+    }
+
+    ad_script_abort
+}
+
+set list_filters [concat $list_filters $search_arr(list_filters)]
+
+#lappend list_filters csv_p {
+#    label "[_ dotlrn-ecommerce.Export]"
+#    values {{"[_ dotlrn-ecommerce.CSV]" 1}}
+#    has_default_p 1
+#}
+
+lappend actions \
+    [_ dotlrn-ecommerce.Export] \
+    [export_vars -base [ad_return_url] { {csv_p 1} }] \
+    [_ dotlrn-ecommerce.Export]
+    
+
 template::list::create \
     -name "applications" \
     -key rel_id \
@@ -202,19 +370,9 @@ template::list::create \
     -bulk_actions $bulk_actions \
     -bulk_action_export_vars { return_url } \
     -elements $elements \
-    -filters [subst {
-	type {
-	    label "[_ dotlrn-ecommerce.Type_of_Request]"
-	    values { $filters }
-	    where_clause { member_state = :type }
-	}
-	section_id {}
-	csv_p {
-            label "[_ dotlrn-ecommerce.Export]"
-            values {{"[_ dotlrn-ecommerce.CSV]" 1}}
-	    has_default_p 1
-        }
-    }] -orderby {
+    -filters $list_filters \
+    -filter_form 1 \
+    -orderby {
 	section_name {
 	    label "[_ dotlrn-ecommerce.Section_1]"
 	    orderby "lower(s.section_name)"
@@ -243,12 +401,6 @@ if { $admin_p } {
     }
 }
 
-if { [exists_and_not_null section_id] } {
-    set section_clause {and s.section_id = :section_id}
-} else {
-    set section_clause ""
-}
-
 if { $enable_applications_p } {
     set member_state_clause { and member_state in ('needs approval', 'waitinglist approved', 'request approval', 'request approved', 'application sent', 'application approved', 'approved') }
 } else {
@@ -257,14 +409,7 @@ if { $enable_applications_p } {
 
 set general_comments_url [apm_package_url_from_key "general-comments"]
 
-if {[exists_and_not_null section_id]} {
-    # prepare to add attendance data to application export DAVEB
-    set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id \
-			 [db_string get_community_id "select community_id from dotlrn_ecommerce_section where section_id=:section_id" -default ""]]
-    set item_type_id [db_string item_type_id "select item_type_id from cal_item_types where type='Session' and  calendar_id = :calendar_id"]
-    set num_sessions [db_string num_sessions "select count(cal_item_id) from cal_items where on_which_calendar = :calendar_id and item_type_id = :item_type_id"]
-}
-db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target } applications applications [subst {
+db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target calendar_id item_type_id num_sessions } applications applications [subst {
     select person__name(r.user_id) as person_name, member_state, r.community_id, r.user_id as applicant_user_id, s.section_name, t.course_name, s.section_id, r.rel_id, e.phone, o.creation_user as patron_id,
     (select count(*)
      from (select *
@@ -370,6 +515,11 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 	set add_comment_url [export_vars -base "${general_comments_url}comment-add" {{object_id $session_id} {object_name "Application"} return_url}]
     }
 
+    # prepare to add attendance data to application export DAVEB
+    set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id \
+			 [db_string get_community_id "select community_id from dotlrn_ecommerce_section where section_id=:section_id" -default ""]]
+    set item_type_id [db_string item_type_id "select item_type_id from cal_item_types where type='Session' and  calendar_id = :calendar_id"]
+    set num_sessions [db_string num_sessions "select count(cal_item_id) from cal_items where on_which_calendar = :calendar_id and item_type_id = :item_type_id"]
 }
 
 # if we are CSV we need to get the assessment items
@@ -424,6 +574,7 @@ if {$csv_p == 1} {
 		    from as_assessment_section_map asm, 
 		         as_item_section_map ism, 
 		         cr_revisions cr,
+
 		         as_items i, 
 		         as_item_rels ir, 
 		         acs_objects o, 
