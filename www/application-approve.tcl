@@ -12,15 +12,16 @@ ad_page_contract {
     user_id:integer,notnull
     {type full}
     {return_url "applications"}
-    {send_email_p 1}
+    {send_email_p 0}
+    submit1:optional
 } -properties {
 } -validate {
 } -errors {
 }
 
 
-if { [exists_and_equal submit2 "[_ dotlrn-ecommerce.Approve_no_email]"] } {
-    set send_email_p 0
+if { [exists_and_equal submit1 "[_ dotlrn-ecommerce.Approve]"] } {
+    set send_email_p 1
 }
 
 ## who should get the email?
@@ -104,9 +105,8 @@ ad_form \
 		}
 		
 		dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type -override_email $reason -override_subject $subject
-	    }
-	    
-	    if { ![empty_string_p $price] && $price < 0.01 && $allow_free_registration_p } {
+
+	    }	    if { ![empty_string_p $price] && $price < 0.01 && $allow_free_registration_p } {
 		dotlrn_ecommerce::registration::new -user_id $user_id -patron_id $patron_id -community_id $community_id
 	    } else {
 		dotlrn_ecommerce::section::user_approve -rel_id $rel_id -user_id $user_id -community_id $community_id
