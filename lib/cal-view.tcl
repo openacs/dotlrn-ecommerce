@@ -177,6 +177,7 @@ foreach tree_id $category_trees {
 	
 	set j 0
 	set i 0
+	set pos 0
 	while { $i < $tree_length } {
 	    set element [lindex $tree_list $i]
 	    if {[string equal [set ${f}_category_v] [lindex $element 0]] } {
