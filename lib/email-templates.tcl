@@ -41,15 +41,13 @@ foreach type $email_types {
     set email [lindex [callback dotlrn::default_member_email -community_id $community_id -type $type -var_list [list course_name $course_name]] 0]
     if {[llength $email]} {
 	set subject "[lindex $email 1]"
+	set from "[_ dotlrn-ecommerce.site-wide]"
 	switch [lindex $email 3] {
 	    dotlrn-ecommerce {
 		set from "[_ dotlrn-ecommerce.site-wide]"
 	    }
 	    course {
 	        set from  "[_ dotlrn-ecommerce.course]"
-	    }
-	    default {
-		set from "[_ dotlrn-ecommerce.section]"
 	    }
 	}
     set test_url [export_vars -base email-test {community_id return_url type}]
