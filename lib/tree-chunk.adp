@@ -13,6 +13,8 @@ table.list {
       <listfilters name="course_list" style="course-filters"></listfilters> 
     </td> 
     <td valign="top">
+	<listfilters name="course_list" style="listed-filters"></listfilters>
+	<br />
 	<listtemplate name=course_list style="courses"></listtemplate>
     </td>
   </tr>
