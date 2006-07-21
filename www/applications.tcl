@@ -260,7 +260,7 @@ if { [exists_and_not_null section_id] } {
     set section_clause {and s.section_id = :section_id}
 
     if { [db_0or1row assessment_revision {
-	select a.assessment_id as section_assessment_rev_id
+	select a.title, a.assessment_id as section_assessment_rev_id
 	from dotlrn_ecommerce_section s, dotlrn_catalogi c, as_assessmentsi a, cr_items ci, cr_items ai
 	where s.course_id = c.item_id
 	and c.assessment_id = a.item_id
@@ -268,7 +268,7 @@ if { [exists_and_not_null section_id] } {
 	and a.assessment_id = ai.latest_revision
 	and s.section_id = :section_id
     }] } {
-	array set search_arr [as::list::filters -assessment_id $section_assessment_rev_id]
+	array set search_arr [as::list::filters -assessments [list [list $title $section_assessment_rev_id]]]
     } else {
 	array set search_arr [list list_filters [list] assessment_search_options [list] search_js_array ""]
     }
@@ -457,7 +457,7 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
     set list_type [ad_decode $member_state "needs approval" full "request approval" prereq "application sent" payment full]
 
     set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
-	
+
     set reject_url [export_vars -base application-reject { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
 
     if { ! [empty_string_p $session_id] } {
