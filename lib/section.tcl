@@ -390,9 +390,9 @@ if { [parameter::get -package_id [ad_conn package_id] -parameter ShowSectionCate
 	"Please select one or more grades"
 	}
 }
-set section_name_validate_message "Section code must be less than [expr {100 - [string length "$course_data(name): Section "]}] characters"
+set section_name_validate_message "Section code must be less than [expr {200 - [string length "$course_data(name): Section "]}] characters"
 lappend validate {section_name 
-    {([string length "$course_data(name): Section $section_name"] < 100)} 
+    {([string length "$course_data(name): Section $section_name"] < 200)} 
     $section_name_validate_message
 }
 
