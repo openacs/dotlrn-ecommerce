@@ -145,7 +145,7 @@ ad_form -extend -name add_course -on_submit {
     set form_attributes [list]
 
     # Create master community
-    set community_id [dotlrn_club::new -pretty_name "$course_name Section Template"]
+    set community_id [dotlrn_club::new -pretty_name "[string_truncate -len 75 $course_name] Section Template"]
     # add the calendar item type "session"
     set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id $community_id]
     set item_type_id [calendar::item_type_new -calendar_id $calendar_id -type "Session"]
