@@ -204,11 +204,11 @@ ad_proc -public dotlrn_ecommerce::section::flush_cache {
     }
     set grade_tree_id [parameter::get -package_id [ad_conn package_id] -parameter GradeCategoryTree -default 0]
     set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id $community_id]
-
+    set course_key [db_string "getcoursekey" "select name from cr_items where item_id=:item_id"] 
     # Start flushing
     util_memoize_flush [list dotlrn_ecommerce::section::section_grades $community_id $grade_tree_id]
     util_memoize_flush [list dotlrn_ecommerce::section::course_grades $item_id $grade_tree_id]
-    util_memoize_flush [list dotlrn_ecommerce::section::sessions $calendar_id]
+    util_memoize_flush [list dotlrn_ecommerce::section::sessions -anchor $course_key $calendar_id]
     util_memoize_flush [list dotlrn_ecommerce::section::instructors $community_id $__instructors]
     util_memoize_flush [list dotlrn_ecommerce::section::attendees $section_id]
     util_memoize_flush [list dotlrn_ecommerce::section::price $section_id]
@@ -489,9 +489,9 @@ ad_proc -public dotlrn_ecommerce::section::check_and_approve_sections_for_slots 
 	select community_id
 	from dotlrn_ecommerce_section
     } {
-	ns_log notice "DEBUG:: Checking community $community_id for open slots"
+	ns_log debug "DEBUG:: Checking community $community_id for open slots"
 	dotlrn_ecommerce::section::approve_next_in_waiting_list $community_id
-	ns_log notice "DEBUG:: Done check"
+	ns_log debug "DEBUG:: Done check"
     }
 }
 
@@ -638,6 +638,7 @@ ad_proc -public dotlrn_ecommerce::section::fs_chunk {
     
     @error 
 } {
+
     set section_folder_id [dotlrn_ecommerce::section::get_public_folder_id $section_id]
     set section_pages_url "pages/${section_id}/"
     set __adp_stub ""
@@ -812,9 +813,9 @@ ad_proc -public dotlrn_ecommerce::section::user_approve {
 		-list_args [list $community_id $user_id]
 	}
 
-	ns_log notice "dotlrn_ecommerce::section::user_approve: Application approved successfully: user_id $user_id community_id $community_id member_state $old_member_state"
+	ns_log debug "dotlrn_ecommerce::section::user_approve: Application approved successfully: user_id $user_id community_id $community_id member_state $old_member_state"
     } on_error {
-	ns_log notice "dotlrn_ecommerce::section::user_approve: Application error: user_id $user_id community_id $community_id member_state $old_member_state"
+	ns_log debug "dotlrn_ecommerce::section::user_approve: Application error: user_id $user_id community_id $community_id member_state $old_member_state"
     }
     
 }
