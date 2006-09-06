@@ -75,7 +75,7 @@ set info [ad_html_text_convert -from text/enhanced -to text/plain $info]
 set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
 
 # Get the category name
-set category_names "[category::get_names [category::get_mapped_categories $course_id]]"
+set category_names [join [category::get_names [category::get_mapped_categories $course_id]] ", "]
 
 # Check if user has admin permission over course_id
 set admin_p 0
