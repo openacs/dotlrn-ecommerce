@@ -62,13 +62,13 @@
         <td><b>#dotlrn-catalog.asm#:</b></td><td><a href="@asm_url@">@asm@</a></td>
     </tr>
 </if>
-<if @category_p@ eq "1">
+<if @category_p@ gt 0>
     <if @index@ not eq "yes">
         <tr><td></td>
 	   <td>
 	       <b>#dotlrn-catalog.categorize#:</b>
 	   </td>
-    	   <td>#dotlrn-catalog.yes# (@category_name@)</td>
+    	   <td>#dotlrn-catalog.yes# (@category_names@)</td>
         </tr>
     </if>
 </if>
