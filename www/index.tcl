@@ -20,7 +20,6 @@ if {[permission::permission_p -party_id $user_id -object_id $cc_package_id -priv
     set create_p 0
 }
 
-set tree_id [db_string get_tree_id { } -default "-1"]
 set admin_p [permission::permission_p -object_id $cc_package_id -privilege "admin"]
 
 set item_template "one-course?cal_item_id=\$item_id"
