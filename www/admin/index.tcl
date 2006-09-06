@@ -144,3 +144,5 @@ if { [llength [set purchaser [db_list transactions {
     set user_id [lindex $purchaser 0]
     set shopping_cart_url [export_vars -base ../ecommerce/shopping-cart { user_id }]
 }
+
+set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
