@@ -16,12 +16,15 @@ ad_page_contract {
 	    {csv_p 0} \
 	    {as_item_id ""} \
 	    {as_search ""} \
+	    {page 1} \
+	    {all 0} \
 	    ] \
        [as::list::params]]
 
 set user_id [ad_conn user_id]
 
 set package_id [ad_conn package_id]
+permission::require_permission -object_id $package_id -privilege "admin"
 set admin_p [permission::permission_p -object_id $package_id -privilege "admin"]
 set return_url [ad_return_url]
 
@@ -259,25 +262,17 @@ lappend elements \
 if { [exists_and_not_null section_id] } {
     set section_clause {and s.section_id = :section_id}
 
-    if { [db_0or1row assessment_revision {
-	select a.title, a.assessment_id as section_assessment_rev_id
-	from dotlrn_ecommerce_section s, dotlrn_catalogi c, as_assessmentsi a, cr_items ci, cr_items ai
-	where s.course_id = c.item_id
-	and c.assessment_id = a.item_id
-	and c.course_id = ci.latest_revision
-	and a.assessment_id = ai.latest_revision
-	and s.section_id = :section_id
-    }] } {
-	array set search_arr [as::list::filters -assessments [list [list $title $section_assessment_rev_id]]]
+    if { [db_0or1row assessment_revision { }] } {
+		array set search_arr [as::list::filters -assessments [list [list $title $section_assessment_rev_id]]]
     } else {
-	array set search_arr [list list_filters [list] assessment_search_options [list] search_js_array ""]
+		array set search_arr [list list_filters [list] assessment_search_options [list] search_js_array ""]
     }
+    
 } else {
     set section_clause ""
     # we want to get all the questions that are common to dotlrn-ecommerce 
     # applications
-    set filter_assessments [db_list_of_lists get_filter_assessments "
-select distinct a.title, a.revision_id as assessment_id from dotlrn_catalog c, cr_items i, as_assessmentsx a where i.item_id=c.assessment_id and i.latest_revision=a.revision_id"]
+    set filter_assessments [db_list_of_lists get_filter_assessments {}]
 
     array set search_arr [as::list::filters -assessments $filter_assessments]
 }
@@ -352,44 +347,20 @@ set list_filters [concat $list_filters $search_arr(list_filters)]
 #    has_default_p 1
 #}
 
+# HAM :
+# this exports the current page
 lappend actions \
-    [_ dotlrn-ecommerce.Export] \
+    "[_ dotlrn-ecommerce.Export] Page" \
     [export_vars -base [ad_return_url] { {csv_p 1} }] \
-    [_ dotlrn-ecommerce.Export]
+    "[_ dotlrn-ecommerce.Export] Page"
     
-
-template::list::create \
-    -name "applications" \
-    -key rel_id \
-    -multirow "applications" \
-    -no_data "[_ dotlrn-ecommerce.No_applications]" \
-    -pass_properties { return_url } \
-    -page_flush_p 1 \
-    -pass_properties { admin_p return_url _type } \
-    -actions $actions \
-    -bulk_actions $bulk_actions \
-    -bulk_action_export_vars { return_url } \
-    -elements $elements \
-    -filters $list_filters \
-    -filter_form 1 \
-    -orderby {
-	section_name {
-	    label "[_ dotlrn-ecommerce.Section_1]"
-	    orderby "lower(s.section_name)"
-	}
-	number {
-	    label "[_ dotlrn-ecommerce.lt_Number_in_Waiting_Lis]"
-	    orderby "lower(s.section_name), number"
-	}
-	person_name {
-	    label "[_ dotlrn-ecommerce.Participant]"
-	    orderby "lower(person__name(r.user_id))"
-	}
-	member_state {
-	    label "[_ dotlrn-ecommerce.Member_Request]"
-	}
-    }
-
+# this exports all data
+lappend actions \
+		"[_ dotlrn-ecommerce.Export] All" \
+		[export_vars -base [ad_return_url] { {csv_p 1} {all 1} }] \
+		"[_ dotlrn-ecommerce.Export] All"
+		    
+    
 if { $admin_p } {
     set user_clause ""
 } else {
@@ -409,51 +380,85 @@ if { $enable_applications_p } {
 
 set general_comments_url [apm_package_url_from_key "general-comments"]
 
-db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target calendar_id item_type_id num_sessions } applications applications [subst {
-    select person__name(r.user_id) as person_name, member_state, r.community_id, r.user_id as applicant_user_id, s.section_name, t.course_name, s.section_id, r.rel_id, e.phone, o.creation_user as patron_id,
-    (select count(*)
-     from (select *
-	   from dotlrn_member_rels_full rr,
-	   acs_objects o
-	   where rr.rel_id = o.object_id
-	   and rr.rel_id <= r.rel_id
-	   and rr.community_id = r.community_id
-	   and rr.member_state = r.member_state
-	   order by o.creation_date) r) as number, s.product_id, m.session_id, m.completed_datetime
+if { $all } {
 
-    from dotlrn_member_rels_full r
-    left join (select *
-	       from ec_addresses
-	       where address_id in (select max(address_id)
-				    from ec_addresses
-				    group by user_id)) e
-    on (r.user_id = e.user_id)
-    left join (select m.*, s.completed_datetime
-	       from dotlrn_ecommerce_application_assessment_map m, as_sessions s
-	       where m.session_id = s.session_id
-	       and m.session_id in (select max(session_id)
-				    from dotlrn_ecommerce_application_assessment_map
-				    group by rel_id)) m
-    on (r.rel_id = m.rel_id), 
-    dotlrn_ecommerce_section s
-    left join ec_products p
-    on (s.product_id = p.product_id),
-    dotlrn_catalogi t,
-    cr_items i,
-    acs_objects o
+	# HAM : use this template to export all to csv
+	template::list::create \
+	    -name "applications" \
+	    -key rel_id \
+	    -multirow "applications" \
+	    -no_data "[_ dotlrn-ecommerce.No_applications]" \
+	    -pass_properties { return_url } \
+	    -pass_properties { admin_p return_url _type } \
+	    -actions $actions \
+	    -bulk_actions $bulk_actions \
+	    -page_flush_p 1 \
+	    -bulk_action_export_vars { return_url } \
+	    -elements $elements \
+	    -filters $list_filters \
+	    -filter_form 1 \
+	    -orderby {
+			section_name {
+			    label "[_ dotlrn-ecommerce.Section_1]"
+			    orderby "lower(s.section_name)"
+			}
+			number {
+			    label "[_ dotlrn-ecommerce.lt_Number_in_Waiting_Lis]"
+			    orderby "lower(s.section_name), number"
+			}
+			person_name {
+			    label "[_ dotlrn-ecommerce.Participant]"
+			    orderby "lower(person__name(r.user_id))"
+			}
+			member_state {
+			    label "[_ dotlrn-ecommerce.Member_Request]"
+			}
+	    }
+	
+	set page_clause ""
+	
+} else {
 
-    where r.community_id = s.community_id
-    and s.course_id = t.item_id
-    and t.course_id = i.live_revision
-    and r.rel_id = o.object_id
-
-    $member_state_clause
-    $user_clause
-    $section_clause
-
-    [template::list::filter_where_clauses -and -name applications]
-    [template::list::orderby_clause -name applications -orderby]         
-}] {
+	# HAM : use this list template to display rows
+	#  has support for paging	
+	template::list::create \
+	    -name "applications" \
+	    -key rel_id \
+	    -multirow "applications" \
+	    -no_data "[_ dotlrn-ecommerce.No_applications]" \
+	    -pass_properties { return_url } \
+	    -pass_properties { admin_p return_url _type } \
+	    -actions $actions \
+	    -bulk_actions $bulk_actions \
+	    -page_size 25 \
+	    -page_flush_p 1 \
+	    -page_query_name "applications_pagination"  \
+	    -bulk_action_export_vars { return_url } \
+	    -elements $elements \
+	    -filters $list_filters \
+	    -filter_form 1 \
+	    -orderby {
+			section_name {
+			    label "[_ dotlrn-ecommerce.Section_1]"
+			    orderby "lower(s.section_name)"
+			}
+			number {
+			    label "[_ dotlrn-ecommerce.lt_Number_in_Waiting_Lis]"
+			    orderby "lower(s.section_name), number"
+			}
+			person_name {
+			    label "[_ dotlrn-ecommerce.Participant]"
+			    orderby "lower(person__name(r.user_id))"
+			}
+			member_state {
+			    label "[_ dotlrn-ecommerce.Member_Request]"
+			}
+	    }
+	
+	set page_clause [template::list::page_where_clause -and -key r.rel_id -name applications]
+}
+    
+db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target calendar_id item_type_id num_sessions } applications applications [subst { }] {
     set list_type [ad_decode $member_state "needs approval" full "request approval" prereq "application sent" payment full]
 
     set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
@@ -479,28 +484,7 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 
     # get associated comment
     if {![empty_string_p $asm_url]} {
-        db_foreach get_comments {
-            select g.comment_id,
-                   r.content as gc_content,
-                   r.title as gc_title,
-	           r.mime_type as gc_mime_type,
-                   acs_object__name(o.creation_user) as gc_author,
-                   to_char(o.creation_date, 'YYYY-MM-DD HH24:MI:SS') as gc_creation_date_ansi
-            from general_comments g,
-                 cr_revisions r,
-                 cr_items ci,
-                 acs_objects o
-            where g.object_id in (select session_id
-                                  from as_sessions
-                                  where assessment_id = (select assessment_id 
-							 from as_sessions 
-							 where session_id =  :session_id)
-				        and subject_id = :applicant_user_id)
-                  and r.revision_id = ci.live_revision
-                  and ci.item_id = g.comment_id 
-                  and o.object_id = g.comment_id
-            order by o.creation_date
-        } {
+        db_foreach get_comments { } {
 	    if {[string equal $gc_mime_type "text/plain"]} {
 		set html_comment [dotlrn_ecommerce::util::text_to_html -text $gc_content]
 	    } else {
@@ -519,7 +503,13 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
     set calendar_id [dotlrn_calendar::get_group_calendar_id -community_id \
 			 [db_string get_community_id "select community_id from dotlrn_ecommerce_section where section_id=:section_id" -default ""]]
     set item_type_id [db_string item_type_id "select item_type_id from cal_item_types where type='Session' and  calendar_id = :calendar_id"]
-    set num_sessions [db_string num_sessions "select count(cal_item_id) from cal_items where on_which_calendar = :calendar_id and item_type_id = :item_type_id"]
+    set num_sessions [db_string num_sessions "select count(cal_item_id) from cal_items where on_which_calendar = :calendar_id and item_type_id = :item_type_id"]    
+}
+# HAM :
+# unset section id because it seems the last section_id
+#  is being picked up by the paging links
+if {[info exists section_id]} {
+    unset section_id
 }
 
 # if we are CSV we need to get the assessment items
@@ -620,7 +610,6 @@ if {$csv_p == 1} {
 
     }
     
-
     
     set __output {}
     set __cols [list]

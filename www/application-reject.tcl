@@ -2,7 +2,7 @@
 
 ad_page_contract {
     
-    
+    Reject application and maybe send rejection email
     
     @author Roel Canicula (roelmc@pldtdsl.net)
     @creation-date 2005-07-01
@@ -92,12 +92,12 @@ if { !$send_email_p || $actor_id == $email_user_id } {
     }
     set context [list [list applications "[_ dotlrn-ecommerce.Pending_applications]"] $title]
     ad_form \
+	-export { type return_url } \
         -name email_form \
 	-export { return_url } \
         -form {
-            {user_id:text(hidden)}
+	    {user_id:text(hidden)}
             {community_id:text(hidden)}
-            {type:text(hidden)}
 	    {subject:text {html {size 60}}}
             {reason:text(textarea),optional {label "[_ dotlrn-ecommerce.Reason]"} {html {rows 10 cols 60}}}
 	}

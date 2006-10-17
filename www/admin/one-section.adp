@@ -45,7 +45,7 @@
 </if>
 
 <if @attendance_show_p@>
-<h2>#dotlrn-ecommerce.lt_Sessions_and_Attendan#</h2>
+<br><h2>#dotlrn-ecommerce.lt_Sessions_and_Attendan#</h2>
 
 <include src=/packages/attendance/lib/cp-attendance community_id=@community_id@ package_id=@community_package_id@>
 </if>

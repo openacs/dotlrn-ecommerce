@@ -12,14 +12,15 @@
   </script>
 
 
-<listfilters style="listed-filters" name="applications"></listfilters>
 <listfilters-form name="applications" style="form-filters"></listfilters-form>
 
   <script type="text/javascript">
     <!--
     if (searchItems[document.forms.as_search.as_item_id.value] == 'section' || searchItems[document.forms.as_search.as_item_id.value] == 'assessment' || document.forms.as_search.as_item_id.selectedIndex == 0) {
-    document.forms.as_search.as_search.disabled = true;
-    document.forms.as_search.search.disabled = true;
+    	if (typeof(document.forms.as_search.as_search) != "undefined" && typeof(document.forms.as_search.search) != "undefined" ) {
+    		document.forms.as_search.as_search.disabled = true;
+    		document.forms.as_search.search.disabled = true;
+    	}
     }
     //-->
   </script>

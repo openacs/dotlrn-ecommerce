@@ -12,13 +12,21 @@ ad_page_contract {
     {rel_id:multiple {}}
     return_url
     __confirmed_p:optional
-
+    {send_email_p 1}
+    submit2:optional
     {filter_community_id ""}
     {filter_member_state:multiple {{needs approval} {application sent}}}
 } -properties {
 } -validate {
 } -errors {
 }
+
+#If we come from a "Submit2" command, we must not send the emails.
+if { [exists_and_equal submit2 "[_ dotlrn-ecommerce.Approve_no_email]"] } {
+    set send_email_p 0
+}
+
+
 
 # Properly check for permissions as non-sw-admin instructors can
 # access the applications list and perform operations on their
@@ -93,7 +101,8 @@ if { [template::multirow size applications] > 0 } {
     }
     
     ad_form -extend -name confirm -form {
-	{approve:text(submit) {label "[_ dotlrn-ecommerce.Approve]"}}
+	{submit1:text(submit) {label "[_ dotlrn-ecommerce.Approve]"}}
+	{submit2:text(submit) {label "[_ dotlrn-ecommerce.Approve_no_email]"}}
     } -on_submit {
 
 	db_foreach applications_to_approve [subst {
@@ -106,30 +115,32 @@ if { [template::multirow size applications] > 0 } {
 	    and (case when :filter_community_id is null then member_state != 'request approval' else r.community_id = :filter_community_id end)
 	}] {
 
-	    if {$email_reg_info_to == "participant"} {
-		set email_user_id $user_id
-	    }  else {
-		set email_user_id $patron_id
-	    }
-	    
-	    if { "request approval" == $member_state } {
-		array set vars [lindex [callback dotlrn::member_email_var_list -community_id $filter_community_id -to_user $email_user_id -type prereq] 0]
-		set email_vars [lang::message::get_embedded_vars $reason]
-		foreach var [concat $email_vars] {
-		    if {![info exists vars($var)]} {
-			set vars($var) ""
-		    }
+	    #Only send the emails if appropriate
+	    if {$send_email_p == 1} {
+		if {$email_reg_info_to == "participant"} {
+			set email_user_id $user_id
+		}  else {
+			set email_user_id $patron_id
 		}
-		set var_list [array get vars]
-		set reason "[lang::message::format $reason $var_list]"
-
-		dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type "prereq approval" -override_email $reason -override_subject $subject
-	    } else {
-		set email_type [ad_decode $member_state "needs approval" "waitinglist approved" "application sent" "on approval" "waitinglist approved"]
-
-		dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type
-	    }	    
-
+		
+		if { "request approval" == $member_state } {
+			array set vars [lindex [callback dotlrn::member_email_var_list -community_id $filter_community_id -to_user $email_user_id -type prereq] 0]
+			set email_vars [lang::message::get_embedded_vars $reason]
+			foreach var [concat $email_vars] {
+			if {![info exists vars($var)]} {
+				set vars($var) ""
+			}
+			}
+			set var_list [array get vars]
+			set reason "[lang::message::format $reason $var_list]"
+	
+			dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type "prereq approval" -override_email $reason -override_subject $subject
+		} else {
+			set email_type [ad_decode $member_state "needs approval" "waitinglist approved" "application sent" "on approval" "waitinglist approved"]
+	
+			dotlrn_community::send_member_email -community_id $community_id -to_user $email_user_id -type $email_type
+		}	    
+	    }
 	    set price [dotlrn_ecommerce::section::price $section_id]
 
 	    # Approval on free registration gets the user registered immediately
