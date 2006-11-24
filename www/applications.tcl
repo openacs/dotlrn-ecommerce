@@ -457,6 +457,8 @@ if { $all } {
 	
 	set page_clause [template::list::page_where_clause -and -key r.rel_id -name applications]
 }
+
+set csv_session_ids [list]
     
 db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target calendar_id item_type_id num_sessions } applications applications [subst { }] {
     set list_type [ad_decode $member_state "needs approval" full "request approval" prereq "application sent" payment full]
@@ -504,6 +506,9 @@ db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url
 			 [db_string get_community_id "select community_id from dotlrn_ecommerce_section where section_id=:section_id" -default ""]]
     set item_type_id [db_string item_type_id "select item_type_id from cal_item_types where type='Session' and  calendar_id = :calendar_id"]
     set num_sessions [db_string num_sessions "select count(cal_item_id) from cal_items where on_which_calendar = :calendar_id and item_type_id = :item_type_id"]    
+    if {$session_id ne ""} {
+	lappend csv_session_ids $session_id
+    }
 }
 # HAM :
 # unset section id because it seems the last section_id
@@ -591,11 +596,17 @@ if {$csv_p == 1} {
 	    }
 
 	    foreach one_item $item_list {
+	       
 		util_unlist $one_item as_item_item_id section_item_id item_type data_type
-		array set results [as::item_type_$item_type\::results -as_item_item_id $as_item_item_id -section_item_id $section_item_id -data_type $data_type -sessions [list $session_id]]
-	    
-		if {[info exists results($session_id)]} {
-		    set $as_item_item_id $results($session_id)
+		if {![array exists results_${as_item_item_id}]} {
+		    array set results_${as_item_item_id} [as::item_type_$item_type\::results -as_item_item_id $as_item_item_id -section_item_id $section_item_id -data_type $data_type -sessions $csv_session_ids]		    
+		    ns_log notice "DAVEB-----
+[join [array get results_${as_item_item_id}] \n]
+-----
+"
+		}
+		if {[info exists results_${as_item_item_id}($session_id)]} {
+		    set $as_item_item_id [set results_${as_item_item_id}($session_id)]
 		} else {
 		    set $as_item_item_id ""
 		}
