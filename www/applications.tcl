@@ -383,6 +383,7 @@ set general_comments_url [apm_package_url_from_key "general-comments"]
 if { $all } {
 
 	# HAM : use this template to export all to csv
+    ns_log notice "exporting ALL to CSV, elements = [join $elements \n]"
 	template::list::create \
 	    -name "applications" \
 	    -key rel_id \
@@ -418,7 +419,7 @@ if { $all } {
 	set page_clause ""
 	
 } else {
-
+    ns_log notice "exporting PAGE to CSV, elements = [join $elements \n]"
 	# HAM : use this list template to display rows
 	#  has support for paging	
 	template::list::create \
@@ -585,10 +586,12 @@ if {$csv_p == 1} {
 		    order by asm.sort_order, 
 		          ism.sort_order
 		} {
-                    set csv_cols_labels($as_item_item_id) $title
-                    template::multirow extend applications $as_item_item_id
-                    lappend csv_cols $as_item_item_id
-		    lappend item_list [list $as_item_item_id $section_item_id [string range $object_type end-1 end] $data_type]
+		    if {[lsearch $csv_cols $as_item_item_id] == -1} {
+			set csv_cols_labels($as_item_item_id) $title
+			template::multirow extend applications $as_item_item_id
+			lappend csv_cols $as_item_item_id
+			lappend item_list [list $as_item_item_id $section_item_id [string range $object_type end-1 end] $data_type]
+		    }
 		}
 		# add his assessment revision to the list 
 		# so that we dont query it again
