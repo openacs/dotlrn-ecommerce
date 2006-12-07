@@ -525,6 +525,9 @@ if {[info exists section_id]} {
 
 if {$csv_p == 1} {
     set csv_cols {}
+    lappend csv_cols applicant_user_id section_id
+    set csv_cols_labels(applicant_user_id) "User_ID"
+    set csv_cols_labels(section_id) "Section_ID"
     set all_cols [list "section_name" "number" "person_name" "member_state" "phone" "comments_text_plain"]
     template::list::get_reference -name applications
     set __list_name applications
@@ -536,10 +539,10 @@ if {$csv_p == 1} {
 	}
     }
 
-    lappend csv_cols "attendance" "attendance_rate"
+    lappend csv_cols "attendance" "num_sessions"
     set csv_cols_labels(attendance) attendance
-    set csv_cols_labels(attendance_rate) "attendance rate"
-    template::multirow extend applications attendance attendance_rate
+    set csv_cols_labels(num_sessions) "number of sessions"
+    template::multirow extend applications attendance num_sessions
     set csv_as_item_list [list]
     set assessment_rev_id_list [list]
     set item_list [list]
@@ -620,7 +623,8 @@ if {$csv_p == 1} {
 	# attendance data
 	set attendance [db_string "count" "select count(user_id) from attendance_cal_item_map where user_id = :applicant_user_id and cal_item_id in (select cal_item_id from cal_items where on_which_calendar = :calendar_id and item_type_id = :item_type_id )" ]
 	if { $num_sessions == 0 } { set attendance_rate "0" } else  { set attendance_rate [format "% .0f" [expr (${attendance}.0/$num_sessions)*100]] }
-	set attendance "${attendance}/${num_sessions}"
+	set attendance "${attendance}"
+        
 
     }
     
