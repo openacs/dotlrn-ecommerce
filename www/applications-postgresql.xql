@@ -60,7 +60,7 @@
             
     <fullquery name="applications">
         <querytext>    
-		    select person__name(r.user_id) as person_name, member_state, r.community_id, r.user_id as applicant_user_id, s.section_name, t.course_name, s.section_id, r.rel_id, e.phone, o.creation_user as patron_id,
+		    select person__name(r.user_id) as person_name, member_state, r.community_id, r.user_id as applicant_user_id, s.section_name, t.course_name, s.section_id, r.rel_id, e.phone, o.creation_user as patron_id, m.completed_datetime,
 		    (select count(*)
 		     from (select *
 			   from dotlrn_member_rels_full rr,

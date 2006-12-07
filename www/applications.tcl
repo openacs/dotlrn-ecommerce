@@ -461,7 +461,8 @@ if { $all } {
 
 set csv_session_ids [list]
     
-db_multirow -extend { approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target calendar_id item_type_id num_sessions } applications applications [subst { }] {
+db_multirow -extend { unique_id approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target calendar_id item_type_id num_sessions } applications applications [subst { }] {
+    set unique_id "${applicant_user_id}-${section_id}"
     set list_type [ad_decode $member_state "needs approval" full "request approval" prereq "application sent" payment full]
 
     set approve_url [export_vars -base application-approve { community_id {user_id $applicant_user_id} {type $list_type} return_url }]
@@ -525,7 +526,10 @@ if {[info exists section_id]} {
 
 if {$csv_p == 1} {
     set csv_cols {}
-    lappend csv_cols applicant_user_id section_id
+    lappend csv_cols unique_id applicant_user_id section_id completed_datetime
+    set csv_cols_labels(completed_datetime) "Application Date"
+    set csv_cols_labels(unique_id) "Unique_ID"
+
     set csv_cols_labels(applicant_user_id) "User_ID"
     set csv_cols_labels(section_id) "Section_ID"
     set all_cols [list "section_name" "number" "person_name" "member_state" "phone" "comments_text_plain"]
