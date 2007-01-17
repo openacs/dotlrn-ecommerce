@@ -252,7 +252,6 @@ ad_form -extend -name add_section -form {
 	}
 }
 
-
 # ecommerce stuff
 
 set exclude_list [list "'classid'"]
@@ -331,8 +330,16 @@ if { [llength $sessions_list] } {
     }
 }
 
-if { ! [info exists sessions] } {
+if { ! [info exists sessions] || ![llength $sessions] } {
     set sessions [list]
+    
+    # allow setting start/end date if there aren't sessions predefined
+    # DAVEB 20070112 Adding active_state_date and active_end_date 
+    ad_form -extend -name add_section -form {
+	{active_start_date:date(date),to_sql(ansi),from_sql(ansi),optional {label "[_ dotlrn.Start_Date]"}}
+	{active_end_date:date(date),to_sql(ansi),from_sql(ansi),optional {label "[_ dotlrn.End_Date]"}}
+    }
+    
 }
 foreach s $sessions_list {
     array set session $s
@@ -421,12 +428,16 @@ ad_form -extend -name add_section -validate $validate -on_request {
 } -edit_request {
     set course_item_id $course_id
     db_1row community {
-	select des.*, p.price, c.community_key as section_key
-	from dotlrn_ecommerce_section des, ec_products p, dotlrn_communities c
+	select des.*, p.price, c.community_key as section_key,
+        c.active_start_date, c.active_end_date
+	from dotlrn_ecommerce_section des, ec_products p, dotlrn_communities_all c
 	where des.product_id = p.product_id
 	and des.community_id = c.community_id
 	and des.section_id = :section_id
     }
+    set active_start_date [template::util::date::from_ansi $active_start_date]
+    set active_end_date [template::util::date::from_ansi $active_end_date]
+
     set course_id $course_item_id
 
 	# HAM
@@ -498,6 +509,15 @@ ad_form -extend -name add_section -validate $validate -on_request {
 				  -object_type dotlrn_club \
 				  -community_key $section_key \
 				  -pretty_name "$course_data(name): Section $section_name"]
+	}
+
+	# Set start and end date if they exist
+	if {[info exists active_start_date] \
+		&& [info exists active_end_date]} {
+	    db_dml update_dates "update dotlrn_communities_all
+                                 set active_start_date =:active_start_date,
+                                     active_end_date = :active_end_date
+                                 where community_id = :community_id"
 	}
 
 	# HAM : Let's add chosen instructors in the role of instructors 
@@ -704,6 +724,15 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	dotlrn_community::set_community_name \
 	    -community_id $community_id \
 	    -pretty_name $section_name
+
+	# Set start and end date if they exist
+	if {[info exists active_start_date] \
+		&& [info exists active_end_date]} {
+	    db_dml update_dates "update dotlrn_communities_all
+                                 set active_start_date =:active_start_date,
+                                     active_end_date = :active_end_date
+                                 where community_id = :community_id"
+	}
 
 	# Update price
 	db_dml update_price {
