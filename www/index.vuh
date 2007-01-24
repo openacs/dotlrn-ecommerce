@@ -1,0 +1,21 @@
+ad_page_contract {
+        Support dotlrn-ecommerce/<course_key> style urls
+}
+
+set path_info_list [split [ad_conn path_info] "/"]
+set course_key [lindex $path_info_list 0]
+set section_key [lindex $path_info_list 1]
+set course_id [dotlrn_ecommerce::course::get_course_id_from_key $course_key]
+set section_id [dotlrn_community::get_community_id_from_key $section_key]
+ns_log notice "
+-----
+dotlrn-ecommerce/www/index.vuh
+course_key = '${course_key}'
+section_key = '${section_key}'
+course_id = '${course_id}'
+section_id = '${section_id}'
+-----
+"
+rp_form_put course_id $course_id
+rp_form_put section_id $section_id
+rp_internal_redirect /packages/dotlrn-ecommerce/www/one-course
