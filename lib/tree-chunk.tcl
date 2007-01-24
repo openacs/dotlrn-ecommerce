@@ -17,7 +17,9 @@ ad_page_contract {
     {active_calendar_id 0}
     {all_sessions_p 0}
 }
-
+if {![info exists show_filters_p]} {
+    set show_filters_p 1
+}
 set memoize_max_age [parameter::get -parameter CatalogMemoizeAge -default 120]
 
 set package_id [ad_conn package_id]
@@ -35,7 +37,7 @@ set allow_free_registration_p [parameter::get -parameter AllowFreeRegistration -
 # 	label "[_ dotlrn-catalog.uncat]"
 # 	values { "Watch" }
 # 	where_clause { dc.course_id not in ( select object_id from category_object_map where category_id in \
-# 						 ( select category_id from categories where tree_id =:tree_id ))
+    # 						 ( select category_id from categories where tree_id =:tree_id ))
 # 	}
 #     }
 # }
@@ -221,11 +223,11 @@ lappend filters instructor \
 	 label "[_ dotlrn-ecommerce.Instructor]" \
 	 values $instructors_filter \
 	 where_clause_eval {subst {exists (select 1
-     from dotlrn_users u, dotlrn_member_rels_approved r
-     where u.user_id = r.user_id
-     and r.community_id = dec.community_id
-     and r.rel_type = 'dotlrn_ecom_instructor_rel'
-     and r.user_id in ([join $instructor ,]))}}]
+                                           from dotlrn_users u, dotlrn_member_rels_approved r
+                                           where u.user_id = r.user_id
+                                           and r.community_id = dec.community_id
+                                           and r.rel_type = 'dotlrn_ecom_instructor_rel'
+                                           and r.user_id in ([join $instructor ,]))}}]
 # Section categories
 #foreach section_tree [category_tree::get_mapped_trees $package_id] {
 #    set tree_list [category_tree::get_tree -all $section_tree]
@@ -260,21 +262,23 @@ if { ![exists_and_not_null show_hidden] || $show_hidden ne "t" } {
 }
 
 set actions [list]
+if {$show_filters_p} {
+    lappend actions "[_ dotlrn-ecommerce.View_All]" ? "[_ dotlrn-ecommerce.View_All]"
 
-lappend actions "[_ dotlrn-ecommerce.View_All]" ? "[_ dotlrn-ecommerce.View_All]"
+    _deparam ShowCalendarButton {
+        lappend actions "[_ dotlrn-ecommerce.View_Calendar]" "?groupby=course%5fname&orderby=course%5fname&view=calendar" "[_ dotlrn-ecommerce.View_Calendar]"
+    }
 
-_deparam ShowCalendarButton {
-    lappend actions "[_ dotlrn-ecommerce.View_Calendar]" "?groupby=course%5fname&orderby=course%5fname&view=calendar" "[_ dotlrn-ecommerce.View_Calendar]"
+    if { $admin_p } {
+        lappend actions "[_ dotlrn-ecommerce.Add_Course]" admin/course-add-edit "[_ dotlrn-ecommerce.Add_Course]"
+    }
+
+    lappend actions "[_ dotlrn-ecommerce.My_Shopping_Cart]" [export_vars -base ecommerce/shopping-cart] "[_ dotlrn-ecommerce.My_Shopping_Cart]"
 }
-
-if { $admin_p } {
-    lappend actions "[_ dotlrn-ecommerce.Add_Course]" admin/course-add-edit "[_ dotlrn-ecommerce.Add_Course]"
-}
-
-lappend actions "[_ dotlrn-ecommerce.My_Shopping_Cart]" [export_vars -base ecommerce/shopping-cart] "[_ dotlrn-ecommerce.My_Shopping_Cart]"
-
 set allow_other_registration_p [parameter::get -parameter AllowRegistrationForOtherUsers -default 1]
 set offer_code_p [parameter::get -parameter OfferCodesP -default 0]
+
+lappend filters course_id {where_clause "ci.item_id=:course_id" hide_p 1} section_id {}
 
 template::list::create \
     -name course_list \
@@ -301,7 +305,7 @@ template::list::create \
 	    label "[_ dotlrn-catalog.course_name]"
 	    display_template {
 		<div align=left>
-	        @course_list.course_name@
+                @course_list.course_name@
 		</div>
 	    }
 	    hide_p 1
@@ -477,7 +481,7 @@ template::list::create \
 	label "Group by"
 	type multivar
 	values {
-	    { { <a name="@course_list.course_key@"></a><if @admin_p@ eq 1><a href="@course_list.course_edit_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.edit]</a> <a href="@course_list.section_add_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.add_section]</a></if>
+	    { { <a href="@course_list.course_key@">Go to course</a></if> <if @admin_p@ eq 1><a href="@course_list.course_edit_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.edit]</a> <a href="@course_list.section_add_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.add_section]</a></if>
 		<br />@course_list.course_grades@
 		<p>
 		@course_list.course_info;noquote@
@@ -510,7 +514,7 @@ if { $offer_code_p } {
     set discount_clause ""
 }
 
-db_multirow -extend {toggle_display_url patron_message member_state fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades section_zones sections_url member_p sessions instructor_names price prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url cancel_url } course_list get_courses { } {
+db_multirow -unclobber -extend {toggle_display_url patron_message member_state fs_chunk section_folder_id section_pages_url category_name community_url course_edit_url section_add_url section_edit_url course_grades section_grades section_zones sections_url member_p sessions instructor_names price prices shopping_cart_add_url attendees available_slots pending_p waiting_p approved_p instructor_p registration_approved_url button waiting_list_number asm_url cancel_url } course_list get_courses { } {
 
     # Since dotlrn-ecommerce is based on dotlrn-catalog,
     # it's possible to have a dotlrn_catalog object without an
