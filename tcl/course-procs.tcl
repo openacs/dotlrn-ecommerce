@@ -52,6 +52,29 @@ ad_proc -public dotlrn_ecommerce::course::new {
     return [content::item::get_live_revision -item_id $item_id]
 }
 
+ad_proc -public dotlrn_ecommerce::course::get_course_id_from_key {
+    course_key
+} {
+    Get the course_id from they course key
+
+    @param course_key course_key to look for
+    @return course_id id of the course, empty string if no course is found
+
+    @creation-date 2007-01-24
+    @author Dave Bauer (dave@solutiongrove.com)
+
+} {
+    return [db_string get_id "
+select distinct ds.course_id
+from dotlrn_ecommerce_section ds,
+dotlrn_catalog dc,
+cr_revisions cr
+where 
+dc.course_key=:course_key
+and dc.course_id = cr.revision_id
+and ds.course_id=cr.item_id
+" -default ""]
+}
 ad_proc -private dotlrn_ecommerce::copy_course_default_email {
     -community_id
 } {
@@ -163,3 +186,4 @@ ad_proc -private dotlrn_ecommerce::email_type_sent_when {
                      "needs approval" "[_ dotlrn-ecommerce.sent_8]" \
                      "request approval" "[_ dotlrn-ecommerce.sent_9]"] $type]
 }
+
