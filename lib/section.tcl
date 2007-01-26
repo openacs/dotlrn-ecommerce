@@ -335,11 +335,23 @@ if { ! [info exists sessions] || ![llength $sessions] } {
     
     # allow setting start/end date if there aren't sessions predefined
     # DAVEB 20070112 Adding active_state_date and active_end_date 
-    ad_form -extend -name add_section -form {
-	{active_start_date:date(date),to_sql(ansi),from_sql(ansi),optional {label "[_ dotlrn.Start_Date]"}}
-	{active_end_date:date(date),to_sql(ansi),from_sql(ansi),optional {label "[_ dotlrn.End_Date]"}}
-    }
-    
+    if { $mode == "edit" } {
+  	    ad_form -extend -name add_section -form {
+		{active_start_date:date(date),to_sql(ansi),from_sql(ansi),optional 
+			{label "[_ dotlrn.Start_Date]"}
+			{html {id active_start_date} }
+			{after_html { <input type="button" style="height:23px; width:23px; background: url('/resources/acs-templating/calendar.gif');" onclick ="return showCalendarWithDateWidget('active_start_date', 'y-m-d');" /> \[<b>d-m-y</b>\] } } }
+		{active_end_date:date(date),to_sql(ansi),from_sql(ansi),optional 
+			{label "[_ dotlrn.End_Date]"}
+			{html {id active_end_date} }
+			{after_html { <input type="button" style="height:23px; width:23px; background: url('/resources/acs-templating/calendar.gif');" onclick ="return showCalendarWithDateWidget('active_end_date', 'y-m-d');" /> \[<b>d-m-y</b>\] } } }
+	    }
+	} else {
+	    ad_form -extend -name add_section -form {
+		{active_start_date:date(date),to_sql(ansi),from_sql(ansi),optional {label "[_ dotlrn.Start_Date]"}}
+		{active_end_date:date(date),to_sql(ansi),from_sql(ansi),optional {label "[_ dotlrn.End_Date]"}}
+	    }
+	}
 }
 foreach s $sessions_list {
     array set session $s
