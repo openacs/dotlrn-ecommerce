@@ -684,3 +684,15 @@ ad_proc -public dotlrn_ecommerce::check_user {
 	    -value $read_private_data_p
     }
 }
+
+ad_proc -public dotlrn_ecommerce::category_trees {
+} {
+    Gets category trees which includes those mapped to dotlrn catalog
+    and dotlrn ecommerce
+
+    @return List of category tree ids or empty list if no trees mapped
+
+} {
+
+    
+}
