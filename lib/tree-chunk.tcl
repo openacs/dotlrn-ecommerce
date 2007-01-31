@@ -17,6 +17,10 @@ ad_page_contract {
     {active_calendar_id 0}
     {all_sessions_p 0}
 }
+
+if {![info exists list_style]} {
+    set list_style courses
+}
 if {![info exists show_filters_p]} {
     set show_filters_p 1
 }
@@ -278,7 +282,7 @@ if {$show_filters_p} {
 set allow_other_registration_p [parameter::get -parameter AllowRegistrationForOtherUsers -default 1]
 set offer_code_p [parameter::get -parameter OfferCodesP -default 0]
 
-lappend filters course_id {where_clause "ci.item_id=:course_id" hide_p 1} section_id {}
+lappend filters course_id {where_clause "ci.item_id=:course_id" hide_p 1}
 
 template::list::create \
     -name course_list \
@@ -481,7 +485,7 @@ template::list::create \
 	label "Group by"
 	type multivar
 	values {
-	    { { <a href="@course_list.course_key@">Go to course</a></if> <if @admin_p@ eq 1><a href="@course_list.course_edit_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.edit]</a> <a href="@course_list.section_add_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.add_section]</a></if>
+	    {{ <b><a href="@course_list.course_key@">@course_list.course_name@</a></b> <if @admin_p@ eq 1><a href="@course_list.course_edit_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.edit]</a> <a href="@course_list.section_add_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.add_section]</a></if>
 		<br />@course_list.course_grades@
 		<p>
 		@course_list.course_info;noquote@
