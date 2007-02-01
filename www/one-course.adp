@@ -1,33 +1,35 @@
 <master>
 <property name="title">Course Info: @course_name@</property>
-<h1>Course Info</h1>
-<h2>@course_name@ @course_id@</h2>
-<if @admin_p@>
-<p><a href="@course_edit_url@">#dotlrn-ecommerce.edit#</a></p>
-</if>
-<div>
+<h1 style="font-size: 14px; color: #BBBBBB;">Course Information:</h1>
+<h1>@course_name@</h1>
 <div style="float:left; width:45%; margin-right:4%;">
+<h3>Course Key: @course_key@</h3>
 <multiple name="sections">
 <if @sections.rownum@ eq 1>
 <h3>Course Description</h3>
 <p>@sections.course_info@</p>
 <multiple name="categories">
-<h3>@categories.tree_name@</h3>
-@categories.category_names@
+<h3>Categories</h3>
+<p>@categories.category_names@</p>
 </multiple>
 </if>
 </multiple>
+<if @admin_p@>
+<p>Admin: <a href="@course_edit_url@">#dotlrn-ecommerce.edit#</a></p>
+</if>
+
 </div>
 <div style="float:left; width:45%;">
+<h3>Available Section(s)</h3>
 <multiple name="sections">
+<div style="clear:both; padding-bottom:20px; padding-right:10px; padding-left:10px; padding-top:0px; margin:5px; border:1px solid; width:300px;">
 <h3>@sections.section_name@</h3>
-		<if @admin_p@ eq 1>
-<p>		<a href="@sections.section_edit_url;noquote@" class="admin-button">#dotlrn-ecommerce.edit#</a> 
+<if @admin_p@ eq 1>
+<p>Admin: <a href="@sections.section_edit_url;noquote@" class="admin-button">#dotlrn-ecommerce.edit#</a>
+	<if @sections.toggle_display_url@ not nil><if @sections.display_section_p@ eq "f">#dotlrn-ecommerce.This_section_is_hidden# <a href="@sections.toggle_display_url;noquote@" class="admin-button">#dotlrn-ecommerce.Show_this_section#</a></if><else><a href="@sections.toggle_display_url;noquote@" class="admin-button">#dotlrn-ecommerce.Hide_this_section#</else></a></if></p>	
 
-		<if @sections.toggle_display_url@ not nil><if @sections.display_section_p@ eq "f">#dotlrn-ecommerce.This_section_is_hidden# <a href="@sections.toggle_display_url;noquote@" class="admin-button">#dotlrn-ecommerce.Show_this_section#</a></if><else><a href="@sections.toggle_display_url;noquote@" class="admin-button">#dotlrn-ecommerce.Hide_this_section#</else></a></if>
-	</p>	</if>
+</if>
 <p>@sections.description;noquote@</p>
-
 		<if @sections.sessions@ not nil and @sections.show_sessions_p@ eq "t"><br />@sections.sessions;noquote@</if>
 		<if @sections.section_zones@ not nil><br />@sections.section_zones;noquote@</if>
 		<if @sections.instructor_names@ not nil><br />@sections.instructor_names;noquote@</if>
@@ -43,11 +45,12 @@
 		<br />
 		@sections.fs_chunk;noquote@
 		</if>
-		</if>
+
 
 <!-- payment/register buttons -->
 
 		<if @sections.section_id@ not nil>
+		<p>
 		<div style="float: left">
 		<if @sections.prices@ ne "">
 		<if @allow_other_registration_p@>
@@ -73,7 +76,6 @@
 		</if>
 		<else>
                 <if @sections.member_p@ ne 1 and @sections.pending_p@ ne 1 and @sections.waiting_p@ ne 1 and @sections.waiting_p@ ne 2 and @sections.approved_p@ ne 1>
-
 		<if @offer_code_p@ and @sections.has_discount_p@ and @sections.available_slots@ gt 0>
 
 		<if @sections.assessment_id@ eq "" or @sections.assessment_id@ eq -1>
@@ -93,7 +95,6 @@
 		<else>
 		<a href="@sections.shopping_cart_add_url;noquote@" class="button">@sections.button@</a>
 		</else>
-
 		</if>
 		</else>
 		</if>
@@ -142,13 +143,13 @@
 		</else>
 		</div>
 		</if>
+		</p>
 		</if>
 		
 		<div align="center" style="float: right">
 		@sections.patron_message;noquote@
 		</div>
 <!-- end buttons -->
-
-<br /><br /><br />
+</div>
 </multiple>
 </div>
