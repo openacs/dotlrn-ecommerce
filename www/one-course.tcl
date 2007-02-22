@@ -240,4 +240,10 @@ db_multirow -extend {toggle_display_url patron_message member_state fs_chunk sec
     set toggle_display_url [export_vars -base admin/toggle-display {section_id {return_url $course_return_url}}]
 }
 
+if {![info exists course_name]} {
+    db_1row get_course "select * from dotlrn_catalog, cr_items where item_id=:course_id and course_id=latest_revision"
+    set course_name ""
+    set course_key ""
+}
+
 set course_edit_url [export_vars -base admin/course-info { course_id course_name course_key }]
