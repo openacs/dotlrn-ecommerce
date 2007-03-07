@@ -12,6 +12,7 @@ ad_page_contract {
        [list \
 	    type:optional \
 	    orderby:optional \
+            groupby:optional \
 	    section_id:optional \
 	    {csv_p 0} \
 	    {as_item_id ""} \
@@ -130,7 +131,9 @@ set list_filters [subst {
     }
 }]
 
+lappend list_filters  attendance_filter [list label "Attendance" where_clause { a.attendance >= :attendance_filter }]
 set actions ""
+
 set bulk_actions [list [_ dotlrn-ecommerce.Approve] application-bulk-approve [_ dotlrn-ecommerce.Approve] "[_ dotlrn-ecommerce.Reject] / [_ dotlrn-ecommerce.Cancel]" application-bulk-reject "[_ dotlrn-ecommerce.Reject] / [_ dotlrn-ecommerce.Cancel]"]
 
 if {[parameter::get -parameter AllowApplicationBulkEmail -default 0]} {
@@ -142,17 +145,18 @@ if { ![exists_and_not_null section_id] || [dotlrn_ecommerce::section::price $sec
     lappend bulk_actions "[_ dotlrn-ecommerce.Mark_as_Paid]" application-bulk-payments "[_ dotlrn-ecommerce.Mark_as_Paid]"
 }
 
-set elements {section_name {
-	    label "[_ dotlrn-ecommerce.Section]"
+set elements [list section_name [list \
+	    label "[_ dotlrn-ecommerce.Section]" \
 	    display_template {
 		<if @admin_p@>
 		<a href="@applications.section_edit_url;noquote@">@applications.course_name@: @applications.section_name@</a>
 		</if>
 		<else>
 		@applications.course_name@: @applications.section_name@
-		</else>
-	    }
-	}
+		</else> @applications.community_id@
+	    } \
+    hide_p [info exists groupby] \
+                                 ] \
 	number {
 	    label "[_ dotlrn-ecommerce.lt_Number_in_Waiting_Lis]"
 	    html { align center }
@@ -168,7 +172,7 @@ set elements {section_name {
 		Approved
 		</else>
 	    }
-	}
+	} \
 	person_name {
 	    label "[_ dotlrn-ecommerce.Participant]"
 	    display_template {
@@ -179,7 +183,9 @@ set elements {section_name {
 		@applications.person_name@
 		</else>
 	    }
-	}
+            aggregate "count"
+            aggregate_group_label "Num. Participants"
+	} \
 	member_state {
 	    label "[_ dotlrn-ecommerce.Member_Request]"
 	    display_template {
@@ -202,7 +208,7 @@ set elements {section_name {
 		[_ dotlrn-ecommerce.lt_User_has_submitted_an]
 		</else>
 	    }
-	}
+	} \
 	assessment_result {
 	    label "[_ dotlrn-ecommerce.Application]"
 	    display_template {
@@ -218,12 +224,12 @@ set elements {section_name {
 		</else>
 	    }
 	    html { align center }
-	}
+	} \
 	phone {
 	    label "[_ dotlrn-ecommerce.Phone_Number]"
 	    hide_p {[ad_decode $_type "waitinglist approved" 0 "request approved" 0 "application approved" 0 "all" 0 1]}
-	}
-}
+	} \
+              ]
 
 if {[parameter::get -parameter AllowApplicationNotes -default 1]} {
     lappend elements comments {
@@ -238,7 +244,12 @@ if {[parameter::get -parameter AllowApplicationNotes -default 1]} {
 	comments_text_plain {
 	    label "[_ dotlrn-ecommerce.Notes]"
 	    hide_p {[ad_decode $csv_p 1 0 1]}
-	}
+	} \
+        attendance {label "Attendance"
+            aggregate "count"
+            aggregate_group_label "Num. Attendees"            
+        }
+
 }
 
 lappend elements \
@@ -347,6 +358,13 @@ set list_filters [concat $list_filters $search_arr(list_filters)]
 #    has_default_p 1
 #}
 
+
+if {[info exists groupby]} {
+    lappend actions "Ungroup" applications "Stop grouping applications by section name"
+} else {
+    lappend actions "Group by Section Name" [export_vars -base applications {{groupby section_name}}] "Group applications by section name"
+}
+
 # HAM :
 # this exports the current page
 lappend actions \
@@ -454,14 +472,17 @@ if { $all } {
 			member_state {
 			    label "[_ dotlrn-ecommerce.Member_Request]"
 			}
-	    }
+	    } -groupby {
+                label "Group By"
+                values {section_name {{groupby section_id } {orderby section_id}}}
+            }
 	
 	set page_clause [template::list::page_where_clause -and -key r.rel_id -name applications]
 }
 
 set csv_session_ids [list]
     
-db_multirow -extend { unique_id approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target calendar_id item_type_id num_sessions } applications applications [subst { }] {
+db_multirow -extend { unique_id approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target calendar_id item_type_id num_sessions attendance_rate} applications applications [subst { }] {
     set unique_id "${applicant_user_id}-${section_id}"
     set list_type [ad_decode $member_state "needs approval" full "request approval" prereq "application sent" payment full]
 
@@ -511,6 +532,11 @@ db_multirow -extend { unique_id approve_url reject_url asm_url section_edit_url 
     if {$session_id ne ""} {
 	lappend csv_session_ids $session_id
     }
+
+	# attendance data
+	if { $num_sessions == 0 } { set attendance_rate "0" } else  { set attendance_rate [format "% .0f" [expr (${attendance}.0/$num_sessions)*100]] }
+       
+
 }
 # HAM :
 # unset section id because it seems the last section_id
@@ -546,7 +572,7 @@ if {$csv_p == 1} {
     lappend csv_cols "attendance" "num_sessions"
     set csv_cols_labels(attendance) attendance
     set csv_cols_labels(num_sessions) "number of sessions"
-    template::multirow extend applications attendance num_sessions
+#    template::multirow extend applications attendance num_sessions
     set csv_as_item_list [list]
     set assessment_rev_id_list [list]
     set item_list [list]
@@ -625,10 +651,7 @@ if {$csv_p == 1} {
 	    }
         }
 	# attendance data
-	set attendance [db_string "count" "select count(user_id) from attendance_cal_item_map where user_id = :applicant_user_id and cal_item_id in (select cal_item_id from cal_items where on_which_calendar = :calendar_id and item_type_id = :item_type_id )" ]
 	if { $num_sessions == 0 } { set attendance_rate "0" } else  { set attendance_rate [format "% .0f" [expr (${attendance}.0/$num_sessions)*100]] }
-	set attendance "${attendance}"
-        
 
     }
     

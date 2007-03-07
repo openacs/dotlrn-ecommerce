@@ -37,7 +37,35 @@
 			       and m.session_id in (select max(session_id)
 						    from dotlrn_ecommerce_application_assessment_map
 						    group by rel_id)) m
-		    on (r.rel_id = m.rel_id), 
+		    on (r.rel_id = m.rel_id)
+                    left join 
+         
+        (select count(*) as attendance, dca.community_id, a.user_id
+         from
+         calendars c,
+         cal_items ci,
+         cal_item_types cit,
+         attendance_cal_item_map a,
+         dotlrn_communities_all dca,
+         portal_pages pp,
+         portal_element_map pem,
+         portal_element_parameters pep,
+         portal_datasources pd
+         where
+         a.cal_item_id = ci.cal_item_id
+         and cit.calendar_id = c.calendar_id
+         and cit.type='Session'
+         and ci.on_which_calendar= c.calendar_id
+         and pem.datasource_id = pd.datasource_id
+         and pep.key = 'calendar_id'
+         and pp.page_id = pem.page_id
+         and pep.element_id = pem.element_id
+         and pd.name='calendar_portlet'
+         and pp.portal_id = dca.portal_id
+         and pep.value = c.calendar_id
+         group by a.user_id, dca.community_id
+         ) a on (a.user_id = r.user_id and r.community_id = a.community_id),
+
 		    dotlrn_ecommerce_section s
 		    left join ec_products p
 		    on (s.product_id = p.product_id),
@@ -49,7 +77,6 @@
 		    and s.course_id = i.item_id
 		    and t.course_id = i.live_revision
 		    and r.rel_id = o.object_id
-		
 		    $member_state_clause
 		    $user_clause
 		    $section_clause
@@ -60,7 +87,7 @@
             
     <fullquery name="applications">
         <querytext>    
-		    select person__name(r.user_id) as person_name, member_state, r.community_id, r.user_id as applicant_user_id, s.section_name, t.course_name, s.section_id, r.rel_id, e.phone, o.creation_user as patron_id, m.completed_datetime,
+		    select person__name(r.user_id) as person_name, member_state, r.community_id, r.user_id as applicant_user_id, s.section_name, t.course_name, s.section_id, r.rel_id, e.phone, o.creation_user as patron_id, m.completed_datetime, coalesce(a.attendance,0) as attendance,
 		    (select count(*)
 		     from (select *
 			   from dotlrn_member_rels_full rr,
@@ -69,9 +96,9 @@
 			   and rr.rel_id <= r.rel_id
 			   and rr.community_id = r.community_id
 			   and rr.member_state = r.member_state
-			   order by o.creation_date) r) as number, s.product_id, m.session_id, m.completed_datetime
+			   order by o.creation_date) r) as number, s.product_id, m.session_id, m.completed_datetime, a.calendar_id
 		
-		    from dotlrn_member_rels_full r
+		    from  dotlrn_member_rels_full r
 		    left join (select *
 			       from ec_addresses
 			       where address_id in (select max(address_id)
@@ -84,19 +111,45 @@
 			       and m.session_id in (select max(session_id)
 						    from dotlrn_ecommerce_application_assessment_map
 						    group by rel_id)) m
-		    on (r.rel_id = m.rel_id), 
+		    on (r.rel_id = m.rel_id)
+left join
+        (select count(*) as attendance, dca.community_id, a.user_id, c.calendar_id
+         from
+         attendance_cal_item_map a,
+         calendars c,
+         cal_items ci,
+         cal_item_types cit,
+         dotlrn_communities_all dca,
+         portal_pages pp,
+         portal_element_map pem,
+         portal_element_parameters pep,
+         portal_datasources pd
+         where
+         a.cal_item_id = ci.cal_item_id
+         and cit.calendar_id = c.calendar_id
+         and cit.type='Session'
+         and ci.on_which_calendar= c.calendar_id
+         and pem.datasource_id = pd.datasource_id
+         and pep.key = 'calendar_id'
+         and pp.page_id = pem.page_id
+         and pep.element_id = pem.element_id
+         and pp.portal_id = dca.portal_id
+         and pd.name='calendar_portlet'
+         and pep.value = c.calendar_id
+         group by a.user_id, dca.community_id, c.calendar_id
+         ) a
+		
+ on (a.user_id = r.user_id and a.community_id  = r.community_id),
 		    dotlrn_ecommerce_section s
 		    left join ec_products p
 		    on (s.product_id = p.product_id),
 		    dotlrn_catalogi t,
 		    cr_items i,
 		    acs_objects o
-		
 		    where r.community_id = s.community_id
 		    and s.course_id = i.item_id
 		    and t.course_id = i.live_revision
 		    and r.rel_id = o.object_id
-		
 		    $member_state_clause
 		    $user_clause
 		    $section_clause
