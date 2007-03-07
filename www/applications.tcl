@@ -153,7 +153,7 @@ set elements [list section_name [list \
 		</if>
 		<else>
 		@applications.course_name@: @applications.section_name@
-		</else> @applications.community_id@
+		</else>
 	    } \
     hide_p [info exists groupby] \
                                  ] \
@@ -183,8 +183,6 @@ set elements [list section_name [list \
 		@applications.person_name@
 		</else>
 	    }
-            aggregate "count"
-            aggregate_group_label "Num. Participants"
 	} \
 	member_state {
 	    label "[_ dotlrn-ecommerce.Member_Request]"
