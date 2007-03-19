@@ -9,13 +9,17 @@ ad_page_contract {
 set cc_package_id [apm_package_id_from_key "dotlrn-catalog"]
 set admin_p [permission::permission_p -object_id $cc_package_id -privilege "admin"]
 
-if { [db_0or1row get_name {
+if {! [db_0or1row get_name {
     select c.course_name||': '||s.section_name as section_name, s.community_id
     from dotlrn_ecommerce_section s, dotlrn_catalogi c, cr_items i
     where product_id = :product_id
           and c.item_id = s.course_id
     and i.live_revision = c.revision_id
 }] } {
+    set section_name ""
+}
+
+if { $member_state ne "approved" && $section_name ne "" } {
 
     set user_id [ad_conn user_id]
     
@@ -45,10 +49,11 @@ if { [db_0or1row get_name {
 	    }
 	}
     }
-
+    set message dotlrn-ecommerce.lt_Thank_you_for_your_ap
 } else {
-    set section_name ""
+    set message dotlrn-ecommerce.lt_Thank_you_for_you_app_approved
 }
 
 set administrator_email [parameter::get_from_package_key -package_key acs-kernel -parameter HostAdministrator]
-set message [_ dotlrn-ecommerce.lt_Thank_you_for_your_ap]
+
+set message [_ $message]

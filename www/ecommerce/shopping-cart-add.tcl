@@ -178,8 +178,7 @@ if { [acs_object_type $participant_id] != "group" } {
 		} else {
 		    set cancel_url [ad_conn package_url]
 		}
-		
-		set return_url [export_vars -base [ad_conn package_url]application-confirm { product_id {member_state "needs approval"} {patron_id $user_id}} ]
+		set return_url [export_vars -base [ad_conn package_url]application-confirm { product_id {member_state "needs approval"} {patron_id user_id}} ]
 		ad_returnredirect [export_vars -base waiting-list-confirm { product_id user_id participant_id return_url cancel_url }]
 		ad_script_abort
 	    }
@@ -255,7 +254,12 @@ if { [acs_object_type $participant_id] != "group" } {
 	    if { [exists_and_not_null return_url] } {
 		ad_returnredirect $return_url
 	    } else {
-		ad_returnredirect [ad_conn package_url]
+		if {$user_id ne $participant_id} {
+		    set patron_id $user_id
+		} else {
+		    set patron_id ""
+		}
+		ad_returnredirect [export_vars -base ../application-confirm {product_id {member_state approved} {patron_id user_id}}]
 	    }
 	    ad_script_abort
 	}
