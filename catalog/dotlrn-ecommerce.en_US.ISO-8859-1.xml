@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d25" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="dotlrn-ecommerce" package_version="0.1d26" locale="en_US" charset="ISO-8859-1">
 
   <msg key="A_place_is_available">A place is available.</msg>
   <msg key="Action">Action</msg>
@@ -17,7 +17,7 @@
   <msg key="Applicant">Applicant</msg>
   <msg key="Application">Application</msg>
   <msg key="Application_1">Application submitted</msg>
-  <msg key="Application_2">Approved</msg>
+  <msg key="Application_2">Application approved</msg>
   <msg key="Application_3">Submitted</msg>
   <msg key="Application_4">for waiver of prerequisites submitted</msg>
   <msg key="Application_approved">Application approved</msg>
@@ -28,7 +28,7 @@
   <msg key="Applications">Applications</msg>
   <msg key="apply_for_course">apply for course</msg>
   <msg key="Approve">Approve</msg>
-  <msg key="Approve_1">waiver of prerequisites</msg>
+  <msg key="Approve_1">Waiver of prerequisites approved.</msg>
   <msg key="Approve_application">Approve application</msg>
   <msg key="Approve_no_email">Approve without email</msg>
   <msg key="as_widget_help">The drop down displays existing applications. If you need to create a new application use this &lt;a href=&quot;/assessment/asm-admin&quot;&gt;link&lt;/a&gt; then return to this form.</msg>
@@ -49,7 +49,7 @@
   <msg key="Change_Participant">Change Participant</msg>
   <msg key="Check">Check</msg>
   <msg key="Choose_Participant">Choose Participant</msg>
-  <msg key="click_here">click here</msg>
+  <msg key="click_here">Click here.</msg>
   <msg key="Community_User_Pages">Community User Pages</msg>
   <msg key="Continue">Continue</msg>
   <msg key="course">default template</msg>
@@ -87,7 +87,7 @@
   <msg key="Gift_Certificate">Gift Certificate:</msg>
   <msg key="Go_to_My_Account">Go to My Account</msg>
   <msg key="Grade">Grade</msg>
-  <msg key="Grant">spot from waiting list</msg>
+  <msg key="Grant">Grant spot from waiting list</msg>
   <msg key="Grant_Scholarships">Grant Scholarships</msg>
   <msg key="Hidden_Courses">Hidden Courses</msg>
   <msg key="Hide">Hide</msg>
@@ -217,6 +217,7 @@
   <msg key="lt_Sorry_the_offer_code_">Sorry, the offer code was not accepted.</msg>
   <msg key="lt_Sorry_There_seems_to_">Sorry, There seems to be a problem with completing this transaction.</msg>
   <msg key="lt_Test_email_sent_to_user">Test email sent to %user.email%. Please check your inbox.</msg>
+  <msg key="lt_Thank_you_for_you_app_approved">Thank you for your appplication. You are now registered for %section_name%.</msg>
   <msg key="lt_Thank_you_for_your_ap">&lt;p&gt;Thank you for applying, the course administrator(s) will contact you soon regarding your registration.&lt;/p&gt;&lt;p&gt;
 If you have any technical issues please contact the &lt;a href=&quot;mailto:%administrator_email%&quot;&gt;web site administrator&lt;/a&gt;&lt;/p&gt;</msg>
   <msg key="lt_Thank_You_For_Your_Or">Thank You For Your Order</msg>
@@ -332,10 +333,10 @@ Instructors:
   <msg key="Regsitered_By_Admin">Regsitered By Admin</msg>
   <msg key="Regular_Price">Regular Price</msg>
   <msg key="Reject">Reject</msg>
-  <msg key="Reject_1">waiver of prerequitsites</msg>
-  <msg key="Reject_2">application</msg>
+  <msg key="Reject_1">Waiver of prerequitsites rejected</msg>
+  <msg key="Reject_2">Application rejected</msg>
   <msg key="Reject_application">Reject application</msg>
-  <msg key="Reject_Only">Reject Only</msg>
+  <msg key="Reject_Only">Reject Without Sending E-mail</msg>
   <msg key="Reject_prereq">Reject waiver of prerequisite</msg>
   <msg key="Related_Items">Expert Administartion Options</msg>
   <msg key="Related_Users">Related Users</msg>
@@ -352,19 +353,21 @@ Instructors:
   <msg key="Section_Information">Advanced Options</msg>
   <msg key="Section_Name">Section Name</msg>
   <msg key="Section_Quick_Jump">Section Quick Jump</msg>
+  <msg key="Section_Starts_After">Section Starts After</msg>
+  <msg key="Section_Starts_Before">Secion Starts Before</msg>
   <msg key="Select">a payment method</msg>
   <msg key="Select_1">Select Different Application</msg>
   <msg key="Send">Send test email to yourself</msg>
-  <msg key="sent">after application is submitted</msg>
-  <msg key="sent_1">after application is approved</msg>
+  <msg key="sent">This email is sent out after a user applies for a course (after the application is submitted).</msg>
+  <msg key="sent_1">This email is sent out after approval of applications.</msg>
   <msg key="sent_2">after application is submitted</msg>
-  <msg key="sent_3">after user is added to group</msg>
-  <msg key="sent_4">after user is added to group from waiting list</msg>
-  <msg key="sent_5">after user is added to group when waiver of prerequisites has been requested</msg>
-  <msg key="sent_6">after request for waiver of prerequisites is rejected</msg>
-  <msg key="sent_7">after application is rejected</msg>
-  <msg key="sent_8">after application is submitted and user is added to waiting list</msg>
-  <msg key="sent_9">after application is submitted with request for waiver of prerequisites</msg>
+  <msg key="sent_3">This email sends out a link to the course web page after a user has been registered for that course. Make sure to review the course web pages.</msg>
+  <msg key="sent_4">This email is sent after a user has been added to course from waiting list (e.g. the course was full, but 3 spots opened up so the person can get in).</msg>
+  <msg key="sent_5">This email is sent after a user has been added to group and their waiver of prerequisites has been approved.</msg>
+  <msg key="sent_6">This email is sent out after a request for waiver of prerequisites has been rejected.</msg>
+  <msg key="sent_7">This email is sent after an application has been rejected</msg>
+  <msg key="sent_8">This email is sent out after an application is submitted for a full course and the user is added to waiting list</msg>
+  <msg key="sent_9">This email is sent after an application is submitted with request for waiver of prerequisites.</msg>
   <msg key="Sent_when">Send: %sent_when%</msg>
   <msg key="Set_Relationship">Set Relationship</msg>
   <msg key="Shopping_Cart">Shopping Cart</msg>
@@ -404,7 +407,7 @@ Instructors:
   <msg key="View_previously_email">View sent emails</msg>
   <msg key="View_User_Requests">View User Requests</msg>
   <msg key="Waiting_List">Waiting List</msg>
-  <msg key="Welcome">message</msg>
+  <msg key="Welcome">Community page welcome message</msg>
   <msg key="Welcome_message">Welcome message</msg>
   <msg key="Welcome_to_section">Welcome to %course_name%</msg>
   <msg key="Yes">Yes</msg>
