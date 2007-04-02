@@ -6,5 +6,5 @@
   <h3>#dotlrn-ecommerce.lt_Registering_for_class#</h3>
   <p />
 
-  <include src="/packages/dotlrn-ecommerce/lib/login" return_url="@return_url;noquote@" no_frame_p="1" authority_id="@authority_id@" username="@username;noquote@" email="@email;noquote@" &="__adp_properties">
+  <include src="/packages/acs-subsite/lib/login" return_url="@return_url;noquote@" no_frame_p="1" authority_id="@authority_id@" username="@username;noquote@" email="@email;noquote@" &="__adp_properties">
 
