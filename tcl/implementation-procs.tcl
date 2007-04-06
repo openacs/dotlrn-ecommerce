@@ -34,6 +34,9 @@ ad_proc -public dotlrn_ecommerce::registration::new {
     @error 
 } {
     dotlrn_community::add_user $community_id $user_id
+    dotlrn_community::send_member_email \
+	-community_id $community_id \
+	-to_user $user_id
 
     # See if we need to send the welcome email to the
     # purchaser
@@ -45,7 +48,11 @@ ad_proc -public dotlrn_ecommerce::registration::new {
 	
 	# if they are the participant, then
 	# they will get the welcome email for the community
-	dotlrn_community::send_member_email -community_id $community_id -to_user $user_id -type "on join" -email_send_to $patron_id -override_enabled
+	dotlrn_community::send_member_email \
+	    -community_id $community_id \
+	    -to_user $user_id \
+	    -type "on join" \
+	    -email_send_to $patron_id -override_enabled
     }
 
     # Keep track of patron relationships
