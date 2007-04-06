@@ -15,7 +15,7 @@ table.list {
     <td valign="top">
 <if @show_filters_p@>	<listfilters name="course_list" style="listed-filters"></listfilters></if>
 	<br />
-	<listtemplate name="course_list" style="courses"></listtemplate>
+	<listtemplate name="course_list" style="@list_style@"></listtemplate>
     </td>
   </tr>
 </table>
