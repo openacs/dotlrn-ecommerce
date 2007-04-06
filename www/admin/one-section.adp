@@ -36,17 +36,21 @@
 
 <if @assessment_id@ not nil>
 #dotlrn-ecommerce.lt_Application_assessmen#<br />
-<a href="@assessment_select_url;noquote@" class="button">#dotlrn-ecommerce.Select_1#</a> <a href="@assessment_edit_url;noquote@" class="button">#dotlrn-ecommerce.Edit_Application#</a> <a href="@assessment_view_url;noquote@" class="button">#dotlrn-ecommerce.Preview_Application#</a>
+<a href="@assessment_select_url;noquote@" class="button">#dotlrn-ecommerce.Select_1#</a> 
+<a href="@assessment_edit_url;noquote@" class="button">#dotlrn-ecommerce.Edit_Application#</a> 
+<a href="@assessment_view_url;noquote@" class="button">#dotlrn-ecommerce.Preview_Application#</a> 
+<a href="@assessment_results_url;noquote@" class="button">Results Summary</a>
 </if>
 
 <if @show_public_pages_p@>
+<br /><br />
 <h2>#dotlrn-ecommerce.Public_Pages#</h2>
 <include src="/packages/file-storage/lib/folder-admin" folder_id="@section_folder_id@" base_url="@public_pages_url@">
 </if>
 
 <if @attendance_show_p@>
-<br><h2>#dotlrn-ecommerce.lt_Sessions_and_Attendan#</h2>
-
+<br />
+<h2>#dotlrn-ecommerce.lt_Sessions_and_Attendan#</h2>
 <include src=/packages/attendance/lib/cp-attendance community_id=@community_id@ package_id=@community_package_id@>
 </if>
 
@@ -59,8 +63,8 @@
 <h2>Email Templates</h2>
 <a href="email-templates?community_id=@community_id@">Administer Email Templates</a>
 
+<br /><br />
 <h2>#dotlrn-ecommerce.Related_Items#</h2>
-
 <a href="/ecommerce/admin/products/one?product_id=@product_id@">#dotlrn-ecommerce.Product#</a><br>
 <a href="@community_url;noquote@">#dotlrn-ecommerce.Community_User_Pages#</a><br>
 <a href="@community_url;noquote@/one-community-admin">#dotlrn-ecommerce.lt_Community_Admin_Pages#</a>

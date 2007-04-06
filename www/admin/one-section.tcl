@@ -62,9 +62,10 @@ if { ! [empty_string_p $assessment_id] } {
     as::assessment::data -assessment_id $assessment_id
     set assessment_package_id [parameter::get -parameter AssessmentPackage]
     set assessment_package_url [site_node::get_url_from_object_id -object_id $assessment_package_id]
-set assessment_select_url [export_vars -base [apm_package_url_from_key dotlrn-ecommerce]admin/course-add-edit { course_id }]
+	set assessment_select_url [export_vars -base [apm_package_url_from_key dotlrn-ecommerce]admin/course-add-edit { course_id }]
     set assessment_view_url [export_vars -base ${assessment_package_url}assessment { assessment_id }]
     set assessment_edit_url [export_vars -base ${assessment_package_url}asm-admin/one-a { assessment_id }]
+    set assessment_results_url [export_vars -base ${assessment_package_url}asm-admin/item-stats {{return_url [ad_return_url]} {catalog_section_id $section_id} {assessment_id} }]
 }
 
 # Flush cache for this section
