@@ -30,7 +30,10 @@ set return_url [ad_return_url]
 
 # HAM : check if scholarship is installed
 set scholarship_installed_p [apm_package_installed_p "scholarship-fund"]
-
+set scholarship_url [site_node::get_children -node_id [ad_conn node_id] -package_key scholarship-fund]
+if {![llength $scholarship_url]} {
+    set scholarship_installed_p 0
+}
 # HAM : check if expenses is installed
 set expenses_installed_p [apm_package_installed_p "expenses"]
 
