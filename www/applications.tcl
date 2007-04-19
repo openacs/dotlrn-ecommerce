@@ -19,6 +19,8 @@ ad_page_contract {
 	    {as_search ""} \
 	    {page 1} \
 	    {all 0} \
+	    date_after:optional \
+	    date_before:optional \
 	    ] \
        [as::list::params]]
 
@@ -122,8 +124,19 @@ if { $enable_applications_p } {
 }
 
 lappend filters {"[_ dotlrn-ecommerce.Already_Registered]" "approved"}
-
 set list_filters [subst {
+    date_after {
+	label "[_ dotlrn-ecommerce.Section_Starts_After]"
+	values {}
+	form_datatype {date}
+	where_clause { active_start_date > :date_after }
+    }
+    date_before {
+	label "[_ dotlrn-ecommerce.Section_Starts_Before]"
+	values {}
+	form_datatype {date}
+	where_clause { active_start_date < :date_before }
+    }
     type {
 	label "[_ dotlrn-ecommerce.Type_of_Request]"
 	values { $filters }
@@ -131,7 +144,7 @@ set list_filters [subst {
     }
 }]
 
-lappend list_filters  attendance_filter [list label "Attendance" where_clause { a.attendance >= :attendance_filter }]
+lappend list_filters  attendance_filter [list label "Attendance" where_clause { a.attendance >= coalesce(:attendance_filter,0) }]
 set actions ""
 
 set bulk_actions [list [_ dotlrn-ecommerce.Approve] application-bulk-approve [_ dotlrn-ecommerce.Approve] "[_ dotlrn-ecommerce.Reject] / [_ dotlrn-ecommerce.Cancel]" application-bulk-reject "[_ dotlrn-ecommerce.Reject] / [_ dotlrn-ecommerce.Cancel]"]
@@ -265,7 +278,6 @@ lappend elements \
 		</if>
 		</elseif>
 	    }
-	    html { width 125 align center nowrap }
 	}
 
 if { [exists_and_not_null section_id] } {
@@ -634,10 +646,6 @@ if {$csv_p == 1} {
 		util_unlist $one_item as_item_item_id section_item_id item_type data_type
 		if {![array exists results_${as_item_item_id}]} {
 		    array set results_${as_item_item_id} [as::item_type_$item_type\::results -as_item_item_id $as_item_item_id -section_item_id $section_item_id -data_type $data_type -sessions $csv_session_ids]		    
-		    ns_log notice "DAVEB-----
-[join [array get results_${as_item_item_id}] \n]
------
-"
 		}
 		if {[info exists results_${as_item_item_id}($session_id)]} {
 		    set $as_item_item_id [set results_${as_item_item_id}($session_id)]
@@ -685,3 +693,10 @@ if {$csv_p == 1} {
     ns_return 200 "text/x-csv" $__output
     ad_script_abort
 }
+
+set applications_session_ids $csv_session_ids
+set assessment_id_list [list]
+foreach elm $filter_assessments {
+    lappend assessment_id_list [lindex $elm 1]
+}
+set summary_url [export_vars -base /assessment/asm-admin/item-stats {{session_id_list $applications_session_ids} {return_url [ad_return_url]} assessment_id_list}]
