@@ -4,19 +4,19 @@
 
 
 <h4>Course Registration</h4>
-<ul>
-<if @shopping_cart_url@ defined>
-      <li><a href="@shopping_cart_url;noquote@">#dotlrn-ecommerce.Shopping_Cart#</a>
-</if>
-<li><a href="process-purchase-all">#dotlrn-ecommerce.Process_Registration#</a>
-<li><formtemplate id="courses">#dotlrn-ecommerce.Course_Quick_Jump# <br><formwidget
+<formtemplate id="courses">#dotlrn-ecommerce.Course_Quick_Jump# <br><formwidget
 	    id="course_id" /><formwidget id="view" /></formtemplate>
-<li><formtemplate id="sections">#dotlrn-ecommerce.Section_Quick_Jump# <br><formwidget
+<formtemplate id="sections">#dotlrn-ecommerce.Section_Quick_Jump# <br><formwidget
 	      id="section_id" /><formwidget id="purchase" /><formwidget
 		id="admin" /></formtemplate>
-<li><a href=course-list>#dotlrn-ecommerce.Manage_Course_List#</a>
+<ul>
+<if @shopping_cart_url@ defined>
+      <li><a href="@shopping_cart_url;noquote@">#dotlrn-ecommerce.Shopping_Cart#</a></li>
+</if>
+<li><a href="process-purchase-all">#dotlrn-ecommerce.Process_Registration#</a></li>
+<li><a href=course-list>#dotlrn-ecommerce.Manage_Course_List#</a></li>
 <if @registration_assessment_url@ defined>
-<li><a href="@registration_assessment_url;noquote@">#dotlrn-ecommerce.lt_Manage_Registration_A#</a>
+<li><a href="@registration_assessment_url;noquote@">#dotlrn-ecommerce.lt_Manage_Registration_A#</a></li>
 </if>
 <li><a href="../applications">#dotlrn-ecommerce.lt_Waiting_List_and_Prer#</a>
 	<ul>
@@ -24,13 +24,13 @@
 		<li><a href="../applications?type=waitinglist+approved">Approved Users in Waiting List</a>
 		<li><a href="../applications?type=request+approval">Users for Prerequisite Approval</a>
 		<li><a href="../applications?type=request+approved">Approved Users for Prerequisite Approval</a>
-	</ul>
+	</ul></li>
 <li>#dotlrn-ecommerce.View_Orders#
 <ul>
 <li><a href="users">#dotlrn-ecommerce.Per_User#</a>
 <li><a href="ecommerce/index?start=1%20day">#dotlrn-ecommerce.In_the_last_24_hours#</a>
 <li><a href="ecommerce/index?start=7%20days">#dotlrn-ecommerce.In_the_last_week#</a>
-</ul>
+</ul></li>
 </ul>
 
 <h2>#dotlrn-ecommerce.Administrative_Setup#</h2>
