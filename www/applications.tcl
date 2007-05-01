@@ -696,7 +696,9 @@ if {$csv_p == 1} {
 
 set applications_session_ids $csv_session_ids
 set assessment_id_list [list]
-foreach elm $filter_assessments {
-    lappend assessment_id_list [lindex $elm 1]
+if {[info exists filter_assessments]} {
+    foreach elm $filter_assessments {
+	lappend assessment_id_list [lindex $elm 1]
+    }
 }
 set summary_url [export_vars -base /assessment/asm-admin/item-stats {{session_id_list $applications_session_ids} {return_url [ad_return_url]} assessment_id_list}]
