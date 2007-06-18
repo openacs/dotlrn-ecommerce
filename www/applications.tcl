@@ -13,7 +13,8 @@ ad_page_contract {
 	    type:optional \
 	    orderby:optional \
             groupby:optional \
-	    section_id:optional \
+	    section_id:multiple,optional \
+		section_identifier:multiple,optional \
 	    {csv_p 0} \
 	    {as_item_id ""} \
 	    {as_search ""} \
@@ -25,7 +26,11 @@ ad_page_contract {
        [as::list::params]]
 
 set user_id [ad_conn user_id]
-
+# turn section_id into a list in case we got it as a hidden form var
+if {[info exists section_id] && [llength $section_id] == 1} {
+    set section_id [split [string trim $section_id \{\}]]
+}
+#ad_return_complaint 1 $section_id
 set package_id [ad_conn package_id]
 permission::require_permission -object_id $package_id -privilege "admin"
 set admin_p [permission::permission_p -object_id $package_id -privilege "admin"]
@@ -117,7 +122,7 @@ if { $enable_applications_p } {
     lappend filters \
 	{"[_ dotlrn-ecommerce.Applications]" "application sent"}
     
-    if { ![exists_and_not_null section_id] || [dotlrn_ecommerce::section::price $section_id] > 0.01 } {
+    if { ![exists_and_not_null section_id] || ([llength $section_id] == 1 && [dotlrn_ecommerce::section::price $section_id] > 0.01 )} {
 	lappend filters \
 	    {"[_ dotlrn-ecommerce.lt_Approved_Applications]" "application approved"}
     }
@@ -128,13 +133,11 @@ set list_filters [subst {
     date_after {
 	label "[_ dotlrn-ecommerce.Section_Starts_After]"
 	values {}
-	form_datatype {date}
 	where_clause { active_start_date > :date_after }
     }
     date_before {
 	label "[_ dotlrn-ecommerce.Section_Starts_Before]"
 	values {}
-	form_datatype {date}
 	where_clause { active_start_date < :date_before }
     }
     type {
@@ -144,6 +147,14 @@ set list_filters [subst {
     }
 }]
 
+if {![info exists section_identifier]} {
+  set section_identifier "null"
+}
+if {[info exists section_identifier] && $section_identifier ne "null"} {
+lappend list_filters  section_identifier [list label "Section Identifier" where_clause {a.section_key in ([template::util::tcl_to_sql_list [split $section_identifier ","]]) }]
+} else {
+lappend list_filters  section_identifier [list label "Section Identifier" where_clause { 1=1 }]
+}
 lappend list_filters  attendance_filter [list label "Attendance" where_clause { a.attendance >= coalesce(:attendance_filter,0) }]
 set actions ""
 
@@ -154,7 +165,7 @@ if {[parameter::get -parameter AllowApplicationBulkEmail -default 0]} {
     lappend bulk_actions "[_ dotlrn-ecommerce.Email_applicants]" "email-applicants" "[_ dotlrn-ecommerce.Email_applicants]"
 }
 
-if { ![exists_and_not_null section_id] || [dotlrn_ecommerce::section::price $section_id] > 0.01 } {
+if { ![exists_and_not_null section_id] ||  ([llength $section_id] == 1 && [dotlrn_ecommerce::section::price $section_id] > 0.01 )} {
     lappend bulk_actions "[_ dotlrn-ecommerce.Mark_as_Paid]" application-bulk-payments "[_ dotlrn-ecommerce.Mark_as_Paid]"
 }
 
@@ -257,7 +268,7 @@ if {[parameter::get -parameter AllowApplicationNotes -default 1]} {
 	    hide_p {[ad_decode $csv_p 1 0 1]}
 	} \
         attendance {label "Attendance"
-            aggregate "count"
+            aggregate "sum"
             aggregate_group_label "Num. Attendees"            
         }
 
@@ -281,9 +292,9 @@ lappend elements \
 	}
 
 if { [exists_and_not_null section_id] } {
-    set section_clause {and s.section_id = :section_id}
+    set section_clause "and s.section_id in ([template::util::tcl_to_sql_list $section_id])"
 
-    if { [db_0or1row assessment_revision { }] } {
+    if {[llength $section_id] == 1 && [db_0or1row assessment_revision { }] } {
 		array set search_arr [as::list::filters -assessments [list [list $title $section_assessment_rev_id]]]
     } else {
 		array set search_arr [list list_filters [list] assessment_search_options [list] search_js_array ""]
@@ -326,7 +337,7 @@ if { [info exists type] } {
 }
 
 append list_filters {
-    section_id {}
+    section_id {type multivar}
     as_item_id {}
     as_search {}
 }
@@ -411,14 +422,14 @@ set general_comments_url [apm_package_url_from_key "general-comments"]
 if { $all } {
 
 	# HAM : use this template to export all to csv
-    ns_log notice "exporting ALL to CSV, elements = [join $elements \n]"
+#    ns_log notice "exporting ALL to CSV, elements = [join $elements \n]"
 	template::list::create \
 	    -name "applications" \
 	    -key rel_id \
 	    -multirow "applications" \
 	    -no_data "[_ dotlrn-ecommerce.No_applications]" \
 	    -pass_properties { return_url } \
-	    -pass_properties { admin_p return_url _type } \
+            -pass_properties { admin_p return_url _type } \
 	    -actions $actions \
 	    -bulk_actions $bulk_actions \
 	    -page_flush_p 1 \
@@ -442,24 +453,30 @@ if { $all } {
 			member_state {
 			    label "[_ dotlrn-ecommerce.Member_Request]"
 			}
-	    }
-	
+	    } -groupby {
+                label "Group By"
+                values {section_name {{groupby section_id } {orderby section_id}}}
+            }	
 	set page_clause ""
 	
 } else {
-    ns_log notice "exporting PAGE to CSV, elements = [join $elements \n]"
+#    ns_log notice "exporting PAGE to CSV, elements = [join $elements \n]"
 	# HAM : use this list template to display rows
 	#  has support for paging	
-	template::list::create \
+    set page_size 25
+    if {[info exists groupby] && $groupby ne ""} {
+	set page_size ""
+    }
+    	template::list::create \
 	    -name "applications" \
 	    -key rel_id \
 	    -multirow "applications" \
 	    -no_data "[_ dotlrn-ecommerce.No_applications]" \
 	    -pass_properties { return_url } \
-	    -pass_properties { admin_p return_url _type } \
+	    -pass_properties { admin_p return_url _type} \
 	    -actions $actions \
 	    -bulk_actions $bulk_actions \
-	    -page_size 25 \
+	    -page_size $page_size \
 	    -page_flush_p 1 \
 	    -page_query_name "applications_pagination"  \
 	    -bulk_action_export_vars { return_url } \
@@ -492,7 +509,27 @@ if { $all } {
 
 set csv_session_ids [list]
     
-db_multirow -extend { unique_id approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target calendar_id item_type_id num_sessions attendance_rate} applications applications [subst { }] {
+if {$groupby eq ""} {
+    set groupby_clause ""
+    set select_columns "person__name(r.user_id) as person_name, member_state, r.community_id, r.user_id as applicant_user_id, s.section_name, t.course_name, s.section_id, r.rel_id, e.phone, o.creation_user as patron_id, m.completed_datetime, dca.active_start_date, dca.active_end_date, coalesce(a.attendance,0) as attendance,
+		    (select count(*)
+		     from (select *
+			   from dotlrn_member_rels_full rr,
+			   acs_objects o
+			   where rr.rel_id = o.object_id
+			   and rr.rel_id <= r.rel_id
+			   and rr.community_id = r.community_id
+			   and rr.member_state = r.member_state
+			   order by o.creation_date) r) as number, s.product_id, m.session_id, m.completed_datetime, a.calendar_id"
+} else {
+    set groupby_clause "group by s.section_id, s.section_name"
+
+    set select_columns "count(*) as attendance, s.section_id, s.section_name, '' as person_name, '' as member_state, '' as community_id, '' as applicant_user_id, '' as course_name, '' as rel_id, '' as phone, '' as patron_id, '' as completed_datetime, '' as active_start_date, '' as active_end_date,
+ '' as number, '' as product_id, '' as session_id, '' as completed_datetime, '' as calendar_id"
+}
+db_multirow -unclobber -extend { unique_id approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target calendar_id item_type_id num_sessions attendance_rate} applications applications [subst { }] {
+    if {![info exists groupby] || $groupby eq ""} {
+
     set unique_id "${applicant_user_id}-${section_id}"
     set list_type [ad_decode $member_state "needs approval" full "request approval" prereq "application sent" payment full]
 
@@ -545,20 +582,23 @@ db_multirow -extend { unique_id approve_url reject_url asm_url section_edit_url 
 
 	# attendance data
 	if { $num_sessions == 0 } { set attendance_rate "0" } else  { set attendance_rate [format "% .0f" [expr (${attendance}.0/$num_sessions)*100]] }
-       
-
 }
-# HAM :
-# unset section id because it seems the last section_id
-#  is being picked up by the paging links
-if {[info exists section_id]} {
-    unset section_id
+
 }
 
 # if we are CSV we need to get the assessment items
 # since template::list  has been prepared at this point we need
 # to add columns to the multirow manually and output manually
 # instead of template::list::write_csv
+
+# unless we are doing a group report!
+if {$csv_p && [info exists groupby] && $groupby ne ""} {
+    set list_ref [template::list::get_reference -name applications]
+    set list_properties(display_elements) [list section_name attendance___count_group]
+    template::list::write_csv -name applications
+    ad_script_abort
+}
+
 
 if {$csv_p == 1} {
     set csv_cols {}
