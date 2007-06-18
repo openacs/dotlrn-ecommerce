@@ -509,7 +509,7 @@ if { $all } {
 
 set csv_session_ids [list]
     
-if {$groupby eq ""} {
+if {![info exists groupby] || $groupby eq ""} {
     set groupby_clause ""
     set select_columns "person__name(r.user_id) as person_name, member_state, r.community_id, r.user_id as applicant_user_id, s.section_name, t.course_name, s.section_id, r.rel_id, e.phone, o.creation_user as patron_id, m.completed_datetime, dca.active_start_date, dca.active_end_date, coalesce(a.attendance,0) as attendance,
 		    (select count(*)
