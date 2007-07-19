@@ -49,7 +49,7 @@ if { $as_item_id eq "type" } {
     
     if { $enable_applications_p } {
 	lappend as_item_choices \
-	    [list "[_ dotlrn-ecommerce.Applications]" "application sent"] \
+	   [list "[_ dotlrn-ecommerce.Applications]" "application sent"] \
 	    [list "[_ dotlrn-ecommerce.lt_Approved_Applications]" "application approved"]
     }
     
@@ -103,6 +103,7 @@ set header_stuff {
     <script type="text/javascript" src="/resources/dotlrn-ecommerce/overlib/overlib.js">
     <!-- overLIB (c) Erik Bosrup (http://www.bosrup.com/web/overlib) -->
     </script>
+	<script type="text/javascript" src="/resources/dotlrn-ecommerce/sections-list.js"></script>
 }
 
 if { [exists_and_not_null type] } {
@@ -128,17 +129,21 @@ if { $enable_applications_p } {
     }
 }
 
+##{<input type="button" style="height:23px; width:23px; background: url('/resources/acs-templating/calendar.gif');" onclick ="return showCalendarWithDateWidget('date', 'y-m-d');" /> \[<b>[_ calendar.y-m-d]</b>\]}
+
 lappend filters {"[_ dotlrn-ecommerce.Already_Registered]" "approved"}
 set list_filters [subst {
     date_after {
 	label "[_ dotlrn-ecommerce.Section_Starts_After]"
 	values {}
 	where_clause { active_start_date > :date_after }
+	form_element_properties {after_html {<input type="button" style="height:23px; width:23px; background: url('/resources/acs-templating/calendar.gif');" onclick ="return showCalendarWithDefault('date_after','','y-m-d');"/> <b>y-m-d</b>}}
     }
     date_before {
 	label "[_ dotlrn-ecommerce.Section_Starts_Before]"
 	values {}
 	where_clause { active_start_date < :date_before }
+	form_element_properties {after_html {<input type="button" style="height:23px; width:23px; background: url('/resources/acs-templating/calendar.gif');" onclick ="return showCalendarWithDefault('date_before', null,'y-m-d');"/> <b>y-m-d</b>}}
     }
     type {
 	label "[_ dotlrn-ecommerce.Type_of_Request]"
@@ -151,11 +156,19 @@ if {![info exists section_identifier]} {
   set section_identifier "null"
 }
 if {[info exists section_identifier] && $section_identifier ne "null"} {
-lappend list_filters  section_identifier [list label "Section Identifier" where_clause {a.section_key in ([template::util::tcl_to_sql_list [split $section_identifier ","]]) }]
+	#set trimmed_section_identifier [list]
+	#foreach id [split $section_identifier ","] {
+	#	lappend trimmed_section_identifier [string trim $id]
+	#}
+	#<a href=\"#\" onclick=\"popitup('/catalog/sections-list')\">Enter a comma-separated list of section identifiers. Add link to pop up the page of section keys</a>
+	# append comments_truncate "<a href=\"javascript:void(0);\" onmouseover=\"return overlib('$comments');\" onmouseout=\"return nd();\" style=\"text-decoration: none;\">$gc_title</a> \[<a href=\"$edit_comment_url\">edit</a>\]<br /><br />"
+        
+lappend list_filters  section_identifier [list label "Section Identifier" where_clause {a.section_key in ([template::util::tcl_to_sql_list [split $section_identifier ","]]) } form_element_properties {after_html {Enter a comma-separated list of section identifiers (keys). <a href="#" onclick="popitup('/catalog/sections-list')">Click to open window to select section identifiers (keys)</a>}}]
 } else {
-lappend list_filters  section_identifier [list label "Section Identifier" where_clause { 1=1 }]
-}
-lappend list_filters  attendance_filter [list label "Attendance" where_clause { a.attendance >= coalesce(:attendance_filter,0) }]
+lappend list_filters  section_identifier [list label "Section Identifier" where_clause { 1=1 } form_element_properties {after_html {Enter a comma-separated list of section identifiers (keys). <a href="#" onclick="popitup('/catalog/sections-list')">Click to open window to select section identifiers (keys)</a>}}]
+} 
+
+lappend list_filters  attendance_filter [list label "Attendance" where_clause { a.attendance >= coalesce(:attendance_filter,0)}  form_element_properties {after_html {Attendance is greater than or equal to}}]
 set actions ""
 
 set bulk_actions [list [_ dotlrn-ecommerce.Approve] application-bulk-approve [_ dotlrn-ecommerce.Approve] "[_ dotlrn-ecommerce.Reject] / [_ dotlrn-ecommerce.Cancel]" application-bulk-reject "[_ dotlrn-ecommerce.Reject] / [_ dotlrn-ecommerce.Cancel]"]
@@ -173,10 +186,10 @@ set elements [list section_name [list \
 	    label "[_ dotlrn-ecommerce.Section]" \
 	    display_template {
 		<if @admin_p@>
-		<a href="@applications.section_edit_url;noquote@">@applications.course_name@: @applications.section_name@</a>
+		<a href="@applications.section_edit_url;noquote@">@applications.section_name@ (@applications.course_name@)</a>
 		</if>
 		<else>
-		@applications.course_name@: @applications.section_name@
+		@applications.section_name@ (@applications.course_name@)
 		</else>
 	    } \
     hide_p [info exists groupby] \
@@ -271,7 +284,6 @@ if {[parameter::get -parameter AllowApplicationNotes -default 1]} {
             aggregate "sum"
             aggregate_group_label "Num. Attendees"            
         }
-
 }
 
 lappend elements \
@@ -432,6 +444,7 @@ if { $all } {
             -pass_properties { admin_p return_url _type } \
 	    -actions $actions \
 	    -bulk_actions $bulk_actions \
+            -bulk_action_top_buttons t \
 	    -page_flush_p 1 \
 	    -bulk_action_export_vars { return_url } \
 	    -elements $elements \
@@ -441,10 +454,6 @@ if { $all } {
 			section_name {
 			    label "[_ dotlrn-ecommerce.Section_1]"
 			    orderby "lower(s.section_name)"
-			}
-			number {
-			    label "[_ dotlrn-ecommerce.lt_Number_in_Waiting_Lis]"
-			    orderby "lower(s.section_name), number"
 			}
 			person_name {
 			    label "[_ dotlrn-ecommerce.Participant]"
@@ -476,6 +485,7 @@ if { $all } {
 	    -pass_properties { admin_p return_url _type} \
 	    -actions $actions \
 	    -bulk_actions $bulk_actions \
+	    -bulk_action_top_buttons t \
 	    -page_size $page_size \
 	    -page_flush_p 1 \
 	    -page_query_name "applications_pagination"  \
@@ -488,16 +498,16 @@ if { $all } {
 			    label "[_ dotlrn-ecommerce.Section_1]"
 			    orderby "lower(s.section_name)"
 			}
-			number {
-			    label "[_ dotlrn-ecommerce.lt_Number_in_Waiting_Lis]"
-			    orderby "lower(s.section_name), number"
-			}
 			person_name {
 			    label "[_ dotlrn-ecommerce.Participant]"
 			    orderby "lower(person__name(r.user_id))"
 			}
 			member_state {
 			    label "[_ dotlrn-ecommerce.Member_Request]"
+			}
+			attendance {
+				label "[_ dotlrn-ecommerce.Attendance]"
+				orderby "coalesce(attendance,0)"
 			}
 	    } -groupby {
                 label "Group By"
@@ -521,12 +531,18 @@ if {![info exists groupby] || $groupby eq ""} {
 			   and rr.community_id = r.community_id
 			   and rr.member_state = r.member_state
 			   order by o.creation_date) r) as number, s.product_id, m.session_id, m.completed_datetime, a.calendar_id"
-} else {
+} elseif {$groupby eq "section_name"} {
     set groupby_clause "group by s.section_id, s.section_name"
 
     set select_columns "count(*) as attendance, s.section_id, s.section_name, '' as person_name, '' as member_state, '' as community_id, '' as applicant_user_id, '' as course_name, '' as rel_id, '' as phone, '' as patron_id, '' as completed_datetime, '' as active_start_date, '' as active_end_date,
  '' as number, '' as product_id, '' as session_id, '' as completed_datetime, '' as calendar_id"
+} else {
+	set groupby_clause "group by s.course_id"
+	set select_columns "count(*) as attendance, s.course_id, '' as person_name, '' as member_state, '' as community_id, '' as applicant_user_id, '' as course_name, '' as rel_id, '' as phone, '' as patron_id, '' as completed_datetime, '' as active_start_date, '' as active_end_date, '' as number, '' as product_id, '' as session_id, '' as completed_datetime, '' as calendar_id"
+	
+	
 }
+
 db_multirow -unclobber -extend { unique_id approve_url reject_url asm_url section_edit_url person_url register_url comments comments_text_plain comments_truncate add_comment_url target calendar_id item_type_id num_sessions attendance_rate} applications applications [subst { }] {
     if {![info exists groupby] || $groupby eq ""} {
 
@@ -594,7 +610,8 @@ db_multirow -unclobber -extend { unique_id approve_url reject_url asm_url sectio
 # unless we are doing a group report!
 if {$csv_p && [info exists groupby] && $groupby ne ""} {
     set list_ref [template::list::get_reference -name applications]
-    set list_properties(display_elements) [list section_name attendance___count_group]
+    set list_properties(display_elements) [list section_name attendance___sum_group]
+#    set list_properties(display_elements) [list section_name]
     template::list::write_csv -name applications
     ad_script_abort
 }

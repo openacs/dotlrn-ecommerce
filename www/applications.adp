@@ -2,7 +2,7 @@
   <property name="title">#dotlrn-ecommerce.lt_Waiting_List_and_Prer#</property>
   <property name="context">{#dotlrn-ecommerce.lt_Waiting_List_and_Prer#}</property>
   <property name="header_stuff">@header_stuff;noquote@</property>
-
+  
   <script type="text/javascript">
     <!--
     var searchItems = new Array();
@@ -25,4 +25,6 @@
     //-->
   </script>
   <p />
+  
   <listtemplate name="applications"></listtemplate>
+<a href="@summary_url@">View application summary statistics</a>
