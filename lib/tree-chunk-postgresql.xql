@@ -25,13 +25,13 @@
 		$discount_clause
 
 		from dotlrn_catalog dc,
-		cr_items ci
-		left join dotlrn_ecommerce_section dec
-		on (ci.item_id = dec.course_id)
+		cr_items ci,
+		 dotlrn_ecommerce_section dec
 		left join ec_custom_product_field_values v
 		on (dec.product_id = v.product_id)
-			
+
 		where dc.course_id = ci.live_revision
+		and ci.item_id = dec.course_id
 		[template::list::filter_where_clauses -and -name course_list]
 		$show_hidden_not_exists_clause
 	

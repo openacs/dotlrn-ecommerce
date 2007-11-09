@@ -12,11 +12,10 @@
 		   dec.product_id, dec.community_id, dc.course_info,
       		   ci.item_id
             from dotlrn_catalog dc,
-	    cr_items ci
-	    left join dotlrn_ecommerce_section dec
-	    on (ci.item_id = dec.course_id)
-		 
+	    cr_items ci,
+	    dotlrn_ecommerce_section dec
             where dc.course_id = ci.live_revision
+	    and ci.item_id = dec.course_id
             and dc.display_p
             [template::list::filter_where_clauses -and -name course_list]
 
