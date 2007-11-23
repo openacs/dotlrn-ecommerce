@@ -74,7 +74,7 @@ if { [ad_form_new_p -key section_id] } {
     }
     
     lappend validate {section_key
-	{ [dotlrn_community::check_community_key_valid_p -community_key $section_key] }
+	{ [dotlrn_community::check_community_key_valid_p -community_key [string trim $section_key]] }
 	"The section '$section_key' key already exists"
     }
 
@@ -499,7 +499,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	where section_id = :section_id
     }]
 } -new_data {
-    
+    set section_key [string trim $section_key]    
     if { ! $show_price_option_p } {
 	set show_price_p t
     }
@@ -709,7 +709,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
     }
 
 } -edit_data {
-
+    set section_key [string trim $section_key]
     if { [parameter::get -package_id [ad_conn package_id] -parameter ShowSectionCategoryFields -default 1 ] } {
 	if { $categories == [list [list $community_id $package_id]] } {
 		set categories ""
