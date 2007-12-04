@@ -375,7 +375,9 @@ ad_proc -public dotlrn_ecommerce::section::check_elapsed_registrations {
     @error 
 } {
     set time_period [parameter::get -package_id [apm_package_id_from_key dotlrn-ecommerce] -parameter ApprovedRegistrationTimePeriod -default 7776000]
-
+    if {$time_period == 0} {
+	return
+    }
     db_foreach check_applications {
 	select community_id, user_id
 	from acs_objects o, dotlrn_member_rels_full r
