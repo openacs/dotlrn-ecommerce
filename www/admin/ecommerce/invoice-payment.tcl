@@ -285,8 +285,10 @@ ad_form -extend -name checkout -validate $validate  -form {} -on_request {
 
 		    db_dml update_authorized_date "
 		    update ec_financial_transactions 
-		    set authorized_date = current_timestamp
-		    where transaction_id = :transaction_id"
+		    set authorized_date = current_timestamp,
+                    to_be_captured_p = 't',
+                    to_be_captured_date = current_timestamp
+ 	            where transaction_id = :transaction_id"
 		}
 
 		if { [string equal $result "authorized"] || [string equal $result "no_recommendation"] } {
