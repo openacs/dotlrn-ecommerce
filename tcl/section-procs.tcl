@@ -283,6 +283,12 @@ ad_proc -public dotlrn_ecommerce::section::available_slots {
 	and ci.live_revision = c.revision_id
     }
 
+    # less than 1 now means either no max (0) or no reg required (-1)
+    # this short circuits all the irrelevant bs in ::attendees
+    if { $maxparticipants <= 0 } {
+	return 1
+    }
+
     if { ![empty_string_p $maxparticipants] } {
 	if { $actual_p } {
 	    set attendees [dotlrn_ecommerce::section::attendees -actual $section_id]
@@ -821,3 +827,19 @@ ad_proc -public dotlrn_ecommerce::section::user_approve {
     }
     
 }
+
+ad_proc -public dotlrn_ecommerce::section::admin_section_ids {
+    -user_id
+} {
+    List of section_ids user has admin over
+} {
+    return [db_list get_admin_section_ids "
+    select s.section_id 
+    from dotlrn_ecommerce_section s
+    where exists (
+       select 1 from acs_object_party_privilege_map
+       where object_id = s.community_id
+       and party_id = :user_id
+       and privilege = 'admin')"]
+}
+							
