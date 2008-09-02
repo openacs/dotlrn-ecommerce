@@ -313,6 +313,20 @@ ad_proc -public dotlrn_ecommerce::disallow_access_to_approved_users {
     
     @error 
 } {
+    return
+}
+ad_proc -public dotlrn_ecommerce::disallow_access_to_approved_users_old {
+} {
+    Don't allow approved users who haven't completed the registration to access the dotLRN community
+    This actually just returns to the default dotLRN state
+    
+    @author Roel Canicula (roelmc@pldtdsl.net)
+    @creation-date 2005-09-02
+    
+    @return 
+    
+    @error 
+} {
     db_transaction {
 	db_dml allow_access_to_approved_users {
 	    create or replace view dotlrn_member_rels_approved
@@ -695,4 +709,26 @@ ad_proc -public dotlrn_ecommerce::category_trees {
 } {
 
     
+}
+
+ad_proc -public dotlrn_ecommerce::admins_rel_segment {
+    {-package_id ""}
+} {
+    Get the admins relational segment
+} {
+    set group_id [application_group::group_id_from_package_id \
+			       -package_id $package_id]
+    ns_log notice "Group id = '${group_id}'"
+    set rel_segment_id [group::get_rel_segment \
+			    -group_id  $group_id \
+			    -type "admin_rel"]
+    return $rel_segment_id
+}
+
+ad_proc -public dotlrn_ecommerce::community_calendar_package_id {
+    -community_id 
+} {
+    Get the calendar package_id
+} {
+    set calendar_package_id [db_string q "select package_id from calendars where calendar_id in (select value from portal_element_parameters where element_id in (select element_id from portal_element_map where datasource_id=(select datasource_id from portal_datasources where name = 'calendar_portlet') and page_id in (select page_id from portal_pages where portal_id = (select portal_id from dotlrn_communities where community_id = :community_id))) and key='calendar_id')" -default ""]
 }
