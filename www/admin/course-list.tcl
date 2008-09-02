@@ -66,7 +66,7 @@ template::list::create \
 	    label "Course Name (Key)"
 	    display_template {
 		<div align=left>
-		<a href="course-info?course_id=@course_list.course_id@&course_name=@course_list.course_name@&course_key=@course_list.course_key@">@course_list.course_name@</a> (@course_list.course_key@) 
+		<a href="../manage/course-info?course_id=@course_list.course_id@&course_name=@course_list.course_name@&course_key=@course_list.course_key@">@course_list.course_name@</a> (@course_list.course_key@) 
 		</div>
 	    }
 	}
