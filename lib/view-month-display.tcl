@@ -150,6 +150,7 @@ db_foreach get_adjusted_cal_names {
 }
 
 db_foreach dbqd.calendar.www.views.select_items {} {
+    if { [expr [clock scan $ansi_start_date] < [clock seconds]] } { continue }
     # Convert from system timezone to user timezone
     set ansi_start_date [lc_time_system_to_conn $ansi_start_date]
     set ansi_end_date [lc_time_system_to_conn $ansi_end_date]

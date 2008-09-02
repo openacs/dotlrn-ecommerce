@@ -20,6 +20,13 @@ ad_page_contract {
     { groupby course_name }
 
     {period_days 31}
+} -validate {
+    date_not_before {
+	if {[clock scan $date] < [clock scan "2004-01-01"]} {
+	    ad_return_complaint 1 "That date is not available."
+	    ad_script_abort
+	}
+    }
 }
 
 
@@ -241,16 +248,16 @@ if { [llength $_instructors] == 0 } {
     }
 }
 
-lappend filters instructor \
-    [list \
-	 label "Instructor" \
-	 values $instructors_filter \
-	 where_clause_eval {subst {exists (select 1
-     from dotlrn_users u, dotlrn_member_rels_approved r
-     where u.user_id = r.user_id
-     and r.community_id = dec.community_id
-     and r.rel_type = 'dotlrn_ecom_instructor_rel'
-     and r.user_id in ([join $instructor ,]))}}]
+# lappend filters instructor \
+#     [list \
+# 	 label "Instructor" \
+# 	 values $instructors_filter \
+# 	 where_clause_eval {subst {exists (select 1
+#      from dotlrn_users u, dotlrn_member_rels_approved r
+#      where u.user_id = r.user_id
+#      and r.community_id = dec.community_id
+#      and r.rel_type = 'dotlrn_ecom_instructor_rel'
+#      and r.user_id in ([join $instructor ,]))}}]
 
 set filters [linsert $filters 0 date {} view {
     label "View"
@@ -309,7 +316,7 @@ db_multirow course_list get_courses { } {
 }
 
 set date 
-set item_template "one-course?cal_item_id=\$item_id"
+set item_template "one-section?cal_item_id=\$item_id"
 set export [list]
 foreach {name discard} $filters {
     lappend export $name
