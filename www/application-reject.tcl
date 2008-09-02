@@ -73,7 +73,9 @@ if { !$send_email_p || $actor_id == $email_user_id } {
 	}
     }
 
-    dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
+#    dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
+    set rel_id [relation::get_id -object_id_one $community_id -object_id_two $user_id -rel_type "dotlrn_member_rel"]
+    membership_rel::reject -rel_id $rel_id
 
     ad_returnredirect $return_url
     ad_script_abort

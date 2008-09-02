@@ -134,7 +134,10 @@ if { [template::multirow size applications] > 0 } {
 	    and r.community_id = :filter_community_id
 	}] {
 
-            dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
+#            dotlrn_community::membership_reject -community_id $community_id -user_id $user_id
+	    set rel_id [relation::get_id -object_id_one $community_id -object_id_two $user_id -rel_type "dotlrn_member_rel"]
+	    membership_rel::reject -rel_id $rel_id
+
 
 	    if {$email_reg_info_to == "participant"} {
 		set email_user_id $user_id
