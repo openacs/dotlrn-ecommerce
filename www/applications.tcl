@@ -185,7 +185,7 @@ if { ![exists_and_not_null section_id] ||  ([llength $section_id] == 1 && [dotlr
 set elements [list section_name [list \
 	    label "[_ dotlrn-ecommerce.Section]" \
 	    display_template {
-		<if @admin_p@>
+		<if @admin_p;literal@ true>
 		<a href="@applications.section_edit_url;noquote@">@applications.section_name@ (@applications.course_name@)</a>
 		</if>
 		<else>
@@ -213,7 +213,7 @@ set elements [list section_name [list \
 	person_name {
 	    label "[_ dotlrn-ecommerce.Participant]"
 	    display_template {
-		<if @admin_p@>
+		<if @admin_p;literal@ true>
 		<a href="@applications.person_url;noquote@">@applications.person_name@</a>
 		</if>
 		<else>
@@ -296,7 +296,7 @@ lappend elements \
 		</if>
 		<elseif @applications.member_state@ ne "approved">
 		<a href="@applications.reject_url;noquote@" class="button">[_ dotlrn-ecommerce.Cancel]</a>
-		<if @admin_p@>
+		<if @admin_p;literal@ true>
 		<a href="@applications.register_url;noquote@" class="button">[_ dotlrn-ecommerce.Register]</a>
 		</if>
 		</elseif>

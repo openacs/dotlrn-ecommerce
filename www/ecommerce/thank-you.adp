@@ -4,7 +4,7 @@
   <property name="signatory">@ec_system_owner;noquote@</property>
 
   <ul>
-    <if @admin_p@>
+    <if @admin_p;literal@ true>
       <li> <a
 	  href="../admin/process-purchase-course?user_id=@user_id@">#dotlrn-ecommerce.lt_Purchase_another_Cour#</a> #dotlrn-ecommerce.lt_for_the_current_purch#</li>
       <li> <a

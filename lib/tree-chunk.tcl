@@ -327,11 +327,11 @@ template::list::create \
 	    display_template {
 		<if @course_list.section_id@ not nil>
 		<b>@course_list.section_name@</b>
-		<if @admin_p@ eq 1>
+		<if @admin_p;literal@ true>
 		<a href="@course_list.section_edit_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.edit]</a> 
 		</if>
-		<if @admin_p@>
-		<if @course_list.toggle_display_url@ not nil><if @course_list.display_section_p@ eq "f">[_ dotlrn-ecommerce.This_section_is_hidden] <a href="@course_list.toggle_display_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.Show_this_section]</a></if><else><a href="@course_list.toggle_display_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.Hide_this_section]</else></a><br /></if>
+		<if @admin_p;literal@ true>
+		<if @course_list.toggle_display_url@ not nil><if @course_list.display_section_p;literal@ false>[_ dotlrn-ecommerce.This_section_is_hidden] <a href="@course_list.toggle_display_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.Show_this_section]</a></if><else><a href="@course_list.toggle_display_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.Hide_this_section]</else></a><br /></if>
 		</if>
 		<if @course_list.show_description_p@ eq "t" and @course_list.description@ not nil>
 		<br />
@@ -341,8 +341,8 @@ template::list::create \
 		<if @course_list.sessions@ not nil and @course_list.show_sessions_p@ eq "t"><br />@course_list.sessions;noquote@</if>
 		<if @course_list.section_zones@ not nil><br />@course_list.section_zones;noquote@</if>
 		<if @course_list.instructor_names@ not nil><br />@course_list.instructor_names;noquote@</if>
-		<if @course_list.prices@ not nil and @course_list.show_price_p@ true><br /><if @allow_free_registration_p@ and @course_list.price@ lt 0.01>[_ dotlrn-ecommerce.lt_There_is_no_fee_for_t]</if><else>@course_list.prices;noquote@</else></if>
-		<if @course_list.show_participants_p@ eq "t">
+		<if @course_list.prices@ not nil and @course_list.show_price_p@ true><br /><if @allow_free_registration_p;literal@ true and @course_list.price@ lt 0.01>[_ dotlrn-ecommerce.lt_There_is_no_fee_for_t]</if><else>@course_list.prices;noquote@</else></if>
+		<if @course_list.show_participants_p;literal@ true>
 		<br />@course_list.attendees;noquote@ [_ dotlrn-ecommerce.participant]<if @course_list.attendees@ gt 1>s</if>
 		<if @course_list.available_slots@ not nil and @course_list.available_slots@ gt 0>,<br />@course_list.available_slots;noquote@ [_ dotlrn-ecommerce.available]</if>
 		<if @course_list.available_slots@ le 0>
@@ -377,8 +377,8 @@ template::list::create \
 		<if @course_list.section_id@ not nil>
 		<div style="float: left">
 		<if @course_list.prices@ ne "">
-		<if @allow_other_registration_p@>
-		<if @offer_code_p@ and @course_list.has_discount_p@ and @course_list.available_slots@ gt 0>
+		<if @allow_other_registration_p;literal@ true>
+		<if @offer_code_p;literal@ true and @course_list.has_discount_p@ and @course_list.available_slots@ gt 0>
 
 		<if @course_list.assessment_id@ eq "" or @course_list.assessment_id@ eq -1>
 
@@ -401,7 +401,7 @@ template::list::create \
 		<else>
                 <if @course_list.member_p@ ne 1 and @course_list.pending_p@ ne 1 and @course_list.waiting_p@ ne 1 and @course_list.waiting_p@ ne 2 and @course_list.approved_p@ ne 1>
 
-		<if @offer_code_p@ and @course_list.has_discount_p@ and @course_list.available_slots@ gt 0>
+		<if @offer_code_p;literal@ true and @course_list.has_discount_p@ and @course_list.available_slots@ gt 0>
 
 		<if @course_list.assessment_id@ eq "" or @course_list.assessment_id@ eq -1>
 
@@ -428,10 +428,10 @@ template::list::create \
 		<a href="@course_list.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.register]</a>
 		</if>
 		
-		<if @course_list.pending_p@ eq 1>
+		<if @course_list.pending_p;literal@ true>
 		   <font color="red">[_ dotlrn-ecommerce.application_pending]</font>
 		</if>
-		<if @course_list.waiting_p@ eq 1>
+		<if @course_list.waiting_p;literal@ true>
 		   <font color="red">[_ dotlrn-ecommerce.lt_You_are_number_course]</font>
 		</if>
 		<if @course_list.asm_url@ not nil>
@@ -445,7 +445,7 @@ template::list::create \
 		</if>
 		</div>
 
-		<if @course_list.approved_p@ eq 1>
+		<if @course_list.approved_p;literal@ true>
 		<div align="center" style="float: right">
 		
   		   <if @course_list.member_state@ eq "request approved">
@@ -455,7 +455,7 @@ template::list::create \
 		   [_ dotlrn-ecommerce.lt_A_place_is_now_availa]<p />
 		   </else>
 
-		<if @offer_code_p@ and @course_list.has_discount_p@>
+		<if @offer_code_p;literal@ true and @course_list.has_discount_p;literal@ true>
 		<p />
 		<form action="ecommerce/offer-code-set">
 		<input type="hidden" name="product_id" value="@course_list.product_id@" />
@@ -485,7 +485,7 @@ template::list::create \
 	label "Group by"
 	type multivar
 	values {
-	    {{ <b><a href="@course_list.course_key@">@course_list.course_name@</a></b> <if @admin_p@ eq 1><a href="@course_list.course_edit_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.edit]</a> <a href="@course_list.section_add_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.add_section]</a></if>
+	    {{ <b><a href="@course_list.course_key@">@course_list.course_name@</a></b> <if @admin_p;literal@ true><a href="@course_list.course_edit_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.edit]</a> <a href="@course_list.section_add_url;noquote@" class="admin-button">[_ dotlrn-ecommerce.add_section]</a></if>
 		<br />@course_list.course_grades@
 		<p>
 		@course_list.course_info;noquote@

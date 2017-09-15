@@ -23,7 +23,7 @@
     <if @relations:rowcount@ gt 0>
       <p />
       <h3>
-	<if @admin_p@>
+	<if @admin_p;literal@ true>
 	  #dotlrn-ecommerce.lt_Users_related_to_the_#
 	</if>
 	<else>

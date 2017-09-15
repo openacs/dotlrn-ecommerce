@@ -12,7 +12,7 @@
   </div>
   
   <p />
-  <if @admin_p@ eq 1>
+  <if @admin_p;literal@ true>
   <a href="@shopping_cart_add_url;noquote@" class="button">#dotlrn-ecommerce.Continue#</a> &nbsp;&nbsp;&nbsp;
   </if>
   <a href="@request_url;noquote@" class="button">#dotlrn-ecommerce.lt_Hold_slot_and_wait_fo#</a> &nbsp;&nbsp;&nbsp;

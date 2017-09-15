@@ -44,7 +44,7 @@
 	  </td>
 	</tr>
 
-	<if @internal_account_p@>
+	<if @internal_account_p;literal@ true>
 	  <tr class="form-element">
 	    
 	    <td class="form-label">
@@ -83,7 +83,7 @@
     <listtemplate name="applications_registered"></listtemplate>
   </else>
 
-  <if @registered_exists_p@ eq 1>
+  <if @registered_exists_p;literal@ true>
     <p />
     <h3>#dotlrn-ecommerce.lt_The_following_users_p#</h3>
     <p />

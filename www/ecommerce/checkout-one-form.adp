@@ -2,7 +2,7 @@
 
 <!-- following from billing.adp -->
 
-  <if @invalid_cc_p@>
+  <if @invalid_cc_p;literal@ true>
     <property name="title">#dotlrn-ecommerce.lt_Completing_Your_Order_1#</property>
 
     <h2>#dotlrn-ecommerce.lt_Sorry_There_seems_to_#</h2>

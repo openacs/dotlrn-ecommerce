@@ -21,26 +21,26 @@
 
           <tr>
             <multiple name="items">
-              <if @items.beginning_of_week_p@ true>
+              <if @items.beginning_of_week_p;literal@ true>
                 <tr>
               </if>
 
-              <if @items.outside_month_p@ true>
+              <if @items.outside_month_p;literal@ true>
                 <td class="cal-month-day-inactive">&nbsp;</td>
               </if>     
               <else>
-                <if @items.today_p@ true>
-                  <td class="cal-month-today" <if @add_p@> onclick="javascript:location.href='@items.add_url@';"</if>>
+                <if @items.today_p;literal@ true>
+                  <td class="cal-month-today" <if @add_p;literal@ true> onclick="javascript:location.href='@items.add_url@';"</if>>
                 </if>
                 <else>
-                  <td class="cal-month-day" <if @add_p@>onclick="javascript:location.href='@items.add_url@';"</if>>
+                  <td class="cal-month-day" <if @add_p;literal@ true>onclick="javascript:location.href='@items.add_url@';"</if>>
                 </else>
                   <if @items.day_url@ not nil><a href="@items.day_url@">@items.day_number@</a></if><else>@items.day_number@</else>
 	
                   <group column="day_number">
                     <if @items.event_name@ true>
                       <div class="cal-month-event">
-                        <if @items.time_p@ true>
+                        <if @items.time_p;literal@ true>
 				<if @items.fontcolor@ not nil><font color="@items.fontcolor@"><b>@items.ansi_start_time@</b></font></if><else>@items.ansi_start_time@</else>				
 			</if>
                         <a href=@items.event_url@>** @items.calendar_name@ **</a>
@@ -50,7 +50,7 @@
                   </group>
                 </td>
               </else>
-              <if @items.end_of_week_p@ true>
+              <if @items.end_of_week_p;literal@ true>
                 </tr>
               </if>
             </multiple>

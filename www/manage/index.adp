@@ -10,7 +10,7 @@
     <input type="submit" value="#dotlrn-catalog.search#" />
 </form>
 <br>
-<if @admin_p@><a class=button href="course-add-edit">#dotlrn-catalog.new_course#</a>
+<if @admin_p;literal@ true><a class=button href="course-add-edit">#dotlrn-catalog.new_course#</a>
 <br></if>
 <br>
 

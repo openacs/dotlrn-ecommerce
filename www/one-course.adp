@@ -14,7 +14,7 @@
 </multiple>
 </if>
 </multiple>
-<if @admin_p@>
+<if @admin_p;literal@ true>
 <p>Admin: <a href="@course_edit_url@">#dotlrn-ecommerce.edit#</a></p>
 </if>
 
@@ -24,17 +24,17 @@
 <multiple name="sections">
 <div style="clear:both; padding-bottom:20px; padding-right:10px; padding-left:10px; padding-top:0px; margin:5px; border:1px solid; width:300px;">
 <h3>@sections.section_name@</h3>
-<if @admin_p@ eq 1>
+<if @admin_p;literal@ true>
 <p>Admin: <a href="@sections.section_edit_url;noquote@" class="admin-button">#dotlrn-ecommerce.edit#</a>
-	<if @sections.toggle_display_url@ not nil><if @sections.display_section_p@ eq "f">#dotlrn-ecommerce.This_section_is_hidden# <a href="@sections.toggle_display_url;noquote@" class="admin-button">#dotlrn-ecommerce.Show_this_section#</a></if><else><a href="@sections.toggle_display_url;noquote@" class="admin-button">#dotlrn-ecommerce.Hide_this_section#</else></a></if></p>	
+	<if @sections.toggle_display_url@ not nil><if @sections.display_section_p;literal@ false>#dotlrn-ecommerce.This_section_is_hidden# <a href="@sections.toggle_display_url;noquote@" class="admin-button">#dotlrn-ecommerce.Show_this_section#</a></if><else><a href="@sections.toggle_display_url;noquote@" class="admin-button">#dotlrn-ecommerce.Hide_this_section#</else></a></if></p>	
 
 </if>
 <p>@sections.description;noquote@</p>
 		<if @sections.sessions@ not nil and @sections.show_sessions_p@ eq "t"><br />@sections.sessions;noquote@</if>
 		<if @sections.section_zones@ not nil><br />@sections.section_zones;noquote@</if>
 		<if @sections.instructor_names@ not nil><br />@sections.instructor_names;noquote@</if>
-		<if @sections.prices@ not nil and @sections.show_price_p@ true><br /><if @allow_free_registration_p@ and @sections.price@ lt 0.01>#dotlrn-ecommerce.lt_There_is_no_fee_for_t#</if><else>@sections.prices;noquote@</else></if>
-		<if @sections.show_participants_p@ eq "t">
+		<if @sections.prices@ not nil and @sections.show_price_p@ true><br /><if @allow_free_registration_p;literal@ true and @sections.price@ lt 0.01>#dotlrn-ecommerce.lt_There_is_no_fee_for_t#</if><else>@sections.prices;noquote@</else></if>
+		<if @sections.show_participants_p;literal@ true>
 		<br />@sections.attendees;noquote@ #dotlrn-ecommerce.participant#<if @sections.attendees@ gt 1>s</if>
 		<if @sections.available_slots@ not nil and @sections.available_slots@ gt 0>,<br />@sections.available_slots;noquote@ #dotlrn-ecommerce.available#</if>
 		<if @sections.available_slots@ le 0>
@@ -53,8 +53,8 @@
 		<p>
 		<div style="float: left">
 		<if @sections.prices@ ne "">
-		<if @allow_other_registration_p@>
-		<if @offer_code_p@ and @sections.has_discount_p@ and @sections.available_slots@ gt 0>
+		<if @allow_other_registration_p;literal@ true>
+		<if @offer_code_p;literal@ true and @sections.has_discount_p@ and @sections.available_slots@ gt 0>
 
 		<if @sections.assessment_id@ eq "" or @sections.assessment_id@ eq -1>
 
@@ -76,7 +76,7 @@
 		</if>
 		<else>
                 <if @sections.member_p@ ne 1 and @sections.pending_p@ ne 1 and @sections.waiting_p@ ne 1 and @sections.waiting_p@ ne 2 and @sections.approved_p@ ne 1>
-		<if @offer_code_p@ and @sections.has_discount_p@ and @sections.available_slots@ gt 0>
+		<if @offer_code_p;literal@ true and @sections.has_discount_p@ and @sections.available_slots@ gt 0>
 
 		<if @sections.assessment_id@ eq "" or @sections.assessment_id@ eq -1>
 
@@ -102,10 +102,10 @@
 		<a href="@sections.shopping_cart_add_url;noquote@" class="button">[_ dotlrn-ecommerce.register]</a>
 		</if>
 		
-		<if @sections.pending_p@ eq 1>
+		<if @sections.pending_p;literal@ true>
 		   <font color="red">[_ dotlrn-ecommerce.application_pending]</font>
 		</if>
-		<if @sections.waiting_p@ eq 1>
+		<if @sections.waiting_p;literal@ true>
 		   <font color="red">[_ dotlrn-ecommerce.lt_You_are_number_course]</font>
 		</if>
 		<if @sections.asm_url@ not nil>
@@ -119,7 +119,7 @@
 		</if>
 		</div>
 
-		<if @sections.approved_p@ eq 1>
+		<if @sections.approved_p;literal@ true>
 		<div align="center" style="float: right">
 		
   		   <if @sections.member_state@ eq "request approved">
@@ -129,7 +129,7 @@
 		   [_ dotlrn-ecommerce.lt_A_place_is_now_availa]<p />
 		   </else>
 
-		<if @offer_code_p@ and @sections.has_discount_p@>
+		<if @offer_code_p;literal@ true and @sections.has_discount_p;literal@ true>
 		<p />
 		<form action="ecommerce/offer-code-set">
 		<input type="hidden" name="product_id" value="@sections.product_id@" />

@@ -202,7 +202,7 @@ template::list::create \
 	    label "[_ dotlrn-ecommerce.Regular_Price]"
 	    html { align center }
 	    display_template {
-		<if @applications.free_p@>
+		<if @applications.free_p;literal@ true>
 		Free
 		</if>
 		<else>

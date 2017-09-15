@@ -36,8 +36,8 @@
 <h2>#dotlrn-ecommerce.Administrative_Setup#</h2>
 
 <ul>
-<if @scholarship_installed_p@ eq "1"><li><a href=../Administration/sch/>#dotlrn-ecommerce.Scholarship_Funds#</a></if>
-<if @expenses_installed_p@ eq "1"><li><a href="../Administration/expenses/admin/">#dotlrn-ecommerce.Expenses#</a></if>
+<if @scholarship_installed_p;literal@ true><li><a href=../Administration/sch/>#dotlrn-ecommerce.Scholarship_Funds#</a></if>
+<if @expenses_installed_p;literal@ true><li><a href="../Administration/expenses/admin/">#dotlrn-ecommerce.Expenses#</a></if>
 <li>#dotlrn-ecommerce.Instructors# - [ <a href=@instructor_community_url@>#dotlrn.Community#</a> | <a href=@instructor_community_url@/members>#dotlrn-ecommerce.List#</a> ]
 <li>#dotlrn-ecommerce.Assistant_Instuctors# - [ <a href=@assistant_community_url@>#dotlrn.Community#</a> | <a href=@assistant_community_url@/members>#dotlrn-ecommerce.List#</a> ]
 <li><a href="../Administration/categories/cadmin/object-map?object_id=@cc_package_id@">#dotlrn-ecommerce.lt_Manage_Category_Trees#</a>

@@ -5,8 +5,8 @@
     <h3>#dotlrn-ecommerce.The_section_is_full#</h3>
     <p />
     <ul>
-      <if @admin_p@>
-	<if @allow_override_p@>
+      <if @admin_p;literal@ true>
+	<if @allow_override_p;literal@ true>
 	  <li>#dotlrn-ecommerce.lt_You_may_continue_with# <a href="@shopping_cart_add_url;noquote@" class="button">#dotlrn-ecommerce.Continue#</a></li>
 	</if>
 	<li>#dotlrn-ecommerce.lt_Or_put_this_purchase_# <a href="@request_url;noquote@" class="button">#dotlrn-ecommerce.lt_Go_on_the_waiting_lis#</a></li>

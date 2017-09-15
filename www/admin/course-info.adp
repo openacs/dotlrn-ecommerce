@@ -4,7 +4,7 @@
 
 <table cellpadding=0 cellspacing=0>
 <if @index@ eq "yes">
-   <if @admin_p@ eq 1>
+   <if @admin_p;literal@ true>
    <div align="left">
         <a href="dt-admin/course-info?course_id=@course_id@&course_name=@name@&course_key=@course_key@&index=yes" title="#dotlrn-catalog.admin_this#"><img border=0 src=images/admin.gif></a> 
    </div>

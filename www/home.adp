@@ -67,7 +67,7 @@
 	  <li><a href="@whos_online_url@">#acs-subsite.Whos_Online_link_label#</a></li>
 	</ul>
 
-	<if @invisible_p@ true>
+	<if @invisible_p;literal@ true>
 	  #acs-subsite.Currently_invisible_msg#
 	  <ul class="action-links">
 	    <li><a href="@make_visible_url@">#acs-subsite.Make_yourself_visible_label#</a></li>
@@ -94,7 +94,7 @@
 	    <li>#dotlrn-ecommerce.You_have_no_orders#</li>
 	  </else>
 	</ul>
-	<if @applications_p@>
+	<if @applications_p;literal@ true>
 	  <h2>#dotlrn-ecommerce.Your_Applications#</h2>
 	</if>
 	<else>
@@ -105,7 +105,7 @@
 
 	    <multiple name="sessions">
 	      
-	      <if @admin_p@ eq 1>
+	      <if @admin_p;literal@ true>
 		<li> <a href="@sessions.asm_url;noquote@">@sessions.pretty_name@</a> <if @user_id@ ne @sessions.participant_id@>(@sessions.name@)</if>
 	      </if>
 	      <else>

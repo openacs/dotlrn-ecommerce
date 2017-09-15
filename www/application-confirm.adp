@@ -23,7 +23,7 @@
   <a href="home" class="button">#dotlrn-ecommerce.Go_to_My_Account#</a> &nbsp;&nbsp;&nbsp;
 -->
 
-<if @admin_p@>
+<if @admin_p;literal@ true>
     <ul>
       <li> <a
 	  href="admin/process-purchase-course?user_id=@patron_id@">#dotlrn-ecommerce.lt_Purchase_another_Cour#</a> #dotlrn-ecommerce.lt_for_the_current_purch#</li>

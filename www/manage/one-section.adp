@@ -34,7 +34,7 @@
 	</ul>
 <!-- <a href="ecommerce/index?section_id=@section_id@">#dotlrn-ecommerce.Order_Summary#</a> -->
 
-<if @assessment_id@ not nil and @package_admin_p@>
+<if @assessment_id@ not nil and @package_admin_p;literal@ true>
 #dotlrn-ecommerce.lt_Application_assessmen#<br />
 <a href="@assessment_select_url;noquote@" class="button">#dotlrn-ecommerce.Select_1#</a> 
 <a href="@assessment_edit_url;noquote@" class="button">#dotlrn-ecommerce.Edit_Application#</a> 
@@ -43,20 +43,20 @@
 <a href="@assessment_results_url;noquote@" class="button">Results Summary</a>
 </if>
 
-<if @show_public_pages_p@>
+<if @show_public_pages_p;literal@ true>
 <br /><br />
 <h2>#dotlrn-ecommerce.Public_Pages#</h2>
 <include src="/packages/file-storage/lib/folder-admin" folder_id="@section_folder_id@" base_url="@public_pages_url@">
 </if>
 
-<if @attendance_show_p@>
+<if @attendance_show_p;literal@ true>
 <br />
 <h2>#dotlrn-ecommerce.lt_Sessions_and_Attendan#</h2>
 <include src=/packages/attendance/lib/cp-attendance community_id=@community_id@ package_id=@community_package_id@>
 </if>
 
 
-<if @expensetracking_show_p@>
+<if @expensetracking_show_p;literal@ true>
 <h2>#dotlrn-ecommerce.Expense_Tracking#</h2>
 
 <include src=/packages/expense-tracking/lib/cp-expense-tracking community_id=@community_id@ package_id=@community_package_id@>

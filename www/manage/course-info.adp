@@ -4,7 +4,7 @@
 
 <table cellpadding=0 cellspacing=0>
 <if @index@ eq "yes">
-   <if @admin_p@ eq 1>
+   <if @admin_p;literal@ true>
    <div align="left">
         <a href="dt-admin/course-info?course_id=@course_id@&course_name=@name@&course_key=@course_key@&index=yes" title="#dotlrn-catalog.admin_this#"><img border=0 src=images/admin.gif></a> 
    </div>
@@ -57,7 +57,7 @@
     </td>
 </tr>
 </if>
-<if @asm@ not eq #dotlrn-catalog.not_associated# and @package_admin_p@>
+<if @asm@ not eq #dotlrn-catalog.not_associated# and @package_admin_p;literal@ true>
     <tr><td></td>
         <td><b>#dotlrn-catalog.asm#:</b></td><td><a href="@asm_url@">@asm@</a></td>
     </tr>
@@ -123,7 +123,7 @@
 <h3>Sections</h3>
 
 <listtemplate name=section_list></listtemplate>
-<if @package_admin_p@>
+<if @package_admin_p;literal@ true>
 <h3>Email Templates</h3>
 <a href="email-templates?community_id=@template_community_id@">Administer Email Templates</a>
 </if>

@@ -1,7 +1,7 @@
 <master>
 <property name="title">@current_item.title;noquote@</property>
 <property name="blackbackground_p">@blackbackground_p@</property>
-<if @index_p@ true>
+<if @index_p;literal@ true>
 <multiple name="sections">
 <table border=0 cellpadding=0 cellspacing=0>
 <tr><td><div class=darkGreen>@sections.folder_label@</div></td></tr>
@@ -10,7 +10,7 @@
 </table>
 <ul class=greendot>
 <group column="folder_id">
-<li><if @sections.pdf_p@ eq 1><img src="/graphics/csm/acrobat.gif" border=1 style="border-color:#AAA" /></if>
+<li><if @sections.pdf_p;literal@ true><img src="/graphics/csm/acrobat.gif" border=1 style="border-color:#AAA" /></if>
       <a class=whitelink href="@sections.item_path@"><span style="font-size: 10pt">@sections.item_label@</span></a></li>
 </group>
 </ul>

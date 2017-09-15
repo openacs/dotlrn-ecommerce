@@ -7,13 +7,13 @@
   <property name="current_location">shopping-cart</property>
 
   <if @user_id@ ne 0>
-    <if @admin_p@>
+    <if @admin_p;literal@ true>
 	You are processing an order for @first_names@ @last_name@. (To change the purchaser,  
     </if>
     <else>	
     #dotlrn-ecommerce.lt_for_first_names_last_#,
     </else>
-    <a href="<if @admin_p@>../admin/process-purchase-all</if><else>../</else>">#dotlrn-ecommerce.click_here#</a>)
+    <a href="<if @admin_p;literal@ true>../admin/process-purchase-all</if><else>../</else>">#dotlrn-ecommerce.click_here#</a>)
   </if>
 
 <if @suppress_membership_p@ ne 1>
@@ -75,7 +75,7 @@
 	<td>@in_cart.price;noquote@</td>
 	<if @product_counter@ gt 1><td align="right">@in_cart.line_subtotal;noquote@</td>
 	</if>
-	<if @in_cart.has_discount_p@>
+	<if @in_cart.has_discount_p;literal@ true>
 	  <td nowrap>
 	    <form method=post action=offer-code-set>
 	      <input type="hidden" name="user_id" value="@user_id@" />
@@ -119,7 +119,7 @@
 	    <td align="right">@total_reg_shipping_price@</td><td>standard</td>
 	  </tr>
 
-	  <if @offer_express_shipping_p@ true>
+	  <if @offer_express_shipping_p;literal@ true>
 	    <tr>
 	      <if @product_counter@ gt 1>
 		<td colspan="4">
@@ -132,7 +132,7 @@
 	    </tr>
 	  </if>
 
-	  <if @offer_pickup_option_p@ true>
+	  <if @offer_pickup_option_p;literal@ true>
 	    <tr>
 	      <if @product_counter@ gt 1>
 		<td colspan="4">
@@ -177,6 +177,6 @@
 <if @donation_category_id@ not nil>
       <li> <a href="donations?user_id=@user_id@">#dotlrn-ecommerce.Make_a_donation#</a> </li>
 </if>
-      <li> <a href="<if @admin_p@ and @user_id@ ne @viewing_user_id@>../admin/process-purchase-course?user_id=@user_id@</if><else>../</else>">#dotlrn-ecommerce.lt_Purchase__another_Cou#</a> </li>
+      <li> <a href="<if @admin_p;literal@ true and @user_id@ ne @viewing_user_id@>../admin/process-purchase-course?user_id=@user_id@</if><else>../</else>">#dotlrn-ecommerce.lt_Purchase__another_Cou#</a> </li>
     </ul>
   </blockquote>
