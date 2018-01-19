@@ -897,7 +897,8 @@ ad_form -extend -name add_section -validate $validate -on_request {
 	set return_url "one-section?section_id=$section_id"
     }
 
-	ad_returnredirect $return_url
+    ad_returnredirect $return_url
+    ad_script_abort
 }
 
 

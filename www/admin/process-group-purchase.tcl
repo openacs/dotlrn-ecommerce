@@ -152,7 +152,8 @@ ad_form -extend -name process-group \
 #	set referer [export_vars -base [ad_conn package_url]admin/course-info {course_id}]
 
 	ad_returnredirect -message "Added $num_members from $name" [export_vars -base "ecommerce/shopping-cart-add" { product_id { user_id $patron_id } { participant_id $group_id } { item_count $num_members } }]
-#	ad_returnredirect -message "Added $num_members from $name" [export_vars -base membership-add { user_id {user_ids:multiple $new_users} section_id {community_id $section_community_id} referer }]
+	# ad_returnredirect -message "Added $num_members from $name" [export_vars -base membership-add { user_id {user_ids:multiple $new_users} section_id {community_id $section_community_id} referer }]
+	ad_script_abort
     }
 
 set page_title "Add Group to $course_name: $section_name"

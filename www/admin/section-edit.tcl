@@ -136,6 +136,7 @@ ad_form -extend -name section-edit \
 	    set return_url [export_vars -base "course-info" {course_id}]
 	}
 	ad_returnredirect $return_url
+	ad_script_abort
     }
 
 set page_title "Edit Section"

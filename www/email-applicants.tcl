@@ -18,6 +18,7 @@ ad_page_contract {
 
 if {[empty_string_p $rel_id]} {
     ad_returnredirect $return_url
+    ad_script_abort
 }
 
 permission::require_permission -object_id [ad_conn package_id] -privilege admin
@@ -64,4 +65,5 @@ ad_form \
     } \
     -after_submit {
 	ad_returnredirect $return_url
+	ad_script_abort
     }

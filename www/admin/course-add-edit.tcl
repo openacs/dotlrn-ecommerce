@@ -246,4 +246,5 @@ ad_form -extend -name add_course -on_submit {
 	set return_url "course-info?course_id=$revision_id&course_name=$course_name&course_key=$course_key"
     }
     ad_returnredirect "$return_url"
+    ad_script_abort
 }

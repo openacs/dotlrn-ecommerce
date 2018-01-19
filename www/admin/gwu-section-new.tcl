@@ -344,6 +344,7 @@ ad_form -extend -name add_section -new_request {
     category::map_object -remove_old -object_id $community_id $categories
 } -after_submit {
     ad_returnredirect $return_url
+    ad_script_abort
 }
 
 

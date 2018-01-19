@@ -39,6 +39,7 @@ if { ! $sections } {
 	dotlrn_catalog::course_delete -item_id $object_id
     } -after_submit {
 	ad_returnredirect "course-list"
+	ad_script_abort
     }
 
 }
