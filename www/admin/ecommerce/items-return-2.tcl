@@ -162,5 +162,4 @@ append doc_body "
 
     <center><input type=submit value=\"Continue\"></center>"
 
-#doc_return  200 text/html $doc_body
 set context [list [list index Orders] [list one?order_id=$order_id "One Order"] "Refund"]

@@ -157,7 +157,8 @@ set assistant_community_id [parameter::get -package_id [ad_conn package_id] -par
 
 # HAM : Let's check if we have InstructorCommunityId enabled and set
 if { $instructor_community_id == 0 && ![db_0or1row "checkinstructorcommunity" "select community_id from dotlrn_communities where community_id = :instructor_community_id"] } {
-	ad_return_complaint 1 "Parameter InstructorCommunityId is not set or Community Id does not exist."
+    ad_return_complaint 1 "Parameter InstructorCommunityId is not set or Community Id does not exist."
+    ad_script_abort
 } else {
 	# community_id is valid
 	# list users
@@ -177,7 +178,8 @@ if { $instructor_community_id == 0 && ![db_0or1row "checkinstructorcommunity" "s
 
 # HAM : Let's check if we have AssistantCommunityId enabled and set
 if { $assistant_community_id == 0 && ![db_0or1row "checkassistantcommunity" "select community_id from dotlrn_communities where community_id = :assistant_community_id"] } {
-	ad_return_complaint 1 "Parameter AssistantCommunityId is not set or Community Id does not exist."
+    ad_return_complaint 1 "Parameter AssistantCommunityId is not set or Community Id does not exist."
+    ad_script_abort
 } else {
 	# community_id is valid
 	set _assistants [dotlrn_community::list_users  $assistant_community_id]

@@ -20,7 +20,8 @@ set section_package_id [db_string get_package_id "select package_id from dotlrn_
 if {$section_package_id == 0} {
 #    ad_returnnotfound
 #    ad_script_abort
-	ad_return_complaint 1 "section_id '${section_id}' urlv '${urlv}' section_package_id '${section_package_id}'"
+    ad_return_complaint 1 "section_id '${section_id}' urlv '${urlv}' section_package_id '${section_package_id}'"
+    ad_script_abort
 }
 
 set section_community_node_id [site_node::get_node_id_from_object_id -object_id $section_package_id]

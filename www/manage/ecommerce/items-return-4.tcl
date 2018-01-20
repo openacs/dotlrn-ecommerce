@@ -584,5 +584,4 @@ append doc_body "
       <a href=\"index\" class=\"button\">Back to Order Summary</a>&nbsp;&nbsp;<a href=\"one?[export_url_vars order_id]\" class=\"button\">Back to Order $order_id</a>
     </blockquote>"
 
-#doc_return  200 text/html $doc_body
 set context [list [list index Orders] [list one?order_id=$order_id "One Order"] "Refund"]

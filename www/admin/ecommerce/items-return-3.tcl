@@ -298,5 +298,4 @@ append doc_body "
   </center>
 </form>"
 
-#doc_return 200 text/html $doc_body
 set context [list [list index Orders] [list one?order_id=$order_id "One Order"] "Refund"]
