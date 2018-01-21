@@ -107,11 +107,12 @@ db_transaction {
 		(problem_id, problem_date, problem_details, order_id)
 		values
 		(ec_problem_id_sequence.nextval, sysdate, 'We were unable to reinstate the customer''s gift certificate balance because the amount to be reinstated was larger than the original amount used.  This shouldn''t have happened unless there was a programming error or unless the database was incorrectly updated manually.  The voiding of this order has been aborted.', :order_id)"
+
 	    ad_return_error "Gift Certificate Error" "
 		<p>We were unable to reinstate the customer's gift certificate balance because the amount to be reinstated was larger than the original amount used.  
 		  This shouldn't have happened unless there was a programming error or unless the database was incorrectly updated manually.</p>
 		<p>The voiding of this order has been aborted.  This has been logged in the problems log.</p>"
-	    return
+	    ad_script_abort
 	} else {
 
 	    # Go through and reinstate certificates in order; it's not

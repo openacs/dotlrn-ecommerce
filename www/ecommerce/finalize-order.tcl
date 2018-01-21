@@ -460,6 +460,7 @@ if {$hard_goods_cost > 0} {
 		    ad_return_error "Sorry" "
 			<p>There has been an error in the processing of your credit card information.
 			   Please contact <a href=\"mailto:[ec_system_owner]\">[ec_system_owner]</a> to report the error.</p>"
+		    ad_script_abort
 		}
 	    } else {
 
@@ -600,6 +601,7 @@ if {$hard_goods_cost > 0} {
 			ad_return_error "Sorry" "
 			    <p>There has been an error in the processing of your credit card information.
 			       Please contact <a href=\"mailto:[ec_system_owner]\">[ec_system_owner]</a> to report the error.</p>"
+			ad_script_abort
 		    }
 		} elseif { [string equal $result "failed_authorization"] || [string equal $result "no_recommendation"] } {
 		    
@@ -625,6 +627,7 @@ if {$hard_goods_cost > 0} {
 		    ad_return_error "Sorry" "
 			<p>There has been an error in the processing of your credit card information.
 			   Please contact <a href=\"mailto:[ec_system_owner]\">[ec_system_owner]</a> to report the error.</p>"
+		    ad_script_abort
 		}
 	    }
 	}
@@ -739,6 +742,7 @@ if {$hard_goods_cost > 0} {
 		ad_return_error "Sorry" "
 		    <p>There has been an error in the processing of your credit card information.
 		    Please contact <a href=\"mailto:[ec_system_owner]\">[ec_system_owner]</a> to report the error.</p>"
+		ad_script_abort
 	    }
 	}
     }
@@ -886,6 +890,7 @@ if {$hard_goods_cost > 0} {
 		ad_return_error "Sorry" "
 			<p>There has been an error in the processing of your credit card information.
 			   Please contact <a href=\"mailto:[ec_system_owner]\">[ec_system_owner]</a> to report the error.</p>"
+		ad_script_abort
 	    }
 	}
     } else {

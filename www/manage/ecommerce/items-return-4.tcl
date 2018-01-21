@@ -468,7 +468,7 @@ if { $certificate_amount_to_reinstate > 0 } {
 	      to be reinstated was larger than the original amount used.  This shouldn't have happened unless there was a programming error
 	      or unless the database was incorrectly updated manually.</p>
 	    <p>This transaction has been aborted, i.e. no refund has been given to the customer. This has been logged in the problems log.</p>"
-	return
+	ad_script_abort
     }
 
     # Go through and reinstate certificates in order; it's not so bad

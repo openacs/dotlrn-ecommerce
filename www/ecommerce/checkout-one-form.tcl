@@ -55,8 +55,8 @@ if {![ad_secure_conn_p]} {
 
 	set register_url "login?return_url=[ns_urlencode $secure_url]&http_id=$user_id&user_session_id=$user_session_id"
 	ad_returnredirect $register_url
-	ad_script_abort
     }
+    ad_script_abort
 }
 
 source [acs_root_dir]/packages/dotlrn-ecommerce/www/ecommerce/check-shopping-cart.tcl
