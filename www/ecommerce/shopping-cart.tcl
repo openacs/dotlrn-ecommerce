@@ -336,7 +336,7 @@ if { !$shipping_gateway_in_use } {
     if { [string equal $no_shipping_options "f" ] } {
 
         # standard shipping is total_reg_shipping_price
-        set shipping_options "Shipping is addtional:"
+        set shipping_options "Shipping is additional:"
         if { $offer_express_shipping_p } {
             # express shipping is total_exp_shipping_price
             set shipping_options "Shipping is additional, choices are:"
