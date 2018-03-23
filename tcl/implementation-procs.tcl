@@ -409,7 +409,7 @@ ns_log notice "DAVEB  email var list '[array get var_list]'"
 }
 
 ad_proc -callback dotlrn::member_email_available_vars -impl dotlrn-ecommerce {} {
-    List variables avaiable for this template
+    List variables available for this template
 } {
     #FIXME depend on email type??
     # get categories mapped to section?

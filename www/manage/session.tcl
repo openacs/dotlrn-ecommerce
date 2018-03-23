@@ -8,7 +8,7 @@ ad_page_contract {
 
 }
 
-# get mapping to make sure this is an applicaiton for dotlrn-ecommerce
+# get mapping to make sure this is an application for dotlrn-ecommerce
 # section
 set form [ns_getform]
 set session_id [ns_set iget $form session_id]
