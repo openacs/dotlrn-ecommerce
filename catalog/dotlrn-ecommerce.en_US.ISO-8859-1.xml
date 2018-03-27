@@ -227,7 +227,7 @@ If you have any technical issues please contact the &lt;a href=&quot;mailto:%adm
   <msg key="lt_The_following_applica_1">The following applications are already approved:</msg>
   <msg key="lt_The_following_applica_2">The following applications need to be handled separately because a section specific rejection email needs to be sent:</msg>
   <msg key="lt_The_following_has_bee">The following has been sent to the purchaser</msg>
-  <msg key="lt_The_following_users_p">The following users' payment info could not be entered because they are already regsitered for the course.</msg>
+  <msg key="lt_The_following_users_p">The following users' payment info could not be entered because they are already registered for the course.</msg>
   <msg key="lt_The_offer_code_was_ac">The offer code was accepted. You save $savings!</msg>
   <msg key="lt_There_is_no_fee_for_t">There is no fee for this course</msg>
   <msg key="lt_There_was_a_problem_r">There was a problem registering this user</msg>
@@ -248,7 +248,7 @@ If you have any technical issues please contact the &lt;a href=&quot;mailto:%adm
   <msg key="lt_Waiting_List_and_Prer">Waiting List and Prerequisite Applications</msg>
   <msg key="lt_Welcome_to_section_1">%full_name%, welcome to %course_name%. We look forward to a great course.
 
-This course willl be held on:
+This course will be held on:
 
 %sessions%
 
@@ -330,7 +330,7 @@ Instructors:
   <msg key="register">Register for this Course</msg>
   <msg key="Registered_By_Admin">Registered By Admin</msg>
   <msg key="Registration">Registration</msg>
-  <msg key="Regsitered_By_Admin">Regsitered By Admin</msg>
+  <msg key="Regsitered_By_Admin">Registered By Admin</msg>
   <msg key="Regular_Price">Regular Price</msg>
   <msg key="Reject">Reject</msg>
   <msg key="Reject_1">Waiver of prerequitsites rejected</msg>
@@ -354,7 +354,7 @@ Instructors:
   <msg key="Section_Name">Section Name</msg>
   <msg key="Section_Quick_Jump">Section Quick Jump</msg>
   <msg key="Section_Starts_After">Section Starts After</msg>
-  <msg key="Section_Starts_Before">Secion Starts Before</msg>
+  <msg key="Section_Starts_Before">Section Starts Before</msg>
   <msg key="Select">a payment method</msg>
   <msg key="Select_1">Select Different Application</msg>
   <msg key="Send">Send test email to yourself</msg>

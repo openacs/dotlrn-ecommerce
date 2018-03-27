@@ -104,8 +104,8 @@ if { [ad_form_new_p -key section_id] } {
     
     # HAM :
     # Flush the section info from cache
-    # we use to do it after edit, but 
-    # i think we need to do this everytime we visit this page
+    # we use to do it after edit, but
+    # i think we need to do this every time we visit this page
     dotlrn_ecommerce::section::flush_cache $section_id
 }
 

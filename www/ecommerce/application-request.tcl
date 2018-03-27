@@ -134,7 +134,7 @@ if { [empty_string_p $assessment_id] || $assessment_id == -1 || $type == "full" 
 	as::assessment::data -assessment_id $assessment_id
 	
 	# This shouldn't fail and the assessment must exist, if for some
-	# reason it doesn't, the redirects bellow shall not include the
+	# reason it doesn't, the redirects below shall not include the
 	# session_id and not error out, a new session will be created by
 	# the assessment code
 	if { [info exists assessment_data(assessment_id)] } {

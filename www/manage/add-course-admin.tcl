@@ -1,5 +1,5 @@
 ad_page_contract {
-    Add a user to the admin relational segement
+    Add a user to the admin relational segment
 } {
     object_id
     userkey:multiple
