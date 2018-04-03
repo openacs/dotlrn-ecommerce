@@ -28,7 +28,7 @@ set enable_applications_p [parameter::get -package_id [ad_conn package_id] -para
 # Check for create permissions over dotlrn-catalog package
 permission::require_permission -party_id $user_id -object_id $cc_package_id -privilege "create"
 
-if { [info exist mode] } {
+if { [info exists mode] } {
     if { [string equal $mode 1] } {
 	permission::require_permission -object_id $course_id -privilege "admin"
     } 

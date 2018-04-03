@@ -33,7 +33,7 @@ if { [string equal [lindex [lindex $tree_list 0] 1] "dotlrn-course-catalog"] } {
 }
 
 if { [acs_user::site_wide_admin_p] } {
-    if { [info exist keyword] } {
+    if { [info exists keyword] } {
 	set query get_course_info_site_wide_keyword
 	set paginator_query site_wide_paginator_keyword
     } else {
@@ -41,7 +41,7 @@ if { [acs_user::site_wide_admin_p] } {
 	set paginator_query site_wide_paginator
     }
 } else {
-    if { [info exist keyword] } {
+    if { [info exists keyword] } {
 	set query get_course_info_keyword
 	set paginator_query site_wide_paginator_keyword
     } else {

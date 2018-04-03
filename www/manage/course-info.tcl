@@ -51,7 +51,7 @@ if { ![info exists to_index] } {
     set to_index ""
 }
 
-if { [info exist return_url] } {
+if { [info exists return_url] } {
     set return_url $return_url
 } else {
     set return_url "course-info?course_id=$course_id&course_name=$name&course_key=$course_key"
