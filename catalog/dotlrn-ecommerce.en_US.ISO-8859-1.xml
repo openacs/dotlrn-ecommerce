@@ -123,7 +123,7 @@
   <msg key="lt_Application_approval_">Application approval (default &lt;i&gt;Note: this is customizable on a per section basis&lt;/i&gt;)</msg>
   <msg key="lt_Application_approval__1">Application approval (granted spot from waiting list)</msg>
   <msg key="lt_Application_approval__2">Application approval (waiver of prerequisites approved)</msg>
-  <msg key="lt_Application_assessmen">Application: %assessment_data.html_title;noquote%</msg>
+  <msg key="lt_Application_assessment">Application: %assessment_data.html_title;noquote%</msg>
   <msg key="lt_Application_Confirmed">Waiting list request confirmed</msg>
   <msg key="lt_Applications_that_can">Applications that can be approved now</msg>
   <msg key="lt_Applications_that_can_1">Applications that can be approved immediately</msg>

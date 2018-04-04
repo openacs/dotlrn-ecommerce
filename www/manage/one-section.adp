@@ -35,7 +35,7 @@
 <!-- <a href="ecommerce/index?section_id=@section_id@">#dotlrn-ecommerce.Order_Summary#</a> -->
 
 <if @assessment_id@ not nil and @package_admin_p;literal@ true>
-#dotlrn-ecommerce.lt_Application_assessmen#<br />
+#dotlrn-ecommerce.lt_Application_assessment#<br />
 <a href="@assessment_select_url;noquote@" class="button">#dotlrn-ecommerce.Select_1#</a> 
 <a href="@assessment_edit_url;noquote@" class="button">#dotlrn-ecommerce.Edit_Application#</a> 
 
