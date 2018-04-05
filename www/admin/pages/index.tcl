@@ -1,5 +1,5 @@
 ad_page_contract {
-    Publically viewable pages
+    Publicly viewable pages
     stored in file-storage that belongs to a section
 } -query {
 
