@@ -323,7 +323,7 @@ lappend validate {notify_waiting_number
 if { [info exists template_calendar_id] } {
     set sessions_list [db_list_of_lists sessions { }]
 } else {
-    set sessions_list [list]
+    set sessions_list {}
 }
 
 if { [llength $sessions_list] } {
@@ -333,7 +333,7 @@ if { [llength $sessions_list] } {
 }
 
 if { ! [info exists sessions] || ![llength $sessions] } {
-    set sessions [list]
+    set sessions {}
     
     # allow setting start/end date if there aren't sessions predefined
     # DAVEB 20070112 Adding active_state_date and active_end_date 

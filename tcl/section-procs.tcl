@@ -87,14 +87,14 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
     if { ! [db_0or1row session_type {  }] } {
 	set item_type_id [calendar::item_type_new -calendar_id $calendar_id -type "Session"]
     }
-    set text_sessions [list]
-    array set arr_sessions [list]
+    set text_sessions {}
+    array set arr_sessions {}
     db_foreach sessions { } {
 	lappend arr_sessions(${month}_${timestart}_${timeend}_${startampm}_${endampm}) $day
 	lappend arr_sessions_sort(${month}_${timestart}_${timeend}_${startampm}_${endampm}) [clock scan $datenum]
     }
 
-    set days [list]
+    set days {}
     foreach times [array names arr_sessions] {
 	set times [split $times _]
 	set month [lindex $times 0]
@@ -135,7 +135,7 @@ ad_proc -public dotlrn_ecommerce::section::sessions {
 
     # Sort dates
     set _text_sessions [lsort -index end $text_sessions]
-    set text_sessions [list]
+    set text_sessions {}
     foreach _text_session $_text_sessions {
 	lappend text_sessions [join [lrange $_text_session 0 2]]
     }
@@ -194,7 +194,7 @@ ad_proc -public dotlrn_ecommerce::section::flush_cache {
     }
     set instructor_community_id [parameter::get -package_id [ad_conn package_id] -parameter InstructorCommunityId -default 0 ]
     set _instructors [dotlrn_community::list_users $instructor_community_id]
-    set __instructors [list]
+    set __instructors {}
     if { [llength $_instructors] == 0 } {
 	set _instructors 0
     } else {
@@ -650,7 +650,7 @@ ad_proc -public dotlrn_ecommerce::section::fs_chunk {
     set section_folder_id [dotlrn_ecommerce::section::get_public_folder_id $section_id]
     set section_pages_url "pages/${section_id}/"
     set __adp_stub ""
-    set __adp_include_optional_output [list]
+    set __adp_include_optional_output {}
 
     return [template::adp_include "/packages/dotlrn-ecommerce/lib/fs-chunk" [list section_folder_id $section_folder_id section_pages_url $section_pages_url]]
 
