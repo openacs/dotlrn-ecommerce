@@ -158,7 +158,7 @@ db_foreach order_details_select "
 		    set lowest_price [lindex [ec_lowest_price_and_price_name_for_an_item $product_id $user_id $offer_code] 0]
 		}
 	    }
-            set option_list [list]
+            set option_list {}
 	    if { ![empty_string_p $color_choice] } {
 	        lappend option_list "Color: $color_choice"
 	    }
@@ -445,7 +445,7 @@ set state_options [linsert [db_list_of_lists states {
     select state_name, abbrev from us_states order by state_name
 }] 0 {"Select a state" ""}]
 
-set validate [list]
+set validate {}
 
 ad_form -name checkout -export {billing_address_id shipping_address_id user_id participant_id} -form {
     {bill_to_first_names:text {label "First name(s)"} {html {size 40}}}
@@ -535,7 +535,7 @@ if { [empty_string_p [set payment_methods [parameter::get -parameter PaymentMeth
 }
 
 set method_count 0
-set new_payment_methods [list]
+set new_payment_methods {}
 foreach payment_method [split $payment_methods] {
     set _payment_method [split $payment_method :]
     if { [llength $_payment_method] == 2 } {

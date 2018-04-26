@@ -51,8 +51,8 @@ set filter_list [list category_f]
 set form [rp_getform]
 
 set category_trees [concat [category_tree::get_mapped_trees $cc_package_id] [category_tree::get_mapped_trees $package_id]]
-set course_categories [list]
-set section_categories [list]
+set course_categories {}
+set section_categories {}
 
 foreach tree [category_tree::get_mapped_trees $cc_package_id] {
     set tree_name [lindex $tree 1]
@@ -135,7 +135,7 @@ foreach tree_id $category_trees {
     db_1row get_tree_name { }
 
     # Create a list of values for the list filter
-    set $name [list]
+    set $name {}
 
     foreach element $tree_list {
 	if { ! $show_used_categories_only_p || [lsearch $used_categories [lindex $element 0]] != -1 } {
@@ -211,7 +211,7 @@ foreach tree $category_trees {
 set instructor_community_id [parameter::get -package_id [ad_conn package_id] -parameter InstructorCommunityId -default 0 ]
 set _instructors [dotlrn_community::list_users $instructor_community_id]
 
-set __instructors [list]
+set __instructors {}
 if { [llength $_instructors] == 0 } {
     set _instructors 0
     set instructors_filter ""
@@ -265,7 +265,7 @@ if { ![exists_and_not_null show_hidden] || $show_hidden ne "t" } {
     set show_hidden_not_exists_clause ""
 }
 
-set actions [list]
+set actions {}
 if {$show_filters_p} {
     lappend actions "[_ dotlrn-ecommerce.View_All]" ? "[_ dotlrn-ecommerce.View_All]"
 
@@ -615,8 +615,8 @@ db_multirow -unclobber -extend {toggle_display_url patron_message member_state f
 
 	set instructors [util_memoize [list dotlrn_ecommerce::section::instructors $community_id $__instructors] $memoize_max_age]
 	
-	set instructor_names [list]
-	set instructor_ids [list]
+	set instructor_names {}
+	set instructor_ids {}
     set bios_present_p 0
 	foreach instructor $instructors {
 	    lappend instructor_names [lindex $instructor 1]

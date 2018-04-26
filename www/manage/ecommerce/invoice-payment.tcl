@@ -28,7 +28,7 @@ set user_id [db_string order_owner {
 set form [rp_getform]
 ns_set delkey $form creditcard_expires
 
-set validate [list]
+set validate {}
 
 set billing_address_id [db_list get_billing_address_id "
         select address_id
@@ -51,7 +51,7 @@ if { [empty_string_p [set payment_methods [parameter::get -parameter PaymentMeth
 }
 
 set method_count 0
-set new_payment_methods [list]
+set new_payment_methods {}
 foreach payment_method [split $payment_methods] {
     set _payment_method [split $payment_method :]
     if { [llength $_payment_method] == 2 } {
