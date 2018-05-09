@@ -84,7 +84,7 @@ if { [llength $patron_list] == 1 } {
     ns_set put $form __refreshing_p 0
 }
 
-set validate {}
+set validate [list]
 
 if { ( [empty_string_p $patron] || [llength $patron_list] == 1 ) && ! $patron_id } {
     ad_form -name "patron" -export { {patron_id 0} } -form {

@@ -78,7 +78,7 @@ if { $participant_id } {
     dotlrn_ecommerce::check_user -user_id $participant_id
 }
 
-set validate {}
+set validate [list]
 
 # Search course or section
 set section_list [linsert [db_list_of_lists sections {

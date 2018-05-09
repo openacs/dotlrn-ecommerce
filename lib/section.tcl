@@ -41,7 +41,7 @@ dotlrn_catalog::get_course_data -course_id $course_id
 #set item_id [dotlrn_catalog::get_item_id -revision_id $course_id]
 
 set package_id [ad_conn package_id]
-set validate {}
+set validate [list]
 set show_price_option_p [dotlrn_ecommerce::util::param::get -default 1 ShowPriceOptionP]
 
 catch {
@@ -163,7 +163,7 @@ if { $instructor_community_id == 0 && ![db_0or1row "checkinstructorcommunity" "s
 	# community_id is valid
 	# list users
 	set _instructors [dotlrn_community::list_users  $instructor_community_id]
-	set instructors_list {}
+	set instructors_list [list]
 	foreach instructor $_instructors {
 	    set instructor_user_id [ns_set get $instructor user_id]
 	    set instructor_name "[ns_set get $instructor first_names] [ns_set get $instructor last_name]"
@@ -183,7 +183,7 @@ if { $assistant_community_id == 0 && ![db_0or1row "checkassistantcommunity" "sel
 } else {
 	# community_id is valid
 	set _assistants [dotlrn_community::list_users  $assistant_community_id]
-	set assistants_list {}
+	set assistants_list [list]
 	foreach assistant $_assistants {
 		set assistant_user_id [ns_set get $assistant user_id]
 		set assistant_name "[ns_set get $assistant first_names] [ns_set get $assistant last_name]"
@@ -228,7 +228,7 @@ if { ! [ad_form_new_p -key section_id] } {
 }
 
 
-set tree_options {}
+set tree_options [list]
 if { [parameter::get -package_id [ad_conn package_id] -parameter GradePrerequisitesP -default 1 ] } {
 	db_foreach prerequisites {
 	select tree_id
@@ -323,7 +323,7 @@ lappend validate {notify_waiting_number
 if { [info exists template_calendar_id] } {
     set sessions_list [db_list_of_lists sessions { }]
 } else {
-    set sessions_list {}
+    set sessions_list [list]
 }
 
 if { [llength $sessions_list] } {
@@ -333,7 +333,7 @@ if { [llength $sessions_list] } {
 }
 
 if { ! [info exists sessions] || ![llength $sessions] } {
-    set sessions {}
+    set sessions [list]
     
     # allow setting start/end date if there aren't sessions predefined
     # DAVEB 20070112 Adding active_state_date and active_end_date 

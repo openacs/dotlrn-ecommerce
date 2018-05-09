@@ -87,8 +87,8 @@ if { [empty_string_p [set payment_methods [parameter::get -parameter PaymentMeth
 }
 
 set method_count 0
-set new_payment_methods {}
-set validate {}
+set new_payment_methods [list]
+set validate [list]
 foreach payment_method [split $payment_methods] {
     set _payment_method [split $payment_method :]
     if { [llength $_payment_method] == 2 } {

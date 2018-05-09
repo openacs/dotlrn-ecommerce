@@ -38,7 +38,7 @@ if { [exists_and_not_null terms_f] } { append currently_viewing ", Terms"}
 if { [exists_and_not_null zone_f] } { append currently_viewing ", Zone"}
 if { [exists_and_not_null zone_f] } { append currently_viewing ", Instructor"}
 
-set calendar_id_list {}
+set calendar_id_list [list]
 
 set package_id [ad_conn package_id]
 set user_id [ad_conn user_id]
@@ -63,8 +63,8 @@ set filter_list [list category_f]
 set form [rp_getform]
 
 set category_trees [concat [category_tree::get_mapped_trees $cc_package_id] [category_tree::get_mapped_trees $package_id]]
-set course_categories {}
-set section_categories {}
+set course_categories [list]
+set section_categories [list]
 
 foreach tree [category_tree::get_mapped_trees $cc_package_id] {
     set tree_name [lindex $tree 1]
@@ -160,7 +160,7 @@ foreach tree_id $category_trees {
     }
 
     # Create a list of values for the list filter
-    set $name {}
+    set $name [list]
 
     foreach element $tree_list {
 	if { ! $show_used_categories_only_p || [lsearch $used_categories [lindex $element 0]] != -1 } {
@@ -317,7 +317,7 @@ db_multirow course_list get_courses { } {
 
 set date 
 set item_template "one-section?cal_item_id=\$item_id"
-set export {}
+set export [list]
 foreach {name discard} $filters {
     lappend export $name
 }
