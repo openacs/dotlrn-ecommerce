@@ -346,7 +346,7 @@ if { [value_if_exists order_id] < 1 || [ad_var_type_check_number_p $order_id] ==
 # (this is double click protection).  If they want to update
 # quantities, they can do so from the shopping cart page.  
 
-# Bart Teeuwisse: Fine tuned the postgresql version to only reject
+# Bart Teeuwisse: Fine tuned the PostgreSQL version to only reject
 # items that were added to the shopping cart in the last 5 seconds.
 # That should be enough to protect from double clicks yet provides a
 # more intuitive user experience.

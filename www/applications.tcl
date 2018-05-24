@@ -383,7 +383,7 @@ ad_form -extend -name as_search -form {
     ad_script_abort
 }
 
-set list_filters [concat $list_filters $search_arr(list_filters)]
+lappend list_filters {*}$search_arr(list_filters)
 
 #lappend list_filters csv_p {
 #    label "[_ dotlrn-ecommerce.Export]"
@@ -694,7 +694,7 @@ if {$csv_p == 1} {
 		    }
 		}
 		# add his assessment revision to the list 
-		# so that we dont query it again
+		# so that we don't query it again
 		lappend assessment_rev_id_list $assessment_rev_id
 	    }
 
