@@ -85,7 +85,7 @@
 
 	<h2>#dotlrn-ecommerce.Your_Order_History#</h2>
 	<ul class="action-links">
-	  <if @orders:rowcount@ gt 0>
+	  <if @orders:rowcount;literal@ gt 0>
 	    <multiple name="orders">
 	      <li><a href="@orders.order_url;noquote@">@orders.order_id@</a>; @orders.confirmed_date@</li>
 	    </multiple>
@@ -131,7 +131,7 @@
       </if>
 	<h2>#dotlrn-ecommerce.Your_Waiting_Lists#</h2>
 	
-	<if @waiting_lists:rowcount@ gt 0>
+	<if @waiting_lists:rowcount;literal@ gt 0>
 	  <ul class="action-links">
 	    <multiple name="waiting_lists">
 	      <li> @waiting_lists.pretty_name@ <if @user_id@ ne @waiting_lists.participant_id@>(@waiting_lists.name@) </if> 

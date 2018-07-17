@@ -2,7 +2,7 @@
   
   <blockquote>
     
-    <if @refunds:rowcount@ gt 0>
+    <if @refunds:rowcount;literal@ gt 0>
       <multiple name="refunds">
 	<group column="refund_id">
 	  <if @refunds.rownum@ gt 1>

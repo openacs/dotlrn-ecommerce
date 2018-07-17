@@ -17,7 +17,7 @@
 
 	<h2>#dotlrn-ecommerce.Order_History#</h2>
 	<ul class="action-links">
-	  <if @orders:rowcount@ gt 0>
+	  <if @orders:rowcount;literal@ gt 0>
 	    <multiple name="orders">
 	      <li><a href="@orders.order_url;noquote@">@orders.order_id@</a>; @orders.confirmed_date@</li>
 	    </multiple>

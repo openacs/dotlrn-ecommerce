@@ -28,7 +28,7 @@
 <h3>#dotlrn-ecommerce.Order_list#</h3>
  @items_ul;noquote@
 
-<if @scholarships:rowcount@ gt 0>
+<if @scholarships:rowcount;literal@ gt 0>
     <h3>#dotlrn-ecommerce.Scholarships#</h3>
     <multiple name="scholarships">
       @scholarships.title@; Amount Granted @scholarships.pretty_grant_amount@<if @scholarships.grant_amount@ gt @scholarships.available@>; Available @scholarships.pretty_available@</if><br />

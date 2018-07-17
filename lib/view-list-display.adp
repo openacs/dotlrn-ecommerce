@@ -19,7 +19,7 @@
           </form>
 
 
-<if @items:rowcount@ gt 0>
+<if @items:rowcount;literal@ gt 0>
         
 <table class="cal-table-display" border=0 cellspacing=0 cellpadding=2>
   <tr class="cal-table-header">

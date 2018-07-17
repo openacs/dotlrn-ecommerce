@@ -20,7 +20,7 @@
 	</else>
       </else>
     </else>
-    <if @relations:rowcount@ gt 0>
+    <if @relations:rowcount;literal@ gt 0>
       <p />
       <h3>
 	<if @admin_p;literal@ true>

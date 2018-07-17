@@ -53,7 +53,7 @@
     <p />
   </if>
 
-  <if @financial_transactions:rowcount@ gt 0>
+  <if @financial_transactions:rowcount;literal@ gt 0>
     <table border>
       <tr>
 	<th>ID</th>

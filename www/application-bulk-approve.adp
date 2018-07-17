@@ -1,7 +1,7 @@
 <master>
   <property name="title">#dotlrn-ecommerce.lt_Bulk_Approve_Applicat#</property>
 
-  <if @applications:rowcount@ gt 0>
+  <if @applications:rowcount;literal@ gt 0>
     #dotlrn-ecommerce.lt_Approve_the_following#
     <p />
     <ul>
@@ -15,7 +15,7 @@
 
   <p />
 
-  <if @todo:rowcount@ gt 0>
+  <if @todo:rowcount;literal@ gt 0>
     #dotlrn-ecommerce.lt_The_following_applica#
     <ul>
       <multiple name="todo">
@@ -36,7 +36,7 @@
 
   <p />
 
-  <if @approved:rowcount@ gt 0>
+  <if @approved:rowcount;literal@ gt 0>
     #dotlrn-ecommerce.lt_The_following_applica_1#
     <p />
     <ul>

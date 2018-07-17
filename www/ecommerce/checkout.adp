@@ -10,7 +10,7 @@
 
     <blockquote>
       <table>
-	<if @addresses:rowcount@ ne 0>
+	<if @addresses:rowcount;literal@ ne 0>
 	  <p>Select an address listed below or enter a new address.</p>
 	</if>
 	<multiple name="addresses">
