@@ -21,5 +21,5 @@ aa_register_case -cats api util_param_get_default {
                          -default $param_default \
                          $param_name]
     aa_true "Correct default '${param_value}' matches '${param_default}'" \
-        [expr {$param_default eq $param_value}]
+        {$param_default eq $param_value}
 } 
