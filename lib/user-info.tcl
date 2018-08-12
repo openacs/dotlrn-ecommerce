@@ -24,7 +24,7 @@ if { ![exists_and_not_null return_url] } {
 
 set action_url "[subsite::get_element -element url]user/basic-info-update"
 
-acs_user::get -user_id $user_id -array user -include_bio
+acs_user::get -user_id $user_id -array user
 
 set authority_name [auth::authority::get_element -authority_id $user(authority_id) -element pretty_name]
 

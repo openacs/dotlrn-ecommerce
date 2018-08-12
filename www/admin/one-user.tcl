@@ -23,7 +23,7 @@ ad_page_contract {
     pvt_home_url:onevalue
 }
 
-acs_user::get -array user -include_bio -user_id $user_id
+acs_user::get -array user -user_id $user_id
 
 set account_status [ad_conn account_status]
 set login_url [ad_get_login_url]
