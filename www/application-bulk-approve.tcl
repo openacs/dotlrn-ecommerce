@@ -22,7 +22,7 @@ ad_page_contract {
 }
 
 #If we come from a "Submit2" command, we must not send the emails.
-if { [exists_and_equal submit2 "[_ dotlrn-ecommerce.Approve_no_email]"] } {
+if {[info exists submit2] && $submit2 eq "[_ dotlrn-ecommerce.Approve_no_email]"} {
     set send_email_p 0
 }
 

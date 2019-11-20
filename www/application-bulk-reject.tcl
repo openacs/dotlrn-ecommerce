@@ -145,7 +145,7 @@ if { [template::multirow size applications] > 0 } {
 		set email_user_id $patron_id
 	    }
 	    
-	    if { ! [exists_and_equal submit2 "[_ dotlrn-ecommerce.Reject_Only]"] } {
+	    if { ![info exists submit2] || $submit2 ne "[_ dotlrn-ecommerce.Reject_Only]" } {
 		
 		set to_email [cc_email_from_party $email_user_id]
 		set actor_email [cc_email_from_party $actor_id]

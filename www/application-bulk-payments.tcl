@@ -159,7 +159,7 @@ if { $method_count > 1 } {
 	{method:text(radio) {label "[_ dotlrn-ecommerce.Select]"} {options {$method_options}}}
     }
 
-    if { [exists_and_equal internal_account_p 1] } {
+    if { [info exists internal_account_p] && $internal_account_p == 1 } {
 	ad_form -extend -name applications -form {
 	    {internal_account:text,optional {label "[_ dotlrn-ecommerce.Internal_Account]"}}
 	}

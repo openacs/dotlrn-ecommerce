@@ -20,7 +20,7 @@ ad_page_contract {
 } -errors {
 }
 
-if { [exists_and_equal submit2 "[_ dotlrn-ecommerce.Reject_Only]"] } {
+if { [info exists submit2] && $submit2 eq "[_ dotlrn-ecommerce.Reject_Only]" } {
     set send_email_p 0
 }
 

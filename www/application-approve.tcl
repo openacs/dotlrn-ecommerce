@@ -20,7 +20,7 @@ ad_page_contract {
 }
 
 
-if { [exists_and_equal submit1 "[_ dotlrn-ecommerce.Approve]"] } {
+if { [info exists submit1] && $submit1 eq "[_ dotlrn-ecommerce.Approve]" } {
     set send_email_p 1
 }
 

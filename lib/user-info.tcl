@@ -51,7 +51,7 @@ set focus "user_info.$first_element"
 set edit_mode_p [expr ![empty_string_p [form::get_action user_info]]]
 
 set form_mode display
-if { [exists_and_equal edit_p 1] } {
+if {[info exists edit_p] && $edit_p == 1} {
     set form_mode edit
 }
 
@@ -184,7 +184,7 @@ if { $user_type == "participant" } {
     }
 }
     
-if { [exists_and_equal edit_p 1] } {
+if {[info exists edit_p] && $edit_p == 1} {
     ad_form -extend -name user_info -form {
 	{add:text(submit) {label "[_ dotlrn-ecommerce.Proceed]"}}
 	{cancel:text(submit) {label "[_ dotlrn-ecommerce.Cancel]"}}

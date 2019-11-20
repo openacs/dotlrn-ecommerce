@@ -216,7 +216,7 @@ set shipping_gateway [ad_parameter ShippingGateway ecommerce]
 set shipping_gateway_in_use [acs_sc_binding_exists_p ShippingGateway $shipping_gateway]
 
 # below was:  if info exists no_shipping_avail_p && string equal $no_shipping_avail_p "f"
-if { [exists_and_equal shipping_required "t"] } {
+if { [info exists shipping_required] && $shipping_required eq "t" } {
 
     if { $shipping_gateway_in_use} {
 
@@ -606,7 +606,7 @@ if { $method_count > 1 } {
 	{method:text(radio) {label "[_ dotlrn-ecommerce.Select]"} {options {$method_options}}}
     }
 
-    if { [exists_and_equal internal_account_p 1] } {
+    if { [info exists internal_account_p] && $internal_account_p == 1 } {
 	ad_form -extend -name checkout -form {
 	    {internal_account:text,optional {label "[_ dotlrn-ecommerce.Internal_Account]"}}
 	}
@@ -711,7 +711,7 @@ ad_form -extend -name checkout -form {
     ad_script_abort
 }
 
-if { [exists_and_equal shipping_required "t"] } {
+if { [info exists shipping_required] && $shipping_required eq "t" } {
     # prepare shipping address
     
     set address_type "shipping"
@@ -855,7 +855,7 @@ set gift_certificate_p [ad_parameter -package_id [ec_id] SellGiftCertificatesP e
 #    set bill_to_phone_time [ad_quotehtml $bill_to_phone_time]
 #    cannot quote bill_to_state_widget [ad_quotehtml $state_widget]
 
-if { [exists_and_equal shipping_required "t"] } {
+if { [info exists shipping_required] && $shipping_required eq "t" } {
     #    set ship_to_first_names [ad_quotehtml $ship_to_first_names]
     #    set ship_to_last_name [ad_quotehtml $ship_to_last_name]
 
