@@ -1,9 +1,9 @@
 # packages/dotlrn-ecommerce/tcl/implementation-procs.tcl
 
 ad_library {
-    
+
     Callback implementations
-    
+
     @author Roel Canicula (roelmc@pldtdsl.net)
     @creation-date 2005-05-19
     @arch-tag: 776140e1-a8e8-4d30-84a7-46d8bf054187
@@ -19,19 +19,19 @@ ad_proc -public dotlrn_ecommerce::registration::new {
     -suppress_patron_email:boolean
 } {
     Register user to community
-    
+
     @author Roel Canicula (roelmc@pldtdsl.net)
     @creation-date 2005-09-25
-    
+
     @param user_id
 
     @param patron_id
 
     @param community_id
 
-    @return 
-    
-    @error 
+    @return
+
+    @error
 } {
     dotlrn_community::add_user $community_id $user_id
     dotlrn_community::send_member_email \
@@ -45,7 +45,7 @@ ad_proc -public dotlrn_ecommerce::registration::new {
 	     $patron_id != $user_id } {
 
 	ns_log Notice "sending email to patron_id $patron_id for user_id $user_id"
-	
+
 	# if they are the participant, then
 	# they will get the welcome email for the community
 	dotlrn_community::send_member_email \
@@ -154,7 +154,7 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 		where product_id = :product_id
 	    } {
 		ns_log notice "dotlrn-ecommerce callback: Adding user $user_id to community $community_id"
-		
+
 		if { ![empty_string_p $community_id] && [catch {
 
 		    if { ! [exists_and_not_null patron_id] } {
@@ -185,7 +185,7 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 			  from ec_items
 			  where order_id = :order_id)
     }
-    
+
     ns_log notice "dotlrn-ecommerce callback: Run successfully"
 }
 
@@ -292,7 +292,7 @@ ad_proc -callback dotlrn::default_member_email -impl dotlrn-ecommerce {
     and cr.live_revision=dc.course_id" -default ""]
 
     if {[string equal "" $course_community_id] && $community_id ne ""} {
-	return -code continue	
+	return -code continue
     } elseif {[db_0or1row get_email "select from_addr,subject,email, community_id as email_community_id from dotlrn_member_emails where type=:type and community_id=coalesce(:course_community_id,:community_id)"]} {
 	# course or section specific templat exists
 	if {$course_community_id eq $email_community_id} {
@@ -305,7 +305,7 @@ ad_proc -callback dotlrn::default_member_email -impl dotlrn-ecommerce {
 	# community_id is null is a customized site wide default exists
 	set email_from ""
         return -code return [list $from_addr $subject "$email $body_extra" $email_from]
-			    
+
     } else {
 	# site wide default has not been edited
 	set subject_key_trim [lindex [split [dotlrn_ecommerce::email_type_message_key -type $type -key subject] "."] 1]
@@ -337,7 +337,7 @@ ad_proc -callback dotlrn::member_email_var_list -impl dotlrn-ecommerce {} {
 	set var_list(first_name) $user(first_names)
 	set var_list(last_name) $user(last_name)
 	set var_list(full_name) $user(name)
-		      
+
     }
     if {![string equal "" $community_id]} {
 	set community_url [dotlrn_community::get_community_url $community_id]
@@ -367,7 +367,7 @@ if { [llength $_instructors] == 0 } {
     }
 }
 	set instructors [util_memoize [list dotlrn_ecommerce::section::instructors $community_id $__instructors]]
-	
+
 	set instructor_names [list]
 	set instructor_ids [list]
 	foreach instructor $instructors {
@@ -413,7 +413,7 @@ ad_proc -callback dotlrn::member_email_available_vars -impl dotlrn-ecommerce {} 
 } {
     #FIXME depend on email type??
     # get categories mapped to section?
-    
+
     set available_vars [list "%first_name%" "Participant's First Name" "%last_name%" "Participant's Last Name" "%full_name%" "Participant's Full Name" "%sessions%" "Dates and times of sessions" "%community_name%" "Name of section" "%community_url%" "URL of the section page in the form http://example.com/" "%community_link%" "HTML link to section, ie: &lt;a href=\"http://example.com\"&gt;%community_name%&lt;/a&gt;" "%instructor_names%" "List of instructors names" "%course_name%" "Name of the course" "%section_name%" "Name of the section"]
 
 	set course_id [db_string get_course_id "select course_id from dotlrn_ecommerce_section where community_id=:community_id" -default ""]
@@ -468,7 +468,7 @@ namespace eval dotlrn_ecommerce {}
 ad_proc -private dotlrn_ecommerce::fs_flush_cache {
     -package_id
 } {
-    Flush cache for a package_id 
+    Flush cache for a package_id
 } {
     set dotlrn_package_id [site_node::closest_ancestor_package \
 			       -node_id [site_node::get_node_id_from_object_id -object_id $package_id] \
