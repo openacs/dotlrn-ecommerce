@@ -222,7 +222,7 @@ regsub -all { +} $bill_to_first_names " " bill_to_first_names
 regsub -all { +} $bill_to_last_name " " bill_to_last_name
 set bill_to_attn "[string trim $bill_to_first_names]   [string trim $bill_to_last_name]"
 
-if { [value_if_exists billing_address_id] > 0} {
+if { [expr {[info exists billing_address_id] ? $billing_address_id : ""}] > 0} {
 
     # This is an existing address that might have been edited
 

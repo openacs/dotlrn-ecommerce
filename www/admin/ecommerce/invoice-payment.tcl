@@ -216,8 +216,8 @@ ad_form -extend -name checkout -validate $validate  -form {} -on_request {
     } else {
 	set billing_address_id 0 
 	# no previous billing address, set defaults
-	set bill_to_first_names [value_if_exists first_names]
-	set bill_to_last_name [value_if_exists last_name]
+	set bill_to_first_names [expr {[info exists first_names] ? $first_names : ""}]
+	set bill_to_last_name [expr {[info exists last_name] ? $last_name : ""}]
 
 	set bill_to_line1 ""
 	set bill_to_line2 ""

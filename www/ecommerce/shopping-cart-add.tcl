@@ -306,7 +306,7 @@ set order_id [db_string get_order_id "
 # order_id to be the empty string (if it is, log the error and
 # redirect them to product.tcl).
 
-if { [value_if_exists order_id] < 1 || [ad_var_type_check_number_p $order_id] == 0 } {
+if { [expr {[info exists order_id] ? $order_id : ""}] < 1 || [ad_var_type_check_number_p $order_id] == 0 } {
     set order_id [db_nextval ec_order_id_sequence]
   
     # Create the order (if an in_basket order *still* doesn't exist)
