@@ -86,7 +86,7 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 } {
     set checkout_user_id [ad_conn user_id]
 
-    if { [exists_and_not_null patron_id] } {
+    if { [info exists patron_id] && $patron_id ne "" } {
 	dotlrn_ecommerce::check_user -user_id $patron_id
     }
 
@@ -100,7 +100,7 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 	group by i.product_id, o.patron_id, o.participant_id, t.method, v.maxparticipants, i.item_id
     } {
 	if { [empty_string_p $participant_id] } {
-	    if { [exists_and_not_null user_id] } {
+	    if { [info exists user_id] && $user_id ne "" } {
 		set participant_id $user_id
 	    } else {
 		continue
@@ -120,7 +120,7 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 	    set user_ids [list $participant_id]
 	}
 
-	if { [exists_and_not_null saved_patron_id] } {
+	if { [info exists saved_patron_id] && $saved_patron_id ne "" } {
 	    dotlrn_ecommerce::check_user -user_id $saved_patron_id
 	}
 
@@ -157,7 +157,7 @@ ad_proc -callback ecommerce::after-checkout -impl dotlrn-ecommerce {
 
 		if { ![empty_string_p $community_id] && [catch {
 
-		    if { ! [exists_and_not_null patron_id] } {
+		    if { ![info exists patron_id] || $patron_id eq "" } {
 			set patron_id  $saved_patron_id
 		    }
 
