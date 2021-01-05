@@ -353,11 +353,11 @@ begin
         ''dotlrn_community'', 
 	null, 
         0,
-	null,
+	null::integer,
         ''user'',
 	''teaching_assistant'',
         0,
-	null
+	null::integer
     );
 
     perform acs_rel_type__create_type (
@@ -370,11 +370,11 @@ begin
         ''dotlrn_ecom_instructor_rel'',
         ''dotlrn_community'', null, 
         0, 
-	null,
+	null::integer,
         ''user'', 
 	''instructor'',
         0, 
-	null
+	null::integer
     );
     
     return 0;
