@@ -129,21 +129,17 @@ if { $enable_applications_p } {
     }
 }
 
-##{<input type="button" style="height:23px; width:23px; background: url('/resources/acs-templating/calendar.gif');" onclick ="return showCalendarWithDateWidget('date', 'y-m-d');" /> \[<b>[_ calendar.y-m-d]</b>\]}
-
 lappend filters {"[_ dotlrn-ecommerce.Already_Registered]" "approved"}
 set list_filters [subst {
     date_after {
 	label "[_ dotlrn-ecommerce.Section_Starts_After]"
 	values {}
 	where_clause { active_start_date > :date_after }
-	form_element_properties {after_html {<input type="button" style="height:23px; width:23px; background: url('/resources/acs-templating/calendar.gif');" onclick ="return showCalendarWithDefault('date_after','','y-m-d');"/> <b>y-m-d</b>}}
     }
     date_before {
 	label "[_ dotlrn-ecommerce.Section_Starts_Before]"
 	values {}
 	where_clause { active_start_date < :date_before }
-	form_element_properties {after_html {<input type="button" style="height:23px; width:23px; background: url('/resources/acs-templating/calendar.gif');" onclick ="return showCalendarWithDefault('date_before', null,'y-m-d');"/> <b>y-m-d</b>}}
     }
     type {
 	label "[_ dotlrn-ecommerce.Type_of_Request]"
@@ -151,6 +147,11 @@ set list_filters [subst {
 	where_clause { member_state = :type }
     }
 }]
+
+template::add_body_handler -event load -script {
+    document.querySelector('#date_after').setAttribute('type', 'date');
+    document.querySelector('#date_before').setAttribute('type', 'date');
+}
 
 if {![info exists section_identifier]} {
   set section_identifier "null"
