@@ -332,6 +332,9 @@ if { [llength $sessions_list] } {
     }
 }
 
+::template::head::add_javascript \
+    -src /resources/acs-templating/calendar.js
+
 if { ! [info exists sessions] || ![llength $sessions] } {
     set sessions [list]
     
