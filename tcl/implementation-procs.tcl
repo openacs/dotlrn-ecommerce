@@ -302,12 +302,12 @@ ad_proc -callback dotlrn::default_member_email -impl dotlrn-ecommerce {
 	}
         return -code return [list $from_addr $subject "$email $body_extra" $email_from]
     } elseif {[db_0or1row get_email "select from_addr,subject,email, community_id as email_community_id from dotlrn_member_emails where type=:type and community_id is null"]} {
-	# community_id is null is a customized site wide default exists
+	# community_id is null is a customized site-wide default exists
 	set email_from ""
         return -code return [list $from_addr $subject "$email $body_extra" $email_from]
 
     } else {
-	# site wide default has not been edited
+	# site-wide default has not been edited
 	set subject_key_trim [lindex [split [dotlrn_ecommerce::email_type_message_key -type $type -key subject] "."] 1]
 	set email_key_trim [lindex [split [dotlrn_ecommerce::email_type_message_key -type $type -key body] "."] 1]
 	set subject ""

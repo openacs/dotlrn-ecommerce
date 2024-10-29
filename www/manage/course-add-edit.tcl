@@ -169,7 +169,7 @@ ad_form -extend -name add_course -on_submit {
     }
 
     # add email template defaults
-    # we will fall back to the site wide defaults instead
+    # we will fall back to the site-wide defaults instead
     
     if { [exists_and_not_null assessment_id] } {
 	# Make sure assessment permissions are properly set
