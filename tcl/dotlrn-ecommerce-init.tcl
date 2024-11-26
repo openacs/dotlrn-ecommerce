@@ -25,4 +25,4 @@ if { [parameter::get -parameter AllowAheadAccess -package_id [apm_package_id_fro
     dotlrn_ecommerce::disallow_access_to_approved_users
 }
 
-ns_register_adptag "deparam" "/deparam" dotlrn_ecommerce::util::param
+ns_adp_registerscript "deparam" "/deparam" dotlrn_ecommerce::util::param
