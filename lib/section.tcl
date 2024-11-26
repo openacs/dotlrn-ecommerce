@@ -908,7 +908,7 @@ ad_form -extend -name add_section -validate $validate -on_request {
 
 
 
-# Used by en_US version of new_class_instance message
+# "class_instances_pretty_name" is used by en_US version of new_class_instance message
 set class_instances_pretty_name [parameter::get -localize -parameter class_instances_pretty_name]
-set f [rp_getform]
-ns_set print $f
+#set f [rp_getform]
+#ns_set print $f
